@@ -170,7 +170,7 @@ export default function VoiceAssistant() {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-            Sarcastic AI Assistant
+            Assistant Bob
           </h1>
           <p className="text-lg text-slate-300">
             Oh great, another human who needs my help. How delightful.
@@ -180,9 +180,9 @@ export default function VoiceAssistant() {
         {/* Main Voice Interface */}
         <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Voice Interface</CardTitle>
+                <CardTitle className="text-2xl text-center">Voice Interface</CardTitle>
             <CardDescription className="text-center">
-              Click the microphone to speak. I'll try not to roll my eyes.
+              Click the microphone to speak. Bob will try not to roll his eyes.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -238,7 +238,7 @@ export default function VoiceAssistant() {
                 )}
                 {currentResponse && (
                   <div className="space-y-1">
-                    <p className="text-sm font-semibold text-pink-400">Sarcastic Response:</p>
+                    <p className="text-sm font-semibold text-pink-400">Bob's Response:</p>
                     <p className="text-slate-200 italic">{currentResponse}</p>
                   </div>
                 )}
@@ -269,7 +269,7 @@ export default function VoiceAssistant() {
                         <p className="text-slate-300">{conv.userMessage}</p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-sm font-semibold text-pink-400">Assistant:</p>
+                        <p className="text-sm font-semibold text-pink-400">Bob:</p>
                         <p className="text-slate-300 italic">{conv.assistantResponse}</p>
                       </div>
                     </div>

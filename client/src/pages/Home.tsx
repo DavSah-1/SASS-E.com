@@ -47,10 +47,10 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <div className="space-y-4">
             <h1 className="text-6xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600">
-              Your Sarcastic AI Assistant
+              Meet Assistant Bob
             </h1>
             <p className="text-2xl text-slate-300">
-              Because you clearly need help, and I'm here to provide it... with style.
+              Your sarcastic AI companion. Because you clearly need help, and I'm here to provide it... with style.
             </p>
           </div>
 
@@ -141,7 +141,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-purple-500/20 bg-slate-900/50 backdrop-blur mt-20">
         <div className="container mx-auto px-6 py-8 text-center text-slate-400">
-          <p>Built with sarcasm and AI. © 2025 Sarcastic AI Assistant</p>
+          <p>Built with sarcasm and AI. © 2025 Assistant Bob</p>
         </div>
       </footer>
     </div>
