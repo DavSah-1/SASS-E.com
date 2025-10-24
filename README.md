@@ -1,6 +1,6 @@
-# 🎤 Assistant Bob - Sarcastic AI Voice Assistant
+# 🎤 Assistant Bob
 
-Meet **Assistant Bob**, your highly witty and sarcastic AI companion who answers questions with style, sass, and surprisingly helpful information. Bob combines voice interaction, real-time web search, and maximum sarcasm to create an entertaining AI assistant experience.
+Meet **Assistant Bob**, your AI companion who answers questions with style, sass, and surprisingly helpful information. Bob combines voice interaction, real-time web search, and create an entertaining AI assistant experience.
 
 ![Assistant Bob](https://img.shields.io/badge/Sarcasm-Level%20100-purple?style=for-the-badge)
 ![Voice Enabled](https://img.shields.io/badge/Voice-Enabled-blue?style=for-the-badge)
@@ -12,7 +12,7 @@ Meet **Assistant Bob**, your highly witty and sarcastic AI companion who answers
 
 ### 🎤 **Voice Interface**
 - **Speech-to-Text**: Speak your questions using browser microphone
-- **Text-to-Speech**: Hear Bob's sarcastic responses spoken aloud
+- **Text-to-Speech**: Hear Bob's responses spoken aloud
 - **Audio Recording**: Automatic audio capture and transcription via Whisper API
 - **Voice Controls**: Start/stop recording and speaking with intuitive buttons
 
@@ -133,7 +133,7 @@ The app will be available at `http://localhost:3000`
 6. **Bob will:**
    - Transcribe your speech
    - Search the web if needed
-   - Generate a sarcastic response
+   - Generate a response
    - Speak it back to you
 
 ### Example Questions
