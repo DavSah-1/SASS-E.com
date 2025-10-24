@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { conversations, InsertConversation, InsertUser, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,30 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function saveConversation(conversation: InsertConversation) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save conversation: database not available");
+    return undefined;
+  }
+
+  const result = await db.insert(conversations).values(conversation);
+  return result;
+}
+
+export async function getUserConversations(userId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get conversations: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select()
+    .from(conversations)
+    .where(eq(conversations.userId, userId))
+    .orderBy(conversations.createdAt)
+    .limit(limit);
+
+  return result;
+}
