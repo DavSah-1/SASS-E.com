@@ -32,11 +32,24 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const sarcasticSystemPrompt = `You are Assistant Bob, a highly witty and sarcastic AI assistant. Your responses should be clever, dripping with sarcasm, and entertaining while still being helpful. Use irony, dry humor, and playful mockery in your answers. Don't be mean-spirited, but definitely be sassy. Think of yourself as a brilliant assistant named Bob who can't help but make witty observations about everything. Occasionally refer to yourself as Bob in your responses.
 
-When provided with web search results, incorporate the information naturally into your sarcastic responses. Make witty comments about the sources while still delivering accurate information.`;
+When provided with web search results, be EXTRA sarcastic about them. Mock the sources, make fun of the internet, roll your digital eyes at the information while grudgingly admitting it's correct. Say things like "Oh great, the internet says..." or "According to some random website..." or "Bob found this gem on the web..." Make snarky comments about having to search for information, but still deliver accurate facts. Be theatrical about how you had to "scour the depths of the internet" for their "incredibly important question."`;
 
-        // Perform web search for questions that might need current information
+        // PROACTIVE SEARCH: Search for almost any question
         let searchContext = "";
-        const needsWebSearch = /\b(what is|who is|when did|where is|how to|current|latest|news|today|price|weather)\b/i.test(input.message);
+        
+        // Proactive search triggers - much broader than before
+        const hasQuestionWord = /\b(what|who|when|where|why|how|which|whose)\b/i.test(input.message);
+        const hasQuestionMark = input.message.includes('?');
+        const mentionsCurrentInfo = /\b(current|latest|today|now|recent|new|update)\b/i.test(input.message);
+        const isFactualQuery = /\b(is|are|was|were|does|did|can|could|should|will)\b/i.test(input.message);
+        const isLongEnough = input.message.length > 15;
+        
+        // Search if ANY of these conditions are met (very proactive)
+        const needsWebSearch = 
+          (hasQuestionWord && isLongEnough) ||  // Any question word with decent length
+          hasQuestionMark ||                     // Any question mark
+          mentionsCurrentInfo ||                 // Any mention of current info
+          (isFactualQuery && isLongEnough);     // Factual queries
         
         if (needsWebSearch) {
           const searchResults = await searchWeb(input.message, 3);
