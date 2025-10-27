@@ -2,9 +2,12 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
+import { usePWA } from "@/hooks/usePWA";
+import { Download } from "lucide-react";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
+  const { isInstallable, isInstalled, installApp } = usePWA();
 
   if (loading) {
     return (
@@ -26,6 +29,12 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-4">
+            {isInstallable && !isInstalled && (
+              <Button onClick={installApp} variant="outline" size="sm" className="gap-2">
+                <Download className="h-4 w-4" />
+                Install App
+              </Button>
+            )}
             {isAuthenticated ? (
               <>
                 <span className="text-sm text-slate-300">Welcome, {user?.name || 'Human'}</span>
