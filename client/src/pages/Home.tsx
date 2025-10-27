@@ -155,7 +155,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-purple-500/20 bg-slate-900/50 backdrop-blur mt-20">
         <div className="container mx-auto px-6 py-8 text-center text-slate-400">
-          <p>Built with sarcasm and AI. © 2025 Assistant Bob</p>
+          <p>Built with Human and AI. © 2025 Assistant Bob</p>
         </div>
       </footer>
     </div>
