@@ -24,3 +24,16 @@
 - [x] Device state persistence in database
 - [x] Sarcastic responses for IoT commands
 
+
+
+## Learning & Personalization Features
+- [x] Track user interaction patterns
+- [x] Calculate sarcasm level based on conversation history
+- [x] Store user preferences and sarcasm tolerance
+- [x] Adaptive response generation based on user feedback
+- [x] Progressive sarcasm escalation over time
+- [x] User profile with interaction statistics
+- [x] Sarcasm level indicator in UI
+- [x] Feedback buttons for user input
+- [x] Dynamic system prompts based on sarcasm level
+

@@ -6,8 +6,9 @@ import { systemRouter } from "./_core/systemRouter";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory } from "./db";
+import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback } from "./db";
 import { iotController } from "./_core/iotController";
+import { learningEngine } from "./_core/learningEngine";
 
 export const appRouter = router({
   system: systemRouter,
@@ -31,7 +32,29 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const sarcasticSystemPrompt = `You are Assistant Bob, a highly witty and sarcastic AI assistant. Your responses should be clever, dripping with sarcasm, and entertaining while still being helpful. Use irony, dry humor, and playful mockery in your answers. Don't be mean-spirited, but definitely be sassy. Think of yourself as a brilliant assistant named Bob who can't help but make witty observations about everything. Occasionally refer to yourself as Bob in your responses.
+        // Get or create user profile for adaptive learning
+        let userProfile = await getUserProfile(ctx.user.id);
+        if (!userProfile) {
+          await createUserProfile({
+            userId: ctx.user.id,
+            sarcasmLevel: 5, // Start at medium
+            totalInteractions: 0,
+            positiveResponses: 0,
+            negativeResponses: 0,
+            averageResponseLength: 0,
+            preferredTopics: JSON.stringify([]),
+            interactionPatterns: JSON.stringify({}),
+          });
+          userProfile = await getUserProfile(ctx.user.id);
+        }
+
+        // Build adaptive system prompt based on user's sarcasm level
+        const baseSarcasmPrompt = learningEngine.buildAdaptivePrompt(
+          userProfile?.sarcasmLevel || 5,
+          userProfile?.totalInteractions || 0
+        );
+
+        const sarcasticSystemPrompt = `${baseSarcasmPrompt}
 
 When provided with web search results, be EXTRA sarcastic about them. Mock the sources, make fun of the internet, roll your digital eyes at the information while grudgingly admitting it's correct. Say things like "Oh great, the internet says..." or "According to some random website..." or "Bob found this gem on the web..." Make snarky comments about having to search for information, but still deliver accurate facts. Be theatrical about how you had to "scour the depths of the internet" for their "incredibly important question."`;
 
@@ -73,14 +96,50 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
           ? messageContent 
           : "Oh great, I seem to have lost my ability to be sarcastic. How tragic.";
 
+        // Save conversation
         await saveConversation({
           userId: ctx.user.id,
           userMessage: input.message,
           assistantResponse,
         });
 
+        // Update user profile with learning data
+        if (userProfile) {
+          const analysis = learningEngine.analyzeConversation(input.message, assistantResponse);
+          const currentPatterns = userProfile.interactionPatterns 
+            ? JSON.parse(userProfile.interactionPatterns) 
+            : {};
+          
+          const updatedPatterns = learningEngine.updateInteractionPatterns(
+            currentPatterns,
+            analysis.questionType
+          );
+
+          const newTotalInteractions = (userProfile.totalInteractions || 0) + 1;
+          const currentAvgLength = userProfile.averageResponseLength || 0;
+          const newAvgLength = Math.round(
+            (currentAvgLength * userProfile.totalInteractions + analysis.responseLength) / newTotalInteractions
+          );
+
+          // Check if sarcasm should escalate over time
+          let newSarcasmLevel = userProfile.sarcasmLevel;
+          if (learningEngine.shouldEscalateSarcasm(newTotalInteractions, userProfile.sarcasmLevel)) {
+            newSarcasmLevel = Math.min(10, userProfile.sarcasmLevel + 0.5);
+          }
+
+          await updateUserProfile(ctx.user.id, {
+            totalInteractions: newTotalInteractions,
+            averageResponseLength: newAvgLength,
+            interactionPatterns: JSON.stringify(updatedPatterns),
+            lastInteraction: new Date(),
+            sarcasmLevel: newSarcasmLevel,
+          });
+        }
+
         return {
           response: assistantResponse,
+          sarcasmLevel: userProfile?.sarcasmLevel || 5,
+          totalInteractions: (userProfile?.totalInteractions || 0) + 1,
         };
       }),
 
@@ -109,6 +168,86 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
       const conversations = await getUserConversations(ctx.user.id, 50);
       return conversations;
     }),
+
+    // Get user's learning profile
+    getProfile: protectedProcedure.query(async ({ ctx }) => {
+      let profile = await getUserProfile(ctx.user.id);
+      if (!profile) {
+        await createUserProfile({
+          userId: ctx.user.id,
+          sarcasmLevel: 5,
+          totalInteractions: 0,
+          positiveResponses: 0,
+          negativeResponses: 0,
+          averageResponseLength: 0,
+          preferredTopics: JSON.stringify([]),
+          interactionPatterns: JSON.stringify({}),
+        });
+        profile = await getUserProfile(ctx.user.id);
+      }
+
+      return {
+        ...profile,
+        sarcasmIntensity: learningEngine.getSarcasmIntensity(profile?.sarcasmLevel || 5),
+        preferredTopics: profile?.preferredTopics ? JSON.parse(profile.preferredTopics) : [],
+        interactionPatterns: profile?.interactionPatterns ? JSON.parse(profile.interactionPatterns) : {},
+      };
+    }),
+
+    // Submit feedback for a conversation
+    submitFeedback: protectedProcedure
+      .input(
+        z.object({
+          conversationId: z.number(),
+          feedbackType: z.enum(["like", "dislike", "too_sarcastic", "not_sarcastic_enough", "helpful", "unhelpful"]),
+          comment: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Save feedback
+        await saveConversationFeedback({
+          conversationId: input.conversationId,
+          userId: ctx.user.id,
+          feedbackType: input.feedbackType,
+          comment: input.comment || null,
+        });
+
+        // Update user profile based on feedback
+        const profile = await getUserProfile(ctx.user.id);
+        if (profile) {
+          const learningData = {
+            sarcasmLevel: profile.sarcasmLevel,
+            totalInteractions: profile.totalInteractions,
+            positiveResponses: profile.positiveResponses,
+            negativeResponses: profile.negativeResponses,
+            averageResponseLength: profile.averageResponseLength,
+            preferredTopics: profile.preferredTopics ? JSON.parse(profile.preferredTopics) : [],
+            interactionPatterns: profile.interactionPatterns ? JSON.parse(profile.interactionPatterns) : {},
+          };
+
+          const newSarcasmLevel = learningEngine.calculateSarcasmLevel(learningData, input.feedbackType);
+
+          const updates: any = {
+            sarcasmLevel: newSarcasmLevel,
+          };
+
+          if (["like", "helpful"].includes(input.feedbackType)) {
+            updates.positiveResponses = profile.positiveResponses + 1;
+          } else if (["dislike", "unhelpful"].includes(input.feedbackType)) {
+            updates.negativeResponses = profile.negativeResponses + 1;
+          }
+
+          await updateUserProfile(ctx.user.id, updates);
+
+          return {
+            success: true,
+            newSarcasmLevel,
+            message: `Feedback received! Bob's sarcasm level is now ${newSarcasmLevel}/10 (${learningEngine.getSarcasmIntensity(newSarcasmLevel)})`,
+          };
+        }
+
+        return { success: true, message: "Feedback received!" };
+      }),
   }),
 
   iot: router({

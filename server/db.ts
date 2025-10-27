@@ -226,3 +226,80 @@ export async function getDeviceCommandHistory(deviceId: string, limit: number = 
   return result;
 }
 
+
+
+// User Profile and Learning Functions
+
+import { InsertUserProfile, userProfiles, InsertConversationFeedback, conversationFeedback } from "../drizzle/schema";
+
+export async function getUserProfile(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user profile: database not available");
+    return undefined;
+  }
+
+  const result = await db
+    .select()
+    .from(userProfiles)
+    .where(eq(userProfiles.userId, userId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUserProfile(profile: InsertUserProfile) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create user profile: database not available");
+    return undefined;
+  }
+
+  const result = await db.insert(userProfiles).values(profile);
+  return result;
+}
+
+export async function updateUserProfile(userId: number, updates: Partial<InsertUserProfile>) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update user profile: database not available");
+    return undefined;
+  }
+
+  const result = await db
+    .update(userProfiles)
+    .set({
+      ...updates,
+      updatedAt: new Date(),
+    })
+    .where(eq(userProfiles.userId, userId));
+
+  return result;
+}
+
+export async function saveConversationFeedback(feedback: InsertConversationFeedback) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save feedback: database not available");
+    return undefined;
+  }
+
+  const result = await db.insert(conversationFeedback).values(feedback);
+  return result;
+}
+
+export async function getConversationFeedback(conversationId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get feedback: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select()
+    .from(conversationFeedback)
+    .where(eq(conversationFeedback.conversationId, conversationId));
+
+  return result;
+}
+

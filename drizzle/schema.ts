@@ -80,3 +80,39 @@ export const iotCommandHistory = mysqlTable("iot_command_history", {
 
 export type IoTCommandHistory = typeof iotCommandHistory.$inferSelect;
 export type InsertIoTCommandHistory = typeof iotCommandHistory.$inferInsert;
+
+/**
+ * User Profile table for personalization and learning
+ */
+export const userProfiles = mysqlTable("user_profiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  sarcasmLevel: int("sarcasmLevel").default(5).notNull(), // 1-10 scale
+  totalInteractions: int("totalInteractions").default(0).notNull(),
+  positiveResponses: int("positiveResponses").default(0).notNull(), // User liked the response
+  negativeResponses: int("negativeResponses").default(0).notNull(), // User disliked the response
+  averageResponseLength: int("averageResponseLength").default(0).notNull(),
+  preferredTopics: text("preferredTopics"), // JSON array of topics
+  interactionPatterns: text("interactionPatterns"), // JSON object with patterns
+  lastInteraction: timestamp("lastInteraction"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsertUserProfile = typeof userProfiles.$inferInsert;
+
+/**
+ * Conversation Feedback table for learning
+ */
+export const conversationFeedback = mysqlTable("conversation_feedback", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  userId: int("userId").notNull(),
+  feedbackType: mysqlEnum("feedbackType", ["like", "dislike", "too_sarcastic", "not_sarcastic_enough", "helpful", "unhelpful"]).notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ConversationFeedback = typeof conversationFeedback.$inferSelect;
+export type InsertConversationFeedback = typeof conversationFeedback.$inferInsert;
