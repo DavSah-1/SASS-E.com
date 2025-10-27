@@ -59,7 +59,7 @@ export default function Home() {
               Meet Assistant Bob
             </h1>
             <p className="text-2xl text-slate-300">
-              Your sarcastic AI companion. Because you clearly need help, and I'm here to provide it... with style.
+              Your AI companion. Because you clearly need help, and I'm here to provide it.
             </p>
           </div>
 
@@ -90,7 +90,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-slate-300">
-                  Speak your questions and hear my witty responses. Because typing is so last century.
+                  Speak your questions and hear my responses. Because typing is so last century.
                 </p>
               </CardContent>
             </Card>
@@ -98,7 +98,7 @@ export default function Home() {
             <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  😏 Highly Witty
+                  😏 Highly Clever(ish)
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -135,7 +135,7 @@ export default function Home() {
               </div>
               <div className="space-y-2">
                 <div className="text-4xl font-bold text-pink-400">2</div>
-                <h3 className="text-xl font-semibold text-slate-200">Get Sarcastic Response</h3>
+                <h3 className="text-xl font-semibold text-slate-200">Get Response</h3>
                 <p className="text-slate-400">
                   I'll process your query and deliver a witty, helpful answer that'll make you smile.
                 </p>
