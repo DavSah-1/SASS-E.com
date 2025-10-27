@@ -56,9 +56,14 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             {isAuthenticated ? (
-              <Button asChild size="lg" className="text-lg px-8 py-6">
-                <a href="/assistant">🎤 Start Voice Chat</a>
-              </Button>
+              <>
+                <Button asChild size="lg" className="text-lg px-8 py-6">
+                  <a href="/assistant">🎤 Start Voice Chat</a>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="text-lg px-8 py-6 border-purple-500 text-purple-300 hover:bg-purple-900/50">
+                  <a href="/devices">🏠 IoT Devices</a>
+                </Button>
+              </>
             ) : (
               <Button asChild size="lg" className="text-lg px-8 py-6">
                 <a href={getLoginUrl()}>Get Started Free</a>

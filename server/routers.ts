@@ -6,7 +6,8 @@ import { systemRouter } from "./_core/systemRouter";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getUserConversations, saveConversation } from "./db";
+import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory } from "./db";
+import { iotController } from "./_core/iotController";
 
 export const appRouter = router({
   system: systemRouter,
@@ -108,6 +109,177 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
       const conversations = await getUserConversations(ctx.user.id, 50);
       return conversations;
     }),
+  }),
+
+  iot: router({
+    // List all user's IoT devices
+    listDevices: protectedProcedure.query(async ({ ctx }) => {
+      const devices = await getUserIoTDevices(ctx.user.id);
+      return devices.map(device => ({
+        ...device,
+        state: device.state ? JSON.parse(device.state) : {},
+        capabilities: device.capabilities ? JSON.parse(device.capabilities) : {},
+        connectionConfig: device.connectionConfig ? JSON.parse(device.connectionConfig) : {},
+      }));
+    }),
+
+    // Add a new IoT device
+    addDevice: protectedProcedure
+      .input(
+        z.object({
+          deviceId: z.string(),
+          deviceName: z.string(),
+          deviceType: z.enum(["light", "thermostat", "plug", "switch", "sensor", "lock", "camera", "speaker", "other"]),
+          manufacturer: z.string().optional(),
+          model: z.string().optional(),
+          connectionType: z.enum(["mqtt", "http", "websocket", "local"]),
+          connectionConfig: z.record(z.string(), z.any()),
+          capabilities: z.record(z.string(), z.any()).optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        await addIoTDevice({
+          userId: ctx.user.id,
+          deviceId: input.deviceId,
+          deviceName: input.deviceName,
+          deviceType: input.deviceType,
+          manufacturer: input.manufacturer,
+          model: input.model,
+          connectionType: input.connectionType,
+          connectionConfig: JSON.stringify(input.connectionConfig),
+          capabilities: JSON.stringify(input.capabilities || {}),
+          state: JSON.stringify({}),
+          status: "offline",
+        });
+
+        return { success: true, message: "Device added successfully" };
+      }),
+
+    // Control a device with voice command
+    controlDevice: protectedProcedure
+      .input(
+        z.object({
+          deviceId: z.string(),
+          command: z.string(), // Natural language command
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const device = await getIoTDeviceById(input.deviceId);
+        if (!device) {
+          throw new Error("Device not found");
+        }
+
+        if (device.userId !== ctx.user.id) {
+          throw new Error("Unauthorized");
+        }
+
+        // Parse natural language command
+        const iotCommand = iotController.parseNaturalLanguageCommand(
+          input.command,
+          device.deviceType
+        );
+
+        if (!iotCommand) {
+          // Use LLM to generate sarcastic response about not understanding
+          const sarcasticPrompt = `You are Assistant Bob. The user tried to control a ${device.deviceType} named "${device.deviceName}" with this command: "${input.command}". You couldn't understand what they want. Respond sarcastically about their unclear command while asking them to be more specific.`;
+          
+          const response = await invokeLLM({
+            messages: [{ role: "user", content: sarcasticPrompt }],
+          });
+
+          return {
+            success: false,
+            message: response.choices[0]?.message?.content || "Bob couldn't understand that command.",
+          };
+        }
+
+        // Execute the command
+        const connectionConfig = device.connectionConfig
+          ? JSON.parse(device.connectionConfig)
+          : {};
+        
+        const result = await iotController.executeCommand(
+          device.deviceId,
+          iotCommand,
+          device.connectionType,
+          connectionConfig
+        );
+
+        // Update device state in database
+        if (result.success && result.newState) {
+          const currentState = device.state ? JSON.parse(device.state) : {};
+          const updatedState = { ...currentState, ...result.newState };
+          await updateIoTDeviceState(device.deviceId, JSON.stringify(updatedState), "online");
+        }
+
+        // Save command history
+        await saveIoTCommand({
+          userId: ctx.user.id,
+          deviceId: device.deviceId,
+          command: iotCommand.action,
+          parameters: JSON.stringify(iotCommand.parameters || {}),
+          status: result.success ? "success" : "failed",
+          errorMessage: result.success ? null : result.message,
+        });
+
+        // Generate sarcastic response from Bob
+        const sarcasticPrompt = `You are Assistant Bob. The user just controlled a ${device.deviceType} named "${device.deviceName}" with the command "${input.command}". The command ${result.success ? "succeeded" : "failed"}. Respond sarcastically about their IoT command while confirming what happened.`;
+        
+        const bobResponse = await invokeLLM({
+          messages: [{ role: "user", content: sarcasticPrompt }],
+        });
+
+        return {
+          success: result.success,
+          message: bobResponse.choices[0]?.message?.content || result.message,
+          newState: result.newState,
+        };
+      }),
+
+    // Get device status
+    getDeviceStatus: protectedProcedure
+      .input(z.object({ deviceId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const device = await getIoTDeviceById(input.deviceId);
+        if (!device || device.userId !== ctx.user.id) {
+          throw new Error("Device not found");
+        }
+
+        return {
+          ...device,
+          state: device.state ? JSON.parse(device.state) : {},
+          capabilities: device.capabilities ? JSON.parse(device.capabilities) : {},
+        };
+      }),
+
+    // Delete a device
+    deleteDevice: protectedProcedure
+      .input(z.object({ deviceId: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const device = await getIoTDeviceById(input.deviceId);
+        if (!device || device.userId !== ctx.user.id) {
+          throw new Error("Device not found");
+        }
+
+        await deleteIoTDevice(input.deviceId);
+        return { success: true, message: "Device deleted successfully" };
+      }),
+
+    // Get command history for a device
+    getCommandHistory: protectedProcedure
+      .input(z.object({ deviceId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const device = await getIoTDeviceById(input.deviceId);
+        if (!device || device.userId !== ctx.user.id) {
+          throw new Error("Device not found");
+        }
+
+        const history = await getDeviceCommandHistory(input.deviceId, 50);
+        return history.map(cmd => ({
+          ...cmd,
+          parameters: cmd.parameters ? JSON.parse(cmd.parameters) : {},
+        }));
+      }),
   }),
 });
 
