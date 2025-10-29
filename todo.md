@@ -62,3 +62,6 @@
 ## Bug Fixes
 - [x] Fixed IoT Devices navigation route from /iot to /devices across all pages
 
+
+- [x] Updated footer text to "Built with Human and A.I." (added periods to A.I.)
+
