@@ -183,7 +183,7 @@ export default function VoiceAssistant() {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-            Assistant Bob
+            Agent Bob
           </h1>
           <p className="text-lg text-slate-300">
             Oh great, another human who needs my help. How delightful.

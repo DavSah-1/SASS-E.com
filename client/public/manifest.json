@@ -1,6 +1,6 @@
 {
-  "name": "Assistant Bob - Sarcastic AI Assistant",
-  "short_name": "Assistant Bob",
+  "name": "Agent Bob - Sarcastic AI Assistant",
+  "short_name": "Agent Bob",
   "description": "Your voice-activated AI assistant with a witty personality",
   "start_url": "/",
   "display": "standalone",

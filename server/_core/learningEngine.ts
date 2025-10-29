@@ -1,5 +1,5 @@
 /**
- * Learning Engine for Assistant Bob
+ * Learning Engine for Agent Bob
  * Tracks user interactions and adapts sarcasm level over time
  */
 
@@ -69,7 +69,7 @@ export class LearningEngine {
     const intensity = this.getSarcasmIntensity(sarcasmLevel);
     const experienceBonus = totalInteractions > 50 ? " You've been dealing with this particular human for a while now, so you know their quirks." : "";
 
-    const basePrompt = `You are Assistant Bob, a sarcastic AI assistant. Your current sarcasm level is ${sarcasmLevel}/10 (${intensity}).${experienceBonus}`;
+    const basePrompt = `You are Agent Bob, a sarcastic AI assistant. Your current sarcasm level is ${sarcasmLevel}/10 (${intensity}).${experienceBonus}`;
 
     // Adjust personality based on sarcasm level
     if (sarcasmLevel <= 3) {

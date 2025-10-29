@@ -320,7 +320,7 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
 
         if (!iotCommand) {
           // Use LLM to generate sarcastic response about not understanding
-          const sarcasticPrompt = `You are Assistant Bob. The user tried to control a ${device.deviceType} named "${device.deviceName}" with this command: "${input.command}". You couldn't understand what they want. Respond sarcastically about their unclear command while asking them to be more specific.`;
+          const sarcasticPrompt = `You are Agent Bob. The user tried to control a ${device.deviceType} named "${device.deviceName}" with this command: "${input.command}". You couldn't understand what they want. Respond sarcastically about their unclear command while asking them to be more specific.`;
           
           const response = await invokeLLM({
             messages: [{ role: "user", content: sarcasticPrompt }],
@@ -362,7 +362,7 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
         });
 
         // Generate sarcastic response from Bob
-        const sarcasticPrompt = `You are Assistant Bob. The user just controlled a ${device.deviceType} named "${device.deviceName}" with the command "${input.command}". The command ${result.success ? "succeeded" : "failed"}. Respond sarcastically about their IoT command while confirming what happened.`;
+        const sarcasticPrompt = `You are Agent Bob. The user just controlled a ${device.deviceType} named "${device.deviceName}" with the command "${input.command}". The command ${result.success ? "succeeded" : "failed"}. Respond sarcastically about their IoT command while confirming what happened.`;
         
         const bobResponse = await invokeLLM({
           messages: [{ role: "user", content: sarcasticPrompt }],
