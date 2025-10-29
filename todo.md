@@ -57,3 +57,8 @@
 - [x] Implement menu toggle functionality
 - [x] Style menu items consistently with app theme
 
+
+
+## Bug Fixes
+- [x] Fixed IoT Devices navigation route from /iot to /devices across all pages
+
