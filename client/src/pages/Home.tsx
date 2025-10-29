@@ -24,11 +24,11 @@ export default function Home() {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             {APP_LOGO && <img src={APP_LOGO} alt={APP_TITLE} className="h-8 w-8" />}
-            <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+            <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{fontSize: '15px', marginRight: '24px'}}>
               {APP_TITLE}
             </span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4" style={{width: '195px', height: '58px'}}>
             {isInstallable && !isInstalled && (
               <Button onClick={installApp} variant="outline" size="sm" className="gap-2">
                 <Download className="h-4 w-4" />
@@ -37,9 +37,9 @@ export default function Home() {
             )}
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-slate-300">Welcome, {user?.name || 'Human'}</span>
+                <span className="text-sm text-slate-300" style={{fontSize: '10px'}}>Welcome, {user?.name || 'Human'}</span>
                 <Button asChild variant="default">
-                  <a href="/assistant">Launch Assistant</a>
+                  <a href="/assistant" style={{paddingTop: '5px', paddingRight: '5px', paddingBottom: '5px', paddingLeft: '5px', marginRight: '-15px'}}>Launch Assistant</a>
                 </Button>
               </>
             ) : (
