@@ -57,11 +57,3 @@
 - [x] Implement menu toggle functionality
 - [x] Style menu items consistently with app theme
 
-
-
-## Navigation Bar Improvements
-- [x] Add navigation bar to Voice Assistant page
-- [x] Add navigation bar to IoT Devices page
-- [x] Make navigation bar sticky across all pages
-- [x] Extract navigation bar as reusable component
-

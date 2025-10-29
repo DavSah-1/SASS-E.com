@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -179,9 +178,7 @@ export default function VoiceAssistant() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <Navigation />
-      <div className="p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -396,7 +393,6 @@ export default function VoiceAssistant() {
             </ScrollArea>
           </CardContent>
         </Card>
-      </div>
       </div>
     </div>
   );
