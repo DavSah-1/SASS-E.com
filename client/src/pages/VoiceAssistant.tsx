@@ -196,7 +196,7 @@ export default function VoiceAssistant() {
             <CardContent className="py-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-300">Current Sarcasm Level</p>
+                  <p className="text-sm text-slate-300">Current Personality Level</p>
                   <p className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
                     {profile.sarcasmLevel}/10 - {profile.sarcasmIntensity}
                   </p>
@@ -215,7 +215,7 @@ export default function VoiceAssistant() {
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2 text-center">
-                Bob learns from your interactions and becomes more sarcastic over time. Use feedback buttons to adjust!
+                Bob learns from your interactions and becomes more familiar over time. Use feedback buttons to adjust!
               </p>
             </CardContent>
           </Card>
