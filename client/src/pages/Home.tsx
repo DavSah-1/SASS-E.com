@@ -55,7 +55,7 @@ export default function Home() {
       <main className="container mx-auto px-6 py-20">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <div className="space-y-4">
-            <h1 className="text-6xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600" style={{height: '95px'}}>
+            <h1 className="text-6xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600" style={{height: '95px', fontSize: '45px'}}>
               Meet Agent Bob
             </h1>
             <p className="text-2xl text-slate-300">
