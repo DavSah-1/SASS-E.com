@@ -1,13 +1,15 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { usePWA } from "@/hooks/usePWA";
-import { Download } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb } from "lucide-react";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
   const { isInstallable, isInstalled, installApp } = usePWA();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   if (loading) {
     return (
@@ -27,8 +29,34 @@ export default function Home() {
             <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{fontSize: '15px', marginRight: '24px'}}>
               {APP_TITLE}
             </span>
+            {/* Desktop Navigation Links */}
+            <div className="hidden md:flex items-center gap-6 ml-8">
+              <a href="/" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <HomeIcon className="h-4 w-4" />
+                Home
+              </a>
+              <a href="/assistant" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <Mic className="h-4 w-4" />
+                Voice Assistant
+              </a>
+              <a href="/iot" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <Lightbulb className="h-4 w-4" />
+                IoT Devices
+              </a>
+            </div>
           </div>
-          <div className="flex items-center gap-4" style={{width: '195px', height: '58px'}}>
+          <div className="flex items-center gap-4">
+            {/* Mobile Hamburger Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden text-slate-300 hover:text-purple-400 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+            
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-4">
             {isInstallable && !isInstalled && (
               <Button onClick={installApp} variant="outline" size="sm" className="gap-2">
                 <Download className="h-4 w-4" />
@@ -47,8 +75,41 @@ export default function Home() {
                 <a href={getLoginUrl()}>Get Started</a>
               </Button>
             )}
+            </div>
           </div>
         </div>
+        
+        {/* Mobile Menu Panel */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-purple-500/20 bg-slate-900/95 backdrop-blur">
+            <div className="container mx-auto px-6 py-4 space-y-3">
+              <a
+                href="/"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <HomeIcon className="h-5 w-5" />
+                <span>Home</span>
+              </a>
+              <a
+                href="/assistant"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Mic className="h-5 w-5" />
+                <span>Voice Assistant</span>
+              </a>
+              <a
+                href="/iot"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Lightbulb className="h-5 w-5" />
+                <span>IoT Devices</span>
+              </a>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}

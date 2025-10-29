@@ -50,3 +50,10 @@
 - [x] Add to home screen functionality
 - [x] Mobile-specific UI adjustments
 
+
+## Navigation Enhancements
+- [x] Add navigation menu drop-down with links (Home, Voice Assistant, IoT Devices)
+- [x] Add mobile hamburger menu for responsive navigation
+- [x] Implement menu toggle functionality
+- [x] Style menu items consistently with app theme
+
