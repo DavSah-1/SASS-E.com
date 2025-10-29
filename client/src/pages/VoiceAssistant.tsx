@@ -182,7 +182,7 @@ export default function VoiceAssistant() {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+          <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{height: '60px'}}>
             Agent Bob
           </h1>
           <p className="text-lg text-slate-300">
@@ -226,7 +226,7 @@ export default function VoiceAssistant() {
           <CardHeader>
                 <CardTitle className="text-2xl text-center">Voice Interface</CardTitle>
             <CardDescription className="text-center">
-              Click the microphone to speak. Bob will try not to roll his eyes.
+              Click the microphone to speak. I will try not to roll my eyes.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
