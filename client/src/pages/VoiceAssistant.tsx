@@ -165,7 +165,7 @@ export default function VoiceAssistant() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to use the Sarcastic AI Assistant</CardDescription>
+            <CardDescription>Please log in to use Agent Bob</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full">
