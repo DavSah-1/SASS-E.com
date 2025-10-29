@@ -39,7 +39,7 @@ export default function Home() {
                 <Mic className="h-4 w-4" />
                 Voice Assistant
               </a>
-              <a href="/iot" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+              <a href="/devices" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
                 <Lightbulb className="h-4 w-4" />
                 IoT Devices
               </a>
@@ -100,7 +100,7 @@ export default function Home() {
                 <span>Voice Assistant</span>
               </a>
               <a
-                href="/iot"
+                href="/devices"
                 className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
