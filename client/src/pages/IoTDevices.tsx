@@ -116,6 +116,11 @@ export default function IoTDevices() {
             <CardTitle>Authentication Required</CardTitle>
             <CardDescription>Please log in to manage your IoT devices</CardDescription>
           </CardHeader>
+          <CardContent>
+            <Button asChild className="w-full">
+              <a href={getLoginUrl()}>Log In</a>
+            </Button>
+          </CardContent>
         </Card>
       </div>
     );
