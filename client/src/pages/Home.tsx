@@ -120,7 +120,7 @@ export default function Home() {
               Meet Agent Bob
             </h1>
             <p className="text-2xl text-slate-300">
-              Your AI companion. Because you clearly need help, and I'm here to provide it.
+              Your very own AI Agent. Because you clearly need help, and I'm here to provide it.
             </p>
           </div>
 
