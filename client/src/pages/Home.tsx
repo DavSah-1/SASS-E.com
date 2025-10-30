@@ -164,7 +164,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p className="text-slate-300">
-                  Get answers dripping with sarcasm and clever humor. I'll help you while making you laugh.
+                  Get answers dripping with knowledge and enlightenment I didn't learn.
                 </p>
               </CardContent>
             </Card>
