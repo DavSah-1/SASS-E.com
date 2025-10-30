@@ -65,3 +65,10 @@
 
 - [x] Updated footer text to "Built with Human and A.I." (added periods to A.I.)
 
+
+
+## Changes Pulled from GitHub
+- [x] Updated hero tagline from "Your AI companion" to "Your very own AI Agent"
+- [x] Updated "Highly Clever(ish)" card description to "Get answers dripping with knowledge and enlightenment I didn't learn"
+- [x] Added login button to IoT Devices authentication card
+
