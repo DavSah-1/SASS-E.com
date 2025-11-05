@@ -345,7 +345,7 @@ export default function VoiceAssistant() {
             <div className="text-center text-sm text-slate-400">
               {isRecording && "🎤 Recording... Click again to stop"}
               {transcribeMutation.isPending && "🔄 Transcribing your voice..."}
-              {chatMutation.isPending && "🤔 Crafting a witty response..."}
+              {chatMutation.isPending && "🤔 Crafting a response..."}
               {isSpeaking && (
                 <div className="flex items-center justify-center gap-2">
                   <Volume2 className="h-4 w-4 animate-pulse" />
