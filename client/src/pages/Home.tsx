@@ -198,7 +198,7 @@ export default function Home() {
                 <div className="text-4xl font-bold text-pink-400">2</div>
                 <h3 className="text-xl font-semibold text-slate-200">Get Response</h3>
                 <p className="text-slate-400">
-                  I'll process your query and deliver a witty, helpful answer that'll make you smile.
+                  I'll process your query and deliver a helpful answer. And don't worry, I'll translate my genius into something you can understand.
                 </p>
               </div>
               <div className="space-y-2">
@@ -216,7 +216,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-purple-500/20 bg-slate-900/50 backdrop-blur mt-20">
         <div className="container mx-auto px-6 py-8 text-center text-slate-400">
-          <p>Built with Human and A.I. © 2025 Agent Bob</p>
+          <p>Built with a Human and A.I. © 2025 Agent Bob</p>
         </div>
       </footer>
     </div>
