@@ -68,12 +68,16 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
         const isFactualQuery = /\b(is|are|was|were|does|did|can|could|should|will)\b/i.test(input.message);
         const isLongEnough = input.message.length > 15;
         
+        /*
         // Search if ANY of these conditions are met (very proactive)
         const needsWebSearch = 
           (hasQuestionWord && isLongEnough) ||  // Any question word with decent length
           hasQuestionMark ||                     // Any question mark
           mentionsCurrentInfo ||                 // Any mention of current info
           (isFactualQuery && isLongEnough);     // Factual queries
+          */
+        // Option 2: Only specific keywords
+        const needsWebSearch = /\b(weather|news|price)\b/i.test(input.message);
         
         if (needsWebSearch) {
           const searchResults = await searchWeb(input.message, 3);
