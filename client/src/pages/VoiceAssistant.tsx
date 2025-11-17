@@ -127,26 +127,84 @@ export default function VoiceAssistant() {
     }
   };
 
+  // Enhanced text processing for more natural speech
+  const processTextForSpeech = (text: string): string => {
+    // Add pauses after sentences for natural flow
+    text = text.replace(/([.!?])\s+/g, '$1 ... ');
+    
+    // Add emphasis to sarcastic keywords by repeating them slightly
+    const sarcasticWords = ['obviously', 'clearly', 'brilliant', 'genius', 'wonderful', 'fantastic', 'amazing', 'great'];
+    sarcasticWords.forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      text = text.replace(regex, (match) => `${match}`);
+    });
+    
+    return text;
+  };
+
   const speakText = (text: string) => {
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    speechSynthesisRef.current = utterance;
+    // Process text for more natural speech
+    const processedText = processTextForSpeech(text);
 
-    // Configure voice settings for a more sarcastic tone
-    utterance.rate = 0.95; // Slightly slower for dramatic effect
-    utterance.pitch = 1.1; // Slightly higher pitch
-    utterance.volume = 1.0;
+    // Split into sentences for better pacing
+    const sentences = processedText.match(/[^.!?]+[.!?]+/g) || [processedText];
+    let currentIndex = 0;
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      toast.error("Failed to speak response");
+    const speakNextSentence = () => {
+      if (currentIndex >= sentences.length) {
+        setIsSpeaking(false);
+        return;
+      }
+
+      const sentence = sentences[currentIndex].trim();
+      const utterance = new SpeechSynthesisUtterance(sentence);
+      speechSynthesisRef.current = utterance;
+
+      // Get available voices and select a good one
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Prefer male voices with English accent for sarcastic tone
+      const preferredVoice = voices.find(voice => 
+        (voice.name.includes('Male') || voice.name.includes('Daniel') || voice.name.includes('Alex')) &&
+        voice.lang.startsWith('en')
+      ) || voices.find(voice => voice.lang.startsWith('en-US')) || voices[0];
+      
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+
+      // Dynamic speech rate based on personality level and sentence length
+      const personalityLevel = profile?.sarcasmLevel || 5;
+      const baseRate = 0.92; // Slower base rate for dramatic effect
+      const personalityAdjustment = (personalityLevel - 5) * 0.02; // Higher personality = slightly faster
+      utterance.rate = Math.max(0.8, Math.min(1.1, baseRate + personalityAdjustment));
+      
+      // Adjust pitch based on personality (more sarcastic = slightly higher pitch)
+      utterance.pitch = 1.0 + (personalityLevel * 0.02);
+      utterance.volume = 1.0;
+
+      utterance.onstart = () => {
+        if (currentIndex === 0) setIsSpeaking(true);
+      };
+      
+      utterance.onend = () => {
+        currentIndex++;
+        // Add a small delay between sentences for natural pacing
+        setTimeout(speakNextSentence, 200);
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        toast.error("Failed to speak response");
+      };
+
+      window.speechSynthesis.speak(utterance);
     };
 
-    window.speechSynthesis.speak(utterance);
+    speakNextSentence();
   };
 
   const stopSpeaking = () => {

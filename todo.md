@@ -72,3 +72,20 @@
 - [x] Updated "Highly Clever(ish)" card description to "Get answers dripping with knowledge and enlightenment I didn't learn"
 - [x] Added login button to IoT Devices authentication card
 
+
+
+## Search Behavior Update
+- [x] Changed web search behavior from proactive (all questions) to specific keywords only (weather, news, price)
+- [x] Commented out original proactive search logic
+- [x] Now only triggers search for specific keywords: weather, news, price
+
+
+
+## Phase 1: Voice Quality Enhancement (Web Speech API)
+- [x] Add speech rate control based on personality level
+- [x] Implement sentence-based pauses for natural flow
+- [x] Add emphasis to sarcastic keywords
+- [x] Implement voice selection from available browser voices
+- [x] Add pitch and volume controls
+- [x] Create utility function for processing text with pauses
+
