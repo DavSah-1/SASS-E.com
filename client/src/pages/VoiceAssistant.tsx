@@ -129,15 +129,11 @@ export default function VoiceAssistant() {
 
   // Enhanced text processing for more natural speech
   const processTextForSpeech = (text: string): string => {
-    // Add pauses after sentences for natural flow
-    text = text.replace(/([.!?])\s+/g, '$1 ... ');
+    // Remove any existing ellipsis or extra punctuation that might be spoken
+    text = text.replace(/\.{2,}/g, '.');
     
-    // Add emphasis to sarcastic keywords by repeating them slightly
-    const sarcasticWords = ['obviously', 'clearly', 'brilliant', 'genius', 'wonderful', 'fantastic', 'amazing', 'great'];
-    sarcasticWords.forEach(word => {
-      const regex = new RegExp(`\\b${word}\\b`, 'gi');
-      text = text.replace(regex, (match) => `${match}`);
-    });
+    // Clean up any other punctuation that sounds awkward when spoken
+    text = text.replace(/\s+/g, ' ').trim();
     
     return text;
   };

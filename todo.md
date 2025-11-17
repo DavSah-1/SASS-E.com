@@ -89,3 +89,8 @@
 - [x] Add pitch and volume controls
 - [x] Create utility function for processing text with pauses
 
+
+
+## Bug Fixes
+- [x] Remove pause markers (...) from spoken text to prevent saying punctuation out loud
+
