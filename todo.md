@@ -94,3 +94,17 @@
 ## Bug Fixes
 - [x] Remove pause markers (...) from spoken text to prevent saying punctuation out loud
 
+
+
+## Real-Time Translation Feature
+- [x] Add translation procedure to backend (server/routers.ts)
+- [x] Create language selector UI components
+- [x] Implement input language detection and selection
+- [x] Implement output language selection
+- [x] Add bilingual display (show both original and translated text)
+- [ ] Integrate multi-language TTS support
+- [x] Add language swap button
+- [ ] Update speech recognition to support multiple languages
+- [x] Preserve Bob's personality in translations
+- [x] Add translation mode toggle
+

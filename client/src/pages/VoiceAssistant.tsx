@@ -5,9 +5,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { usePWA } from "@/hooks/usePWA";
 import { trpc } from "@/lib/trpc";
-import { Mic, MicOff, Volume2, Download, Menu, X, Home as HomeIcon, Lightbulb } from "lucide-react";
+import { Mic, MicOff, Volume2, Download, Menu, X, Home as HomeIcon, Lightbulb, Languages, ArrowLeftRight } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { SUPPORTED_LANGUAGES, getSpeechRecognitionLanguage, getSpeechSynthesisLanguage } from "@/lib/languages";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function VoiceAssistant() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -18,6 +22,12 @@ export default function VoiceAssistant() {
   const [currentTranscript, setCurrentTranscript] = useState("");
   const [currentResponse, setCurrentResponse] = useState("");
   
+  // Translation state
+  const [translationEnabled, setTranslationEnabled] = useState(false);
+  const [inputLanguage, setInputLanguage] = useState("English");
+  const [outputLanguage, setOutputLanguage] = useState("English");
+  const [showBilingual, setShowBilingual] = useState(true);
+  
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -25,6 +35,7 @@ export default function VoiceAssistant() {
   const chatMutation = trpc.assistant.chat.useMutation();
   const transcribeMutation = trpc.assistant.transcribe.useMutation();
   const feedbackMutation = trpc.assistant.submitFeedback.useMutation();
+  const chatWithTranslationMutation = trpc.translation.chatWithTranslation.useMutation();
   const { data: history, refetch: refetchHistory } = trpc.assistant.history.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -418,6 +429,96 @@ export default function VoiceAssistant() {
                 </Button>
               </div>
             )}
+
+            {/* Translation Controls */}
+            <div className="border-t border-purple-500/20 pt-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Languages className="h-5 w-5 text-purple-400" />
+                  <Label htmlFor="translation-toggle" className="text-base font-semibold text-slate-200">
+                    Translation Mode
+                  </Label>
+                </div>
+                <Switch
+                  id="translation-toggle"
+                  checked={translationEnabled}
+                  onCheckedChange={setTranslationEnabled}
+                />
+              </div>
+
+              {translationEnabled && (
+                <div className="space-y-4 p-4 bg-slate-900/50 rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="input-language" className="text-sm text-slate-300">
+                        You speak in:
+                      </Label>
+                      <Select value={inputLanguage} onValueChange={setInputLanguage}>
+                        <SelectTrigger id="input-language" className="bg-slate-800 border-purple-500/20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SUPPORTED_LANGUAGES.map((lang) => (
+                            <SelectItem key={lang.code} value={lang.name}>
+                              {lang.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="output-language" className="text-sm text-slate-300">
+                        Bob responds in:
+                      </Label>
+                      <Select value={outputLanguage} onValueChange={setOutputLanguage}>
+                        <SelectTrigger id="output-language" className="bg-slate-800 border-purple-500/20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SUPPORTED_LANGUAGES.map((lang) => (
+                            <SelectItem key={lang.code} value={lang.name}>
+                              {lang.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const temp = inputLanguage;
+                        setInputLanguage(outputLanguage);
+                        setOutputLanguage(temp);
+                      }}
+                      className="text-purple-400 hover:text-purple-300"
+                    >
+                      <ArrowLeftRight className="h-4 w-4 mr-2" />
+                      Swap Languages
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="bilingual-toggle"
+                      checked={showBilingual}
+                      onCheckedChange={setShowBilingual}
+                    />
+                    <Label htmlFor="bilingual-toggle" className="text-sm text-slate-300">
+                      Show both languages
+                    </Label>
+                  </div>
+
+                  <p className="text-xs text-slate-400 text-center">
+                    Bob will translate your speech and respond in your chosen language while keeping his sarcastic charm.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Current Conversation */}
             {(currentTranscript || currentResponse) && (

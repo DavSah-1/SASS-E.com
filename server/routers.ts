@@ -424,6 +424,141 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
         }));
       }),
   }),
+
+  translation: router({
+    // Translate text with personality preservation
+    translate: protectedProcedure
+      .input(
+        z.object({
+          text: z.string(),
+          sourceLanguage: z.string(),
+          targetLanguage: z.string(),
+          preservePersonality: z.boolean().default(true),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Get user profile for personality level
+        const profile = await getUserProfile(ctx.user.id);
+        const sarcasmLevel = profile?.sarcasmLevel || 5;
+
+        let translationPrompt;
+        if (input.preservePersonality) {
+          const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
+          translationPrompt = `You are Agent Bob, a ${personalityDesc} AI assistant. Translate the following text from ${input.sourceLanguage} to ${input.targetLanguage} while maintaining your sarcastic, witty personality. Keep the tone natural and conversational in the target language.\n\nText to translate: "${input.text}"`;
+        } else {
+          translationPrompt = `Translate the following text from ${input.sourceLanguage} to ${input.targetLanguage}. Provide only the translation without any additional commentary.\n\nText: "${input.text}"`;
+        }
+
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: "You are a helpful translation assistant." },
+            { role: "user", content: translationPrompt },
+          ],
+        });
+
+        const responseContent = response.choices[0].message.content;
+        const translatedText = (typeof responseContent === 'string' ? responseContent : JSON.stringify(responseContent)).trim();
+
+        return {
+          originalText: input.text,
+          translatedText,
+          sourceLanguage: input.sourceLanguage,
+          targetLanguage: input.targetLanguage,
+        };
+      }),
+
+    // Chat with automatic translation
+    chatWithTranslation: protectedProcedure
+      .input(
+        z.object({
+          message: z.string(),
+          inputLanguage: z.string(),
+          outputLanguage: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Get user profile
+        let userProfile = await getUserProfile(ctx.user.id);
+        if (!userProfile) {
+          await createUserProfile({
+            userId: ctx.user.id,
+            sarcasmLevel: 5,
+            totalInteractions: 0,
+            positiveResponses: 0,
+            negativeResponses: 0,
+            averageResponseLength: 0,
+            preferredTopics: JSON.stringify([]),
+            interactionPatterns: JSON.stringify({}),
+          });
+          userProfile = await getUserProfile(ctx.user.id);
+        }
+
+        const sarcasmLevel = userProfile?.sarcasmLevel || 5;
+        const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
+
+        // Step 1: Translate user message to English (if needed)
+        let englishMessage = input.message;
+        if (input.inputLanguage.toLowerCase() !== 'english') {
+          const translateToEnglish = await invokeLLM({
+            messages: [
+              { role: "system", content: "You are a translation assistant. Translate to English." },
+              { role: "user", content: `Translate from ${input.inputLanguage} to English: "${input.message}"` },
+            ],
+          });
+          const toEnglishContent = translateToEnglish.choices[0].message.content;
+          englishMessage = (typeof toEnglishContent === 'string' ? toEnglishContent : JSON.stringify(toEnglishContent)).trim();
+        }
+
+        // Step 2: Generate response in English with personality
+        const sarcasticSystemPrompt = `You are Agent Bob, a ${personalityDesc} AI assistant. Respond to the user with wit, sarcasm, and clever humor. Keep responses concise (2-3 sentences) but impactful.`;
+
+        const englishResponse = await invokeLLM({
+          messages: [
+            { role: "system", content: sarcasticSystemPrompt },
+            { role: "user", content: englishMessage },
+          ],
+        });
+
+        const responseContent = englishResponse.choices[0].message.content;
+        const responseText = typeof responseContent === 'string' ? responseContent : JSON.stringify(responseContent);
+
+        // Step 3: Translate response to target language (if needed)
+        let translatedResponse = responseText;
+        if (input.outputLanguage.toLowerCase() !== 'english') {
+          const translateResponse = await invokeLLM({
+            messages: [
+              { role: "system", content: "You are a translation assistant." },
+              { role: "user", content: `Translate from English to ${input.outputLanguage} while maintaining the sarcastic, witty tone: "${responseText}"` },
+            ],
+          });
+          const translatedContent = translateResponse.choices[0].message.content;
+          translatedResponse = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
+        }
+
+        // Save conversation
+        await saveConversation({
+          userId: ctx.user.id,
+          userMessage: input.message,
+          assistantResponse: translatedResponse,
+        });
+
+        // Update interaction count
+        if (userProfile) {
+          await updateUserProfile(ctx.user.id, {
+            totalInteractions: userProfile.totalInteractions + 1,
+          });
+        }
+
+        return {
+          originalMessage: input.message,
+          translatedMessage: englishMessage !== input.message ? englishMessage : null,
+          response: translatedResponse,
+          englishResponse: responseText !== translatedResponse ? responseText : null,
+          inputLanguage: input.inputLanguage,
+          outputLanguage: input.outputLanguage,
+        };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
