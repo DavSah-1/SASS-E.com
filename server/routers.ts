@@ -425,6 +425,10 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
       }),
   }),
 
+  learning: router({
+    // Placeholder for learning procedures
+  }),
+
   translation: router({
     // Translate text with personality preservation
     translate: protectedProcedure

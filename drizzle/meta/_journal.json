@@ -29,6 +29,13 @@
       "when": 1761563646786,
       "tag": "0003_normal_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1763569193458,
+      "tag": "0004_clumsy_blacklash",
+      "breakpoints": true
     }
   ]
 }

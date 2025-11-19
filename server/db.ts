@@ -1,6 +1,23 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { conversations, InsertConversation, InsertUser, users } from "../drizzle/schema";
+import { 
+  conversations, 
+  InsertConversation, 
+  InsertUser, 
+  users,
+  learningSessions,
+  InsertLearningSession,
+  factCheckResults,
+  InsertFactCheckResult,
+  learningSources,
+  InsertLearningSource,
+  studyGuides,
+  InsertStudyGuide,
+  quizzes,
+  InsertQuiz,
+  quizAttempts,
+  InsertQuizAttempt
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -299,6 +316,157 @@ export async function getConversationFeedback(conversationId: number) {
     .select()
     .from(conversationFeedback)
     .where(eq(conversationFeedback.conversationId, conversationId));
+
+  return result;
+}
+
+
+
+
+// ==================== Learning Assistant Functions ====================
+
+export async function saveLearningSession(session: InsertLearningSession) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save learning session: database not available");
+    return undefined;
+  }
+
+  const result = await db.insert(learningSessions).values(session);
+  return result;
+}
+
+export async function getUserLearningSessions(userId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get learning sessions: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select()
+    .from(learningSessions)
+    .where(eq(learningSessions.userId, userId))
+    .orderBy(learningSessions.createdAt)
+    .limit(limit);
+
+  return result;
+}
+
+export async function saveFactCheckResult(factCheck: InsertFactCheckResult) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save fact check result: database not available");
+    return undefined;
+  }
+
+  const result = await db.insert(factCheckResults).values(factCheck);
+  return result;
+}
+
+export async function getFactCheckResultsBySession(sessionId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get fact check results: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select()
+    .from(factCheckResults)
+    .where(eq(factCheckResults.learningSessionId, sessionId));
+
+  return result;
+}
+
+export async function saveLearningSource(source: InsertLearningSource) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save learning source: database not available");
+    return undefined;
+  }
+
+  const result = await db.insert(learningSources).values(source);
+  return result;
+}
+
+export async function saveStudyGuide(guide: InsertStudyGuide) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save study guide: database not available");
+    return undefined;
+  }
+
+  const result = await db.insert(studyGuides).values(guide);
+  return result;
+}
+
+export async function getUserStudyGuides(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get study guides: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select()
+    .from(studyGuides)
+    .where(eq(studyGuides.userId, userId))
+    .orderBy(studyGuides.createdAt);
+
+  return result;
+}
+
+export async function saveQuiz(quiz: InsertQuiz) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save quiz: database not available");
+    return undefined;
+  }
+
+  const result = await db.insert(quizzes).values(quiz);
+  return result;
+}
+
+export async function getUserQuizzes(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get quizzes: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select()
+    .from(quizzes)
+    .where(eq(quizzes.userId, userId))
+    .orderBy(quizzes.createdAt);
+
+  return result;
+}
+
+export async function saveQuizAttempt(attempt: InsertQuizAttempt) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save quiz attempt: database not available");
+    return undefined;
+  }
+
+  const result = await db.insert(quizAttempts).values(attempt);
+  return result;
+}
+
+export async function getQuizAttempts(quizId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get quiz attempts: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select()
+    .from(quizAttempts)
+    .where(eq(quizAttempts.quizId, quizId))
+    .orderBy(quizAttempts.createdAt);
 
   return result;
 }

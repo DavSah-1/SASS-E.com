@@ -108,3 +108,39 @@
 - [x] Preserve Bob's personality in translations
 - [x] Add translation mode toggle
 
+
+
+## Verified Learning Assistant (Premium Feature)
+### Backend Implementation
+- [x] Create database schema for learning sessions
+- [x] Create database schema for fact-check results
+- [x] Add learning router to server/routers.ts
+- [x] Add database helper functions for learning operations
+- [ ] Implement explain with fact-checking procedure
+- [ ] Implement study guide generation procedure
+- [ ] Implement quiz generation procedure
+- [ ] Add web search integration for fact verification
+- [ ] Implement credibility scoring system
+- [ ] Add source citation tracking
+
+### Frontend Implementation
+- [ ] Create Learning page component
+- [ ] Add Verified Learning mode toggle
+- [ ] Build explanation display with fact-check results
+- [ ] Add credibility score indicators
+- [ ] Implement source citation display
+- [ ] Create study guide generator UI
+- [ ] Build interactive quiz interface
+- [ ] Add learning progress tracking
+- [ ] Create export to PDF functionality
+
+### Features
+- [ ] Explain topics with automatic fact-checking
+- [ ] Show source citations inline
+- [ ] Display confidence/credibility scores
+- [ ] Generate verified study guides
+- [ ] Create interactive quizzes with explanations
+- [ ] Track learning history
+- [ ] Multi-perspective analysis for controversial topics
+- [ ] Detect and flag misinformation
+

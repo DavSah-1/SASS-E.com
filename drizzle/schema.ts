@@ -116,3 +116,109 @@ export const conversationFeedback = mysqlTable("conversation_feedback", {
 
 export type ConversationFeedback = typeof conversationFeedback.$inferSelect;
 export type InsertConversationFeedback = typeof conversationFeedback.$inferInsert;
+
+
+/**
+ * Learning Sessions table for Verified Learning Assistant
+ */
+export const learningSessions = mysqlTable("learning_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  topic: varchar("topic", { length: 512 }).notNull(),
+  question: text("question").notNull(),
+  explanation: text("explanation").notNull(),
+  confidenceScore: int("confidenceScore").notNull(), // 0-100
+  sourcesCount: int("sourcesCount").default(0).notNull(),
+  sessionType: mysqlEnum("sessionType", ["explanation", "study_guide", "quiz"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LearningSession = typeof learningSessions.$inferSelect;
+export type InsertLearningSession = typeof learningSessions.$inferInsert;
+
+/**
+ * Fact Check Results table
+ */
+export const factCheckResults = mysqlTable("fact_check_results", {
+  id: int("id").autoincrement().primaryKey(),
+  learningSessionId: int("learningSessionId").notNull(),
+  claim: text("claim").notNull(),
+  verificationStatus: mysqlEnum("verificationStatus", ["verified", "disputed", "debunked", "unverified"]).notNull(),
+  confidenceScore: int("confidenceScore").notNull(), // 0-100
+  sources: text("sources").notNull(), // JSON array of source objects
+  explanation: text("explanation"), // Why this status was assigned
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type FactCheckResult = typeof factCheckResults.$inferSelect;
+export type InsertFactCheckResult = typeof factCheckResults.$inferInsert;
+
+/**
+ * Learning Sources table for citation tracking
+ */
+export const learningSources = mysqlTable("learning_sources", {
+  id: int("id").autoincrement().primaryKey(),
+  factCheckResultId: int("factCheckResultId").notNull(),
+  title: varchar("title", { length: 512 }).notNull(),
+  url: varchar("url", { length: 1024 }).notNull(),
+  sourceType: mysqlEnum("sourceType", ["academic", "news", "government", "encyclopedia", "other"]).notNull(),
+  credibilityScore: int("credibilityScore").notNull(), // 0-100
+  publishDate: timestamp("publishDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LearningSource = typeof learningSources.$inferSelect;
+export type InsertLearningSource = typeof learningSources.$inferInsert;
+
+/**
+ * Study Guides table
+ */
+export const studyGuides = mysqlTable("study_guides", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  learningSessionId: int("learningSessionId").notNull(),
+  title: varchar("title", { length: 512 }).notNull(),
+  content: text("content").notNull(), // Markdown formatted study guide
+  topicsCount: int("topicsCount").default(0).notNull(),
+  questionsCount: int("questionsCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type StudyGuide = typeof studyGuides.$inferSelect;
+export type InsertStudyGuide = typeof studyGuides.$inferInsert;
+
+/**
+ * Quizzes table
+ */
+export const quizzes = mysqlTable("quizzes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  learningSessionId: int("learningSessionId").notNull(),
+  title: varchar("title", { length: 512 }).notNull(),
+  questions: text("questions").notNull(), // JSON array of question objects
+  totalQuestions: int("totalQuestions").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Quiz = typeof quizzes.$inferSelect;
+export type InsertQuiz = typeof quizzes.$inferInsert;
+
+/**
+ * Quiz Attempts table
+ */
+export const quizAttempts = mysqlTable("quiz_attempts", {
+  id: int("id").autoincrement().primaryKey(),
+  quizId: int("quizId").notNull(),
+  userId: int("userId").notNull(),
+  score: int("score").notNull(), // Percentage 0-100
+  correctAnswers: int("correctAnswers").notNull(),
+  totalQuestions: int("totalQuestions").notNull(),
+  timeSpent: int("timeSpent"), // Seconds
+  answers: text("answers").notNull(), // JSON array of user answers
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type QuizAttempt = typeof quizAttempts.$inferSelect;
+export type InsertQuizAttempt = typeof quizAttempts.$inferInsert;
+
