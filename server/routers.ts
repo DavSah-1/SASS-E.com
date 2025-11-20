@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback } from "./db";
+import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession } from "./db";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
 
@@ -426,7 +426,189 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
   }),
 
   learning: router({
-    // Placeholder for learning procedures
+    // Explain topic with automatic fact-checking
+    explainWithFactCheck: protectedProcedure
+      .input(
+        z.object({
+          topic: z.string(),
+          question: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const userProfile = await getUserProfile(ctx.user.id);
+        const sarcasmLevel = userProfile?.sarcasmLevel || 5;
+        const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
+
+        // Step 1: Generate explanation with Bob's personality
+        const systemPrompt = `You are Agent Bob, a ${personalityDesc} AI learning assistant. Explain topics clearly and accurately, but with your signature wit and sarcasm. Break down complex concepts into understandable parts. Keep explanations concise (3-5 paragraphs) but comprehensive.`;
+
+        const explanationResponse = await invokeLLM({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Explain: ${input.question}` },
+          ],
+        });
+
+        const explanationContent = explanationResponse.choices[0].message.content;
+        const explanation = typeof explanationContent === 'string' ? explanationContent : JSON.stringify(explanationContent);
+
+        // Step 2: Extract key claims for fact-checking
+        const claimsPrompt = `Extract 3-5 key factual claims from this explanation that should be verified. Return as a JSON array of strings.\n\nExplanation: ${explanation}`;
+        
+        const claimsResponse = await invokeLLM({
+          messages: [
+            { role: "system", content: "You are a fact-checking assistant. Extract verifiable claims." },
+            { role: "user", content: claimsPrompt },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "claims_extraction",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  claims: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "List of factual claims to verify"
+                  }
+                },
+                required: ["claims"],
+                additionalProperties: false
+              }
+            }
+          }
+        });
+
+        const claimsContent = claimsResponse.choices[0].message.content;
+        const claimsText = typeof claimsContent === 'string' ? claimsContent : JSON.stringify(claimsContent);
+        const claimsData = JSON.parse(claimsText);
+        const claims = claimsData.claims || [];
+
+        // Step 3: Fact-check each claim using web search
+        const factCheckResults = [];
+        let totalConfidence = 0;
+        let sourcesCount = 0;
+
+        for (const claim of claims) {
+          // Search for verification
+          const searchResults = await searchWeb(claim, 3);
+
+          // Analyze search results for verification
+          const verificationPrompt = `Based on these search results, verify this claim: "${claim}"\n\nSearch Results:\n${JSON.stringify(searchResults.results.slice(0, 3))}\n\nProvide verification status (verified/disputed/debunked/unverified), confidence score (0-100), and brief explanation.`;
+          
+          const verificationResponse = await invokeLLM({
+            messages: [
+              { role: "system", content: "You are a fact-checking expert. Analyze search results to verify claims." },
+              { role: "user", content: verificationPrompt },
+            ],
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: "fact_verification",
+                strict: true,
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      enum: ["verified", "disputed", "debunked", "unverified"]
+                    },
+                    confidence: { type: "number" },
+                    explanation: { type: "string" }
+                  },
+                  required: ["status", "confidence", "explanation"],
+                  additionalProperties: false
+                }
+              }
+            }
+          });
+
+          const verificationContent = verificationResponse.choices[0].message.content;
+          const verificationText = typeof verificationContent === 'string' ? verificationContent : JSON.stringify(verificationContent);
+          const verification = JSON.parse(verificationText);
+
+          const sources = searchResults.results.slice(0, 3).map((result: any) => ({
+            title: result.title || 'Unknown',
+            url: result.url || '',
+            sourceType: 'other' as const,
+            credibilityScore: 75,
+          }));
+
+          factCheckResults.push({
+            claim,
+            status: verification.status,
+            confidence: Math.round(verification.confidence),
+            explanation: verification.explanation,
+            sources,
+          });
+
+          totalConfidence += verification.confidence;
+          sourcesCount += sources.length;
+        }
+
+        const overallConfidence = claims.length > 0 ? Math.round(totalConfidence / claims.length) : 0;
+
+        // Step 4: Save to database
+        const sessionResult = await saveLearningSession({
+          userId: ctx.user.id,
+          topic: input.topic,
+          question: input.question,
+          explanation,
+          confidenceScore: overallConfidence,
+          sourcesCount,
+          sessionType: 'explanation',
+        });
+
+        const sessionId = sessionResult ? Number(sessionResult[0].insertId) : 0;
+
+        // Save fact-check results
+        for (const factCheck of factCheckResults) {
+          const factCheckResult = await saveFactCheckResult({
+            learningSessionId: sessionId,
+            claim: factCheck.claim,
+            verificationStatus: factCheck.status,
+            confidenceScore: factCheck.confidence,
+            sources: JSON.stringify(factCheck.sources),
+            explanation: factCheck.explanation,
+          });
+
+          // Save individual sources
+          const factCheckId = factCheckResult ? Number(factCheckResult[0].insertId) : 0;
+          for (const source of factCheck.sources) {
+            await saveLearningSource({
+              factCheckResultId: factCheckId,
+              title: source.title,
+              url: source.url,
+              sourceType: source.sourceType,
+              credibilityScore: source.credibilityScore,
+            });
+          }
+        }
+
+        return {
+          sessionId,
+          explanation,
+          confidenceScore: overallConfidence,
+          factChecks: factCheckResults,
+          sourcesCount,
+        };
+      }),
+
+    // Get user's learning history
+    getHistory: protectedProcedure.query(async ({ ctx }) => {
+      const sessions = await getUserLearningSessions(ctx.user.id, 50);
+      return sessions;
+    }),
+
+    // Get fact-check results for a session
+    getFactChecks: protectedProcedure
+      .input(z.object({ sessionId: z.number() }))
+      .query(async ({ input }) => {
+        const factChecks = await getFactCheckResultsBySession(input.sessionId);
+        return factChecks;
+      }),
   }),
 
   translation: router({

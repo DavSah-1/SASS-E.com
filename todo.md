@@ -116,19 +116,19 @@
 - [x] Create database schema for fact-check results
 - [x] Add learning router to server/routers.ts
 - [x] Add database helper functions for learning operations
-- [ ] Implement explain with fact-checking procedure
+- [x] Implement explain with fact-checking procedure
 - [ ] Implement study guide generation procedure
 - [ ] Implement quiz generation procedure
-- [ ] Add web search integration for fact verification
-- [ ] Implement credibility scoring system
-- [ ] Add source citation tracking
+- [x] Add web search integration for fact verification
+- [x] Implement credibility scoring system
+- [x] Add source citation tracking
 
 ### Frontend Implementation
-- [ ] Create Learning page component
-- [ ] Add Verified Learning mode toggle
-- [ ] Build explanation display with fact-check results
-- [ ] Add credibility score indicators
-- [ ] Implement source citation display
+- [x] Create Learning page component
+- [x] Add Verified Learning mode toggle
+- [x] Build explanation display with fact-check results
+- [x] Add credibility score indicators
+- [x] Implement source citation display
 - [ ] Create study guide generator UI
 - [ ] Build interactive quiz interface
 - [ ] Add learning progress tracking
