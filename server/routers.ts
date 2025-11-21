@@ -330,9 +330,12 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
             messages: [{ role: "user", content: sarcasticPrompt }],
           });
 
+          const messageContent = response.choices[0]?.message?.content;
+          const messageString = typeof messageContent === 'string' ? messageContent : "Bob couldn't understand that command.";
+          
           return {
             success: false,
-            message: response.choices[0]?.message?.content || "Bob couldn't understand that command.",
+            message: messageString,
           };
         }
 
@@ -372,9 +375,12 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
           messages: [{ role: "user", content: sarcasticPrompt }],
         });
 
+        const bobMessageContent = bobResponse.choices[0]?.message?.content;
+        const bobMessageString = typeof bobMessageContent === 'string' ? bobMessageContent : result.message;
+        
         return {
           success: result.success,
-          message: bobResponse.choices[0]?.message?.content || result.message,
+          message: bobMessageString,
           newState: result.newState,
         };
       }),
