@@ -149,3 +149,8 @@
 ## Bug Fixes
 - [x] Fix TypeScript error in IoTDevices.tsx: Type 'TextContent | ImageContent | FileContent' is not assignable to type 'ReactNode'
 
+
+
+## UI Improvements
+- [x] Add "Learning" navigation link to Home page header
+

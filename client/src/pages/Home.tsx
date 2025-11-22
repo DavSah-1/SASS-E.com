@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap } from "lucide-react";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -42,6 +42,10 @@ export default function Home() {
               <a href="/devices" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
                 <Lightbulb className="h-4 w-4" />
                 IoT Devices
+              </a>
+              <a href="/learning" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <GraduationCap className="h-4 w-4" />
+                Learning
               </a>
             </div>
           </div>
@@ -106,6 +110,14 @@ export default function Home() {
               >
                 <Lightbulb className="h-5 w-5" />
                 <span>IoT Devices</span>
+              </a>
+              <a
+                href="/learning"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <GraduationCap className="h-5 w-5" />
+                <span>Learning</span>
               </a>
             </div>
           </div>
