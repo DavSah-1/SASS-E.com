@@ -92,16 +92,35 @@ export default function VoiceAssistant() {
 
           const { url } = await uploadResponse.json();
 
-          // Transcribe audio
-          const transcription = await transcribeMutation.mutateAsync({ audioUrl: url });
+          // Transcribe audio with language hint if translation is enabled
+          const transcribeParams: any = { audioUrl: url };
+          if (translationEnabled && inputLanguage !== 'English') {
+            const langCode = getSpeechRecognitionLanguage(inputLanguage);
+            transcribeParams.language = langCode;
+          }
+          const transcription = await transcribeMutation.mutateAsync(transcribeParams);
           setCurrentTranscript(transcription.text);
 
-          // Get sarcastic response
-          const response = await chatMutation.mutateAsync({ message: transcription.text });
-          setCurrentResponse(response.response);
-
-          // Speak the response
-          speakText(response.response);
+          // Get response (with or without translation)
+          if (translationEnabled && (inputLanguage !== 'English' || outputLanguage !== 'English')) {
+            const translationResponse = await chatWithTranslationMutation.mutateAsync({
+              message: transcription.text,
+              inputLanguage: inputLanguage,
+              outputLanguage: outputLanguage,
+            });
+            
+            // Handle translated response
+            setCurrentResponse(showBilingual ? 
+              `Original: ${translationResponse.response}\n\nTranslated: ${translationResponse.response}` : 
+              translationResponse.response
+            );
+            // Speak the translated response in target language
+            speakText(translationResponse.response);
+          } else {
+            const response = await chatMutation.mutateAsync({ message: transcription.text });
+            setCurrentResponse(response.response);
+            speakText(response.response);
+          }
 
           // Refresh history and profile
           await refetchHistory();
@@ -170,14 +189,24 @@ export default function VoiceAssistant() {
       const utterance = new SpeechSynthesisUtterance(sentence);
       speechSynthesisRef.current = utterance;
 
-      // Get available voices and select a good one
+      // Get available voices and select based on output language
       const voices = window.speechSynthesis.getVoices();
+      const targetLang = getSpeechSynthesisLanguage(outputLanguage);
       
-      // Prefer male voices with English accent for sarcastic tone
-      const preferredVoice = voices.find(voice => 
-        (voice.name.includes('Male') || voice.name.includes('Daniel') || voice.name.includes('Alex')) &&
-        voice.lang.startsWith('en')
-      ) || voices.find(voice => voice.lang.startsWith('en-US')) || voices[0];
+      // Find voice matching the output language
+      let preferredVoice;
+      if (outputLanguage === 'English') {
+        // Prefer male voices with English accent for sarcastic tone
+        preferredVoice = voices.find(voice => 
+          (voice.name.includes('Male') || voice.name.includes('Daniel') || voice.name.includes('Alex')) &&
+          voice.lang.startsWith('en')
+        ) || voices.find(voice => voice.lang.startsWith('en-US'));
+      } else {
+        // For other languages, find matching voice
+        preferredVoice = voices.find(voice => voice.lang.startsWith(targetLang));
+      }
+      
+      preferredVoice = preferredVoice || voices[0];
       
       if (preferredVoice) {
         utterance.voice = preferredVoice;

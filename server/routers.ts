@@ -441,9 +441,10 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const userProfile = await getUserProfile(ctx.user.id);
-        const sarcasmLevel = userProfile?.sarcasmLevel || 5;
-        const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
+        try {
+          const userProfile = await getUserProfile(ctx.user.id);
+          const sarcasmLevel = userProfile?.sarcasmLevel || 5;
+          const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
         // Step 1: Generate explanation with Bob's personality
         const systemPrompt = `You are Agent Bob, a ${personalityDesc} AI learning assistant. Explain topics clearly and accurately, but with your signature wit and sarcasm. Break down complex concepts into understandable parts. Keep explanations concise (3-5 paragraphs) but comprehensive.`;
@@ -600,6 +601,10 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
           factChecks: factCheckResults,
           sourcesCount,
         };
+        } catch (error) {
+          console.error('[Learning] Error in explainWithFactCheck:', error);
+          throw new Error(`Failed to generate explanation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
       }),
 
     // Get user's learning history

@@ -108,6 +108,13 @@
 - [x] Preserve Bob's personality in translations
 - [x] Add translation mode toggle
 
+## Speech Integration for Translation
+- [x] Connect input language selector to speech recognition language
+- [x] Connect output language selector to TTS voice selection
+- [x] Update startRecording to use selected input language
+- [x] Update speakText to use selected output language voice
+- [x] Test multi-language speech recognition and synthesis
+
 
 
 ## Verified Learning Assistant (Premium Feature)
@@ -153,4 +160,9 @@
 
 ## UI Improvements
 - [x] Add "Learning" navigation link to Home page header
+
+
+
+## Bug Fixes
+- [ ] Fix "failed to generate explanation" error in Verified Learning Assistant
 
