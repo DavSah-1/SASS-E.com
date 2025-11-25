@@ -166,3 +166,8 @@
 ## Bug Fixes
 - [ ] Fix "failed to generate explanation" error in Verified Learning Assistant
 
+
+
+## Bug Fixes
+- [x] Fix TTS voice selection for translated languages - voices sound English instead of native language
+

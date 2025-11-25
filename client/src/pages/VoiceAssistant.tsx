@@ -193,6 +193,9 @@ export default function VoiceAssistant() {
       const voices = window.speechSynthesis.getVoices();
       const targetLang = getSpeechSynthesisLanguage(outputLanguage);
       
+      // Set the language code on the utterance (critical for proper pronunciation)
+      utterance.lang = targetLang;
+      
       // Find voice matching the output language
       let preferredVoice;
       if (outputLanguage === 'English') {
@@ -202,14 +205,20 @@ export default function VoiceAssistant() {
           voice.lang.startsWith('en')
         ) || voices.find(voice => voice.lang.startsWith('en-US'));
       } else {
-        // For other languages, find matching voice
-        preferredVoice = voices.find(voice => voice.lang.startsWith(targetLang));
+        // For other languages, find matching voice by checking language code prefix
+        // Try exact match first (e.g., 'es-ES'), then language prefix (e.g., 'es')
+        const langPrefix = targetLang.split('-')[0];
+        preferredVoice = voices.find(voice => voice.lang === targetLang) ||
+                        voices.find(voice => voice.lang.startsWith(langPrefix + '-')) ||
+                        voices.find(voice => voice.lang.startsWith(langPrefix));
       }
       
+      // Fallback to any available voice if no match found
       preferredVoice = preferredVoice || voices[0];
       
       if (preferredVoice) {
         utterance.voice = preferredVoice;
+        console.log(`Using voice: ${preferredVoice.name} (${preferredVoice.lang}) for language: ${outputLanguage}`);
       }
 
       // Dynamic speech rate based on personality level and sentence length
