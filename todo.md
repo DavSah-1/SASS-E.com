@@ -102,9 +102,9 @@
 - [x] Implement input language detection and selection
 - [x] Implement output language selection
 - [x] Add bilingual display (show both original and translated text)
-- [ ] Integrate multi-language TTS support
+- [x] Integrate multi-language TTS support
 - [x] Add language swap button
-- [ ] Update speech recognition to support multiple languages
+- [x] Update speech recognition to support multiple languages
 - [x] Preserve Bob's personality in translations
 - [x] Add translation mode toggle
 
