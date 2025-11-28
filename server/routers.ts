@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession } from "./db";
+import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession, saveStudyGuide, saveQuiz, getUserQuizzes, saveQuizAttempt, getQuizAttempts } from "./db";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
 
@@ -619,6 +619,264 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
       .query(async ({ input }) => {
         const factChecks = await getFactCheckResultsBySession(input.sessionId);
         return factChecks;
+      }),
+
+    // Generate study guide from explanation
+    generateStudyGuide: protectedProcedure
+      .input(z.object({ sessionId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        // Get the learning session
+        const sessions = await getUserLearningSessions(ctx.user.id, 100);
+        const session = sessions.find(s => s.id === input.sessionId);
+        
+        if (!session) {
+          throw new Error('Learning session not found');
+        }
+
+        const userProfile = await getUserProfile(ctx.user.id);
+        const sarcasmLevel = userProfile?.sarcasmLevel || 5;
+        const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
+
+        // Generate study guide with LLM
+        const studyGuidePrompt = `Create a comprehensive study guide based on this explanation:
+
+Topic: ${session.topic}
+Explanation: ${session.explanation}
+
+Generate a study guide with:
+1. Key Concepts (3-5 main ideas)
+2. Important Terms and Definitions (5-7 terms)
+3. Summary (2-3 paragraphs)
+4. Study Tips (3-4 actionable tips)
+
+Maintain a ${personalityDesc} tone while being educational.`;
+
+        const studyGuideResponse = await invokeLLM({
+          messages: [
+            { role: 'system', content: `You are Agent Bob, a ${personalityDesc} learning assistant creating study materials.` },
+            { role: 'user', content: studyGuidePrompt },
+          ],
+          response_format: {
+            type: 'json_schema',
+            json_schema: {
+              name: 'study_guide',
+              strict: true,
+              schema: {
+                type: 'object',
+                properties: {
+                  keyConcepts: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Main concepts to remember'
+                  },
+                  terms: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        term: { type: 'string' },
+                        definition: { type: 'string' }
+                      },
+                      required: ['term', 'definition'],
+                      additionalProperties: false
+                    }
+                  },
+                  summary: { type: 'string' },
+                  studyTips: {
+                    type: 'array',
+                    items: { type: 'string' }
+                  }
+                },
+                required: ['keyConcepts', 'terms', 'summary', 'studyTips'],
+                additionalProperties: false
+              }
+            }
+          }
+        });
+
+        const studyGuideContent = studyGuideResponse.choices[0].message.content;
+        const studyGuideText = typeof studyGuideContent === 'string' ? studyGuideContent : JSON.stringify(studyGuideContent);
+        const studyGuide = JSON.parse(studyGuideText);
+
+        // Save to database
+        await saveStudyGuide({
+          userId: ctx.user.id,
+          learningSessionId: input.sessionId,
+          title: `Study Guide: ${session.topic}`,
+          content: JSON.stringify(studyGuide),
+          topicsCount: studyGuide.keyConcepts.length,
+          questionsCount: 0,
+        });
+
+        return studyGuide;
+      }),
+
+    // Generate quiz from explanation
+    generateQuiz: protectedProcedure
+      .input(z.object({ 
+        sessionId: z.number(),
+        questionCount: z.number().min(3).max(10).default(5),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Get the learning session
+        const sessions = await getUserLearningSessions(ctx.user.id, 100);
+        const session = sessions.find(s => s.id === input.sessionId);
+        
+        if (!session) {
+          throw new Error('Learning session not found');
+        }
+
+        const userProfile = await getUserProfile(ctx.user.id);
+        const sarcasmLevel = userProfile?.sarcasmLevel || 5;
+        const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
+
+        // Generate quiz with LLM
+        console.log('[Quiz Generation] Starting quiz generation for session:', input.sessionId);
+        const quizPrompt = `Create a ${input.questionCount}-question multiple choice quiz based on this explanation:
+
+Topic: ${session.topic}
+Explanation: ${session.explanation}
+
+For each question:
+- Create a clear, specific question
+- Provide 4 answer options (A, B, C, D)
+- Mark the correct answer
+- Add a brief explanation for the correct answer
+
+Maintain a ${personalityDesc} tone in questions and explanations.`;
+
+        console.log('[Quiz Generation] Calling LLM with prompt length:', quizPrompt.length);
+        
+        let quizResponse;
+        try {
+          quizResponse = await invokeLLM({
+            messages: [
+              { role: 'system', content: `You are Agent Bob, a ${personalityDesc} learning assistant creating quiz questions.` },
+              { role: 'user', content: quizPrompt },
+            ],
+            response_format: {
+              type: 'json_schema',
+              json_schema: {
+                name: 'quiz_generation',
+                strict: true,
+                schema: {
+                  type: 'object',
+                  properties: {
+                    questions: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          question: { type: 'string' },
+                        options: {
+                          type: 'array',
+                          items: { type: 'string' }
+                        },
+                          correctAnswer: { 
+                            type: 'string',
+                            enum: ['A', 'B', 'C', 'D']
+                          },
+                          explanation: { type: 'string' }
+                        },
+                        required: ['question', 'options', 'correctAnswer', 'explanation'],
+                        additionalProperties: false
+                      }
+                    }
+                  },
+                  required: ['questions'],
+                  additionalProperties: false
+                }
+              }
+            }
+          });
+        } catch (error) {
+          console.error('[Quiz Generation] LLM call failed with error:', error);
+          throw new Error(`Failed to generate quiz: ${error instanceof Error ? error.message : String(error)}`);
+        }
+
+        console.log('[Quiz Generation] LLM response received:', JSON.stringify(quizResponse).substring(0, 200));
+        
+        if (!quizResponse || !quizResponse.choices || quizResponse.choices.length === 0) {
+          console.error('[Quiz Generation] Invalid LLM response:', JSON.stringify(quizResponse));
+          throw new Error('Failed to generate quiz: Invalid LLM response');
+        }
+
+        const quizContent = quizResponse.choices[0].message.content;
+        if (!quizContent) {
+          throw new Error('Failed to generate quiz: Empty response content');
+        }
+        
+        const quizText = typeof quizContent === 'string' ? quizContent : JSON.stringify(quizContent);
+        const quiz = JSON.parse(quizText);
+
+        // Save to database
+        const quizResult = await saveQuiz({
+          userId: ctx.user.id,
+          learningSessionId: input.sessionId,
+          title: `Quiz: ${session.topic}`,
+          questions: JSON.stringify(quiz.questions),
+          totalQuestions: quiz.questions.length,
+        });
+
+        if (!quizResult || !quizResult[0] || !quizResult[0].insertId) {
+          throw new Error('Failed to save quiz to database');
+        }
+
+        const quizId = Number(quizResult[0].insertId);
+
+        return {
+          quizId,
+          questions: quiz.questions,
+        };
+      }),
+
+    // Submit quiz attempt
+    submitQuizAttempt: protectedProcedure
+      .input(z.object({
+        quizId: z.number(),
+        answers: z.array(z.number()),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Get user's quizzes to find the one being attempted
+        const userQuizzes = await getUserQuizzes(ctx.user.id);
+        const quiz = userQuizzes.find(q => q.id === input.quizId);
+        
+        if (!quiz) {
+          throw new Error('Quiz not found');
+        }
+
+        // Parse quiz questions to check answers
+        const questions = JSON.parse(quiz.questions);
+        let correctCount = 0;
+        
+        // Convert numeric answer indices to letters (0 -> 'A', 1 -> 'B', etc.)
+        const answerMap = ['A', 'B', 'C', 'D'];
+        
+        input.answers.forEach((answerIndex, questionIndex) => {
+          const answerLetter = answerMap[answerIndex];
+          if (questions[questionIndex] && answerLetter === questions[questionIndex].correctAnswer) {
+            correctCount++;
+          }
+        });
+
+        const score = Math.round((correctCount / questions.length) * 100);
+
+        await saveQuizAttempt({
+          quizId: input.quizId,
+          userId: ctx.user.id,
+          answers: JSON.stringify(input.answers),
+          score,
+          correctAnswers: correctCount,
+          totalQuestions: questions.length,
+          timeSpent: 0,
+        });
+
+        return {
+          score,
+          correctAnswers: correctCount,
+          totalQuestions: questions.length,
+          passed: score >= 70,
+        };
       }),
   }),
 

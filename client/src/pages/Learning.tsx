@@ -18,8 +18,17 @@ export default function Learning() {
   const [topic, setTopic] = useState("");
   const [question, setQuestion] = useState("");
   const [currentExplanation, setCurrentExplanation] = useState<any>(null);
+  const [currentStudyGuide, setCurrentStudyGuide] = useState<any>(null);
+  const [currentQuiz, setCurrentQuiz] = useState<any>(null);
+  const [quizAnswers, setQuizAnswers] = useState<number[]>([]);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [quizResults, setQuizResults] = useState<any>(null);
 
   const explainMutation = trpc.learning.explainWithFactCheck.useMutation();
+  const studyGuideMutation = trpc.learning.generateStudyGuide.useMutation();
+  const quizMutation = trpc.learning.generateQuiz.useMutation();
+  const submitQuizMutation = trpc.learning.submitQuizAttempt.useMutation();
+  
   const { data: history } = trpc.learning.getHistory.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -37,9 +46,63 @@ export default function Learning() {
       });
 
       setCurrentExplanation(result);
+      setCurrentStudyGuide(null);
+      setCurrentQuiz(null);
+      setQuizResults(null);
       toast.success("Explanation generated with fact-checking!");
     } catch (error) {
       toast.error("Failed to generate explanation");
+      console.error(error);
+    }
+  };
+
+  const handleGenerateStudyGuide = async (sessionId: number) => {
+    try {
+      const result = await studyGuideMutation.mutateAsync({ sessionId });
+      setCurrentStudyGuide(result);
+      toast.success("Study guide generated!");
+    } catch (error) {
+      toast.error("Failed to generate study guide");
+      console.error(error);
+    }
+  };
+
+  const handleGenerateQuiz = async (sessionId: number) => {
+    try {
+      const result = await quizMutation.mutateAsync({ 
+        sessionId,
+        questionCount: 5 
+      });
+      setCurrentQuiz(result);
+      setQuizAnswers([]);
+      setQuizCompleted(false);
+      setQuizResults(null);
+      toast.success("Quiz generated!");
+    } catch (error) {
+      toast.error("Failed to generate quiz");
+      console.error(error);
+    }
+  };
+
+  const handleQuizAnswer = (questionIndex: number, answerIndex: number) => {
+    const newAnswers = [...quizAnswers];
+    newAnswers[questionIndex] = answerIndex;
+    setQuizAnswers(newAnswers);
+  };
+
+  const handleSubmitQuiz = async () => {
+    if (!currentQuiz) return;
+
+    try {
+      const result = await submitQuizMutation.mutateAsync({
+        quizId: currentQuiz.quizId,
+        answers: quizAnswers,
+      });
+      setQuizResults(result);
+      setQuizCompleted(true);
+      toast.success(`Quiz completed! Score: ${result.score}%`);
+    } catch (error) {
+      toast.error("Failed to submit quiz");
       console.error(error);
     }
   };
@@ -362,9 +425,197 @@ export default function Learning() {
                   <p className="text-sm text-slate-300">
                     <span className="font-semibold text-purple-400">Verified with {currentExplanation.sourcesCount} sources</span>
                     {" • "}
-                    All claims have been fact-checked using web search and credible sources.
+                    All claims have been fact-checked using web search and credible sources
                   </p>
                 </div>
+
+                {/* Study Guide & Quiz Actions */}
+                <div className="flex gap-4 pt-4 border-t border-purple-500/10">
+                  <Button
+                    onClick={() => handleGenerateStudyGuide(currentExplanation.sessionId)}
+                    disabled={studyGuideMutation.isPending}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    {studyGuideMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <BookOpen className="mr-2 h-4 w-4" />
+                        Generate Study Guide
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={() => handleGenerateQuiz(currentExplanation.sessionId)}
+                    disabled={quizMutation.isPending}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    {quizMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <HelpCircle className="mr-2 h-4 w-4" />
+                        Generate Quiz
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Study Guide Display */}
+          {currentStudyGuide && (
+            <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
+              <CardHeader>
+                <CardTitle>Study Guide</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Key Concepts */}
+                <div>
+                  <h3 className="text-lg font-semibold text-purple-400 mb-3">Key Concepts</h3>
+                  <ul className="space-y-2">
+                    {currentStudyGuide.keyConcepts.map((concept: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2 text-slate-200">
+                        <CheckCircle2 className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
+                        <span>{concept}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Terms & Definitions */}
+                <div>
+                  <h3 className="text-lg font-semibold text-purple-400 mb-3">Important Terms</h3>
+                  <div className="space-y-3">
+                    {currentStudyGuide.terms.map((term: any, index: number) => (
+                      <div key={index} className="p-3 bg-slate-900/50 rounded-lg">
+                        <p className="font-semibold text-purple-300 mb-1">{term.term}</p>
+                        <p className="text-sm text-slate-300">{term.definition}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Summary */}
+                <div>
+                  <h3 className="text-lg font-semibold text-purple-400 mb-3">Summary</h3>
+                  <p className="text-slate-200 leading-relaxed">{currentStudyGuide.summary}</p>
+                </div>
+
+                {/* Study Tips */}
+                <div>
+                  <h3 className="text-lg font-semibold text-purple-400 mb-3">Study Tips</h3>
+                  <ul className="space-y-2">
+                    {currentStudyGuide.studyTips.map((tip: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2 text-slate-200">
+                        <Lightbulb className="h-5 w-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Quiz Display */}
+          {currentQuiz && !quizCompleted && (
+            <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
+              <CardHeader>
+                <CardTitle>Quiz Time!</CardTitle>
+                <CardDescription>
+                  Test your knowledge. Answer all questions and submit to see your score.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {currentQuiz.questions.map((q: any, index: number) => (
+                  <div key={index} className="space-y-3">
+                    <p className="font-semibold text-slate-200">
+                      {index + 1}. {q.question}
+                    </p>
+                    <div className="space-y-2 pl-4">
+                      {q.options.map((option: string, optIndex: number) => (
+                        <label
+                          key={optIndex}
+                          className="flex items-center gap-3 p-3 bg-slate-900/30 rounded-lg cursor-pointer hover:bg-slate-900/50 transition-colors"
+                        >
+                          <input
+                            type="radio"
+                            name={`question-${index}`}
+                            value={optIndex}
+                            checked={quizAnswers[index] === optIndex}
+                            onChange={() => handleQuizAnswer(index, optIndex)}
+                            className="w-4 h-4 text-purple-500"
+                          />
+                          <span className="text-slate-300">{String.fromCharCode(65 + optIndex)}. {option}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                <Button
+                  onClick={handleSubmitQuiz}
+                  disabled={quizAnswers.length !== currentQuiz.questions.length || submitQuizMutation.isPending}
+                  className="w-full"
+                >
+                  {submitQuizMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    'Submit Quiz'
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Quiz Results */}
+          {quizResults && (
+            <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
+              <CardHeader>
+                <CardTitle>Quiz Results</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-center space-y-2">
+                  <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+                    {quizResults.score}%
+                  </div>
+                  <p className="text-xl text-slate-300">
+                    {quizResults.correctAnswers} out of {quizResults.totalQuestions} correct
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {quizResults.passed ? (
+                      <span className="text-green-400">✓ Passed!</span>
+                    ) : (
+                      <span className="text-yellow-400">Keep studying!</span>
+                    )}
+                  </p>
+                </div>
+
+                <Button
+                  onClick={() => {
+                    setQuizResults(null);
+                    setQuizCompleted(false);
+                    setCurrentQuiz(null);
+                    setQuizAnswers([]);
+                  }}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Try Another Quiz
+                </Button>
               </CardContent>
             </Card>
           )}

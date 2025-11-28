@@ -124,8 +124,8 @@
 - [x] Add learning router to server/routers.ts
 - [x] Add database helper functions for learning operations
 - [x] Implement explain with fact-checking procedure
-- [ ] Implement study guide generation procedure
-- [ ] Implement quiz generation procedure
+- [x] Implement study guide generation procedure
+- [x] Implement quiz generation procedure
 - [x] Add web search integration for fact verification
 - [x] Implement credibility scoring system
 - [x] Add source citation tracking
@@ -136,18 +136,18 @@
 - [x] Build explanation display with fact-check results
 - [x] Add credibility score indicators
 - [x] Implement source citation display
-- [ ] Create study guide generator UI
-- [ ] Build interactive quiz interface
-- [ ] Add learning progress tracking
+- [x] Create study guide generator UI
+- [x] Build interactive quiz interface
+- [x] Add learning progress tracking
 - [ ] Create export to PDF functionality
 
 ### Features
-- [ ] Explain topics with automatic fact-checking
-- [ ] Show source citations inline
-- [ ] Display confidence/credibility scores
-- [ ] Generate verified study guides
-- [ ] Create interactive quizzes with explanations
-- [ ] Track learning history
+- [x] Explain topics with automatic fact-checking
+- [x] Show source citations inline
+- [x] Display confidence/credibility scores
+- [x] Generate verified study guides
+- [x] Create interactive quizzes with explanations
+- [x] Track learning history
 - [ ] Multi-perspective analysis for controversial topics
 - [ ] Detect and flag misinformation
 
@@ -164,10 +164,21 @@
 
 
 ## Bug Fixes
-- [ ] Fix "failed to generate explanation" error in Verified Learning Assistant
+- [x] Fix "failed to generate explanation" error in Verified Learning Assistant
 
 
 
 ## Bug Fixes
 - [x] Fix TTS voice selection for translated languages - voices sound English instead of native language
 
+
+## Study Guide & Quiz Generation
+- [x] Implement study guide generation procedure in backend
+- [x] Implement quiz generation procedure in backend
+- [x] Add study guide display UI to Learning page
+- [x] Add quiz interface with question display
+- [x] Add quiz answer submission and scoring
+- [x] Save quiz attempts to database
+- [x] Display quiz results with feedback
+- [x] Fix quiz generation JSON schema error (correctAnswer type)
+- [x] Fix quiz submission answer comparison logic
