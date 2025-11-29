@@ -9,9 +9,11 @@ import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession, saveStudyGuide, saveQuiz, getUserQuizzes, saveQuizAttempt, getQuizAttempts } from "./db";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
+import { languageLearningRouter } from "./languageLearningRouter";
 
 export const appRouter = router({
   system: systemRouter,
+  languageLearning: languageLearningRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

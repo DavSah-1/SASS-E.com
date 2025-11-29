@@ -222,3 +222,188 @@ export const quizAttempts = mysqlTable("quiz_attempts", {
 export type QuizAttempt = typeof quizAttempts.$inferSelect;
 export type InsertQuizAttempt = typeof quizAttempts.$inferInsert;
 
+/**
+ * Language Learning - Vocabulary Items table
+ */
+export const vocabularyItems = mysqlTable("vocabulary_items", {
+  id: int("id").autoincrement().primaryKey(),
+  language: varchar("language", { length: 50 }).notNull(), // Target language code (e.g., 'es', 'fr', 'de')
+  word: varchar("word", { length: 255 }).notNull(),
+  translation: varchar("translation", { length: 255 }).notNull(), // English translation
+  pronunciation: varchar("pronunciation", { length: 255 }), // IPA or phonetic spelling
+  partOfSpeech: mysqlEnum("partOfSpeech", ["noun", "verb", "adjective", "adverb", "preposition", "conjunction", "pronoun", "interjection"]).notNull(),
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  category: varchar("category", { length: 128 }), // e.g., 'food', 'travel', 'business'
+  exampleSentence: text("exampleSentence"),
+  exampleTranslation: text("exampleTranslation"),
+  audioUrl: varchar("audioUrl", { length: 512 }),
+  imageUrl: varchar("imageUrl", { length: 512 }),
+  notes: text("notes"), // Cultural notes, usage tips, etc.
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type VocabularyItem = typeof vocabularyItems.$inferSelect;
+export type InsertVocabularyItem = typeof vocabularyItems.$inferInsert;
+
+/**
+ * Language Learning - User Vocabulary Progress table
+ */
+export const userVocabulary = mysqlTable("user_vocabulary", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  vocabularyItemId: int("vocabularyItemId").notNull(),
+  language: varchar("language", { length: 50 }).notNull(),
+  masteryLevel: int("masteryLevel").default(0).notNull(), // 0-100
+  timesReviewed: int("timesReviewed").default(0).notNull(),
+  timesCorrect: int("timesCorrect").default(0).notNull(),
+  timesIncorrect: int("timesIncorrect").default(0).notNull(),
+  lastReviewed: timestamp("lastReviewed"),
+  nextReview: timestamp("nextReview"), // For spaced repetition
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserVocabulary = typeof userVocabulary.$inferSelect;
+export type InsertUserVocabulary = typeof userVocabulary.$inferInsert;
+
+/**
+ * Language Learning - Grammar Lessons table
+ */
+export const grammarLessons = mysqlTable("grammar_lessons", {
+  id: int("id").autoincrement().primaryKey(),
+  language: varchar("language", { length: 50 }).notNull(),
+  topic: varchar("topic", { length: 255 }).notNull(), // e.g., 'Present Tense', 'Subjunctive Mood'
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  explanation: text("explanation").notNull(),
+  examples: text("examples").notNull(), // JSON array of example objects
+  commonMistakes: text("commonMistakes"), // JSON array of common mistakes
+  relatedTopics: text("relatedTopics"), // JSON array of related topic IDs
+  exercises: text("exercises"), // JSON array of practice exercises
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GrammarLesson = typeof grammarLessons.$inferSelect;
+export type InsertGrammarLesson = typeof grammarLessons.$inferInsert;
+
+/**
+ * Language Learning - User Grammar Progress table
+ */
+export const userGrammarProgress = mysqlTable("user_grammar_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  grammarLessonId: int("grammarLessonId").notNull(),
+  language: varchar("language", { length: 50 }).notNull(),
+  completed: int("completed").default(0).notNull(), // Boolean: 0 or 1
+  masteryLevel: int("masteryLevel").default(0).notNull(), // 0-100
+  exercisesCompleted: int("exercisesCompleted").default(0).notNull(),
+  lastStudied: timestamp("lastStudied"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserGrammarProgress = typeof userGrammarProgress.$inferSelect;
+export type InsertUserGrammarProgress = typeof userGrammarProgress.$inferInsert;
+
+/**
+ * Language Learning - Exercises table
+ */
+export const languageExercises = mysqlTable("language_exercises", {
+  id: int("id").autoincrement().primaryKey(),
+  language: varchar("language", { length: 50 }).notNull(),
+  exerciseType: mysqlEnum("exerciseType", ["translation", "fill_blank", "multiple_choice", "matching", "listening", "speaking"]).notNull(),
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  category: varchar("category", { length: 128 }),
+  prompt: text("prompt").notNull(),
+  options: text("options"), // JSON array for multiple choice/matching
+  correctAnswer: text("correctAnswer").notNull(),
+  explanation: text("explanation"),
+  audioUrl: varchar("audioUrl", { length: 512 }),
+  relatedVocabulary: text("relatedVocabulary"), // JSON array of vocabulary IDs
+  relatedGrammar: text("relatedGrammar"), // JSON array of grammar lesson IDs
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LanguageExercise = typeof languageExercises.$inferSelect;
+export type InsertLanguageExercise = typeof languageExercises.$inferInsert;
+
+/**
+ * Language Learning - Exercise Attempts table
+ */
+export const exerciseAttempts = mysqlTable("exercise_attempts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  exerciseId: int("exerciseId").notNull(),
+  language: varchar("language", { length: 50 }).notNull(),
+  userAnswer: text("userAnswer").notNull(),
+  isCorrect: int("isCorrect").notNull(), // Boolean: 0 or 1
+  timeSpent: int("timeSpent"), // Seconds
+  hintsUsed: int("hintsUsed").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ExerciseAttempt = typeof exerciseAttempts.$inferSelect;
+export type InsertExerciseAttempt = typeof exerciseAttempts.$inferInsert;
+
+/**
+ * Language Learning - User Language Progress table
+ */
+export const userLanguageProgress = mysqlTable("user_language_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  language: varchar("language", { length: 50 }).notNull(),
+  level: mysqlEnum("level", ["beginner", "intermediate", "advanced"]).default("beginner").notNull(),
+  fluencyScore: int("fluencyScore").default(0).notNull(), // 0-100
+  vocabularySize: int("vocabularySize").default(0).notNull(),
+  grammarTopicsMastered: int("grammarTopicsMastered").default(0).notNull(),
+  exercisesCompleted: int("exercisesCompleted").default(0).notNull(),
+  totalStudyTime: int("totalStudyTime").default(0).notNull(), // Minutes
+  currentStreak: int("currentStreak").default(0).notNull(), // Days
+  longestStreak: int("longestStreak").default(0).notNull(), // Days
+  lastStudied: timestamp("lastStudied"),
+  dailyGoal: int("dailyGoal").default(15).notNull(), // Minutes per day
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserLanguageProgress = typeof userLanguageProgress.$inferSelect;
+export type InsertUserLanguageProgress = typeof userLanguageProgress.$inferInsert;
+
+/**
+ * Language Learning - Daily Lessons table
+ */
+export const dailyLessons = mysqlTable("daily_lessons", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  language: varchar("language", { length: 50 }).notNull(),
+  lessonDate: timestamp("lessonDate").notNull(),
+  vocabularyItems: text("vocabularyItems").notNull(), // JSON array of vocabulary IDs
+  grammarTopics: text("grammarTopics"), // JSON array of grammar lesson IDs
+  exercises: text("exercises").notNull(), // JSON array of exercise IDs
+  completed: int("completed").default(0).notNull(), // Boolean: 0 or 1
+  completionTime: int("completionTime"), // Minutes
+  score: int("score"), // 0-100
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type DailyLesson = typeof dailyLessons.$inferSelect;
+export type InsertDailyLesson = typeof dailyLessons.$inferInsert;
+
+/**
+ * Language Learning - Achievements table
+ */
+export const languageAchievements = mysqlTable("language_achievements", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  language: varchar("language", { length: 50 }).notNull(),
+  achievementType: varchar("achievementType", { length: 128 }).notNull(), // e.g., 'first_lesson', 'vocab_master_100', 'streak_7'
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  iconUrl: varchar("iconUrl", { length: 512 }),
+  earnedAt: timestamp("earnedAt").defaultNow().notNull(),
+});
+
+export type LanguageAchievement = typeof languageAchievements.$inferSelect;
+export type InsertLanguageAchievement = typeof languageAchievements.$inferInsert;
+
