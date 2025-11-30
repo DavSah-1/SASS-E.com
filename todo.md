@@ -231,3 +231,15 @@
 - [ ] Pronunciation practice with real-time feedback (future)
 - [ ] Daily personalized lesson plans (future)
 - [ ] Conversation practice scenarios (future)
+
+
+## Text-to-Speech Pronunciation for Vocabulary Flashcards
+- [x] Create TTS utility function for language-specific pronunciation
+- [x] Add speaker button to vocabulary flashcards
+- [x] Integrate browser's speech synthesis API with language selection
+- [x] Map language codes to speech synthesis voices (10+ languages)
+- [x] Add auto-play pronunciation when flashcard is displayed
+- [x] Add manual pronunciation button for user control
+- [x] Handle cases where language voice is not available
+- [x] Seed 15 Spanish vocabulary words for testing
+- [x] Test pronunciation feature (works in real browsers, sandbox has no TTS voices)

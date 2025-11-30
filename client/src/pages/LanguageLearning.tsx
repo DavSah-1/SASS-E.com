@@ -26,6 +26,7 @@ import {
   GraduationCap
 } from "lucide-react";
 import { APP_TITLE, getLoginUrl } from "@/const";
+import { speakInLanguage, initializeSpeechSynthesis, isTTSAvailableForLanguage, stopSpeech } from "@/lib/languageTTS";
 
 export default function LanguageLearning() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -38,6 +39,8 @@ export default function LanguageLearning() {
   const [isGeneratingGrammar, setIsGeneratingGrammar] = useState(false);
   const [exerciseAnswer, setExerciseAnswer] = useState("");
   const [exerciseStartTime, setExerciseStartTime] = useState<number>(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [ttsAvailable, setTtsAvailable] = useState(false);
 
   // Queries
   const { data: languages } = trpc.languageLearning.getSupportedLanguages.useQuery();
@@ -99,6 +102,37 @@ export default function LanguageLearning() {
     },
   });
 
+  // Initialize speech synthesis on mount
+  useEffect(() => {
+    initializeSpeechSynthesis(() => {
+      setTtsAvailable(isTTSAvailableForLanguage(selectedLanguage));
+    });
+  }, []);
+
+  // Check TTS availability when language changes
+  useEffect(() => {
+    setTtsAvailable(isTTSAvailableForLanguage(selectedLanguage));
+    // Stop any ongoing speech when language changes
+    stopSpeech();
+  }, [selectedLanguage]);
+
+  // Auto-play pronunciation when flashcard is shown
+  useEffect(() => {
+    const flashcard = flashcards?.[currentFlashcardIndex];
+    if (flashcard && !showAnswer && ttsAvailable) {
+      // Auto-play after a short delay
+      const timer = setTimeout(() => {
+        speakInLanguage(flashcard.word, selectedLanguage, {
+          rate: 0.85,
+          onError: (error) => {
+            console.error('TTS error:', error);
+          },
+        });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentFlashcardIndex, flashcards, showAnswer, ttsAvailable, selectedLanguage]);
+
   useEffect(() => {
     if (activeTab === "exercises" && exercises && exercises.length > 0) {
       setExerciseStartTime(Date.now());
@@ -144,6 +178,23 @@ export default function LanguageLearning() {
 
   const currentFlashcard = flashcards?.[currentFlashcardIndex];
   const currentExercise = exercises?.[0];
+
+  const handlePronounce = (text: string) => {
+    if (!ttsAvailable) {
+      toast.error("Text-to-speech is not available for this language.");
+      return;
+    }
+
+    setIsSpeaking(true);
+    speakInLanguage(text, selectedLanguage, {
+      rate: 0.85, // Slower for learning
+      onEnd: () => setIsSpeaking(false),
+      onError: (error) => {
+        setIsSpeaking(false);
+        toast.error(error.message);
+      },
+    });
+  };
 
   const handleFlashcardResponse = (isCorrect: boolean) => {
     if (!currentFlashcard) return;
@@ -390,7 +441,21 @@ export default function LanguageLearning() {
                       <div className="text-center space-y-6">
                         {/* Word */}
                         <div>
-                          <h2 className="text-5xl font-bold mb-2">{currentFlashcard.word}</h2>
+                          <div className="flex items-center justify-center gap-4 mb-2">
+                            <h2 className="text-5xl font-bold">{currentFlashcard.word}</h2>
+                            {ttsAvailable && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handlePronounce(currentFlashcard.word)}
+                                disabled={isSpeaking}
+                                className="h-12 w-12"
+                                title="Hear pronunciation"
+                              >
+                                <Volume2 className={`h-6 w-6 ${isSpeaking ? 'animate-pulse text-primary' : ''}`} />
+                              </Button>
+                            )}
+                          </div>
                           {currentFlashcard.pronunciation && (
                             <p className="text-muted-foreground text-sm">/{currentFlashcard.pronunciation}/</p>
                           )}
