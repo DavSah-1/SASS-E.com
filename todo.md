@@ -243,3 +243,26 @@
 - [x] Handle cases where language voice is not available
 - [x] Seed 15 Spanish vocabulary words for testing
 - [x] Test pronunciation feature (works in real browsers, sandbox has no TTS voices)
+
+
+## Vocabulary Database Expansion (345 words per language = 3,450 total)
+- [x] Create Spanish vocabulary dataset (345 words across all levels)
+- [x] Create French vocabulary dataset (345 words across all levels)
+- [x] Create German vocabulary dataset (345 words across all levels)
+- [x] Create Italian vocabulary dataset (345 words across all levels)
+- [x] Create Portuguese vocabulary dataset (345 words across all levels)
+- [x] Create Japanese vocabulary dataset (345 words with kanji/hiragana/romaji)
+- [x] Create Chinese vocabulary dataset (345 words with pinyin)
+- [x] Create Korean vocabulary dataset (345 words with Hangul)
+- [x] Create Russian vocabulary dataset (345 words with Cyrillic)
+- [x] Create Arabic vocabulary dataset (345 words with transliteration)
+- [x] Organize words by 23 themes (greetings, numbers, colors, food, travel, etc.)
+- [x] Include pronunciation guides for all words
+- [x] Add example sentences with English translations
+- [x] Add cultural context notes
+- [x] Create LLM-powered vocabulary generation script
+- [x] Fix database schema (partOfSpeech varchar instead of enum)
+- [x] Run seed scripts to populate database with 3,450 words
+- [x] Test flashcards with expanded Spanish vocabulary
+- [x] Test flashcards with Japanese (non-Latin script)
+- [x] Verify all 10 languages work correctly

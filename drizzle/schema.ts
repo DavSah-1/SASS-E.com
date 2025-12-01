@@ -231,7 +231,7 @@ export const vocabularyItems = mysqlTable("vocabulary_items", {
   word: varchar("word", { length: 255 }).notNull(),
   translation: varchar("translation", { length: 255 }).notNull(), // English translation
   pronunciation: varchar("pronunciation", { length: 255 }), // IPA or phonetic spelling
-  partOfSpeech: mysqlEnum("partOfSpeech", ["noun", "verb", "adjective", "adverb", "preposition", "conjunction", "pronoun", "interjection"]).notNull(),
+  partOfSpeech: varchar("partOfSpeech", { length: 100 }).notNull(), // Flexible to allow "noun (m.)", "phrase", etc.
   difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).notNull(),
   category: varchar("category", { length: 128 }), // e.g., 'food', 'travel', 'business'
   exampleSentence: text("exampleSentence"),

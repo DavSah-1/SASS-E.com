@@ -1,0 +1,1 @@
+ALTER TABLE `vocabulary_items` MODIFY COLUMN `partOfSpeech` varchar(100) NOT NULL;

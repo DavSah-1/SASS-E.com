@@ -43,6 +43,13 @@
       "when": 1764442742783,
       "tag": "0005_regular_boomer",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1764583279284,
+      "tag": "0006_famous_the_stranger",
+      "breakpoints": true
     }
   ]
 }
