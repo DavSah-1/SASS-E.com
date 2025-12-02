@@ -39,6 +39,9 @@ export default function LanguageLearning() {
   const [isGeneratingGrammar, setIsGeneratingGrammar] = useState(false);
   const [exerciseAnswer, setExerciseAnswer] = useState("");
   const [exerciseStartTime, setExerciseStartTime] = useState<number>(0);
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
+  const [exerciseResult, setExerciseResult] = useState<any>(null);
+  const [showExerciseResult, setShowExerciseResult] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [ttsAvailable, setTtsAvailable] = useState(false);
 
@@ -90,14 +93,8 @@ export default function LanguageLearning() {
 
   const submitExerciseAnswer = trpc.languageLearning.submitExerciseAnswer.useMutation({
     onSuccess: (data) => {
-      const timeSpent = Math.floor((Date.now() - exerciseStartTime) / 1000);
-      if (data.isCorrect) {
-        toast.success(data.sarcasticFeedback);
-      } else {
-        toast.error(`${data.sarcasticFeedback}\nCorrect answer: ${data.correctAnswer}`);
-      }
-      setExerciseAnswer("");
-      refetchExercises();
+      setExerciseResult(data);
+      setShowExerciseResult(true);
       refetchProgress();
     },
   });
@@ -177,7 +174,7 @@ export default function LanguageLearning() {
   }
 
   const currentFlashcard = flashcards?.[currentFlashcardIndex];
-  const currentExercise = exercises?.[0];
+  const currentExercise = exercises?.[currentExerciseIndex];
 
   const handlePronounce = (text: string) => {
     if (!ttsAvailable) {
@@ -655,62 +652,159 @@ export default function LanguageLearning() {
           {/* Exercises Tab */}
           <TabsContent value="exercises" className="space-y-6">
             {currentExercise ? (
-              <Card className="max-w-2xl mx-auto">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="secondary">{currentExercise.exerciseType}</Badge>
+              <div className="max-w-2xl mx-auto space-y-4">
+                {/* Progress indicator */}
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>Exercise {currentExerciseIndex + 1} of {exercises?.length || 0}</span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{currentExercise.exerciseType.replace('_', ' ')}</Badge>
                     <Badge>{currentExercise.difficulty}</Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Exercise Prompt */}
-                  <div>
-                    <h3 className="text-xl font-semibold mb-4">{currentExercise.prompt}</h3>
-                    
-                    {/* Multiple Choice Options */}
-                    {currentExercise.options && JSON.parse(currentExercise.options).length > 0 && (
-                      <div className="space-y-2">
-                        {JSON.parse(currentExercise.options).map((option: string, index: number) => (
-                          <Button
-                            key={index}
-                            variant="outline"
-                            className="w-full justify-start text-left h-auto py-3"
-                            onClick={() => setExerciseAnswer(option)}
+                </div>
+
+                {!showExerciseResult ? (
+                  <Card>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* Exercise Prompt */}
+                      <div>
+                        <h3 className="text-xl font-semibold mb-4">{currentExercise.prompt}</h3>
+                        
+                        {/* Multiple Choice Options */}
+                        {currentExercise.options && JSON.parse(currentExercise.options).length > 0 && (
+                          <div className="space-y-2">
+                            {JSON.parse(currentExercise.options).map((option: string, index: number) => (
+                              <Button
+                                key={index}
+                                variant={exerciseAnswer === option ? "default" : "outline"}
+                                className="w-full justify-start text-left h-auto py-3"
+                                onClick={() => setExerciseAnswer(option)}
+                              >
+                                <span className="font-semibold mr-3">{String.fromCharCode(65 + index)}.</span>
+                                {option}
+                              </Button>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Text Input for Translation/Fill-in-blank */}
+                        {(!currentExercise.options || JSON.parse(currentExercise.options).length === 0) && (
+                          <div className="space-y-2">
+                            <Label htmlFor="answer">Your Answer</Label>
+                            <Textarea
+                              id="answer"
+                              placeholder="Type your answer here..."
+                              value={exerciseAnswer}
+                              onChange={(e) => setExerciseAnswer(e.target.value)}
+                              rows={3}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <Button 
+                        onClick={handleExerciseSubmit} 
+                        className="w-full" 
+                        size="lg"
+                        disabled={!exerciseAnswer.trim() || submitExerciseAnswer.isPending}
+                      >
+                        {submitExerciseAnswer.isPending ? "Checking..." : "Submit Answer"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card className={exerciseResult?.isCorrect ? "border-green-500" : "border-red-500"}>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* Result Header */}
+                      <div className="flex items-center justify-center gap-3">
+                        {exerciseResult?.isCorrect ? (
+                          <CheckCircle2 className="h-12 w-12 text-green-500" />
+                        ) : (
+                          <XCircle className="h-12 w-12 text-red-500" />
+                        )}
+                        <div>
+                          <h3 className="text-2xl font-bold">
+                            {exerciseResult?.isCorrect ? "Correct!" : "Incorrect"}
+                          </h3>
+                          <p className="text-muted-foreground">Bob's Feedback</p>
+                        </div>
+                      </div>
+
+                      {/* Sarcastic Feedback */}
+                      <div className="bg-muted p-4 rounded-lg">
+                        <p className="text-center italic">"{exerciseResult?.sarcasticFeedback}"</p>
+                      </div>
+
+                      {/* Correct Answer (if wrong) */}
+                      {!exerciseResult?.isCorrect && (
+                        <div className="space-y-2">
+                          <Label>Correct Answer:</Label>
+                          <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                            <p className="font-semibold text-green-900 dark:text-green-100">
+                              {exerciseResult?.correctAnswer}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Explanation */}
+                      {currentExercise.explanation && (
+                        <div className="space-y-2">
+                          <Label>Explanation:</Label>
+                          <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <p className="text-sm text-blue-900 dark:text-blue-100">
+                              {currentExercise.explanation}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Navigation Buttons */}
+                      <div className="flex gap-3">
+                        {currentExerciseIndex < (exercises?.length || 0) - 1 ? (
+                          <Button 
+                            onClick={() => {
+                              setShowExerciseResult(false);
+                              setExerciseResult(null);
+                              setExerciseAnswer("");
+                              setCurrentExerciseIndex(prev => prev + 1);
+                              setExerciseStartTime(Date.now());
+                            }}
+                            className="flex-1"
+                            size="lg"
                           >
-                            <span className="font-semibold mr-3">{String.fromCharCode(65 + index)}.</span>
-                            {option}
+                            Next Exercise <ChevronRight className="ml-2 h-4 w-4" />
                           </Button>
-                        ))}
+                        ) : (
+                          <Button 
+                            onClick={() => {
+                              setShowExerciseResult(false);
+                              setExerciseResult(null);
+                              setExerciseAnswer("");
+                              setCurrentExerciseIndex(0);
+                              refetchExercises();
+                              toast.success("Great job! Loading new exercises...");
+                            }}
+                            className="flex-1"
+                            size="lg"
+                          >
+                            <RotateCcw className="mr-2 h-4 w-4" /> New Set
+                          </Button>
+                        )}
                       </div>
-                    )}
-
-                    {/* Text Input for Translation/Fill-in-blank */}
-                    {(!currentExercise.options || JSON.parse(currentExercise.options).length === 0) && (
-                      <div className="space-y-2">
-                        <Label htmlFor="answer">Your Answer</Label>
-                        <Textarea
-                          id="answer"
-                          placeholder="Type your answer here..."
-                          value={exerciseAnswer}
-                          onChange={(e) => setExerciseAnswer(e.target.value)}
-                          rows={3}
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <Button onClick={handleExerciseSubmit} className="w-full" size="lg">
-                    Submit Answer
-                  </Button>
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             ) : (
               <Card>
                 <CardContent className="pt-6 text-center">
                   <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground mb-4">
                     No exercises available yet. Bob is preparing some challenges for you.
                   </p>
+                  <Button onClick={() => refetchExercises()} variant="outline">
+                    <RotateCcw className="mr-2 h-4 w-4" /> Refresh
+                  </Button>
                 </CardContent>
               </Card>
             )}
