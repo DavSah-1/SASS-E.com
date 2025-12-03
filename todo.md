@@ -312,3 +312,15 @@
 - [x] Test navigation to next exercise
 - [x] Verify progress tracking updates correctly
 - [x] Verify Bob's sarcastic feedback displays correctly
+
+
+## Bug Fixes - Language Learning UI Issues
+- [ ] Fix TTS pronunciation button not showing on vocabulary flashcards
+- [ ] Fix missing navigation bar on Language Learning page
+- [ ] Fix language selector showing country codes instead of flag emojis
+
+
+## UI Bug Fixes - Language Learning Page
+- [x] Fix missing navigation bar on Language Learning page
+- [x] Fix language selector to show flag emojis (🇪🇸, 🇫🇷, etc.) instead of country codes
+- [x] Fix TTS pronunciation button not showing on vocabulary flashcards (now always visible, disabled when TTS unavailable)

@@ -23,13 +23,23 @@ import {
   RotateCcw,
   ChevronRight,
   Sparkles,
-  GraduationCap
+  GraduationCap,
+  Menu,
+  X,
+  Home as HomeIcon,
+  Mic,
+  Lightbulb,
+  Languages as LanguagesIcon,
+  Download
 } from "lucide-react";
-import { APP_TITLE, getLoginUrl } from "@/const";
+import { APP_TITLE, APP_LOGO, getLoginUrl } from "@/const";
 import { speakInLanguage, initializeSpeechSynthesis, isTTSAvailableForLanguage, stopSpeech } from "@/lib/languageTTS";
+import { usePWA } from "@/hooks/usePWA";
 
 export default function LanguageLearning() {
   const { user, isAuthenticated, loading } = useAuth();
+  const { isInstallable, isInstalled, installApp } = usePWA();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>("es");
   const [activeTab, setActiveTab] = useState("overview");
   const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
@@ -234,7 +244,121 @@ export default function LanguageLearning() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 border-b border-purple-500/20 bg-slate-900/50 backdrop-blur">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center" style={{paddingTop: '0px', paddingBottom: '0px', height: '65px'}}>
+          <div className="flex items-center gap-3">
+            {APP_LOGO && <img src={APP_LOGO} alt={APP_TITLE} className="h-8 w-8" />}
+            <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{fontSize: '15px', marginRight: '24px'}}>
+              {APP_TITLE}
+            </span>
+            {/* Desktop Navigation Links */}
+            <div className="hidden md:flex items-center gap-6 ml-8">
+              <a href="/" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <HomeIcon className="h-4 w-4" />
+                Home
+              </a>
+              <a href="/assistant" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <Mic className="h-4 w-4" />
+                Voice Assistant
+              </a>
+              <a href="/devices" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <Lightbulb className="h-4 w-4" />
+                IoT Devices
+              </a>
+              <a href="/learning" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <GraduationCap className="h-4 w-4" />
+                Learning
+              </a>
+              <a href="/language-learning" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <LanguagesIcon className="h-4 w-4" />
+                Languages
+              </a>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            {/* Mobile Hamburger Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden text-slate-300 hover:text-purple-400 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+            
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-4">
+            {isInstallable && !isInstalled && (
+              <Button onClick={installApp} variant="outline" size="sm" className="gap-2">
+                <Download className="h-4 w-4" />
+                Install App
+              </Button>
+            )}
+            {isAuthenticated ? (
+              <>
+                <span className="text-sm text-slate-300" style={{fontSize: '10px'}}>Welcome, {user?.name || 'Human'}</span>
+                <Button asChild variant="default">
+                  <a href="/assistant" style={{paddingTop: '5px', paddingRight: '5px', paddingBottom: '5px', paddingLeft: '5px', marginRight: '-15px'}}>Launch Assistant</a>
+                </Button>
+              </>
+            ) : (
+              <Button asChild variant="default">
+                <a href={getLoginUrl()}>Get Started</a>
+              </Button>
+            )}
+            </div>
+          </div>
+        </div>
+        
+        {/* Mobile Menu Panel */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-purple-500/20 bg-slate-900/95 backdrop-blur">
+            <div className="container mx-auto px-6 py-4 space-y-3">
+              <a
+                href="/"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <HomeIcon className="h-5 w-5" />
+                <span>Home</span>
+              </a>
+              <a
+                href="/assistant"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Mic className="h-5 w-5" />
+                <span>Voice Assistant</span>
+              </a>
+              <a
+                href="/devices"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Lightbulb className="h-5 w-5" />
+                <span>IoT Devices</span>
+              </a>
+              <a
+                href="/learning"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <GraduationCap className="h-5 w-5" />
+                <span>Learning</span>
+              </a>
+              <a
+                href="/language-learning"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <LanguagesIcon className="h-5 w-5" />
+                <span>Language Learning</span>
+              </a>
+            </div>
+          </div>
+        )}
+      </nav>
       <div className="container mx-auto py-8 px-4 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
@@ -250,7 +374,10 @@ export default function LanguageLearning() {
             <div className="flex items-center gap-4">
               <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
                 <SelectTrigger className="w-[200px]">
-                  <SelectValue />
+                  <div className="flex items-center gap-2">
+                    <span>{languages?.find(l => l.code === selectedLanguage)?.flag}</span>
+                    <span>{languages?.find(l => l.code === selectedLanguage)?.name}</span>
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
                   {languages?.map((lang) => (
@@ -440,18 +567,16 @@ export default function LanguageLearning() {
                         <div>
                           <div className="flex items-center justify-center gap-4 mb-2">
                             <h2 className="text-5xl font-bold">{currentFlashcard.word}</h2>
-                            {ttsAvailable && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handlePronounce(currentFlashcard.word)}
-                                disabled={isSpeaking}
-                                className="h-12 w-12"
-                                title="Hear pronunciation"
-                              >
-                                <Volume2 className={`h-6 w-6 ${isSpeaking ? 'animate-pulse text-primary' : ''}`} />
-                              </Button>
-                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handlePronounce(currentFlashcard.word)}
+                              disabled={!ttsAvailable || isSpeaking}
+                              className="h-12 w-12"
+                              title={ttsAvailable ? "Hear pronunciation" : "Text-to-speech not available"}
+                            >
+                              <Volume2 className={`h-6 w-6 ${isSpeaking ? 'animate-pulse text-primary' : !ttsAvailable ? 'text-muted-foreground' : ''}`} />
+                            </Button>
                           </div>
                           {currentFlashcard.pronunciation && (
                             <p className="text-muted-foreground text-sm">/{currentFlashcard.pronunciation}/</p>
