@@ -9,6 +9,7 @@ import VoiceAssistant from "./pages/VoiceAssistant";
 import IoTDevices from "./pages/IoTDevices";
 import Learning from "./pages/Learning";
 import LanguageLearning from "./pages/LanguageLearning";
+import Profile from "./pages/Profile";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -19,6 +20,7 @@ function Router() {
       <Route path={"/devices"} component={IoTDevices} />
       <Route path={"/learning"} component={Learning} />
       <Route path={"/language-learning"} component={LanguageLearning} />
+      <Route path={"/profile"} component={Profile} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -68,7 +68,12 @@ export function Navigation() {
           )}
           {isAuthenticated ? (
             <>
-              <span className="text-xs sm:text-sm text-slate-300">{t.nav.welcome}, {user?.name || 'Human'}</span>
+              <Button asChild variant="ghost" size="sm" className="gap-2">
+                <a href="/profile">
+                  <User className="h-4 w-4" />
+                  <span className="hidden lg:inline">Profile</span>
+                </a>
+              </Button>
               <Button asChild variant="default" size="sm">
                 <a href="/assistant">{t.nav.launchAssistant}</a>
               </Button>
@@ -126,6 +131,16 @@ export function Navigation() {
               <Languages className="h-5 w-5" />
               <span>{t.nav.languages}</span>
             </a>
+            {isAuthenticated && (
+              <a
+                href="/profile"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User className="h-5 w-5" />
+                <span>Profile</span>
+              </a>
+            )}
             {isAuthenticated ? (
               <Button asChild variant="default" className="w-full">
                 <a href="/assistant">{t.nav.launchAssistant}</a>

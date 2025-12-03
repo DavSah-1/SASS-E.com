@@ -390,3 +390,15 @@
 - [ ] Store language preference in user profile
 - [ ] Auto-detect browser language on first visit
 - [ ] Apply language preference across all pages and components
+
+
+## User Profile Settings Page
+- [x] Create Profile Settings page component (/profile)
+- [x] Add language preference selector to profile settings
+- [x] Add account information display (name, email, login method)
+- [x] Add personality settings (sarcasm level display)
+- [x] Add interaction statistics display
+- [x] Add profile settings route to App.tsx
+- [x] Add "Profile" link to navigation menu (desktop and mobile)
+- [x] Test language preference persistence from profile settings
+- [x] Add save confirmation feedback with toast notifications
