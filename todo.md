@@ -408,3 +408,16 @@
 - [x] Fix Profile link not visible in navigation menu
 - [x] Replaced Home page hardcoded navigation with shared Navigation component
 - [x] Test Profile link visibility on all pages
+
+
+## Bug Fixes - Authentication Not Working
+- [x] Investigate sign-in redirect issue - authentication works in normal mode, issue only in incognito
+- [x] Check OAuth callback handler - working correctly
+- [x] Verify session cookie creation - working correctly
+- [x] Test authentication flow end-to-end - confirmed working
+
+## Incognito Mode Notice Feature
+- [x] Add incognito mode detection utility
+- [x] Display user-friendly notice on home page for incognito users
+- [x] Explain that authentication requires cookies and may not work in incognito mode
+- [x] Test incognito mode detection

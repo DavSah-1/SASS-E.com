@@ -3,9 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Navigation } from "@/components/Navigation";
 import { getLoginUrl } from "@/const";
+import { useIncognitoDetection } from "@/hooks/useIncognitoDetection";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function Home() {
   const { loading, isAuthenticated } = useAuth();
+  const isIncognito = useIncognitoDetection();
 
   if (loading) {
     return (
@@ -19,6 +23,19 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Navigation */}
       <Navigation />
+
+      {/* Incognito Mode Notice */}
+      {isIncognito && !isAuthenticated && (
+        <div className="container mx-auto px-6 pt-6">
+          <Alert className="bg-yellow-900/20 border-yellow-500/50 text-yellow-200">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Private/Incognito Mode Detected</AlertTitle>
+            <AlertDescription>
+              You appear to be using private/incognito mode. Please note that authentication requires cookies and may not work properly in this mode. For the best experience, please use a regular browser window.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
 
       {/* Hero Section */}
       <main className="container mx-auto px-6 py-20">
