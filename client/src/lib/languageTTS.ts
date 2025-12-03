@@ -126,13 +126,32 @@ export function isTTSAvailableForLanguage(languageCode: string): boolean {
  */
 export function initializeSpeechSynthesis(callback?: () => void): void {
   // Voices are loaded asynchronously in some browsers
-  if (window.speechSynthesis.getVoices().length > 0) {
-    callback?.();
-  } else {
-    window.speechSynthesis.onvoiceschanged = () => {
+  const checkVoices = () => {
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      console.log(`[TTS] Loaded ${voices.length} voices`);
       callback?.();
-    };
+      return true;
+    }
+    return false;
+  };
+
+  // Try immediately
+  if (checkVoices()) {
+    return;
   }
+
+  // Listen for voices changed event
+  window.speechSynthesis.onvoiceschanged = () => {
+    checkVoices();
+  };
+
+  // Also retry after a delay (some browsers need this)
+  setTimeout(() => {
+    if (!checkVoices()) {
+      console.warn('[TTS] No voices loaded after 1 second');
+    }
+  }, 1000);
 }
 
 /**

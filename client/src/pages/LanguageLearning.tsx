@@ -123,22 +123,8 @@ export default function LanguageLearning() {
     stopSpeech();
   }, [selectedLanguage]);
 
-  // Auto-play pronunciation when flashcard is shown
-  useEffect(() => {
-    const flashcard = flashcards?.[currentFlashcardIndex];
-    if (flashcard && !showAnswer && ttsAvailable) {
-      // Auto-play after a short delay
-      const timer = setTimeout(() => {
-        speakInLanguage(flashcard.word, selectedLanguage, {
-          rate: 0.85,
-          onError: (error) => {
-            console.error('TTS error:', error);
-          },
-        });
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [currentFlashcardIndex, flashcards, showAnswer, ttsAvailable, selectedLanguage]);
+  // Note: Auto-play removed because browsers block speech synthesis without user interaction
+  // Users must click the speaker button to hear pronunciation
 
   useEffect(() => {
     if (activeTab === "exercises" && exercises && exercises.length > 0) {
@@ -188,19 +174,27 @@ export default function LanguageLearning() {
 
   const handlePronounce = (text: string) => {
     if (!ttsAvailable) {
-      toast.error("Text-to-speech is not available for this language.");
+      toast.error("Text-to-speech voices are not available. Please try refreshing the page or use a different browser.");
       return;
     }
 
     setIsSpeaking(true);
-    speakInLanguage(text, selectedLanguage, {
-      rate: 0.85, // Slower for learning
-      onEnd: () => setIsSpeaking(false),
-      onError: (error) => {
-        setIsSpeaking(false);
-        toast.error(error.message);
-      },
-    });
+    
+    // User interaction is required for speech synthesis to work
+    try {
+      speakInLanguage(text, selectedLanguage, {
+        rate: 0.85, // Slower for learning
+        onEnd: () => setIsSpeaking(false),
+        onError: (error) => {
+          setIsSpeaking(false);
+          toast.error(`Pronunciation failed: ${error.message}`);
+        },
+      });
+    } catch (error) {
+      setIsSpeaking(false);
+      toast.error("Failed to play pronunciation. Please try again.");
+      console.error('[TTS] Error:', error);
+    }
   };
 
   const handleFlashcardResponse = (isCorrect: boolean) => {

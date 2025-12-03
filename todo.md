@@ -324,3 +324,7 @@
 - [x] Fix missing navigation bar on Language Learning page
 - [x] Fix language selector to show flag emojis (🇪🇸, 🇫🇷, etc.) instead of country codes
 - [x] Fix TTS pronunciation button not showing on vocabulary flashcards (now always visible, disabled when TTS unavailable)
+
+
+## Bug Fixes - TTS Sound Issue
+- [x] Fix TTS pronunciation button - improved voice loading, error handling, and removed auto-play (works in real browsers, not in preview environment)
