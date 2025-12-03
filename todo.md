@@ -402,3 +402,9 @@
 - [x] Add "Profile" link to navigation menu (desktop and mobile)
 - [x] Test language preference persistence from profile settings
 - [x] Add save confirmation feedback with toast notifications
+
+
+## Bug Fixes - Profile Link Not Showing
+- [x] Fix Profile link not visible in navigation menu
+- [x] Replaced Home page hardcoded navigation with shared Navigation component
+- [x] Test Profile link visibility on all pages
