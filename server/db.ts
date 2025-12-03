@@ -124,6 +124,16 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function updateUserLanguage(userId: number, language: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update user language: database not available");
+    return;
+  }
+
+  await db.update(users).set({ preferredLanguage: language }).where(eq(users.id, userId));
+}
+
 export async function saveConversation(conversation: InsertConversation) {
   const db = await getDb();
   if (!db) {

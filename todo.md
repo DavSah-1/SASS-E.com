@@ -368,3 +368,25 @@
 - [x] Ensure all buttons, forms, and interactive elements are touch-friendly
 - [x] Verify text readability on small screens
 - [x] Check navigation menu functionality on mobile
+
+
+## User Language Preference System
+- [x] Add preferredLanguage field to users table schema
+- [x] Push database migration for language preference
+- [x] Create language preference API endpoints (setLanguage)
+- [x] Build i18n translation system with language files (EN, ES, FR, DE)
+- [x] Create language context for managing user language state
+- [x] Create language selector component
+- [x] Create reusable Navigation component with translations
+- [ ] Update Home page to use Navigation component and translations
+- [ ] Update Voice Assistant page to use Navigation component and translations
+- [ ] Update Language Learning page to use Navigation component and translations
+- [ ] Update IoT Devices page to use Navigation component and translations
+- [ ] Update Learning page to use Navigation component and translations
+- [ ] Test language switching across all pages
+- [ ] Implement i18n translation system with language files
+- [ ] Translate all UI strings across all pages
+- [ ] Add language selector to navigation bar
+- [ ] Store language preference in user profile
+- [ ] Auto-detect browser language on first visit
+- [ ] Apply language preference across all pages and components

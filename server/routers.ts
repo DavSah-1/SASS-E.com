@@ -24,6 +24,13 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+    setLanguage: protectedProcedure
+      .input(z.object({ language: z.string().length(2).or(z.string().length(5)) }))
+      .mutation(async ({ ctx, input }) => {
+        const { updateUserLanguage } = await import("./db");
+        await updateUserLanguage(ctx.user.id, input.language);
+        return { success: true, language: input.language };
+      }),
   }),
 
   assistant: router({
