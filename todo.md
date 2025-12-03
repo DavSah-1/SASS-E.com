@@ -332,3 +332,15 @@
 
 ## Bug Fixes - TTS Button Not Clickable
 - [x] Fix TTS pronunciation button - button is now clickable and interactive (removed disabled state based on ttsAvailable)
+
+
+## Pronunciation Comparison Feature
+- [x] Create audio recording utility with MediaRecorder API
+- [x] Implement waveform visualization for audio playback
+- [x] Create pronunciation comparison algorithm using audio analysis
+- [x] Calculate similarity percentage between user and native pronunciation
+- [x] Build recording UI with record/stop/play controls
+- [x] Display side-by-side waveform comparison
+- [x] Show pronunciation accuracy score as percentage
+- [x] Add pronunciation practice mode to vocabulary flashcards
+- [ ] Store user pronunciation recordings (optional for review - future enhancement)

@@ -33,7 +33,8 @@ import {
   Download
 } from "lucide-react";
 import { APP_TITLE, APP_LOGO, getLoginUrl } from "@/const";
-import { speakInLanguage, initializeSpeechSynthesis, isTTSAvailableForLanguage, stopSpeech } from "@/lib/languageTTS";
+import { initializeSpeechSynthesis, speakInLanguage, stopSpeech, isTTSAvailableForLanguage } from "@/lib/languageTTS";
+import { PronunciationPractice } from "@/components/PronunciationPractice";
 import { usePWA } from "@/hooks/usePWA";
 
 export default function LanguageLearning() {
@@ -53,6 +54,7 @@ export default function LanguageLearning() {
   const [exerciseResult, setExerciseResult] = useState<any>(null);
   const [showExerciseResult, setShowExerciseResult] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showPronunciationPractice, setShowPronunciationPractice] = useState(false);
   const [ttsAvailable, setTtsAvailable] = useState(false);
 
   // Queries
@@ -609,32 +611,46 @@ export default function LanguageLearning() {
                         )}
 
                         {/* Actions */}
-                        <div className="flex gap-4 justify-center pt-4">
-                          {!showAnswer ? (
-                            <Button onClick={() => setShowAnswer(true)} size="lg" className="w-full max-w-xs">
-                              Show Answer
+                        <div className="space-y-3">
+                          {/* Pronunciation Practice Button */}
+                          <div className="flex justify-center">
+                            <Button
+                              variant="secondary"
+                              onClick={() => setShowPronunciationPractice(true)}
+                              className="gap-2"
+                            >
+                              <Mic className="h-4 w-4" />
+                              Practice Pronunciation
                             </Button>
-                          ) : (
-                            <>
-                              <Button
-                                onClick={() => handleFlashcardResponse(false)}
-                                variant="outline"
-                                size="lg"
-                                className="flex-1"
-                              >
-                                <XCircle className="mr-2 h-5 w-5" />
-                                Didn't Know
+                          </div>
+
+                          <div className="flex gap-4 justify-center">
+                            {!showAnswer ? (
+                              <Button onClick={() => setShowAnswer(true)} size="lg" className="w-full max-w-xs">
+                                Show Answer
                               </Button>
-                              <Button
-                                onClick={() => handleFlashcardResponse(true)}
-                                size="lg"
-                                className="flex-1"
-                              >
-                                <CheckCircle2 className="mr-2 h-5 w-5" />
-                                Got It!
-                              </Button>
-                            </>
-                          )}
+                            ) : (
+                              <>
+                                <Button
+                                  onClick={() => handleFlashcardResponse(false)}
+                                  variant="outline"
+                                  size="lg"
+                                  className="flex-1"
+                                >
+                                  <XCircle className="mr-2 h-5 w-5" />
+                                  Didn't Know
+                                </Button>
+                                <Button
+                                  onClick={() => handleFlashcardResponse(true)}
+                                  size="lg"
+                                  className="flex-1"
+                                >
+                                  <CheckCircle2 className="mr-2 h-5 w-5" />
+                                  Got It!
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -959,6 +975,19 @@ export default function LanguageLearning() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Pronunciation Practice Modal */}
+      {showPronunciationPractice && currentFlashcard && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="max-w-2xl w-full">
+            <PronunciationPractice
+              word={currentFlashcard.word}
+              languageCode={selectedLanguage}
+              onClose={() => setShowPronunciationPractice(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
