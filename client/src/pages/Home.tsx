@@ -140,13 +140,13 @@ export default function Home() {
       <main className="container mx-auto px-6 py-20">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <div className="space-y-4">
-            <h1 className="text-6xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600" style={{height: '95px', fontSize: '45px'}}>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600">
               Meet SASS-E
             </h1>
-            <p className="text-xl text-slate-400 mb-2">
+            <p className="text-base sm:text-lg md:text-xl text-slate-400 mb-2">
               Synthetic Adaptive Synaptic System - Entity
             </p>
-            <p className="text-2xl text-slate-300">
+            <p className="text-lg sm:text-xl md:text-2xl text-slate-300">
               Your intelligent AI assistant. Advanced, adaptive, and always ready to help.
             </p>
           </div>
@@ -154,22 +154,22 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             {isAuthenticated ? (
               <>
-                <Button asChild size="lg" className="text-lg px-8 py-6">
+                <Button asChild size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 w-full sm:w-auto">
                   <a href="/assistant">🎤 Start Voice Chat</a>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="text-lg px-8 py-6 border-purple-500 text-purple-300 hover:bg-purple-900/50">
+                <Button asChild size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 w-full sm:w-auto border-purple-500 text-purple-300 hover:bg-purple-900/50">
                   <a href="/devices">🏠 IoT Devices</a>
                 </Button>
               </>
             ) : (
-              <Button asChild size="lg" className="text-lg px-8 py-6">
+              <Button asChild size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 w-full sm:w-auto">
                 <a href={getLoginUrl()}>Get Started Free</a>
               </Button>
             )}
           </div>
 
           {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-6 mt-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mt-12 sm:mt-16">
             <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -211,9 +211,9 @@ export default function Home() {
           </div>
 
           {/* How It Works */}
-          <div className="mt-20 space-y-6">
-            <h2 className="text-4xl font-bold text-slate-100">How It Works</h2>
-            <div className="grid md:grid-cols-3 gap-8 text-left">
+          <div className="mt-12 sm:mt-20 space-y-4 sm:space-y-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-100">How It Works</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 text-left">
               <div className="space-y-2">
                 <div className="text-4xl font-bold text-purple-400">1</div>
                 <h3 className="text-xl font-semibold text-slate-200">Click the Mic</h3>

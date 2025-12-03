@@ -355,12 +355,12 @@ export default function LanguageLearning() {
           </div>
         )}
       </nav>
-      <div className="container mx-auto py-8 px-4 max-w-7xl">
+      <div className="container mx-auto py-4 sm:py-8 px-4 max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 Language Learning
               </h1>
               <p className="text-muted-foreground">
@@ -369,7 +369,7 @@ export default function LanguageLearning() {
             </div>
             <div className="flex items-center gap-4">
               <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full sm:w-[200px]">
                   <div className="flex items-center gap-2">
                     <span>{languages?.find(l => l.code === selectedLanguage)?.flag}</span>
                     <span>{languages?.find(l => l.code === selectedLanguage)?.name}</span>
@@ -393,7 +393,7 @@ export default function LanguageLearning() {
           {progress && (
             <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
               <CardContent className="pt-6">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
                   <div className="text-center">
                     <div className="flex items-center justify-center mb-2">
                       <Brain className="h-5 w-5 text-primary mr-2" />

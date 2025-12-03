@@ -218,17 +218,17 @@ export default function IoTDevices() {
           </div>
         )}
       </nav>
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
       <div className="container max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">IoT Devices</h1>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">IoT Devices</h1>
           <p className="text-purple-200">
             Manage your smart home devices. Bob will control them... reluctantly.
           </p>
         </div>
 
         {/* Voice Control Section */}
-        <Card className="mb-6 bg-purple-950/50 border-purple-700">
+        <Card className="mb-4 sm:mb-6 bg-purple-950/50 border-purple-700">
           <CardHeader>
             <CardTitle className="text-white">🎤 Voice Control</CardTitle>
             <CardDescription className="text-purple-300">
@@ -294,7 +294,7 @@ export default function IoTDevices() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleAddDevice} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="deviceId" className="text-white">Device ID</Label>
                     <Input
@@ -395,7 +395,7 @@ export default function IoTDevices() {
         )}
 
         {/* Devices Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {devices?.map((device) => (
             <Card key={device.deviceId} className="bg-purple-950/50 border-purple-700">
               <CardHeader>

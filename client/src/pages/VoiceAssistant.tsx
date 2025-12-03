@@ -375,14 +375,14 @@ export default function VoiceAssistant() {
           </div>
         )}
       </nav>
-      <div className="p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="p-4 sm:p-6">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{height: '60px'}}>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
             SASS-E
           </h1>
-          <p className="text-lg text-slate-300">
+          <p className="text-base sm:text-lg text-slate-300">
             Your intelligent voice assistant, ready to help.
           </p>
         </div>
@@ -391,16 +391,16 @@ export default function VoiceAssistant() {
         {profile && (
           <Card className="border-purple-500/20 bg-gradient-to-r from-purple-900/50 to-pink-900/50 backdrop-blur">
             <CardContent className="py-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                 <div>
                   <p className="text-sm text-slate-300">Current Personality Level</p>
-                  <p className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+                  <p className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
                     {profile.sarcasmLevel}/10 - {profile.sarcasmIntensity}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <p className="text-sm text-slate-300">Total Interactions</p>
-                  <p className="text-2xl font-bold text-purple-400">{profile.totalInteractions}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-purple-400">{profile.totalInteractions}</p>
                 </div>
               </div>
               <div className="mt-3">
@@ -434,12 +434,12 @@ export default function VoiceAssistant() {
                 variant={isRecording ? "destructive" : "default"}
                 onClick={isRecording ? stopRecording : startRecording}
                 disabled={chatMutation.isPending || transcribeMutation.isPending}
-                className="h-32 w-32 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="h-24 w-24 sm:h-32 sm:w-32 rounded-full text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 {isRecording ? (
-                  <MicOff className="h-16 w-16" />
+                  <MicOff className="h-12 w-12 sm:h-16 sm:w-16" />
                 ) : (
-                  <Mic className="h-16 w-16" />
+                  <Mic className="h-12 w-12 sm:h-16 sm:w-16" />
                 )}
               </Button>
             </div>
