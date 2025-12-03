@@ -328,3 +328,7 @@
 
 ## Bug Fixes - TTS Sound Issue
 - [x] Fix TTS pronunciation button - improved voice loading, error handling, and removed auto-play (works in real browsers, not in preview environment)
+
+
+## Bug Fixes - TTS Button Not Clickable
+- [x] Fix TTS pronunciation button - button is now clickable and interactive (removed disabled state based on ttsAvailable)

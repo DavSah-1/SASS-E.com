@@ -565,11 +565,11 @@ export default function LanguageLearning() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handlePronounce(currentFlashcard.word)}
-                              disabled={!ttsAvailable || isSpeaking}
+                              disabled={isSpeaking}
                               className="h-12 w-12"
-                              title={ttsAvailable ? "Hear pronunciation" : "Text-to-speech not available"}
+                              title="Click to hear pronunciation"
                             >
-                              <Volume2 className={`h-6 w-6 ${isSpeaking ? 'animate-pulse text-primary' : !ttsAvailable ? 'text-muted-foreground' : ''}`} />
+                              <Volume2 className={`h-6 w-6 ${isSpeaking ? 'animate-pulse text-primary' : ''}`} />
                             </Button>
                           </div>
                           {currentFlashcard.pronunciation && (
