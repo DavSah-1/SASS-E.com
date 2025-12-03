@@ -155,7 +155,7 @@ export default function LanguageLearning() {
               Language Learning
             </CardTitle>
             <CardDescription>
-              Master foreign languages with Bob's sarcastic teaching style
+              Master foreign languages with adaptive AI guidance
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -364,7 +364,7 @@ export default function LanguageLearning() {
                 Language Learning
               </h1>
               <p className="text-muted-foreground">
-                Master foreign languages with Bob's signature sarcasm
+                Master foreign languages with intelligent feedback
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -460,7 +460,7 @@ export default function LanguageLearning() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Learn and review vocabulary using scientifically-proven spaced repetition. Bob will sarcastically guide you through each word.
+                    Learn and review vocabulary using scientifically-proven spaced repetition. Get personalized guidance for each word.
                   </p>
                   <Button onClick={() => setActiveTab("vocabulary")} className="w-full">
                     Start Vocabulary Practice
@@ -481,7 +481,7 @@ export default function LanguageLearning() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Get detailed grammar explanations on any topic. Bob will explain it clearly... with maximum sarcasm.
+                    Get detailed grammar explanations on any topic with clear, comprehensive examples.
                   </p>
                   <Button onClick={() => setActiveTab("grammar")} className="w-full">
                     Explore Grammar
@@ -523,7 +523,7 @@ export default function LanguageLearning() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Celebrate your progress with achievements. Bob might even congratulate you... sarcastically.
+                    Celebrate your progress with achievements and track your learning milestones.
                   </p>
                   <Button onClick={() => setActiveTab("achievements")} className="w-full">
                     View Achievements

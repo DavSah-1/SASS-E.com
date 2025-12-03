@@ -141,10 +141,13 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <div className="space-y-4">
             <h1 className="text-6xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600" style={{height: '95px', fontSize: '45px'}}>
-              Meet Agent Bob
+              Meet SASS-E
             </h1>
+            <p className="text-xl text-slate-400 mb-2">
+              Synthetic Adaptive Synaptic System - Entity
+            </p>
             <p className="text-2xl text-slate-300">
-              Your very own AI Agent. Because you clearly need help, and I'm here to provide it.
+              Your intelligent AI assistant. Advanced, adaptive, and always ready to help.
             </p>
           </div>
 
@@ -240,7 +243,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-purple-500/20 bg-slate-900/50 backdrop-blur mt-20">
         <div className="container mx-auto px-6 py-8 text-center text-slate-400">
-          <p>Built with a Human and A.I. © 2025 Agent Bob</p>
+          <p>Built with a Human and A.I. © 2025 SASS-E</p>
         </div>
       </footer>
     </div>

@@ -271,7 +271,7 @@ export default function VoiceAssistant() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to use Agent Bob</CardDescription>
+            <CardDescription>Please log in to use SASS-E</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full">
@@ -380,10 +380,10 @@ export default function VoiceAssistant() {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{height: '60px'}}>
-            Agent Bob
+            SASS-E
           </h1>
           <p className="text-lg text-slate-300">
-            Oh great, another human who needs my help. How delightful.
+            Your intelligent voice assistant, ready to help.
           </p>
         </div>
 
@@ -412,7 +412,7 @@ export default function VoiceAssistant() {
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2 text-center">
-                Bob learns from your interactions and becomes more familiar over time. Use feedback buttons to adjust!
+                SASS-E learns from your interactions and becomes more familiar over time. Use feedback buttons to adjust!
               </p>
             </CardContent>
           </Card>
@@ -423,7 +423,7 @@ export default function VoiceAssistant() {
           <CardHeader>
                 <CardTitle className="text-2xl text-center">Voice Interface</CardTitle>
             <CardDescription className="text-center">
-              Click the microphone to speak. I will try not to roll my eyes.
+              Click the microphone to speak. Your voice assistant is listening.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -456,7 +456,7 @@ export default function VoiceAssistant() {
                 </div>
               )}
               {!isRecording && !transcribeMutation.isPending && !chatMutation.isPending && !isSpeaking && 
-                "Ready to listen to your profound questions"}
+                "Ready to listen"}
             </div>
 
             {/* Stop Speaking Button */}
@@ -507,7 +507,7 @@ export default function VoiceAssistant() {
 
                     <div className="space-y-2">
                       <Label htmlFor="output-language" className="text-sm text-slate-300">
-                        Bob responds in:
+                        SASS-E responds in:
                       </Label>
                       <Select value={outputLanguage} onValueChange={setOutputLanguage}>
                         <SelectTrigger id="output-language" className="bg-slate-800 border-purple-500/20">
@@ -552,7 +552,7 @@ export default function VoiceAssistant() {
                   </div>
 
                   <p className="text-xs text-slate-400 text-center">
-                    Bob will translate your speech and respond in your chosen language while keeping his sarcastic charm.
+                    SASS-E will translate your speech and respond in your chosen language with intelligent responses.
                   </p>
                 </div>
               )}
@@ -570,7 +570,7 @@ export default function VoiceAssistant() {
                 {currentResponse && (
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-semibold text-pink-400">Bob's Response:</p>
+                      <p className="text-sm font-semibold text-pink-400">SASS-E's Response:</p>
                       <p className="text-slate-200 italic">{currentResponse}</p>
                     </div>
                     {lastConversationId && (
@@ -584,7 +584,7 @@ export default function VoiceAssistant() {
                               conversationId: lastConversationId,
                               feedbackType: "like",
                             });
-                            toast.success("Feedback recorded! Bob appreciates it.");
+                            toast.success("Feedback recorded! Thank you.");
                             refetchProfile();
                           }}
                         >
@@ -599,7 +599,7 @@ export default function VoiceAssistant() {
                               conversationId: lastConversationId,
                               feedbackType: "dislike",
                             });
-                            toast.success("Feedback recorded. Bob will try harder.");
+                            toast.success("Feedback recorded. Adjusting responses.");
                             refetchProfile();
                           }}
                         >
@@ -614,7 +614,7 @@ export default function VoiceAssistant() {
                               conversationId: lastConversationId,
                               feedbackType: "too_sarcastic",
                             });
-                            toast.success("Bob will dial down the sarcasm.");
+                            toast.success("Adjusting personality level.");
                             refetchProfile();
                           }}
                         >
@@ -629,7 +629,7 @@ export default function VoiceAssistant() {
                               conversationId: lastConversationId,
                               feedbackType: "not_sarcastic_enough",
                             });
-                            toast.success("Bob will increase the sass!");
+                            toast.success("Increasing personality level!");
                             refetchProfile();
                           }}
                         >

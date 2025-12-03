@@ -1,7 +1,7 @@
 {
-  "name": "Agent Bob - Sarcastic AI Assistant",
-  "short_name": "Agent Bob",
-  "description": "Your voice-activated AI assistant with a witty personality",
+  "name": "SASS-E - Synthetic Adaptive Synaptic System",
+  "short_name": "SASS-E",
+  "description": "Your intelligent voice-activated AI assistant",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e1b4b",
@@ -39,8 +39,8 @@
   "shortcuts": [
     {
       "name": "Voice Assistant",
-      "short_name": "Talk to Bob",
-      "description": "Start a voice conversation with Bob",
+      "short_name": "Talk to SASS-E",
+      "description": "Start a voice conversation with SASS-E",
       "url": "/assistant",
       "icons": [
         {

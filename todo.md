@@ -344,3 +344,15 @@
 - [x] Show pronunciation accuracy score as percentage
 - [x] Add pronunciation practice mode to vocabulary flashcards
 - [ ] Store user pronunciation recordings (optional for review - future enhancement)
+
+
+## Rebranding: Agent Bob → SASS-E
+- [x] Update app title from "Agent Bob" to "SASS-E"
+- [x] Add subtitle "Synthetic Adaptive Synaptic System - Entity"
+- [x] Update all page headers and navigation references
+- [x] Remove explicit "sarcasm" wording from UI text
+- [x] Update home page hero section
+- [x] Update language learning page references
+- [x] Update voice assistant page references
+- [ ] Update IoT devices page references (if needed)
+- [x] Keep sarcastic personality in actual AI responses (no backend changes needed)
