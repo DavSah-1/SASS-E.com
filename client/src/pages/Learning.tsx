@@ -273,14 +273,14 @@ export default function Learning() {
         )}
       </nav>
 
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <div className="p-4 sm:p-6">
+        <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
-            <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{height: '60px'}}>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
               Verified Learning Assistant
             </h1>
-            <p className="text-lg text-slate-300">
+            <p className="text-base sm:text-lg text-slate-300">
               Learn with confidence. Every fact checked, every source verified.
             </p>
           </div>
@@ -288,7 +288,7 @@ export default function Learning() {
           {/* Ask Question Card */}
           <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
             <CardHeader>
-              <CardTitle className="text-2xl text-center">Ask Me Anything</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl text-center">Ask Me Anything</CardTitle>
               <CardDescription className="text-center">
                 I'll explain it with my signature wit and verify every claim.
               </CardDescription>
