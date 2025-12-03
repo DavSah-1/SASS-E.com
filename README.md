@@ -419,9 +419,9 @@ MIT License - Feel free to use this code for your own sarcastic AI projects!
 
 ## 💬 Bob Says...
 
-*"Oh great, you read the entire README. Bob is SO impressed. Now go build something and try not to break it. You're welcome for this incredibly detailed documentation that you definitely couldn't have figured out yourself."*
+*"Oh great, you read the entire README. I'm SO impressed. Now go build something and try not to break anything. You're welcome for this incredibly detailed documentation that you definitely couldn't have figured out yourself."*
 
 ---
 
-**Built with sarcasm and AI. © 2025 Assistant Bob**
+**Built with Error417 and AI. © 2025 Assistant Bob**
 
