@@ -277,7 +277,7 @@ export default function Learning() {
         <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{height: '60px'}}>
               Verified Learning Assistant
             </h1>
             <p className="text-base sm:text-lg text-slate-300">
