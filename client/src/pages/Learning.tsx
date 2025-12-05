@@ -285,6 +285,37 @@ export default function Learning() {
             </p>
           </div>
 
+          {/* Category Suggestion Cards */}
+          <div className="space-y-3">
+            <h2 className="text-lg sm:text-xl font-semibold text-white">Explore Categories</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+              {[
+                { icon: '🔬', title: 'Sciences', topics: 'Physics, Chemistry, Biology' },
+                { icon: '📐', title: 'Mathematics', topics: 'Algebra, Calculus, Statistics' },
+                { icon: '📚', title: 'Humanities', topics: 'History, Philosophy, Literature' },
+                { icon: '💼', title: 'Business', topics: 'Marketing, Finance, Leadership' },
+                { icon: '💻', title: 'Technology', topics: 'Programming, Data Science, AI' },
+                { icon: '🎨', title: 'Creative Arts', topics: 'Design, Music, Writing' },
+                { icon: '🏃', title: 'Health & Fitness', topics: 'Nutrition, Exercise, Wellness' },
+                { icon: '🌍', title: 'Languages', topics: 'Spanish, French, Mandarin' },
+                { icon: '💡', title: 'Life Skills', topics: 'Finance, Communication, Cooking' },
+                { icon: '🎯', title: 'Personal Growth', topics: 'Leadership, Time Management' },
+                { icon: '🧠', title: 'Psychology', topics: 'Behavior, Mental Health, Therapy' },
+                { icon: '📊', title: 'Data & Analytics', topics: 'Excel, Visualization, Research' },
+              ].map((category) => (
+                <button
+                  key={category.title}
+                  onClick={() => setTopic(category.title)}
+                  className="group relative p-4 rounded-lg border border-purple-500/20 bg-slate-800/30 hover:bg-slate-800/60 hover:border-purple-500/40 transition-all duration-200 text-left"
+                >
+                  <div className="text-3xl mb-2">{category.icon}</div>
+                  <h3 className="text-sm sm:text-base font-semibold text-white mb-1">{category.title}</h3>
+                  <p className="text-xs text-slate-400 line-clamp-2">{category.topics}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Ask Question Card */}
           <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
             <CardHeader>
