@@ -421,3 +421,13 @@
 - [x] Display user-friendly notice on home page for incognito users
 - [x] Explain that authentication requires cookies and may not work in incognito mode
 - [x] Test incognito mode detection
+
+
+## Replace Hardcoded Navigation with Shared Component
+- [x] Update Home page with Navigation component (already done)
+- [x] Update Voice Assistant page with Navigation component
+- [x] Update Language Learning page with Navigation component (already done)  
+- [x] Update IoT Devices page with Navigation component
+- [x] Update Learning page with Navigation component (already done)
+- [x] Test Profile link visibility on all pages
+- [x] Test language selector consistency across all pages

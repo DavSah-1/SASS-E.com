@@ -2,10 +2,10 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
-import { usePWA } from "@/hooks/usePWA";
+import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { Mic, MicOff, Volume2, Download, Menu, X, Home as HomeIcon, Lightbulb, Languages, ArrowLeftRight } from "lucide-react";
+import { Mic, MicOff, Volume2, ArrowLeftRight, Languages } from "lucide-react";
+import { Navigation } from "@/components/Navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SUPPORTED_LANGUAGES, getSpeechRecognitionLanguage, getSpeechSynthesisLanguage } from "@/lib/languages";
@@ -15,8 +15,6 @@ import { Label } from "@/components/ui/label";
 
 export default function VoiceAssistant() {
   const { user, isAuthenticated, loading } = useAuth();
-  const { isInstallable, isInstalled, installApp } = usePWA();
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState("");
@@ -286,95 +284,7 @@ export default function VoiceAssistant() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-purple-500/20 bg-slate-900/50 backdrop-blur">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center" style={{paddingTop: '0px', paddingBottom: '0px', height: '65px'}}>
-          <div className="flex items-center gap-3">
-            {APP_LOGO && <img src={APP_LOGO} alt={APP_TITLE} className="h-8 w-8" />}
-            <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{fontSize: '15px', marginRight: '24px'}}>
-              {APP_TITLE}
-            </span>
-            {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-6 ml-8">
-              <a href="/" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-                <HomeIcon className="h-4 w-4" />
-                Home
-              </a>
-              <a href="/assistant" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-                <Mic className="h-4 w-4" />
-                Voice Assistant
-              </a>
-              <a href="/devices" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-                <Lightbulb className="h-4 w-4" />
-                IoT Devices
-              </a>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            {/* Mobile Hamburger Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-slate-300 hover:text-purple-400 transition-colors"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-            
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center gap-4">
-            {isInstallable && !isInstalled && (
-              <Button onClick={installApp} variant="outline" size="sm" className="gap-2">
-                <Download className="h-4 w-4" />
-                Install App
-              </Button>
-            )}
-            {isAuthenticated ? (
-              <>
-                <span className="text-sm text-slate-300" style={{fontSize: '10px'}}>Welcome, {user?.name || 'Human'}</span>
-                <Button asChild variant="default">
-                  <a href="/assistant" style={{paddingTop: '5px', paddingRight: '5px', paddingBottom: '5px', paddingLeft: '5px', marginRight: '-15px'}}>Launch Assistant</a>
-                </Button>
-              </>
-            ) : (
-              <Button asChild variant="default">
-                <a href={getLoginUrl()}>Get Started</a>
-              </Button>
-            )}
-            </div>
-          </div>
-        </div>
-        
-        {/* Mobile Menu Panel */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-purple-500/20 bg-slate-900/95 backdrop-blur">
-            <div className="container mx-auto px-6 py-4 space-y-3">
-              <a
-                href="/"
-                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <HomeIcon className="h-5 w-5" />
-                <span>Home</span>
-              </a>
-              <a
-                href="/assistant"
-                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Mic className="h-5 w-5" />
-                <span>Voice Assistant</span>
-              </a>
-              <a
-                href="/devices"
-                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Lightbulb className="h-5 w-5" />
-                <span>IoT Devices</span>
-              </a>
-            </div>
-          </div>
-        )}
-      </nav>
+      <Navigation />
       <div className="p-4 sm:p-6">
       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
