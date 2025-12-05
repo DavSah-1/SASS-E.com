@@ -4,17 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
-import { usePWA } from "@/hooks/usePWA";
+import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { BookOpen, CheckCircle2, XCircle, AlertCircle, HelpCircle, ExternalLink, Menu, X, Home as HomeIcon, Mic, Lightbulb, Loader2 } from "lucide-react";
+import { BookOpen, CheckCircle2, XCircle, AlertCircle, HelpCircle, ExternalLink, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { Navigation } from "@/components/Navigation";
 
 export default function Learning() {
   const { user, isAuthenticated, loading } = useAuth();
-  const { isInstallable, isInstalled, installApp } = usePWA();
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [topic, setTopic] = useState("");
   const [question, setQuestion] = useState("");
   const [currentExplanation, setCurrentExplanation] = useState<any>(null);
@@ -48,95 +46,110 @@ export default function Learning() {
       setCurrentExplanation(result);
       setCurrentStudyGuide(null);
       setCurrentQuiz(null);
+      setQuizCompleted(false);
       setQuizResults(null);
       toast.success("Explanation generated with fact-checking!");
     } catch (error) {
       toast.error("Failed to generate explanation");
-      console.error(error);
+      console.error("Explain error:", error);
     }
   };
 
-  const handleGenerateStudyGuide = async (sessionId: number) => {
+  const handleGenerateStudyGuide = async () => {
+    if (!currentExplanation) {
+      toast.error("Please get an explanation first");
+      return;
+    }
+
     try {
-      const result = await studyGuideMutation.mutateAsync({ sessionId });
+      const result = await studyGuideMutation.mutateAsync({
+        sessionId: currentExplanation.sessionId,
+      });
+
       setCurrentStudyGuide(result);
       toast.success("Study guide generated!");
     } catch (error) {
       toast.error("Failed to generate study guide");
-      console.error(error);
+      console.error("Study guide error:", error);
     }
   };
 
-  const handleGenerateQuiz = async (sessionId: number) => {
+  const handleGenerateQuiz = async () => {
+    if (!currentExplanation) {
+      toast.error("Please get an explanation first");
+      return;
+    }
+
     try {
-      const result = await quizMutation.mutateAsync({ 
-        sessionId,
-        questionCount: 5 
+      const result = await quizMutation.mutateAsync({
+        sessionId: currentExplanation.sessionId,
       });
+
       setCurrentQuiz(result);
       setQuizAnswers([]);
       setQuizCompleted(false);
       setQuizResults(null);
-      toast.success("Quiz generated!");
+      toast.success("Quiz generated! Test your knowledge.");
     } catch (error) {
       toast.error("Failed to generate quiz");
-      console.error(error);
+      console.error("Quiz error:", error);
     }
   };
 
-  const handleQuizAnswer = (questionIndex: number, answerIndex: number) => {
-    const newAnswers = [...quizAnswers];
-    newAnswers[questionIndex] = answerIndex;
-    setQuizAnswers(newAnswers);
-  };
-
   const handleSubmitQuiz = async () => {
-    if (!currentQuiz) return;
+    if (!currentQuiz || quizAnswers.length !== currentQuiz.questions.length) {
+      toast.error("Please answer all questions");
+      return;
+    }
 
     try {
       const result = await submitQuizMutation.mutateAsync({
         quizId: currentQuiz.quizId,
         answers: quizAnswers,
       });
+
       setQuizResults(result);
       setQuizCompleted(true);
-      toast.success(`Quiz completed! Score: ${result.score}%`);
+      
+      if (result.passed) {
+        toast.success(`Quiz passed! Score: ${result.score}/${result.totalQuestions}`);
+      } else {
+        toast.error(`Quiz failed. Score: ${result.score}/${result.totalQuestions}. Keep learning!`);
+      }
     } catch (error) {
       toast.error("Failed to submit quiz");
-      console.error(error);
+      console.error("Submit quiz error:", error);
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 90) return "text-green-400";
+    if (confidence >= 70) return "text-yellow-400";
+    return "text-red-400";
+  };
+
+  const getConfidenceBadge = (confidence: number) => {
+    if (confidence >= 90) return "bg-green-500/20 text-green-400 border-green-500/30";
+    if (confidence >= 70) return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+    return "bg-red-500/20 text-red-400 border-red-500/30";
+  };
+
+  const getVerificationIcon = (status: string) => {
     switch (status) {
       case "verified":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+        return <CheckCircle2 className="h-5 w-5 text-green-400" />;
       case "disputed":
-        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
+        return <AlertCircle className="h-5 w-5 text-yellow-400" />;
       case "debunked":
-        return <XCircle className="h-5 w-5 text-red-500" />;
+        return <XCircle className="h-5 w-5 text-red-400" />;
       default:
-        return <HelpCircle className="h-5 w-5 text-gray-500" />;
+        return <HelpCircle className="h-5 w-5 text-slate-400" />;
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "verified":
-        return "text-green-500";
-      case "disputed":
-        return "text-yellow-500";
-      case "debunked":
-        return "text-red-500";
-      default:
-        return "text-gray-500";
-    }
-  };
-
-  const getConfidenceColor = (score: number) => {
-    if (score >= 80) return "text-green-500";
-    if (score >= 60) return "text-yellow-500";
-    return "text-red-500";
+  const handleCategorySelect = (categoryTopic: string) => {
+    setTopic(categoryTopic);
+    toast.success(`Category selected: ${categoryTopic}`);
   };
 
   if (loading) {
@@ -168,111 +181,9 @@ export default function Learning() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-purple-500/20 bg-slate-900/50 backdrop-blur">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center" style={{paddingTop: '0px', paddingBottom: '0px', height: '65px'}}>
-          <div className="flex items-center gap-3">
-            {APP_LOGO && <img src={APP_LOGO} alt={APP_TITLE} className="h-8 w-8" />}
-            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-              {APP_TITLE}
-            </h1>
-          </div>
+      <Navigation />
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
-            <a
-              href="/"
-              className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2"
-            >
-              <HomeIcon className="h-5 w-5" />
-              Home
-            </a>
-            <a
-              href="/assistant"
-              className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2"
-            >
-              <Mic className="h-5 w-5" />
-              Voice Assistant
-            </a>
-            <a
-              href="/learning"
-              className="text-purple-400 font-semibold flex items-center gap-2"
-            >
-              <BookOpen className="h-5 w-5" />
-              Learning
-            </a>
-            <a
-              href="/devices"
-              className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2"
-            >
-              <Lightbulb className="h-5 w-5" />
-              IoT Devices
-            </a>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-slate-300 hover:text-purple-400"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-
-          {/* Desktop User Info */}
-          <div className="hidden md:flex items-center gap-4">
-            {user && (
-              <span className="text-sm text-slate-300">
-                Welcome, {user.name || "User"}
-              </span>
-            )}
-            {isInstallable && !isInstalled && (
-              <Button variant="outline" size="sm" onClick={installApp}>
-                Install App
-              </Button>
-            )}
-          </div>
-        </div>
-        
-        {/* Mobile Menu Panel */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-purple-500/20 bg-slate-900/95 backdrop-blur">
-            <div className="container mx-auto px-6 py-4 space-y-3">
-              <a
-                href="/"
-                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <HomeIcon className="h-5 w-5" />
-                <span>Home</span>
-              </a>
-              <a
-                href="/assistant"
-                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Mic className="h-5 w-5" />
-                <span>Voice Assistant</span>
-              </a>
-              <a
-                href="/learning"
-                className="flex items-center gap-3 text-purple-400 font-semibold py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <BookOpen className="h-5 w-5" />
-                <span>Learning</span>
-              </a>
-              <a
-                href="/devices"
-                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Lightbulb className="h-5 w-5" />
-                <span>IoT Devices</span>
-              </a>
-            </div>
-          </div>
-        )}
-      </nav>
-
+      {/* Main Content */}
       <div className="p-4 sm:p-6">
         <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
           {/* Header */}
@@ -286,187 +197,165 @@ export default function Learning() {
           </div>
 
           {/* Category Suggestion Cards */}
-          <div className="space-y-3">
-            <h2 className="text-lg sm:text-xl font-semibold text-white">Explore Categories</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-              {[
-                { icon: '🔬', title: 'Sciences', topics: 'Physics, Chemistry, Biology' },
-                { icon: '📐', title: 'Mathematics', topics: 'Algebra, Calculus, Statistics' },
-                { icon: '📚', title: 'Humanities', topics: 'History, Philosophy, Literature' },
-                { icon: '💼', title: 'Business', topics: 'Marketing, Finance, Leadership' },
-                { icon: '💻', title: 'Technology', topics: 'Programming, Data Science, AI' },
-                { icon: '🎨', title: 'Creative Arts', topics: 'Design, Music, Writing' },
-                { icon: '🏃', title: 'Health & Fitness', topics: 'Nutrition, Exercise, Wellness' },
-                { icon: '🌍', title: 'Languages', topics: 'Spanish, French, Mandarin' },
-                { icon: '💡', title: 'Life Skills', topics: 'Finance, Communication, Cooking' },
-                { icon: '🎯', title: 'Personal Growth', topics: 'Leadership, Time Management' },
-                { icon: '🧠', title: 'Psychology', topics: 'Behavior, Mental Health, Therapy' },
-                { icon: '📊', title: 'Data & Analytics', topics: 'Excel, Visualization, Research' },
-              ].map((category) => (
-                <button
-                  key={category.title}
-                  onClick={() => setTopic(category.title)}
-                  className="group relative p-4 rounded-lg border border-purple-500/20 bg-slate-800/30 hover:bg-slate-800/60 hover:border-purple-500/40 transition-all duration-200 text-left"
-                >
-                  <div className="text-3xl mb-2">{category.icon}</div>
-                  <h3 className="text-sm sm:text-base font-semibold text-white mb-1">{category.title}</h3>
-                  <p className="text-xs text-slate-400 line-clamp-2">{category.topics}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Ask Question Card */}
-          <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
+          <Card className="bg-slate-800/50 border-purple-500/20">
             <CardHeader>
-              <CardTitle className="text-xl sm:text-2xl text-center">Ask Me Anything</CardTitle>
-              <CardDescription className="text-center">
-                I'll explain it with my signature wit and verify every claim.
-              </CardDescription>
+              <CardTitle className="text-xl sm:text-2xl text-purple-400">Quick Start: Choose a Category</CardTitle>
+              <CardDescription>Select a category to explore, or enter your own topic below</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                {[
+                  { emoji: "🔬", title: "Sciences", topics: "Physics, Chemistry, Biology" },
+                  { emoji: "📐", title: "Mathematics", topics: "Algebra, Calculus, Statistics" },
+                  { emoji: "📚", title: "Humanities", topics: "History, Literature, Philosophy" },
+                  { emoji: "💼", title: "Business", topics: "Economics, Marketing, Finance" },
+                  { emoji: "💻", title: "Technology", topics: "Programming, AI, Cybersecurity" },
+                  { emoji: "🎨", title: "Creative Arts", topics: "Music, Design, Photography" },
+                  { emoji: "🏃", title: "Health & Fitness", topics: "Nutrition, Exercise, Wellness" },
+                  { emoji: "🌍", title: "Languages", topics: "Grammar, Vocabulary, Culture" },
+                  { emoji: "🔧", title: "Life Skills", topics: "Cooking, DIY, Time Management" },
+                  { emoji: "🧠", title: "Personal Growth", topics: "Mindfulness, Productivity, Leadership" },
+                  { emoji: "🎭", title: "Psychology", topics: "Behavior, Cognition, Emotions" },
+                  { emoji: "📊", title: "Data & Analytics", topics: "Statistics, Visualization, ML" },
+                ].map((category) => (
+                  <button
+                    key={category.title}
+                    onClick={() => handleCategorySelect(category.title)}
+                    className="p-3 sm:p-4 bg-slate-700/50 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-400/50 rounded-lg transition-all text-left group"
+                  >
+                    <div className="text-2xl sm:text-3xl mb-2">{category.emoji}</div>
+                    <div className="text-sm sm:text-base font-semibold text-purple-300 group-hover:text-purple-200 mb-1">
+                      {category.title}
+                    </div>
+                    <div className="text-xs text-slate-400 line-clamp-2">{category.topics}</div>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Question Input */}
+          <Card className="bg-slate-800/50 border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="text-purple-400">Ask Your Question</CardTitle>
+              <CardDescription>Get verified explanations with fact-checking and source citations</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="topic">Topic (Optional)</Label>
                 <Input
                   id="topic"
-                  placeholder="e.g., Physics, History, Biology..."
+                  placeholder="e.g., Quantum Physics, World War II, Machine Learning"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  className="bg-slate-900/50 border-purple-500/20"
+                  className="bg-slate-700/50 border-purple-500/30"
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="question">Your Question</Label>
+                <Label htmlFor="question">Question</Label>
                 <Input
                   id="question"
-                  placeholder="e.g., How does photosynthesis work?"
+                  placeholder="What would you like to learn about?"
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !explainMutation.isPending) {
-                      handleExplain();
-                    }
-                  }}
-                  className="bg-slate-900/50 border-purple-500/20"
+                  className="bg-slate-700/50 border-purple-500/30"
                 />
               </div>
-
-              <Button
-                onClick={handleExplain}
-                disabled={explainMutation.isPending || !question.trim()}
+              <Button 
+                onClick={handleExplain} 
+                disabled={explainMutation.isPending}
                 className="w-full"
               >
                 {explainMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating Explanation...
+                    Generating...
                   </>
                 ) : (
-                  <>
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Explain & Verify
-                  </>
+                  "Get Verified Explanation"
                 )}
               </Button>
             </CardContent>
           </Card>
 
-          {/* Explanation Result */}
+          {/* Explanation Results */}
           {currentExplanation && (
-            <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
+            <Card className="bg-slate-800/50 border-purple-500/20">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Bob's Explanation</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-slate-400">Overall Confidence:</span>
-                    <span className={`text-2xl font-bold ${getConfidenceColor(currentExplanation.confidenceScore)}`}>
-                      {currentExplanation.confidenceScore}%
-                    </span>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-purple-400">{currentExplanation.topic}</CardTitle>
+                    <CardDescription>Verified explanation with fact-checking</CardDescription>
+                  </div>
+                  <div className={`text-2xl font-bold ${getConfidenceColor(currentExplanation.overallConfidence)}`}>
+                    {currentExplanation.overallConfidence}%
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Explanation Text */}
-                <div className="p-4 bg-slate-900/50 rounded-lg">
-                  <p className="text-slate-200 whitespace-pre-wrap leading-relaxed">
-                    {currentExplanation.explanation}
-                  </p>
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-slate-200 whitespace-pre-wrap">{currentExplanation.explanation}</p>
                 </div>
 
                 {/* Fact Check Results */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-purple-400 flex items-center gap-2">
-                    <CheckCircle2 className="h-6 w-6" />
-                    Fact Verification
-                  </h3>
-
-                  {currentExplanation.factChecks.map((factCheck: any, index: number) => (
-                    <Card key={index} className="border-purple-500/10 bg-slate-900/30">
-                      <CardContent className="pt-6 space-y-3">
-                        {/* Claim */}
+                {currentExplanation.factChecks && currentExplanation.factChecks.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-purple-300">Fact Check Results</h3>
+                    {currentExplanation.factChecks.map((fact: any, index: number) => (
+                      <div 
+                        key={index}
+                        className="p-4 bg-slate-700/50 border border-purple-500/20 rounded-lg space-y-2"
+                      >
                         <div className="flex items-start gap-3">
-                          {getStatusIcon(factCheck.status)}
+                          {getVerificationIcon(fact.verificationStatus)}
                           <div className="flex-1">
-                            <p className="text-slate-200 font-medium">{factCheck.claim}</p>
+                            <p className="text-slate-200 font-medium">{fact.claim}</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold border ${getConfidenceBadge(fact.confidence)}`}>
+                                {fact.verificationStatus.toUpperCase()}
+                              </span>
+                              <span className="text-sm text-slate-400">
+                                Confidence: {fact.confidence}%
+                              </span>
+                            </div>
+                            {fact.analysis && (
+                              <p className="text-sm text-slate-300 mt-2">{fact.analysis}</p>
+                            )}
                           </div>
                         </div>
-
-                        {/* Status and Confidence */}
-                        <div className="flex items-center gap-4 text-sm">
-                          <span className={`font-semibold uppercase ${getStatusColor(factCheck.status)}`}>
-                            {factCheck.status}
-                          </span>
-                          <span className="text-slate-400">•</span>
-                          <span className={`font-semibold ${getConfidenceColor(factCheck.confidence)}`}>
-                            {factCheck.confidence}% Confidence
-                          </span>
-                        </div>
-
-                        {/* Explanation */}
-                        <p className="text-sm text-slate-400">{factCheck.explanation}</p>
-
+                        
                         {/* Sources */}
-                        {factCheck.sources.length > 0 && (
-                          <div className="pt-3 border-t border-purple-500/10">
-                            <p className="text-xs text-slate-500 mb-2">Sources:</p>
+                        {fact.sources && fact.sources.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-purple-500/20">
+                            <p className="text-xs text-slate-400 mb-2">Sources:</p>
                             <div className="space-y-1">
-                              {factCheck.sources.map((source: any, sourceIndex: number) => (
+                              {fact.sources.map((source: any, sourceIndex: number) => (
                                 <a
                                   key={sourceIndex}
                                   href={source.url}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="flex items-center gap-2 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+                                  className="flex items-center gap-2 text-xs text-purple-400 hover:text-purple-300"
                                 >
                                   <ExternalLink className="h-3 w-3" />
-                                  <span className="truncate">{source.title}</span>
+                                  {source.title || source.url}
                                 </a>
                               ))}
                             </div>
                           </div>
                         )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                {/* Summary */}
-                <div className="p-4 bg-purple-900/20 border border-purple-500/20 rounded-lg">
-                  <p className="text-sm text-slate-300">
-                    <span className="font-semibold text-purple-400">Verified with {currentExplanation.sourcesCount} sources</span>
-                    {" • "}
-                    All claims have been fact-checked using web search and credible sources
-                  </p>
-                </div>
-
-                {/* Study Guide & Quiz Actions */}
-                <div className="flex gap-4 pt-4 border-t border-purple-500/10">
+                {/* Action Buttons */}
+                <div className="flex gap-4">
                   <Button
-                    onClick={() => handleGenerateStudyGuide(currentExplanation.sessionId)}
+                    onClick={handleGenerateStudyGuide}
                     disabled={studyGuideMutation.isPending}
                     variant="outline"
-                    className="flex-1"
                   >
                     {studyGuideMutation.isPending ? (
                       <>
@@ -474,17 +363,13 @@ export default function Learning() {
                         Generating...
                       </>
                     ) : (
-                      <>
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        Generate Study Guide
-                      </>
+                      "Generate Study Guide"
                     )}
                   </Button>
                   <Button
-                    onClick={() => handleGenerateQuiz(currentExplanation.sessionId)}
+                    onClick={handleGenerateQuiz}
                     disabled={quizMutation.isPending}
                     variant="outline"
-                    className="flex-1"
                   >
                     {quizMutation.isPending ? (
                       <>
@@ -492,10 +377,7 @@ export default function Learning() {
                         Generating...
                       </>
                     ) : (
-                      <>
-                        <HelpCircle className="mr-2 h-4 w-4" />
-                        Generate Quiz
-                      </>
+                      "Generate Quiz"
                     )}
                   </Button>
                 </div>
@@ -503,187 +385,190 @@ export default function Learning() {
             </Card>
           )}
 
-          {/* Study Guide Display */}
+          {/* Study Guide */}
           {currentStudyGuide && (
-            <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
+            <Card className="bg-slate-800/50 border-purple-500/20">
               <CardHeader>
-                <CardTitle>Study Guide</CardTitle>
+                <CardTitle className="text-purple-400">Study Guide</CardTitle>
+                <CardDescription>Comprehensive study materials for {currentStudyGuide.topic}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Key Concepts */}
-                <div>
-                  <h3 className="text-lg font-semibold text-purple-400 mb-3">Key Concepts</h3>
-                  <ul className="space-y-2">
-                    {currentStudyGuide.keyConcepts.map((concept: string, index: number) => (
-                      <li key={index} className="flex items-start gap-2 text-slate-200">
-                        <CheckCircle2 className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                        <span>{concept}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Terms & Definitions */}
-                <div>
-                  <h3 className="text-lg font-semibold text-purple-400 mb-3">Important Terms</h3>
-                  <div className="space-y-3">
-                    {currentStudyGuide.terms.map((term: any, index: number) => (
-                      <div key={index} className="p-3 bg-slate-900/50 rounded-lg">
-                        <p className="font-semibold text-purple-300 mb-1">{term.term}</p>
-                        <p className="text-sm text-slate-300">{term.definition}</p>
-                      </div>
-                    ))}
+                {currentStudyGuide.keyConcepts && currentStudyGuide.keyConcepts.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-purple-300 mb-3">Key Concepts</h3>
+                    <ul className="space-y-2">
+                      {currentStudyGuide.keyConcepts.map((concept: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <BookOpen className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-slate-200">{concept}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
+                )}
 
-                {/* Summary */}
-                <div>
-                  <h3 className="text-lg font-semibold text-purple-400 mb-3">Summary</h3>
-                  <p className="text-slate-200 leading-relaxed">{currentStudyGuide.summary}</p>
-                </div>
-
-                {/* Study Tips */}
-                <div>
-                  <h3 className="text-lg font-semibold text-purple-400 mb-3">Study Tips</h3>
-                  <ul className="space-y-2">
-                    {currentStudyGuide.studyTips.map((tip: string, index: number) => (
-                      <li key={index} className="flex items-start gap-2 text-slate-200">
-                        <Lightbulb className="h-5 w-5 text-yellow-400 mt-0.5 flex-shrink-0" />
-                        <span>{tip}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Quiz Display */}
-          {currentQuiz && !quizCompleted && (
-            <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
-              <CardHeader>
-                <CardTitle>Quiz Time!</CardTitle>
-                <CardDescription>
-                  Test your knowledge. Answer all questions and submit to see your score.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {currentQuiz.questions.map((q: any, index: number) => (
-                  <div key={index} className="space-y-3">
-                    <p className="font-semibold text-slate-200">
-                      {index + 1}. {q.question}
-                    </p>
-                    <div className="space-y-2 pl-4">
-                      {q.options.map((option: string, optIndex: number) => (
-                        <label
-                          key={optIndex}
-                          className="flex items-center gap-3 p-3 bg-slate-900/30 rounded-lg cursor-pointer hover:bg-slate-900/50 transition-colors"
-                        >
-                          <input
-                            type="radio"
-                            name={`question-${index}`}
-                            value={optIndex}
-                            checked={quizAnswers[index] === optIndex}
-                            onChange={() => handleQuizAnswer(index, optIndex)}
-                            className="w-4 h-4 text-purple-500"
-                          />
-                          <span className="text-slate-300">{String.fromCharCode(65 + optIndex)}. {option}</span>
-                        </label>
+                {/* Important Terms */}
+                {currentStudyGuide.importantTerms && currentStudyGuide.importantTerms.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-purple-300 mb-3">Important Terms</h3>
+                    <div className="grid gap-3">
+                      {currentStudyGuide.importantTerms.map((term: any, index: number) => (
+                        <div key={index} className="p-3 bg-slate-700/50 rounded-lg">
+                          <p className="font-semibold text-purple-400">{term.term}</p>
+                          <p className="text-sm text-slate-300 mt-1">{term.definition}</p>
+                        </div>
                       ))}
                     </div>
                   </div>
-                ))}
+                )}
 
-                <Button
-                  onClick={handleSubmitQuiz}
-                  disabled={quizAnswers.length !== currentQuiz.questions.length || submitQuizMutation.isPending}
-                  className="w-full"
-                >
-                  {submitQuizMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    'Submit Quiz'
-                  )}
-                </Button>
+                {/* Summary */}
+                {currentStudyGuide.summary && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-purple-300 mb-3">Summary</h3>
+                    <p className="text-slate-200 whitespace-pre-wrap">{currentStudyGuide.summary}</p>
+                  </div>
+                )}
+
+                {/* Study Tips */}
+                {currentStudyGuide.studyTips && currentStudyGuide.studyTips.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-purple-300 mb-3">Study Tips</h3>
+                    <ul className="space-y-2">
+                      {currentStudyGuide.studyTips.map((tip: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-purple-400 font-bold">•</span>
+                          <span className="text-slate-200">{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
 
-          {/* Quiz Results */}
-          {quizResults && (
-            <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
+          {/* Quiz */}
+          {currentQuiz && (
+            <Card className="bg-slate-800/50 border-purple-500/20">
               <CardHeader>
-                <CardTitle>Quiz Results</CardTitle>
+                <CardTitle className="text-purple-400">Quiz: {currentQuiz.topic}</CardTitle>
+                <CardDescription>
+                  {quizCompleted 
+                    ? `Completed - Score: ${quizResults?.score}/${quizResults?.totalQuestions}` 
+                    : "Test your knowledge"}
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center space-y-2">
-                  <div className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-                    {quizResults.score}%
-                  </div>
-                  <p className="text-xl text-slate-300">
-                    {quizResults.correctAnswers} out of {quizResults.totalQuestions} correct
-                  </p>
-                  <p className="text-lg font-semibold">
-                    {quizResults.passed ? (
-                      <span className="text-green-400">✓ Passed!</span>
-                    ) : (
-                      <span className="text-yellow-400">Keep studying!</span>
+              <CardContent className="space-y-6">
+                {currentQuiz.questions.map((q: any, qIndex: number) => (
+                  <div key={qIndex} className="p-4 bg-slate-700/50 border border-purple-500/20 rounded-lg space-y-3">
+                    <p className="font-semibold text-slate-200">
+                      {qIndex + 1}. {q.question}
+                    </p>
+                    <div className="space-y-2">
+                      {q.options.map((option: string, oIndex: number) => {
+                        const optionLetter = String.fromCharCode(65 + oIndex); // A, B, C, D
+                        const isSelected = quizAnswers[qIndex] === oIndex;
+                        const isCorrect = quizCompleted && q.correctAnswer === optionLetter;
+                        const isWrong = quizCompleted && isSelected && q.correctAnswer !== optionLetter;
+                        
+                        return (
+                          <button
+                            key={oIndex}
+                            onClick={() => {
+                              if (!quizCompleted) {
+                                const newAnswers = [...quizAnswers];
+                                newAnswers[qIndex] = oIndex;
+                                setQuizAnswers(newAnswers);
+                              }
+                            }}
+                            disabled={quizCompleted}
+                            className={`w-full text-left p-3 rounded border transition-all ${
+                              isCorrect
+                                ? "bg-green-500/20 border-green-500/50 text-green-300"
+                                : isWrong
+                                ? "bg-red-500/20 border-red-500/50 text-red-300"
+                                : isSelected
+                                ? "bg-purple-500/20 border-purple-400"
+                                : "bg-slate-600/50 border-slate-500/30 hover:border-purple-400/50"
+                            }`}
+                          >
+                            <span className="font-semibold">{optionLetter}.</span> {option}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {quizCompleted && q.explanation && (
+                      <div className="mt-3 p-3 bg-slate-600/50 rounded border border-purple-500/20">
+                        <p className="text-sm text-slate-300">
+                          <span className="font-semibold text-purple-400">Explanation:</span> {q.explanation}
+                        </p>
+                      </div>
                     )}
-                  </p>
-                </div>
+                  </div>
+                ))}
 
-                <Button
-                  onClick={() => {
-                    setQuizResults(null);
-                    setQuizCompleted(false);
-                    setCurrentQuiz(null);
-                    setQuizAnswers([]);
-                  }}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Try Another Quiz
-                </Button>
+                {!quizCompleted && (
+                  <Button
+                    onClick={handleSubmitQuiz}
+                    disabled={quizAnswers.length !== currentQuiz.questions.length || submitQuizMutation.isPending}
+                    className="w-full"
+                  >
+                    {submitQuizMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit Quiz"
+                    )}
+                  </Button>
+                )}
+
+                {quizCompleted && quizResults && (
+                  <div className="p-4 bg-slate-700/50 rounded-lg border border-purple-500/20">
+                    <div className="text-center space-y-2">
+                      <p className="text-2xl font-bold text-purple-400">
+                        {quizResults.score}/{quizResults.totalQuestions}
+                      </p>
+                      <p className={`text-lg font-semibold ${quizResults.passed ? "text-green-400" : "text-red-400"}`}>
+                        {quizResults.passed ? "Passed! 🎉" : "Keep Learning! 📚"}
+                      </p>
+                      <p className="text-sm text-slate-300">{quizResults.feedback}</p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
 
           {/* Learning History */}
           {history && history.length > 0 && (
-            <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
+            <Card className="bg-slate-800/50 border-purple-500/20">
               <CardHeader>
-                <CardTitle>Learning History</CardTitle>
-                <CardDescription>Your recent learning sessions</CardDescription>
+                <CardTitle className="text-purple-400">Recent Learning Sessions</CardTitle>
+                <CardDescription>Your verified learning history</CardDescription>
               </CardHeader>
               <CardContent>
-                <ScrollArea className="h-[300px]">
+                <ScrollArea className="h-64">
                   <div className="space-y-3">
                     {history.map((session: any) => (
                       <div
                         key={session.id}
-                        className="p-4 bg-slate-900/50 rounded-lg hover:bg-slate-900/70 transition-colors cursor-pointer"
-                        onClick={() => {
-                          setTopic(session.topic);
-                          setQuestion(session.question);
-                        }}
+                        className="p-3 bg-slate-700/50 border border-purple-500/20 rounded-lg hover:border-purple-400/50 transition-all cursor-pointer"
                       >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <p className="font-medium text-slate-200">{session.question}</p>
-                            <p className="text-sm text-slate-400 mt-1">{session.topic}</p>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold text-slate-200">{session.topic}</p>
+                            <p className="text-sm text-slate-400 mt-1">
+                              {new Date(session.createdAt).toLocaleDateString()}
+                            </p>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-sm font-semibold ${getConfidenceColor(session.confidenceScore)}`}>
-                              {session.confidenceScore}%
-                            </span>
-                          </div>
+                          <span className={`text-sm font-semibold ${getConfidenceColor(session.overallConfidence)}`}>
+                            {session.overallConfidence}%
+                          </span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-2">
-                          {new Date(session.createdAt).toLocaleDateString()} • {session.sourcesCount} sources
-                        </p>
                       </div>
                     ))}
                   </div>
@@ -696,4 +581,3 @@ export default function Learning() {
     </div>
   );
 }
-
