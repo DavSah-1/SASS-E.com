@@ -408,3 +408,140 @@ export const languageAchievements = mysqlTable("language_achievements", {
 export type LanguageAchievement = typeof languageAchievements.$inferSelect;
 export type InsertLanguageAchievement = typeof languageAchievements.$inferInsert;
 
+/**
+ * Debt Elimination Financial Coach - Debts table
+ */
+export const debts = mysqlTable("debts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  debtName: varchar("debtName", { length: 255 }).notNull(), // e.g., "Chase Credit Card", "Student Loan"
+  debtType: mysqlEnum("debtType", ["credit_card", "student_loan", "personal_loan", "auto_loan", "mortgage", "medical", "other"]).notNull(),
+  originalBalance: int("originalBalance").notNull(), // In cents to avoid floating point issues
+  currentBalance: int("currentBalance").notNull(), // In cents
+  interestRate: int("interestRate").notNull(), // Stored as basis points (e.g., 1550 = 15.50%)
+  minimumPayment: int("minimumPayment").notNull(), // In cents
+  dueDay: int("dueDay").notNull(), // Day of month (1-31)
+  creditor: varchar("creditor", { length: 255 }), // Bank or lender name
+  accountNumber: varchar("accountNumber", { length: 100 }), // Last 4 digits or masked
+  status: mysqlEnum("status", ["active", "paid_off", "closed"]).default("active").notNull(),
+  notes: text("notes"), // User notes about this debt
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  paidOffAt: timestamp("paidOffAt"), // When debt was fully paid
+});
+
+export type Debt = typeof debts.$inferSelect;
+export type InsertDebt = typeof debts.$inferInsert;
+
+/**
+ * Debt Payments table - tracks all payments made toward debts
+ */
+export const debtPayments = mysqlTable("debt_payments", {
+  id: int("id").autoincrement().primaryKey(),
+  debtId: int("debtId").notNull(),
+  userId: int("userId").notNull(),
+  amount: int("amount").notNull(), // In cents
+  paymentDate: timestamp("paymentDate").notNull(),
+  paymentType: mysqlEnum("paymentType", ["minimum", "extra", "lump_sum", "automatic"]).notNull(),
+  balanceAfter: int("balanceAfter").notNull(), // Balance remaining after this payment (in cents)
+  principalPaid: int("principalPaid").notNull(), // Amount toward principal (in cents)
+  interestPaid: int("interestPaid").notNull(), // Amount toward interest (in cents)
+  notes: text("notes"), // User notes about this payment
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type DebtPayment = typeof debtPayments.$inferSelect;
+export type InsertDebtPayment = typeof debtPayments.$inferInsert;
+
+/**
+ * Debt Milestones table - tracks achievements in debt elimination journey
+ */
+export const debtMilestones = mysqlTable("debt_milestones", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  debtId: int("debtId"), // Null for overall milestones
+  milestoneType: mysqlEnum("milestoneType", [
+    "first_payment",
+    "first_extra_payment", 
+    "25_percent_paid",
+    "50_percent_paid",
+    "75_percent_paid",
+    "debt_paid_off",
+    "all_debts_paid",
+    "payment_streak_7",
+    "payment_streak_30",
+    "saved_1000_interest"
+  ]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  amountSaved: int("amountSaved"), // Interest saved (in cents)
+  achievedAt: timestamp("achievedAt").defaultNow().notNull(),
+});
+
+export type DebtMilestone = typeof debtMilestones.$inferSelect;
+export type InsertDebtMilestone = typeof debtMilestones.$inferInsert;
+
+/**
+ * Debt Strategies table - stores calculated payoff strategies
+ */
+export const debtStrategies = mysqlTable("debt_strategies", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  strategyType: mysqlEnum("strategyType", ["snowball", "avalanche", "custom"]).notNull(),
+  monthlyExtraPayment: int("monthlyExtraPayment").notNull(), // In cents
+  projectedPayoffDate: timestamp("projectedPayoffDate").notNull(),
+  totalInterestPaid: int("totalInterestPaid").notNull(), // In cents
+  totalInterestSaved: int("totalInterestSaved").notNull(), // Compared to minimum payments (in cents)
+  monthsToPayoff: int("monthsToPayoff").notNull(),
+  payoffOrder: text("payoffOrder").notNull(), // JSON array of debt IDs in order
+  calculatedAt: timestamp("calculatedAt").defaultNow().notNull(),
+});
+
+export type DebtStrategy = typeof debtStrategies.$inferSelect;
+export type InsertDebtStrategy = typeof debtStrategies.$inferInsert;
+
+/**
+ * Coaching Sessions table - AI-powered motivational messages
+ */
+export const coachingSessions = mysqlTable("coaching_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  sessionType: mysqlEnum("sessionType", [
+    "welcome",
+    "milestone_celebration",
+    "payment_logged",
+    "missed_payment",
+    "strategy_suggestion",
+    "progress_update",
+    "motivation",
+    "setback_recovery"
+  ]).notNull(),
+  message: text("message").notNull(), // The coaching message from SASS-E
+  sentiment: mysqlEnum("sentiment", ["encouraging", "celebratory", "supportive", "motivational"]).notNull(),
+  relatedDebtId: int("relatedDebtId"), // Optional: specific debt this relates to
+  relatedMilestoneId: int("relatedMilestoneId"), // Optional: milestone this celebrates
+  userResponse: mysqlEnum("userResponse", ["helpful", "not_helpful", "inspiring"]), // User feedback
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CoachingSession = typeof coachingSessions.$inferSelect;
+export type InsertCoachingSession = typeof coachingSessions.$inferInsert;
+
+/**
+ * Debt Budget Snapshots table - tracks monthly budget allocations
+ */
+export const debtBudgetSnapshots = mysqlTable("debt_budget_snapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  monthYear: varchar("monthYear", { length: 7 }).notNull(), // Format: "2025-01"
+  totalIncome: int("totalIncome").notNull(), // In cents
+  totalExpenses: int("totalExpenses").notNull(), // In cents
+  totalDebtPayments: int("totalDebtPayments").notNull(), // In cents
+  extraPaymentBudget: int("extraPaymentBudget").notNull(), // In cents
+  actualExtraPayments: int("actualExtraPayments").notNull(), // In cents
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type DebtBudgetSnapshot = typeof debtBudgetSnapshots.$inferSelect;
+export type InsertDebtBudgetSnapshot = typeof debtBudgetSnapshots.$inferInsert;

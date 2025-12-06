@@ -446,3 +446,37 @@
 - [x] Replace hardcoded navigation in Learning page with shared Navigation component
 - [x] Replace hardcoded navigation in LanguageLearning page with shared Navigation component
 - [x] Test navigation consistency across all pages (Profile link, language selector, translations)
+
+
+## Debt Elimination Financial Coach Feature
+### Database Schema
+- [x] Create debts table (user_id, name, type, balance, interest_rate, minimum_payment, due_day)
+- [x] Create debt_payments table (debt_id, amount, payment_date, payment_type)
+- [x] Create debt_milestones table (user_id, milestone_type, achieved_date, debt_id)
+- [x] Create debt_strategies table (user_id, strategy_type, projected_payoff_date, total_interest)
+- [x] Create coaching_sessions table (user_id, session_type, message, sentiment, created_at)
+- [x] Push database migration with pnpm db:push
+
+### Backend API
+- [x] Add database helper functions in server/db.ts
+- [x] Create debt router in server/routers.ts
+- [x] Implement addDebt procedure
+- [x] Implement getDebts procedure
+- [x] Implement updateDebt procedure
+- [x] Implement deleteDebt procedure
+- [x] Implement recordPayment procedure
+- [x] Implement getPaymentHistory procedure
+- [x] Implement calculateStrategy procedure (snowball vs avalanche)
+- [x] Implement getMilestones procedure
+- [x] Implement getCoachingMessage procedure (AI-powered motivation)
+- [x] Implement getDebtSummary procedure (total debt, progress, payoff date)
+
+### Frontend UI (Future Phase)
+- [ ] Create Debt Coach page component
+- [ ] Build debt portfolio dashboard
+- [ ] Add debt entry form
+- [ ] Create payment logging interface
+- [ ] Build strategy comparison view
+- [ ] Add progress visualization charts
+- [ ] Implement milestone celebration UI
+- [ ] Add coaching message display

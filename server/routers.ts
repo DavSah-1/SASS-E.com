@@ -10,10 +10,12 @@ import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
 import { languageLearningRouter } from "./languageLearningRouter";
+import { debtCoachRouter } from "./debtCoachRouter";
 
 export const appRouter = router({
   system: systemRouter,
   languageLearning: languageLearningRouter,
+  debtCoach: debtCoachRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
