@@ -545,3 +545,67 @@ export const debtBudgetSnapshots = mysqlTable("debt_budget_snapshots", {
 
 export type DebtBudgetSnapshot = typeof debtBudgetSnapshots.$inferSelect;
 export type InsertDebtBudgetSnapshot = typeof debtBudgetSnapshots.$inferInsert;
+
+/**
+ * Budget Categories table - user-defined income and expense categories
+ */
+export const budgetCategories = mysqlTable("budget_categories", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  type: mysqlEnum("type", ["income", "expense"]).notNull(),
+  monthlyLimit: int("monthlyLimit"), // In cents, null for income categories
+  color: varchar("color", { length: 7 }).notNull(), // Hex color for charts
+  icon: varchar("icon", { length: 50 }), // Icon name for UI
+  isDefault: int("isDefault").default(0).notNull(), // 1 for system defaults, 0 for user-created
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BudgetCategory = typeof budgetCategories.$inferSelect;
+export type InsertBudgetCategory = typeof budgetCategories.$inferInsert;
+
+/**
+ * Budget Transactions table - individual income and expense entries
+ */
+export const budgetTransactions = mysqlTable("budget_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  categoryId: int("categoryId").notNull(),
+  amount: int("amount").notNull(), // In cents, positive for income, positive for expenses
+  transactionDate: timestamp("transactionDate").notNull(),
+  description: varchar("description", { length: 255 }),
+  notes: text("notes"),
+  isRecurring: int("isRecurring").default(0).notNull(), // 1 for recurring transactions
+  recurringFrequency: mysqlEnum("recurringFrequency", ["weekly", "biweekly", "monthly", "yearly"]),
+  tags: varchar("tags", { length: 255 }), // Comma-separated tags for filtering
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BudgetTransaction = typeof budgetTransactions.$inferSelect;
+export type InsertBudgetTransaction = typeof budgetTransactions.$inferInsert;
+
+/**
+ * Monthly Budget Summary table - aggregated monthly statistics
+ */
+export const monthlyBudgetSummaries = mysqlTable("monthly_budget_summaries", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  monthYear: varchar("monthYear", { length: 7 }).notNull(), // Format: "2025-01"
+  totalIncome: int("totalIncome").notNull(), // In cents
+  totalExpenses: int("totalExpenses").notNull(), // In cents
+  totalDebtPayments: int("totalDebtPayments").notNull(), // In cents (from debt_payments table)
+  netCashFlow: int("netCashFlow").notNull(), // Income - Expenses - Debt Payments
+  savingsRate: int("savingsRate").notNull(), // Percentage in basis points (e.g., 2000 = 20%)
+  debtPaymentRate: int("debtPaymentRate").notNull(), // Percentage of income going to debt
+  availableForExtraPayments: int("availableForExtraPayments").notNull(), // Leftover for extra debt payments
+  budgetHealth: mysqlEnum("budgetHealth", ["excellent", "good", "warning", "critical"]).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type MonthlyBudgetSummary = typeof monthlyBudgetSummaries.$inferSelect;
+export type InsertMonthlyBudgetSummary = typeof monthlyBudgetSummaries.$inferInsert;

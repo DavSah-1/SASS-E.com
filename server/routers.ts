@@ -11,11 +11,13 @@ import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
 import { languageLearningRouter } from "./languageLearningRouter";
 import { debtCoachRouter } from "./debtCoachRouter";
+import { budgetRouter } from "./budgetRouter";
 
 export const appRouter = router({
   system: systemRouter,
   languageLearning: languageLearningRouter,
   debtCoach: debtCoachRouter,
+  budget: budgetRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

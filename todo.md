@@ -484,3 +484,32 @@
 - [ ] Create payment history table
 - [x] Add navigation link to Debt Coach
 - [x] Implement responsive mobile layout
+
+
+## Budget Integration Module
+### Database Schema
+- [x] Create budget_categories table (user_id, name, type, monthly_limit, color)
+- [x] Create budget_transactions table (user_id, category_id, amount, date, description, type)
+- [x] Add budget-related indexes for performance
+- [x] Push database migration
+
+### Backend API
+- [x] Add budget category CRUD endpoints
+- [x] Add transaction tracking endpoints
+- [x] Implement monthly budget summary calculation
+- [x] Add income vs expense analysis endpoint
+- [x] Create available funds calculator (income - expenses - debt payments)
+- [x] Add budget recommendations based on debt goals
+
+### Frontend UI
+- [x] Create Budget page at /budget route
+- [x] Build income tracking section with sources
+- [x] Create expense tracking by category
+- [x] Add transaction list with filtering
+- [x] Build budget vs actual comparison charts
+- [x] Create available funds for debt payment calculator
+- [x] Add budget-to-debt integration dashboard widget
+- [x] Implement category-based spending breakdown
+- [ ] Add monthly trend line charts
+- [x] Create quick transaction entry modal
+- [x] Add navigation link to Budget page
