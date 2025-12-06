@@ -12,6 +12,7 @@ import LanguageLearning from "./pages/LanguageLearning";
 import Profile from "./pages/Profile";
 import DebtCoach from "./pages/DebtCoach";
 import Budget from "./pages/Budget";
+import Money from "./pages/Money";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -24,6 +25,7 @@ function Router() {
       <Route path={"/language-learning"} component={LanguageLearning} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/debt-coach"} component={DebtCoach} />
+      <Route path={"/money"} component={Money} />
       <Route path={"/budget"} component={Budget} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

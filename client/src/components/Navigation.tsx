@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, DollarSign, Wallet } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -43,13 +43,9 @@ export function Navigation() {
               <Languages className="h-4 w-4" />
               {t.nav.languages}
             </a>
-            <a href="/debt-coach" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              Debt Coach
-            </a>
-            <a href="/budget" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+            <a href="/money" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Wallet className="h-4 w-4" />
-              Budget
+              Money
             </a>
           </div>
         </div>
@@ -140,20 +136,12 @@ export function Navigation() {
               <span>{t.nav.languages}</span>
             </a>
             <a
-              href="/debt-coach"
-              className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <DollarSign className="h-5 w-5" />
-              <span>Debt Coach</span>
-            </a>
-            <a
-              href="/budget"
+              href="/money"
               className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               <Wallet className="h-5 w-5" />
-              <span>Budget</span>
+              <span>Money</span>
             </a>
             {isAuthenticated && (
               <a

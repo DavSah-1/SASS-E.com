@@ -513,3 +513,41 @@
 - [ ] Add monthly trend line charts
 - [x] Create quick transaction entry modal
 - [x] Add navigation link to Budget page
+
+
+## Money Page Consolidation (Unified Financial Hub)
+### Page Structure
+- [x] Create Money page component at /money route
+- [x] Implement tabbed interface (Overview, Budget, Debt Coach)
+- [x] Add tab navigation with active state indicators
+- [x] Ensure mobile-responsive tab layout
+
+### Overview Tab (Integrated Dashboard)
+- [x] Create financial health score calculation
+- [x] Build this month summary widget (income, expenses, debt payments, net cash flow)
+- [x] Add quick action buttons (Add Transaction, Log Payment, Add Debt)
+- [x] Display SASS-E coaching message with integrated insights
+- [x] Show budget health indicator
+- [x] Display debt freedom countdown
+- [x] Add available for extra payments widget
+- [x] Create visual connection between budget surplus and debt acceleration
+- [ ] Add monthly progress chart (income vs expenses vs debt payments)
+
+### Budget Tab Integration
+- [ ] Extract Budget page content into reusable component
+- [ ] Integrate as tab in Money page
+- [ ] Maintain all existing budget functionality
+- [ ] Ensure data refreshes when switching tabs
+
+### Debt Coach Tab Integration
+- [ ] Extract Debt Coach page content into reusable component
+- [ ] Integrate as tab in Money page
+- [ ] Maintain all existing debt coach functionality
+- [ ] Ensure data refreshes when switching tabs
+
+### Navigation Updates
+- [x] Replace "Debt Coach" and "Budget" nav links with single "Money" link
+- [x] Update App.tsx routing to use /money as main route
+- [x] Keep /debt-coach and /budget as legacy routes (for direct access)
+- [x] Update mobile navigation menu
+- [x] Test all navigation flows
