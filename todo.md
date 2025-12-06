@@ -587,3 +587,10 @@
 - [ ] Add goal sharing/export functionality
 - [x] Integrate goals widget into Money Overview tab
 - [x] Add navigation link to Goals page
+
+
+## Navigation Reorganization
+- [x] Remove Goals link from main navigation bar
+- [x] Add Goals as fourth tab in Money page (Overview, Budget, Debt Coach, Goals)
+- [ ] Update /goals route to redirect to /money with goals tab active
+- [x] Test navigation flow

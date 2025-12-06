@@ -30,6 +30,7 @@ import {
 import { getLoginUrl } from "@/const";
 import Budget from "./Budget";
 import DebtCoach from "./DebtCoach";
+import Goals from "./Goals";
 
 // Wrapper to hide navigation in embedded context
 const BudgetTab = () => {
@@ -44,6 +45,14 @@ const DebtCoachTab = () => {
   return (
     <div className="[&_.min-h-screen]:min-h-0 [&_nav]:hidden">
       <DebtCoach />
+    </div>
+  );
+};
+
+const GoalsTab = () => {
+  return (
+    <div className="[&_.min-h-screen]:min-h-0 [&_nav]:hidden">
+      <Goals />
     </div>
   );
 };
@@ -183,7 +192,7 @@ export default function Money() {
 
         {/* Tabbed Interface */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8 bg-slate-800/50">
+          <TabsList className="grid w-full grid-cols-4 mb-8 bg-slate-800/50">
             <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600">
               <Sparkles className="h-4 w-4 mr-2" />
               Overview
@@ -195,6 +204,10 @@ export default function Money() {
             <TabsTrigger value="debts" className="data-[state=active]:bg-blue-600">
               <CreditCard className="h-4 w-4 mr-2" />
               Debt Coach
+            </TabsTrigger>
+            <TabsTrigger value="goals" className="data-[state=active]:bg-orange-600">
+              <Target className="h-4 w-4 mr-2" />
+              Goals
             </TabsTrigger>
           </TabsList>
 
@@ -509,6 +522,11 @@ export default function Money() {
           {/* Debt Coach Tab */}
           <TabsContent value="debts" className="mt-0">
             <DebtCoachTab />
+          </TabsContent>
+
+          {/* Goals Tab */}
+          <TabsContent value="goals" className="mt-0">
+            <GoalsTab />
           </TabsContent>
         </Tabs>
       </div>
