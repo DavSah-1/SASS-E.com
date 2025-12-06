@@ -170,7 +170,7 @@ export default function Money() {
       <div className="container mx-auto py-8 px-4 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 via-emerald-500 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 via-emerald-500 to-purple-400 bg-clip-text text-transparent" style={{height: '50px'}}>
             💰 Money Hub
           </h1>
           <p className="text-slate-300">
