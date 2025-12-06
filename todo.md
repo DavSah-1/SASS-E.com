@@ -585,5 +585,5 @@
 - [ ] Create AI coaching recommendations widget
 - [ ] Implement goal templates for common goals
 - [ ] Add goal sharing/export functionality
-- [ ] Integrate goals widget into Money Overview tab
+- [x] Integrate goals widget into Money Overview tab
 - [x] Add navigation link to Goals page

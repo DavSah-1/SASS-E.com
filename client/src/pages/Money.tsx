@@ -71,6 +71,9 @@ export default function Money() {
   const { data: debts } = trpc.debtCoach.getDebts.useQuery({ includeInactive: false }, { enabled: isAuthenticated });
   const { data: debtSummary } = trpc.debtCoach.getSummary.useQuery(undefined, { enabled: isAuthenticated });
 
+  // Fetch goals data
+  const { data: goals } = trpc.goals.getGoals.useQuery({ includeCompleted: false }, { enabled: isAuthenticated });
+
   // Format currency
   const formatCurrency = (cents: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -396,6 +399,85 @@ export default function Money() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Financial Goals Widget */}
+            {goals && goals.length > 0 && (
+              <Card className="bg-slate-800/50 border-slate-700">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-white flex items-center gap-2">
+                        <Target className="h-5 w-5" />
+                        Financial Goals
+                      </CardTitle>
+                      <CardDescription>
+                        {goals.filter(g => g.status === 'active').length} active goal{goals.filter(g => g.status === 'active').length !== 1 ? 's' : ''} in progress
+                      </CardDescription>
+                    </div>
+                    <Button asChild variant="outline" size="sm">
+                      <a href="/goals">View All</a>
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {goals.filter(g => g.status === 'active').slice(0, 3).map((goal) => {
+                      const progress = goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
+                      const isNearTarget = progress >= 75;
+                      return (
+                        <div key={goal.id} className="p-4 rounded-lg bg-slate-900/50 border border-slate-700 hover:border-purple-500/50 transition-colors">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-2xl">{goal.icon || '🎯'}</span>
+                              <div>
+                                <h4 className="font-semibold text-white text-sm">{goal.name}</h4>
+                                <p className="text-xs text-slate-400">{goal.type.replace('_', ' ')}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-slate-400">Progress</span>
+                              <span className={`font-semibold ${isNearTarget ? 'text-green-400' : 'text-purple-400'}`}>
+                                {progress.toFixed(0)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-slate-700 rounded-full h-2">
+                              <div
+                                className="h-2 rounded-full transition-all duration-500"
+                                style={{
+                                  width: `${Math.min(progress, 100)}%`,
+                                  background: isNearTarget
+                                    ? 'linear-gradient(to right, #10b981, #059669)'
+                                    : 'linear-gradient(to right, #a855f7, #9333ea)',
+                                }}
+                              />
+                            </div>
+                            <div className="flex justify-between text-xs text-slate-400">
+                              <span>{formatCurrency(goal.currentAmount)}</span>
+                              <span>{formatCurrency(goal.targetAmount)}</span>
+                            </div>
+                            {goal.targetDate && (
+                              <div className="flex items-center gap-1 text-xs text-slate-400 mt-2">
+                                <Calendar className="h-3 w-3" />
+                                <span>Target: {new Date(goal.targetDate).toLocaleDateString()}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {goals.filter(g => g.status === 'active').length > 3 && (
+                    <div className="mt-4 text-center">
+                      <Button asChild variant="ghost" size="sm" className="text-purple-400 hover:text-purple-300">
+                        <a href="/goals">View {goals.filter(g => g.status === 'active').length - 3} more goal{goals.filter(g => g.status === 'active').length - 3 !== 1 ? 's' : ''} →</a>
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* SASS-E Coaching Message */}
             <Card className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 border-purple-500/20">
