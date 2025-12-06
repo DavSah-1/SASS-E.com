@@ -534,16 +534,20 @@
 - [ ] Add monthly progress chart (income vs expenses vs debt payments)
 
 ### Budget Tab Integration
-- [ ] Extract Budget page content into reusable component
-- [ ] Integrate as tab in Money page
-- [ ] Maintain all existing budget functionality
-- [ ] Ensure data refreshes when switching tabs
+- [x] Import Budget page into Money page
+- [x] Hide Navigation component when Budget rendered in tab (use Money page nav)
+- [x] Integrate Budget as tab in Money page
+- [x] Maintain all existing budget functionality (categories, transactions, modals)
+- [x] Ensure data refreshes when switching tabs
+- [x] Test all budget features within tab context
 
 ### Debt Coach Tab Integration
-- [ ] Extract Debt Coach page content into reusable component
-- [ ] Integrate as tab in Money page
-- [ ] Maintain all existing debt coach functionality
-- [ ] Ensure data refreshes when switching tabs
+- [x] Import Debt Coach page into Money page
+- [x] Hide Navigation component when Debt Coach rendered in tab (use Money page nav)
+- [x] Integrate Debt Coach as tab in Money page
+- [x] Maintain all existing debt coach functionality (debts, payments, strategies, milestones)
+- [x] Ensure data refreshes when switching tabs
+- [x] Test all debt coach features within tab context
 
 ### Navigation Updates
 - [x] Replace "Debt Coach" and "Budget" nav links with single "Money" link

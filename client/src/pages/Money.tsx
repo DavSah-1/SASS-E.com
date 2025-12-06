@@ -28,6 +28,25 @@ import {
   TrendingDown as DebtIcon,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import Budget from "./Budget";
+import DebtCoach from "./DebtCoach";
+
+// Wrapper to hide navigation in embedded context
+const BudgetTab = () => {
+  return (
+    <div className="[&_.min-h-screen]:min-h-0 [&_nav]:hidden">
+      <Budget />
+    </div>
+  );
+};
+
+const DebtCoachTab = () => {
+  return (
+    <div className="[&_.min-h-screen]:min-h-0 [&_nav]:hidden">
+      <DebtCoach />
+    </div>
+  );
+};
 
 export default function Money() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -400,40 +419,14 @@ export default function Money() {
             </Card>
           </TabsContent>
 
-          {/* Budget Tab - Placeholder for now */}
-          <TabsContent value="budget">
-            <Card className="bg-slate-800/50 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white">Budget Management</CardTitle>
-                <CardDescription>Track your income and expenses</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-300 mb-4">
-                  Budget functionality will be integrated here. For now, you can access the full budget page.
-                </p>
-                <Button asChild>
-                  <a href="/budget">Go to Budget Page</a>
-                </Button>
-              </CardContent>
-            </Card>
+          {/* Budget Tab */}
+          <TabsContent value="budget" className="mt-0">
+            <BudgetTab />
           </TabsContent>
 
-          {/* Debt Coach Tab - Placeholder for now */}
-          <TabsContent value="debts">
-            <Card className="bg-slate-800/50 border-slate-700">
-              <CardHeader>
-                <CardTitle className="text-white">Debt Coach</CardTitle>
-                <CardDescription>Manage your debts and payment strategies</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-300 mb-4">
-                  Debt coach functionality will be integrated here. For now, you can access the full debt coach page.
-                </p>
-                <Button asChild>
-                  <a href="/debt-coach">Go to Debt Coach Page</a>
-                </Button>
-              </CardContent>
-            </Card>
+          {/* Debt Coach Tab */}
+          <TabsContent value="debts" className="mt-0">
+            <DebtCoachTab />
           </TabsContent>
         </Tabs>
       </div>
