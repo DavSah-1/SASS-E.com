@@ -12,12 +12,14 @@ import { learningEngine } from "./_core/learningEngine";
 import { languageLearningRouter } from "./languageLearningRouter";
 import { debtCoachRouter } from "./debtCoachRouter";
 import { budgetRouter } from "./budgetRouter";
+import { goalsRouter } from "./goalsRouter";
 
 export const appRouter = router({
   system: systemRouter,
   languageLearning: languageLearningRouter,
   debtCoach: debtCoachRouter,
   budget: budgetRouter,
+  goals: goalsRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

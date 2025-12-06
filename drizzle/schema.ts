@@ -609,3 +609,62 @@ export const monthlyBudgetSummaries = mysqlTable("monthly_budget_summaries", {
 
 export type MonthlyBudgetSummary = typeof monthlyBudgetSummaries.$inferSelect;
 export type InsertMonthlyBudgetSummary = typeof monthlyBudgetSummaries.$inferInsert;
+
+/**
+ * Financial Goals table - user-defined financial targets
+ */
+export const financialGoals = mysqlTable("financial_goals", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  type: mysqlEnum("type", ["savings", "debt_free", "emergency_fund", "investment", "purchase", "custom"]).notNull(),
+  targetAmount: int("targetAmount").notNull(), // In cents
+  currentAmount: int("currentAmount").default(0).notNull(), // In cents
+  targetDate: timestamp("targetDate"),
+  status: mysqlEnum("status", ["active", "completed", "paused", "cancelled"]).default("active").notNull(),
+  priority: int("priority").default(0).notNull(), // Higher number = higher priority
+  icon: varchar("icon", { length: 10 }).default("🎯"),
+  color: varchar("color", { length: 20 }).default("#10b981"), // Hex color for visual distinction
+  isAutoTracked: int("isAutoTracked").default(0).notNull(), // 1 if automatically updated from budget
+  linkedCategoryId: int("linkedCategoryId"), // Link to budget category for auto-tracking
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FinancialGoal = typeof financialGoals.$inferSelect;
+export type InsertFinancialGoal = typeof financialGoals.$inferInsert;
+
+/**
+ * Goal Milestones table - track achievement of percentage milestones
+ */
+export const goalMilestones = mysqlTable("goal_milestones", {
+  id: int("id").autoincrement().primaryKey(),
+  goalId: int("goalId").notNull(),
+  milestonePercentage: int("milestonePercentage").notNull(), // 25, 50, 75, 100
+  achievedDate: timestamp("achievedDate"),
+  celebrationShown: int("celebrationShown").default(0).notNull(), // 1 if user has seen celebration
+  message: text("message"), // Custom celebration message
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GoalMilestone = typeof goalMilestones.$inferSelect;
+export type InsertGoalMilestone = typeof goalMilestones.$inferInsert;
+
+/**
+ * Goal Progress History table - track progress updates over time
+ */
+export const goalProgressHistory = mysqlTable("goal_progress_history", {
+  id: int("id").autoincrement().primaryKey(),
+  goalId: int("goalId").notNull(),
+  amount: int("amount").notNull(), // Amount added/removed in cents
+  newTotal: int("newTotal").notNull(), // New current_amount after update
+  progressDate: timestamp("progressDate").defaultNow().notNull(),
+  note: varchar("note", { length: 255 }),
+  source: mysqlEnum("source", ["manual", "auto_budget", "auto_debt"]).default("manual").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type GoalProgressHistory = typeof goalProgressHistory.$inferSelect;
+export type InsertGoalProgressHistory = typeof goalProgressHistory.$inferInsert;

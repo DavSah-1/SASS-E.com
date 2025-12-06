@@ -555,3 +555,35 @@
 - [x] Keep /debt-coach and /budget as legacy routes (for direct access)
 - [x] Update mobile navigation menu
 - [x] Test all navigation flows
+
+
+## Financial Goals System
+### Database Schema
+- [x] Create financial_goals table (user_id, name, type, target_amount, current_amount, target_date, status, priority)
+- [x] Create goal_milestones table (goal_id, milestone_percentage, achieved_date, celebration_shown)
+- [x] Create goal_progress_history table (goal_id, amount, date, note)
+- [x] Add indexes for performance
+- [x] Push database migration
+
+### Backend API
+- [x] Add goal CRUD endpoints (create, read, update, delete, list)
+- [x] Implement goal progress tracking endpoint
+- [x] Add milestone detection and celebration trigger
+- [x] Create goal recommendations based on budget/debt data
+- [ ] Implement goal priority ranking algorithm
+- [x] Add goal completion celebration endpoint
+- [x] Create progress history tracking
+
+### Frontend UI
+- [x] Create Goals page at /goals route
+- [x] Build goal creation form with type selector (savings, debt-free, emergency fund, custom)
+- [x] Add goal cards with circular progress indicators
+- [x] Implement progress update modal
+- [x] Create milestone celebration toast notifications
+- [ ] Build goal priority drag-and-drop reordering
+- [ ] Add progress history timeline
+- [ ] Create AI coaching recommendations widget
+- [ ] Implement goal templates for common goals
+- [ ] Add goal sharing/export functionality
+- [ ] Integrate goals widget into Money Overview tab
+- [ ] Add navigation link to Goals page
