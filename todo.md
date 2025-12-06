@@ -586,4 +586,4 @@
 - [ ] Implement goal templates for common goals
 - [ ] Add goal sharing/export functionality
 - [ ] Integrate goals widget into Money Overview tab
-- [ ] Add navigation link to Goals page
+- [x] Add navigation link to Goals page
