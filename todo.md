@@ -594,3 +594,13 @@
 - [x] Add Goals as fourth tab in Money page (Overview, Budget, Debt Coach, Goals)
 - [ ] Update /goals route to redirect to /money with goals tab active
 - [x] Test navigation flow
+
+
+## Money Page URL Parameters
+- [x] Add URL query parameter support to Money page (e.g., /money?tab=goals)
+- [x] Read tab parameter on page load and set active tab
+- [x] Update URL when user switches tabs
+- [x] Add redirect from /goals to /money?tab=goals
+- [x] Add redirect from /budget to /money?tab=budget
+- [x] Add redirect from /debt-coach to /money?tab=debts
+- [x] Test bookmarking and sharing tab links

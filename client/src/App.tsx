@@ -25,10 +25,11 @@ function Router() {
       <Route path={"/learning"} component={Learning} />
       <Route path={"/language-learning"} component={LanguageLearning} />
       <Route path={"/profile"} component={Profile} />
-      <Route path={"/debt-coach"} component={DebtCoach} />
       <Route path={"/money"} component={Money} />
-      <Route path={"/budget"} component={Budget} />
-      <Route path={"/goals"} component={Goals} />
+      {/* Redirect old routes to Money page with tab parameter */}
+      <Route path={"/budget"}>{() => { window.location.href = "/money?tab=budget"; return null; }}</Route>
+      <Route path={"/debt-coach"}>{() => { window.location.href = "/money?tab=debts"; return null; }}</Route>
+      <Route path={"/goals"}>{() => { window.location.href = "/money?tab=goals"; return null; }}</Route>
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
