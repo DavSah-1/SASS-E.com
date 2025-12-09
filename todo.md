@@ -604,3 +604,38 @@
 - [x] Add redirect from /budget to /money?tab=budget
 - [x] Add redirect from /debt-coach to /money?tab=debts
 - [x] Test bookmarking and sharing tab links
+
+
+## Money Hub Demo Page (Subscription Feature)
+### Sample Data Structure
+- [x] Create sample debts data (3 debts: credit card $8k, car loan $12k, student loan $5k)
+- [x] Create sample budget categories (8 categories with realistic spending)
+- [x] Create sample transactions (income $5k, expenses $3.8k)
+- [x] Create sample goals (Emergency Fund 40%, Vacation Fund 60%)
+- [x] Create sample payment history and milestones
+- [x] Calculate realistic debt strategies and projections
+
+### Demo Page Component
+- [x] Create MoneyDemo page at /money-demo route
+- [x] Implement read-only Money Hub with sample data
+- [x] Add demo mode banner at top ("Demo Mode - Sample Data")
+- [x] Disable all add/edit/delete buttons with upgrade tooltips
+- [x] Show all 4 tabs (Overview, Budget, Debt Coach, Goals) with sample data
+- [x] Add realistic SASS-E coaching messages for demo profile
+
+### Subscription Upgrade Prompts
+- [x] Add "Upgrade to Pro" button in demo banner
+- [x] Add tooltips on disabled buttons: "Subscribe to manage your own data"
+- [x] Add bottom CTA card: "Ready to Track Your Real Finances?"
+- [x] Show feature checklist (Unlimited tracking, AI coaching, Export reports)
+- [x] Display pricing: $9.99/mo with cancel anytime message
+- [ ] Create pricing page or modal with feature comparison
+- [ ] Add "Try Demo" link on main Money page for non-subscribers
+
+### Navigation & Access Control
+- [x] Add /money-demo route to App.tsx
+- [ ] Add "Money Demo" link to navigation
+- [ ] Update Money page to check subscription status
+- [ ] Redirect non-subscribers from /money to /money-demo
+- [ ] Add subscription check middleware or context
+- [ ] Show appropriate messaging based on subscription status

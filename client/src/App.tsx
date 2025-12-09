@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import DebtCoach from "./pages/DebtCoach";
 import Budget from "./pages/Budget";
 import Money from "./pages/Money";
+import MoneyDemo from "./pages/MoneyDemo";
 import Goals from "./pages/Goals";
 
 function Router() {
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/language-learning"} component={LanguageLearning} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/money"} component={Money} />
+      <Route path={"/money-demo"} component={MoneyDemo} />
       {/* Redirect old routes to Money page with tab parameter */}
       <Route path={"/budget"}>{() => { window.location.href = "/money?tab=budget"; return null; }}</Route>
       <Route path={"/debt-coach"}>{() => { window.location.href = "/money?tab=debts"; return null; }}</Route>
