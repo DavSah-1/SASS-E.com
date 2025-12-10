@@ -639,3 +639,15 @@
 - [ ] Redirect non-subscribers from /money to /money-demo
 - [ ] Add subscription check middleware or context
 - [ ] Show appropriate messaging based on subscription status
+
+
+## Subscription Check System
+- [x] Add subscriptionTier field to users table (free, pro)
+- [x] Add subscriptionStatus field to users table (active, inactive, trial)
+- [x] Add subscriptionExpiresAt field to users table
+- [x] Push database migration for subscription fields
+- [x] Update user type definitions to include subscription fields
+- [x] Add subscription check in Money page component
+- [x] Redirect non-subscribers from /money to /money-demo
+- [x] Add info banner on MoneyDemo explaining upgrade path
+- [x] Test subscription check with different user states

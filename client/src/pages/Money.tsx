@@ -61,6 +61,19 @@ const GoalsTab = () => {
 export default function Money() {
   const { user, isAuthenticated, loading } = useAuth();
   const [location, setLocation] = useLocation();
+
+  // Subscription check - redirect non-subscribers to demo
+  useEffect(() => {
+    if (!loading && isAuthenticated && user) {
+      // Check if user has active pro subscription
+      const hasProAccess = user.subscriptionTier === 'pro' && user.subscriptionStatus === 'active';
+      
+      if (!hasProAccess) {
+        // Redirect to demo page
+        setLocation('/money-demo');
+      }
+    }
+  }, [loading, isAuthenticated, user, setLocation]);
   
   // Read tab from URL parameter
   const urlParams = new URLSearchParams(window.location.search);

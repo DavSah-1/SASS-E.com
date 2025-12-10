@@ -114,6 +114,12 @@ export default function MoneyDemo() {
             💰 Money Hub Demo
           </h1>
           <p className="text-slate-300">Explore financial management with realistic sample data</p>
+          <div className="mt-4 p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
+            <p className="text-sm text-blue-200">
+              <AlertCircle className="inline h-4 w-4 mr-2" />
+              This is a demo with sample data. To track your real finances, <a href="#upgrade" className="underline font-semibold">upgrade to Pro</a> for $9.99/mo.
+            </p>
+          </div>
         </div>
 
         {/* Tabs */}
