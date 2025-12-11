@@ -651,3 +651,17 @@
 - [x] Redirect non-subscribers from /money to /money-demo
 - [x] Add info banner on MoneyDemo explaining upgrade path
 - [x] Test subscription check with different user states
+
+
+## Pricing Modal & Stripe Integration
+- [x] Create PricingModal component with dialog/modal UI
+- [x] Add Free vs Pro feature comparison table
+- [x] Implement tiered pricing display ($15/mo, $72/6mo at $12/mo, $120/yr at $10/mo)
+- [x] Add pricing plan selection with radio buttons or cards
+- [x] Include testimonials section with user quotes
+- [ ] Add Stripe payment integration using webdev_add_feature
+- [ ] Create Stripe checkout session endpoint
+- [ ] Handle payment success/failure callbacks
+- [ ] Update user subscription status after successful payment
+- [x] Integrate pricing modal into MoneyDemo "Upgrade to Pro" buttons
+- [x] Test pricing modal UI and payment flow

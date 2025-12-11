@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
+import { PricingModal } from "@/components/PricingModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -39,6 +40,7 @@ import {
 
 export default function MoneyDemo() {
   const [activeTab, setActiveTab] = useState("overview");
+  const [pricingModalOpen, setPricingModalOpen] = useState(false);
 
   // Read tab from URL parameter
   useEffect(() => {
@@ -97,7 +99,7 @@ export default function MoneyDemo() {
             <Sparkles className="h-5 w-5" />
             <span className="font-semibold">🎯 Demo Mode - Exploring with sample data</span>
           </div>
-          <Button size="sm" className="bg-white text-purple-600 hover:bg-slate-100">
+          <Button size="sm" className="bg-white text-purple-600 hover:bg-slate-100" onClick={() => setPricingModalOpen(true)}>
             <Crown className="h-4 w-4 mr-2" />
             Upgrade to Pro
           </Button>
@@ -117,7 +119,7 @@ export default function MoneyDemo() {
           <div className="mt-4 p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
             <p className="text-sm text-blue-200">
               <AlertCircle className="inline h-4 w-4 mr-2" />
-              This is a demo with sample data. To track your real finances, <a href="#upgrade" className="underline font-semibold">upgrade to Pro</a> for $9.99/mo.
+              This is a demo with sample data. To track your real finances, <button onClick={() => setPricingModalOpen(true)} className="underline font-semibold">upgrade to Pro</button>.
             </p>
           </div>
         </div>
@@ -665,9 +667,9 @@ export default function MoneyDemo() {
                 </div>
               </div>
               <div className="text-center">
-                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" onClick={() => setPricingModalOpen(true)}>
                   <Zap className="h-5 w-5 mr-2" />
-                  Upgrade to Pro - $9.99/mo
+                  Upgrade to Pro
                 </Button>
                 <p className="text-xs text-slate-400 mt-2">Cancel anytime. No hidden fees.</p>
               </div>
@@ -675,6 +677,9 @@ export default function MoneyDemo() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Pricing Modal */}
+      <PricingModal open={pricingModalOpen} onOpenChange={setPricingModalOpen} />
     </div>
   );
 }
