@@ -39,10 +39,7 @@ export function Navigation() {
               <GraduationCap className="h-4 w-4" />
               {t.nav.learning}
             </a>
-            <a href="/language-learning" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-              <Languages className="h-4 w-4" />
-              {t.nav.languages}
-            </a>
+
             <a href="/money" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Wallet className="h-4 w-4" />
               Money
@@ -127,14 +124,7 @@ export function Navigation() {
               <GraduationCap className="h-5 w-5" />
               <span>{t.nav.learning}</span>
             </a>
-            <a
-              href="/language-learning"
-              className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Languages className="h-5 w-5" />
-              <span>{t.nav.languages}</span>
-            </a>
+
             <a
               href="/money"
               className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"

@@ -665,3 +665,10 @@
 - [ ] Update user subscription status after successful payment
 - [x] Integrate pricing modal into MoneyDemo "Upgrade to Pro" buttons
 - [x] Test pricing modal UI and payment flow
+
+
+## Navigation Reorganization - Languages Integration
+- [x] Remove Languages link from main navigation bar (desktop and mobile)
+- [x] Add link to Languages card in Learning page
+- [x] Update Learning page to make Languages card clickable/linked
+- [x] Test navigation flow from Learning to Languages page

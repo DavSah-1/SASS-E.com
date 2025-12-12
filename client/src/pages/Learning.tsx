@@ -212,7 +212,7 @@ export default function Learning() {
                   { emoji: "💻", title: "Technology", topics: "Programming, AI, Cybersecurity" },
                   { emoji: "🎨", title: "Creative Arts", topics: "Music, Design, Photography" },
                   { emoji: "🏃", title: "Health & Fitness", topics: "Nutrition, Exercise, Wellness" },
-                  { emoji: "🌍", title: "Languages", topics: "Grammar, Vocabulary, Culture" },
+                  { emoji: "🌍", title: "Languages", topics: "Grammar, Vocabulary, Culture", link: "/language-learning" },
                   { emoji: "🔧", title: "Life Skills", topics: "Cooking, DIY, Time Management" },
                   { emoji: "🧠", title: "Personal Growth", topics: "Mindfulness, Productivity, Leadership" },
                   { emoji: "🎭", title: "Psychology", topics: "Behavior, Cognition, Emotions" },
@@ -220,7 +220,7 @@ export default function Learning() {
                 ].map((category) => (
                   <button
                     key={category.title}
-                    onClick={() => handleCategorySelect(category.title)}
+                    onClick={() => (category as any).link ? window.location.href = (category as any).link : handleCategorySelect(category.title)}
                     className="p-3 sm:p-4 bg-slate-700/50 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-400/50 rounded-lg transition-all text-left group"
                   >
                     <div className="text-2xl sm:text-3xl mb-2">{category.emoji}</div>
