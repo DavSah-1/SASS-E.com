@@ -196,43 +196,72 @@ export default function Learning() {
             </p>
           </div>
 
-          {/* Category Suggestion Cards */}
-          <Card className="bg-slate-800/50 border-purple-500/20">
-            <CardHeader>
-              <CardTitle className="text-xl sm:text-2xl text-purple-400">Quick Start: Choose a Category</CardTitle>
-              <CardDescription>Select a category to explore, or enter your own topic below</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-                {[
-                  { emoji: "🔬", title: "Sciences", topics: "Physics, Chemistry, Biology" },
-                  { emoji: "📐", title: "Mathematics", topics: "Algebra, Calculus, Statistics" },
-                  { emoji: "📚", title: "Humanities", topics: "History, Literature, Philosophy" },
-                  { emoji: "💼", title: "Business", topics: "Economics, Marketing, Finance" },
-                  { emoji: "💻", title: "Technology", topics: "Programming, AI, Cybersecurity" },
-                  { emoji: "🎨", title: "Creative Arts", topics: "Music, Design, Photography" },
-                  { emoji: "🏃", title: "Health & Fitness", topics: "Nutrition, Exercise, Wellness" },
-                  { emoji: "🌍", title: "Languages", topics: "Grammar, Vocabulary, Culture", link: "/language-learning" },
-                  { emoji: "🔧", title: "Life Skills", topics: "Cooking, DIY, Time Management" },
-                  { emoji: "🧠", title: "Personal Growth", topics: "Mindfulness, Productivity, Leadership" },
-                  { emoji: "🎭", title: "Psychology", topics: "Behavior, Cognition, Emotions" },
-                  { emoji: "📊", title: "Data & Analytics", topics: "Statistics, Visualization, ML" },
-                ].map((category) => (
-                  <button
-                    key={category.title}
-                    onClick={() => (category as any).link ? window.location.href = (category as any).link : handleCategorySelect(category.title)}
-                    className="p-3 sm:p-4 bg-slate-700/50 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-400/50 rounded-lg transition-all text-left group"
-                  >
-                    <div className="text-2xl sm:text-3xl mb-2">{category.emoji}</div>
-                    <div className="text-sm sm:text-base font-semibold text-purple-300 group-hover:text-purple-200 mb-1">
-                      {category.title}
-                    </div>
-                    <div className="text-xs text-slate-400 line-clamp-2">{category.topics}</div>
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Quick Learning Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">⚡ Quick Learning</h2>
+            <p className="text-slate-300 mb-6">Get instant explanations on any topic with fact-checking and verified sources</p>
+            
+            <Card className="bg-slate-800/50 border-purple-500/20 mb-6">
+              <CardHeader>
+                <CardTitle className="text-xl sm:text-2xl text-purple-400">Choose a Category</CardTitle>
+                <CardDescription>Select a category to explore, or enter your own topic below</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                  {[
+                    { emoji: "🔬", title: "Sciences", topics: "Physics, Chemistry, Biology" },
+                    { emoji: "📐", title: "Mathematics", topics: "Algebra, Calculus, Statistics" },
+                    { emoji: "📚", title: "Humanities", topics: "History, Literature, Philosophy" },
+                    { emoji: "💼", title: "Business", topics: "Economics, Marketing, Finance" },
+                    { emoji: "💻", title: "Technology", topics: "Programming, AI, Cybersecurity" },
+                    { emoji: "🎨", title: "Creative Arts", topics: "Music, Design, Photography" },
+                    { emoji: "🏃", title: "Health & Fitness", topics: "Nutrition, Exercise, Wellness" },
+                    { emoji: "🔧", title: "Life Skills", topics: "Cooking, DIY, Time Management" },
+                    { emoji: "🧠", title: "Personal Growth", topics: "Mindfulness, Productivity, Leadership" },
+                    { emoji: "🎭", title: "Psychology", topics: "Behavior, Cognition, Emotions" },
+                    { emoji: "📊", title: "Data & Analytics", topics: "Statistics, Visualization, ML" },
+                  ].map((category) => (
+                    <button
+                      key={category.title}
+                      onClick={() => handleCategorySelect(category.title)}
+                      className="p-3 sm:p-4 bg-slate-700/50 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-400/50 rounded-lg transition-all text-left group"
+                    >
+                      <div className="text-2xl sm:text-3xl mb-2">{category.emoji}</div>
+                      <div className="text-sm sm:text-base font-semibold text-purple-300 group-hover:text-purple-200 mb-1">
+                        {category.title}
+                      </div>
+                      <div className="text-xs text-slate-400 line-clamp-2">{category.topics}</div>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Specialized Learning Paths Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">🎯 Specialized Learning Paths</h2>
+            <p className="text-slate-300 mb-6">Dedicated learning experiences with structured lessons and interactive practice</p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Languages Path */}
+              <a
+                href="/language-learning"
+                className="block p-6 bg-gradient-to-br from-purple-900/40 to-pink-900/40 hover:from-purple-800/50 hover:to-pink-800/50 border-2 border-purple-500/30 hover:border-purple-400/60 rounded-xl transition-all group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-4xl">🌍</div>
+                  <ExternalLink className="h-5 w-5 text-purple-400 group-hover:text-purple-300 transition-colors" />
+                </div>
+                <h3 className="text-xl font-bold text-purple-200 mb-2 group-hover:text-purple-100">Language Learning</h3>
+                <p className="text-sm text-slate-300 mb-3">Master new languages with interactive conversations, vocabulary practice, and cultural insights</p>
+                <div className="flex items-center text-xs text-purple-400 font-semibold">
+                  <span>Start Learning</span>
+                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+                </div>
+              </a>
+            </div>
+          </div>
 
           {/* Question Input */}
           <Card className="bg-slate-800/50 border-purple-500/20">

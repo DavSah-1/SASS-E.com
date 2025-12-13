@@ -672,3 +672,13 @@
 - [x] Add link to Languages card in Learning page
 - [x] Update Learning page to make Languages card clickable/linked
 - [x] Test navigation flow from Learning to Languages page
+
+
+## Learning Hub Redesign
+- [x] Restructure Learning page into two main sections
+- [x] Create "Quick Learning" section with topic/question interface
+- [x] Create "Specialized Learning Paths" section with dedicated experience cards
+- [x] Add Languages card to Specialized Learning Paths with arrow indicator
+- [x] Add visual distinction between Quick Learning categories and Specialized Paths
+- [x] Update section headers and descriptions
+- [x] Test navigation flow between sections
