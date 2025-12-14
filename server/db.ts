@@ -72,7 +72,11 @@ import {
   userLabResults,
   InsertUserLabResult,
   scienceProgress,
-  InsertScienceProgress
+  InsertScienceProgress,
+  labQuizQuestions,
+  InsertLabQuizQuestion,
+  labQuizAttempts,
+  InsertLabQuizAttempt
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -2107,4 +2111,81 @@ export async function updateScienceProgress(
     .where(eq(scienceProgress.userId, userId));
 
   return true;
+}
+
+// ============================================================================
+// Lab Quiz Functions
+// ============================================================================
+
+export async function getLabQuizQuestions(experimentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const questions = await db
+    .select()
+    .from(labQuizQuestions)
+    .where(eq(labQuizQuestions.experimentId, experimentId));
+
+  return questions;
+}
+
+export async function saveLabQuizQuestions(questions: InsertLabQuizQuestion[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(labQuizQuestions).values(questions);
+  return true;
+}
+
+export async function saveLabQuizAttempt(attempt: InsertLabQuizAttempt) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(labQuizAttempts).values(attempt);
+  return result;
+}
+
+export async function getLabQuizAttempts(userId: number, experimentId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  if (experimentId) {
+    const attempts = await db
+      .select()
+      .from(labQuizAttempts)
+      .where(
+        and(
+          eq(labQuizAttempts.userId, userId),
+          eq(labQuizAttempts.experimentId, experimentId)
+        )
+      )
+      .orderBy(desc(labQuizAttempts.attemptedAt));
+    return attempts;
+  }
+
+  const attempts = await db
+    .select()
+    .from(labQuizAttempts)
+    .where(eq(labQuizAttempts.userId, userId))
+    .orderBy(desc(labQuizAttempts.attemptedAt));
+  return attempts;
+}
+
+export async function hasPassedLabQuiz(userId: number, experimentId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const passed = await db
+    .select()
+    .from(labQuizAttempts)
+    .where(
+      and(
+        eq(labQuizAttempts.userId, userId),
+        eq(labQuizAttempts.experimentId, experimentId),
+        eq(labQuizAttempts.passed, 1)
+      )
+    )
+    .limit(1);
+
+  return passed.length > 0;
 }

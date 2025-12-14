@@ -752,3 +752,37 @@
 - [x] Seed experiments into database
 - [x] Verify total experiment count reaches 30
 - [x] Test experiment browser with expanded library
+
+
+## Science Lab Enhancements
+### Interactive Lab Equipment Visualizations
+- [x] Create SVG component library for lab equipment
+- [x] Design beaker with measurement markings and liquid animation
+- [x] Design microscope with labeled parts (eyepiece, objective, stage, etc.)
+- [x] Design spectrophotometer with light path visualization
+- [x] Design DNA gel electrophoresis apparatus with wells and bands
+- [x] Add interactive tooltips on hover for equipment parts
+- [x] Create equipment gallery component for experiment pages
+- [x] Integrate visualizations into experiment detail view
+
+### Experiment Results Gallery (Lab Notebook)
+- [x] Design lab notebook UI with card-based layout
+- [x] Display past experiments with thumbnails
+- [x] Show grades, observations, and SASS-E feedback for each result
+- [x] Add filtering by category, difficulty, and grade
+- [x] Add sorting by date, grade, or experiment name
+- [x] Create detailed result view modal
+- [x] Add comparison view for multiple experiments
+- [x] Track improvement patterns with visual indicators
+
+### Pre-Lab Quiz System
+- [x] Design database schema for quiz questions and attempts
+- [x] Create quiz_questions table (experiment_id, question, options, correct_answer)
+- [x] Create quiz_attempts table (user_id, experiment_id, score, passed)
+- [x] Generate 5-7 quiz questions per experiment using LLM
+- [x] Build backend API for quiz retrieval and submission
+- [x] Create quiz UI with multiple-choice questions
+- [x] Implement quiz grading (70% passing threshold)
+- [x] Lock experiment access until quiz is passed
+- [x] Add quiz retake functionality
+- [x] Seed quiz questions for all 30 experiments

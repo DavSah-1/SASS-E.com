@@ -10,13 +10,18 @@ import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
-import { Beaker, FlaskConical, Microscope, AlertTriangle, CheckCircle2, Clock, Target } from "lucide-react";
+import { Beaker, FlaskConical, Microscope, AlertTriangle, CheckCircle2, Clock, Target, BookOpen } from "lucide-react";
+import { LabNotebook } from "@/components/LabNotebook";
+import { PreLabQuiz } from "@/components/PreLabQuiz";
+import { EquipmentGallery } from "@/components/LabEquipment";
 
 export default function ScienceLab() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<"physics" | "chemistry" | "biology" | "all">("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState<"beginner" | "intermediate" | "advanced" | "all">("all");
   const [selectedExperiment, setSelectedExperiment] = useState<any>(null);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [showNotebook, setShowNotebook] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [observations, setObservations] = useState("");
   const [measurements, setMeasurements] = useState("");
@@ -59,15 +64,26 @@ export default function ScienceLab() {
 
   const handleStartExperiment = (experiment: any) => {
     setSelectedExperiment(experiment);
+    setShowQuiz(true); // Show quiz first
     setCurrentStep(0);
     setObservations("");
     setMeasurements("");
     setAnalysis("");
     setConclusions("");
     setCompletedSteps([]);
-    setStartTime(Date.now());
     setShowResults(false);
     setLabResult(null);
+  };
+
+  const handleQuizPass = () => {
+    setShowQuiz(false);
+    setStartTime(Date.now());
+    toast.success("Quiz passed! You can now begin the experiment.");
+  };
+
+  const handleQuizClose = () => {
+    setShowQuiz(false);
+    setSelectedExperiment(null);
   };
 
   const handleStepComplete = (stepNumber: number) => {
@@ -148,6 +164,16 @@ export default function ScienceLab() {
             </h1>
           </div>
           <p className="text-gray-300 text-lg">Virtual experiments with SASS-E's scientific guidance</p>
+          <div className="mt-4">
+            <Button
+              onClick={() => setShowNotebook(!showNotebook)}
+              variant="outline"
+              className="bg-green-600/20 border-green-500/30 text-green-300 hover:bg-green-600/30"
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              {showNotebook ? "Hide Lab Notebook" : "View Lab Notebook"}
+            </Button>
+          </div>
         </div>
 
         {/* Progress Stats */}
@@ -193,6 +219,25 @@ export default function ScienceLab() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* Lab Notebook View */}
+        {showNotebook && user && (
+          <div className="mb-8">
+            <LabNotebook userId={user.id} />
+          </div>
+        )}
+
+        {/* Pre-Lab Quiz */}
+        {showQuiz && selectedExperiment && (
+          <div className="mb-8">
+            <PreLabQuiz
+              experimentId={selectedExperiment.id}
+              experimentTitle={selectedExperiment.title}
+              onPass={handleQuizPass}
+              onClose={handleQuizClose}
+            />
           </div>
         )}
 
@@ -350,6 +395,8 @@ export default function ScienceLab() {
                           </Badge>
                         ))}
                       </div>
+                      {/* Equipment Visualizations */}
+                      <EquipmentGallery equipment={JSON.parse(selectedExperiment.equipment)} />
                     </div>
                   )}
                 </CardContent>

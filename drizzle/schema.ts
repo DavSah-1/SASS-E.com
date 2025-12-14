@@ -811,3 +811,39 @@ export const scienceProgress = mysqlTable("science_progress", {
 
 export type ScienceProgress = typeof scienceProgress.$inferSelect;
 export type InsertScienceProgress = typeof scienceProgress.$inferInsert;
+
+/**
+ * Science Lab - Pre-Lab Quiz Questions table
+ */
+export const labQuizQuestions = mysqlTable("lab_quiz_questions", {
+  id: int("id").autoincrement().primaryKey(),
+  experimentId: int("experimentId").notNull(),
+  question: text("question").notNull(),
+  options: text("options").notNull(), // JSON array of 4 options
+  correctAnswer: int("correctAnswer").notNull(), // Index of correct option (0-3)
+  explanation: text("explanation"), // Why this answer is correct
+  category: varchar("category", { length: 50 }), // "safety", "equipment", "theory", "procedure"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LabQuizQuestion = typeof labQuizQuestions.$inferSelect;
+export type InsertLabQuizQuestion = typeof labQuizQuestions.$inferInsert;
+
+/**
+ * Science Lab - Quiz Attempts table
+ */
+export const labQuizAttempts = mysqlTable("lab_quiz_attempts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  experimentId: int("experimentId").notNull(),
+  score: int("score").notNull(), // Percentage (0-100)
+  totalQuestions: int("totalQuestions").notNull(),
+  correctAnswers: int("correctAnswers").notNull(),
+  passed: int("passed").notNull(), // 1 if passed (score >= 70%), 0 otherwise
+  answers: text("answers"), // JSON array of user answers
+  timeSpent: int("timeSpent"), // Seconds
+  attemptedAt: timestamp("attemptedAt").defaultNow().notNull(),
+});
+
+export type LabQuizAttempt = typeof labQuizAttempts.$inferSelect;
+export type InsertLabQuizAttempt = typeof labQuizAttempts.$inferInsert;

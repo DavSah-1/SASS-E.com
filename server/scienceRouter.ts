@@ -198,4 +198,167 @@ Format as JSON:
     }
     return progress;
   }),
+
+  // Generate and get quiz questions for an experiment
+  getLabQuiz: protectedProcedure
+    .input(z.object({ experimentId: z.number() }))
+    .query(async ({ input }) => {
+      const { getLabQuizQuestions, saveLabQuizQuestions } = await import("./db");
+      
+      // Check if questions already exist
+      let questions = await getLabQuizQuestions(input.experimentId);
+      
+      // If no questions exist, generate them using LLM
+      if (questions.length === 0) {
+        const experiment = await getExperimentById(input.experimentId);
+        if (!experiment) throw new Error("Experiment not found");
+
+        const prompt = `Generate 6 multiple-choice quiz questions for a pre-lab quiz about the following science experiment:
+
+Title: ${experiment.title}
+Category: ${experiment.category}
+Difficulty: ${experiment.difficulty}
+Description: ${experiment.description}
+Equipment: ${experiment.equipment}
+Safety Warnings: ${experiment.safetyWarnings}
+
+Generate questions covering:
+1. Safety protocols (2 questions)
+2. Equipment usage (2 questions)
+3. Theoretical concepts (2 questions)
+
+For each question, provide:
+- The question text
+- 4 multiple choice options (A, B, C, D)
+- The index of the correct answer (0-3)
+- A brief explanation of why that answer is correct
+
+Format as JSON array with structure:
+[
+  {
+    "question": "question text",
+    "options": ["option A", "option B", "option C", "option D"],
+    "correctAnswer": 0,
+    "explanation": "explanation text",
+    "category": "safety" | "equipment" | "theory"
+  }
+]`;
+
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: "You are a science education expert creating pre-lab quiz questions." },
+            { role: "user", content: prompt },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "quiz_questions",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  questions: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        question: { type: "string" },
+                        options: {
+                          type: "array",
+                          items: { type: "string" },
+                          minItems: 4,
+                          maxItems: 4,
+                        },
+                        correctAnswer: { type: "integer", minimum: 0, maximum: 3 },
+                        explanation: { type: "string" },
+                        category: { type: "string", enum: ["safety", "equipment", "theory"] },
+                      },
+                      required: ["question", "options", "correctAnswer", "explanation", "category"],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+                required: ["questions"],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+
+        const content = response.choices[0].message.content;
+        if (!content) throw new Error("Failed to generate quiz questions");
+
+        const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
+        const parsed = JSON.parse(contentStr);
+        const generatedQuestions = parsed.questions.map((q: any) => ({
+          experimentId: input.experimentId,
+          question: q.question,
+          options: JSON.stringify(q.options),
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation,
+          category: q.category,
+        }));
+
+        await saveLabQuizQuestions(generatedQuestions);
+        questions = await getLabQuizQuestions(input.experimentId);
+      }
+
+      return questions;
+    }),
+
+  // Submit quiz attempt
+  submitLabQuiz: protectedProcedure
+    .input(
+      z.object({
+        experimentId: z.number(),
+        answers: z.array(z.number()),
+        timeSpent: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { getLabQuizQuestions, saveLabQuizAttempt } = await import("./db");
+      
+      const questions = await getLabQuizQuestions(input.experimentId);
+      if (questions.length === 0) {
+        throw new Error("Quiz questions not found");
+      }
+
+      // Grade the quiz
+      let correctCount = 0;
+      questions.forEach((q, index) => {
+        if (input.answers[index] === q.correctAnswer) {
+          correctCount++;
+        }
+      });
+
+      const score = Math.round((correctCount / questions.length) * 100);
+      const passed = score >= 70 ? 1 : 0;
+
+      await saveLabQuizAttempt({
+        userId: ctx.user.id,
+        experimentId: input.experimentId,
+        score,
+        totalQuestions: questions.length,
+        correctAnswers: correctCount,
+        passed,
+        answers: JSON.stringify(input.answers),
+        timeSpent: input.timeSpent,
+      });
+
+      return {
+        score,
+        passed: passed === 1,
+        correctAnswers: correctCount,
+        totalQuestions: questions.length,
+      };
+    }),
+
+  // Check if user has passed quiz
+  hasPassedQuiz: protectedProcedure
+    .input(z.object({ experimentId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const { hasPassedLabQuiz } = await import("./db");
+      const passed = await hasPassedLabQuiz(ctx.user.id, input.experimentId);
+      return { passed };
+    }),
 });
