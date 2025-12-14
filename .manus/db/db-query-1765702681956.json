@@ -1,0 +1,55 @@
+{
+  "query": "SELECT category, difficulty, COUNT(*) as count FROM experiments GROUP BY category, difficulty ORDER BY category, difficulty;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT category, difficulty, COUNT(*) as count FROM experiments GROUP BY category, difficulty ORDER BY category, difficulty;",
+  "rows": [
+    {
+      "category": "physics",
+      "difficulty": "beginner",
+      "count": "1"
+    },
+    {
+      "category": "physics",
+      "difficulty": "intermediate",
+      "count": "2"
+    },
+    {
+      "category": "physics",
+      "difficulty": "advanced",
+      "count": "7"
+    },
+    {
+      "category": "chemistry",
+      "difficulty": "beginner",
+      "count": "2"
+    },
+    {
+      "category": "chemistry",
+      "difficulty": "intermediate",
+      "count": "3"
+    },
+    {
+      "category": "chemistry",
+      "difficulty": "advanced",
+      "count": "5"
+    },
+    {
+      "category": "biology",
+      "difficulty": "beginner",
+      "count": "1"
+    },
+    {
+      "category": "biology",
+      "difficulty": "intermediate",
+      "count": "4"
+    },
+    {
+      "category": "biology",
+      "difficulty": "advanced",
+      "count": "5"
+    }
+  ],
+  "messages": [],
+  "stdout": "category\tdifficulty\tcount\nphysics\tbeginner\t1\nphysics\tintermediate\t2\nphysics\tadvanced\t7\nchemistry\tbeginner\t2\nchemistry\tintermediate\t3\nchemistry\tadvanced\t5\nbiology\tbeginner\t1\nbiology\tintermediate\t4\nbiology\tadvanced\t5\n",
+  "stderr": "",
+  "execution_time_ms": 71
+}

@@ -740,3 +740,15 @@
 - [x] Seed 30+ experiments across physics, chemistry, and biology
 - [x] Add Science Lab card to Learning page
 - [x] Test experiment workflows and result tracking
+
+
+## Expand Science Lab Experiment Library
+- [x] Create seed script with 20 advanced experiments
+- [x] Add 7 advanced physics experiments (thermodynamics, electromagnetism, optics, quantum)
+- [x] Add 7 advanced chemistry experiments (organic chemistry, electrochemistry, kinetics)
+- [x] Add 6 advanced biology experiments (genetics, molecular biology, ecology)
+- [x] Include detailed procedures with 6-8 steps per experiment
+- [x] Add comprehensive safety warnings for advanced experiments
+- [x] Seed experiments into database
+- [x] Verify total experiment count reaches 30
+- [x] Test experiment browser with expanded library
