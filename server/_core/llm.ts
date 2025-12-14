@@ -297,9 +297,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   }
 
   payload.max_tokens = 32768
-  payload.thinking = {
-    "budget_tokens": 128
-  }
+  // Note: thinking parameter removed as it causes issues with json_schema response_format
 
   const normalizedResponseFormat = normalizeResponseFormat({
     responseFormat,
@@ -323,10 +321,23 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error("[invokeLLM] Request failed:", {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText,
+      payload: JSON.stringify(payload, null, 2)
+    });
     throw new Error(
       `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
     );
   }
 
-  return (await response.json()) as InvokeResult;
+  const result = (await response.json()) as InvokeResult;
+  console.log("[invokeLLM] Raw response:", JSON.stringify(result, null, 2));
+  console.log("[invokeLLM] Success:", {
+    model: result.model,
+    choicesCount: result.choices?.length || 0,
+    hasContent: !!result.choices?.[0]?.message?.content
+  });
+  return result;
 }

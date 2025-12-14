@@ -241,7 +241,7 @@ export default function ScienceLab() {
           </div>
         )}
 
-        {!selectedExperiment ? (
+        {!selectedExperiment || showNotebook ? (
           <>
             {/* Filters */}
             <div className="flex flex-wrap gap-4 mb-6">
@@ -301,6 +301,9 @@ export default function ScienceLab() {
               ))}
             </div>
           </>
+        ) : showQuiz ? (
+          // Quiz is handled above, this branch should not render
+          null
         ) : showResults ? (
           // Results View
           <Card className="bg-slate-900/50 border-slate-700 max-w-4xl mx-auto">

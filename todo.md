@@ -786,3 +786,25 @@
 - [x] Lock experiment access until quiz is passed
 - [x] Add quiz retake functionality
 - [x] Seed quiz questions for all 30 experiments
+
+
+## Fix Science Lab Error
+- [x] Investigate "Cannot read properties of undefined (reading '0')" error on /science-lab page
+- [x] Debug tRPC client error in Science Lab (quiz generation failing)
+- [x] Fix conditional rendering logic to hide experiment view when quiz is showing
+- [x] Add error logging to getLabQuiz procedure
+- [ ] Fix LLM quiz generation failure (requires debugging LLM invocation)
+- [ ] Temporary workaround: Disable quiz requirement or use pre-seeded questions
+
+
+## Debug invokeLLM Function
+- [x] Examine invokeLLM implementation in server/_core/llm.ts
+- [x] Check LLM API credentials and configuration
+- [x] Test invokeLLM with simple call to verify it works
+- [x] Add detailed logging to track request/response
+- [x] Identify why response.choices is undefined (json_schema not supported)
+- [x] Fix LLM integration issue (changed to json_object mode)
+- [x] Pre-seed quiz questions into database instead of dynamic generation
+- [x] Create fallback quiz questions (6 generic questions for all experiments)
+- [x] Update getLabQuiz to use fallback questions instead of LLM
+- [x] Test Science Lab quiz system with fallback questions
