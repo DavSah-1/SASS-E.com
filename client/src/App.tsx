@@ -16,6 +16,7 @@ import Money from "./pages/Money";
 import MoneyDemo from "./pages/MoneyDemo";
 import Goals from "./pages/Goals";
 import MathTutor from "./pages/MathTutor";
+import ScienceLab from "./pages/ScienceLab";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -27,6 +28,7 @@ function Router() {
       <Route path={"/learning"} component={Learning} />
       <Route path={"/language-learning"} component={LanguageLearning} />
       <Route path={"/math-tutor"} component={MathTutor} />
+      <Route path={"/science-lab"} component={ScienceLab} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/money"} component={Money} />
       <Route path={"/money-demo"} component={MoneyDemo} />

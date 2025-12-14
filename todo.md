@@ -725,3 +725,18 @@
 - [x] Debug backend API or frontend issue
 - [x] Fix the error
 - [x] Test practice library functionality
+
+
+## Science Lab Learning Path
+- [x] Design database schema for experiments, procedures, and user lab results
+- [x] Create experiments table (title, category, difficulty, description, equipment, safety_warnings)
+- [x] Create experiment_steps table (step_number, instruction, expected_result, safety_note)
+- [x] Create user_lab_results table (user_id, experiment_id, observations, analysis, completed_at)
+- [x] Build backend API for experiment library and result tracking
+- [x] Create Science Lab page with experiment browser
+- [x] Implement virtual lab interface with equipment visualization
+- [x] Add step-by-step procedure display with safety warnings
+- [x] Create result recording and analysis tools
+- [x] Seed 30+ experiments across physics, chemistry, and biology
+- [x] Add Science Lab card to Learning page
+- [x] Test experiment workflows and result tracking

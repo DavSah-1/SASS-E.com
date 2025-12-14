@@ -277,6 +277,23 @@ export default function Learning() {
                   <span className="ml-2 group-hover:ml-3 transition-all">→</span>
                 </div>
               </a>
+
+              {/* Science Lab Path */}
+              <a
+                href="/science-lab"
+                className="block p-6 bg-gradient-to-br from-green-900/40 to-emerald-900/40 hover:from-green-800/50 hover:to-emerald-800/50 border-2 border-green-500/30 hover:border-green-400/60 rounded-xl transition-all group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-4xl">🧪</div>
+                  <ExternalLink className="h-5 w-5 text-green-400 group-hover:text-green-300 transition-colors" />
+                </div>
+                <h3 className="text-xl font-bold text-green-200 mb-2 group-hover:text-green-100">Science Lab</h3>
+                <p className="text-sm text-slate-300 mb-3">Virtual experiments in physics, chemistry, and biology with step-by-step procedures and AI feedback</p>
+                <div className="flex items-center text-xs text-green-400 font-semibold">
+                  <span>Start Experimenting</span>
+                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+                </div>
+              </a>
             </div>
           </div>
 

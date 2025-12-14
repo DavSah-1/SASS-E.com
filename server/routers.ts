@@ -14,6 +14,7 @@ import { debtCoachRouter } from "./debtCoachRouter";
 import { budgetRouter } from "./budgetRouter";
 import { goalsRouter } from "./goalsRouter";
 import { mathRouter } from "./mathRouter";
+import { scienceRouter } from "./scienceRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -22,6 +23,7 @@ export const appRouter = router({
   budget: budgetRouter,
   goals: goalsRouter,
   math: mathRouter,
+  science: scienceRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

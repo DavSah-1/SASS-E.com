@@ -64,7 +64,15 @@ import {
   mathSolutions,
   InsertMathSolution,
   mathProgress,
-  InsertMathProgress
+  InsertMathProgress,
+  experiments,
+  InsertExperiment,
+  experimentSteps,
+  InsertExperimentStep,
+  userLabResults,
+  InsertUserLabResult,
+  scienceProgress,
+  InsertScienceProgress
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1955,6 +1963,148 @@ export async function updateMathProgress(
     .update(mathProgress)
     .set(updateData)
     .where(eq(mathProgress.userId, userId));
+
+  return true;
+}
+
+
+// ============================================
+// Science Lab Functions
+// ============================================
+
+export async function getExperiments(filters?: {
+  category?: "physics" | "chemistry" | "biology";
+  difficulty?: "beginner" | "intermediate" | "advanced";
+  limit?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db.select().from(experiments);
+
+  if (filters?.category) {
+    query = query.where(eq(experiments.category, filters.category)) as any;
+  }
+  if (filters?.difficulty) {
+    query = query.where(eq(experiments.difficulty, filters.difficulty)) as any;
+  }
+
+  const results = await query.limit(filters?.limit || 50);
+  return results;
+}
+
+export async function getExperimentById(experimentId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(experiments)
+    .where(eq(experiments.id, experimentId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getExperimentSteps(experimentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const steps = await db
+    .select()
+    .from(experimentSteps)
+    .where(eq(experimentSteps.experimentId, experimentId))
+    .orderBy(experimentSteps.stepNumber);
+
+  return steps;
+}
+
+export async function saveLabResult(result: InsertUserLabResult) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const insertResult = await db.insert(userLabResults).values(result);
+  return (insertResult as any).insertId as number;
+}
+
+export async function getUserLabResults(userId: number, experimentId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const conditions = [eq(userLabResults.userId, userId)];
+  if (experimentId) {
+    conditions.push(eq(userLabResults.experimentId, experimentId));
+  }
+
+  const results = await db
+    .select()
+    .from(userLabResults)
+    .where(and(...conditions))
+    .orderBy(desc(userLabResults.completedAt))
+    .limit(20);
+
+  return results;
+}
+
+export async function getScienceProgress(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(scienceProgress)
+    .where(eq(scienceProgress.userId, userId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function initializeScienceProgress(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(scienceProgress).values({ userId });
+  return true;
+}
+
+export async function updateScienceProgress(
+  userId: number,
+  updates: Partial<InsertScienceProgress>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const updateData: any = {};
+
+  if (updates.totalExperimentsCompleted !== undefined) {
+    updateData.totalExperimentsCompleted = updates.totalExperimentsCompleted;
+  }
+  if (updates.physicsExperiments !== undefined) {
+    updateData.physicsExperiments = updates.physicsExperiments;
+  }
+  if (updates.chemistryExperiments !== undefined) {
+    updateData.chemistryExperiments = updates.chemistryExperiments;
+  }
+  if (updates.biologyExperiments !== undefined) {
+    updateData.biologyExperiments = updates.biologyExperiments;
+  }
+  if (updates.averageGrade !== undefined) {
+    updateData.averageGrade = updates.averageGrade;
+  }
+  if (updates.totalLabTime !== undefined) {
+    updateData.totalLabTime = updates.totalLabTime;
+  }
+  if (updates.safetyScore !== undefined) {
+    updateData.safetyScore = updates.safetyScore;
+  }
+  if (updates.lastExperimentDate !== undefined) {
+    updateData.lastExperimentDate = updates.lastExperimentDate;
+  }
+
+  await db
+    .update(scienceProgress)
+    .set(updateData)
+    .where(eq(scienceProgress.userId, userId));
 
   return true;
 }

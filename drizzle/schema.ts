@@ -729,3 +729,85 @@ export const mathProgress = mysqlTable("math_progress", {
 
 export type MathProgress = typeof mathProgress.$inferSelect;
 export type InsertMathProgress = typeof mathProgress.$inferInsert;
+
+/**
+ * Science Lab - Experiments table
+ */
+export const experiments = mysqlTable("experiments", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 512 }).notNull(),
+  category: mysqlEnum("category", ["physics", "chemistry", "biology"]).notNull(),
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  description: text("description").notNull(),
+  equipment: text("equipment").notNull(), // JSON array of equipment items
+  safetyWarnings: text("safetyWarnings"), // JSON array of safety warnings
+  duration: int("duration").notNull(), // Minutes
+  learningObjectives: text("learningObjectives"), // JSON array of objectives
+  backgroundInfo: text("backgroundInfo"),
+  imageUrl: varchar("imageUrl", { length: 512 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Experiment = typeof experiments.$inferSelect;
+export type InsertExperiment = typeof experiments.$inferInsert;
+
+/**
+ * Science Lab - Experiment Steps table
+ */
+export const experimentSteps = mysqlTable("experiment_steps", {
+  id: int("id").autoincrement().primaryKey(),
+  experimentId: int("experimentId").notNull(),
+  stepNumber: int("stepNumber").notNull(),
+  instruction: text("instruction").notNull(),
+  expectedResult: text("expectedResult"),
+  safetyNote: text("safetyNote"),
+  imageUrl: varchar("imageUrl", { length: 512 }),
+  videoUrl: varchar("videoUrl", { length: 512 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ExperimentStep = typeof experimentSteps.$inferSelect;
+export type InsertExperimentStep = typeof experimentSteps.$inferInsert;
+
+/**
+ * Science Lab - User Lab Results table
+ */
+export const userLabResults = mysqlTable("user_lab_results", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  experimentId: int("experimentId").notNull(),
+  observations: text("observations").notNull(),
+  measurements: text("measurements"), // JSON object with measurement data
+  analysis: text("analysis"),
+  conclusions: text("conclusions"),
+  questionsAnswered: text("questionsAnswered"), // JSON array of Q&A
+  completedSteps: text("completedSteps"), // JSON array of completed step numbers
+  timeSpent: int("timeSpent"), // Minutes
+  grade: int("grade"), // 0-100 score if graded
+  feedback: text("feedback"), // AI-generated feedback
+  completedAt: timestamp("completedAt").defaultNow().notNull(),
+});
+
+export type UserLabResult = typeof userLabResults.$inferSelect;
+export type InsertUserLabResult = typeof userLabResults.$inferInsert;
+
+/**
+ * Science Lab - User Science Progress table
+ */
+export const scienceProgress = mysqlTable("science_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  totalExperimentsCompleted: int("totalExperimentsCompleted").default(0).notNull(),
+  physicsExperiments: int("physicsExperiments").default(0).notNull(),
+  chemistryExperiments: int("chemistryExperiments").default(0).notNull(),
+  biologyExperiments: int("biologyExperiments").default(0).notNull(),
+  averageGrade: int("averageGrade").default(0).notNull(), // 0-100
+  totalLabTime: int("totalLabTime").default(0).notNull(), // Minutes
+  safetyScore: int("safetyScore").default(100).notNull(), // 0-100
+  lastExperimentDate: timestamp("lastExperimentDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ScienceProgress = typeof scienceProgress.$inferSelect;
+export type InsertScienceProgress = typeof scienceProgress.$inferInsert;
