@@ -35,8 +35,8 @@ export default function MathTutor() {
   const [solution, setSolution] = useState<Solution | null>(null);
   const [userAnswer, setUserAnswer] = useState("");
   const [checkResult, setCheckResult] = useState<any>(null);
-  const [selectedTopic, setSelectedTopic] = useState<string>("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<"beginner" | "intermediate" | "advanced" | "">("");
+  const [selectedTopic, setSelectedTopic] = useState<string>("all");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<"beginner" | "intermediate" | "advanced" | "all">("all");
   const [showPracticeLibrary, setShowPracticeLibrary] = useState(false);
 
   const solveMutation = trpc.math.solveProblem.useMutation({
@@ -75,8 +75,8 @@ export default function MathTutor() {
 
   const practiceProblemsQuery = trpc.math.getPracticeProblems.useQuery(
     {
-      topic: selectedTopic || undefined,
-      difficulty: (selectedDifficulty || undefined) as "beginner" | "intermediate" | "advanced" | undefined,
+      topic: selectedTopic === "all" ? undefined : selectedTopic,
+      difficulty: selectedDifficulty === "all" ? undefined : (selectedDifficulty as "beginner" | "intermediate" | "advanced"),
       limit: 20,
     },
     { enabled: isAuthenticated && showPracticeLibrary }
@@ -290,7 +290,7 @@ export default function MathTutor() {
                           <SelectValue placeholder="All topics" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Topics</SelectItem>
+                          <SelectItem value="all">All Topics</SelectItem>
                           <SelectItem value="algebra">Algebra</SelectItem>
                           <SelectItem value="calculus">Calculus</SelectItem>
                           <SelectItem value="geometry">Geometry</SelectItem>
@@ -309,7 +309,7 @@ export default function MathTutor() {
                           <SelectValue placeholder="All difficulties" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All Difficulties</SelectItem>
+                          <SelectItem value="all">All Difficulties</SelectItem>
                           <SelectItem value="beginner">Beginner</SelectItem>
                           <SelectItem value="intermediate">Intermediate</SelectItem>
                           <SelectItem value="advanced">Advanced</SelectItem>
