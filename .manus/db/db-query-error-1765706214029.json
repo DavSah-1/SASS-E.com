@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE users SET subscriptionTier = 'premium', subscriptionStatus = 'active', subscriptionExpiresAt = '2026-12-31 23:59:59' WHERE email = 'davidsahnoune1@gmail.com'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute UPDATE users SET subscriptionTier = 'premium', subscriptionStatus = 'active', subscriptionExpiresAt = '2026-12-31 23:59:59' WHERE email = 'davidsahnoune1@gmail.com'",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1265 (01000) at line 1: Data truncated for column '%s' at row %d"
+  ]
+}

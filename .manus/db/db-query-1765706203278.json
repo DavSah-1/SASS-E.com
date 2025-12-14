@@ -1,0 +1,19 @@
+{
+  "query": "SELECT id, name, email, role, subscriptionTier, subscriptionStatus, subscriptionExpiresAt FROM users WHERE email = 'davidsahnoune1@gmail.com'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT id, name, email, role, subscriptionTier, subscriptionStatus, subscriptionExpiresAt FROM users WHERE email = 'davidsahnoune1@gmail.com'",
+  "rows": [
+    {
+      "id": "1",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin",
+      "subscriptionTier": "free",
+      "subscriptionStatus": "inactive",
+      "subscriptionExpiresAt": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\tsubscriptionTier\tsubscriptionStatus\tsubscriptionExpiresAt\n1\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\tfree\tinactive\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 72
+}

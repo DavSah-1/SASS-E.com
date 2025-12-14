@@ -819,3 +819,12 @@
 - [x] Run seed script to populate experiment-specific questions
 - [x] Test quiz system with tailored questions for multiple experiments
 - [x] Verify questions are relevant to each experiment's content
+
+
+## Grant Full Money Hub Access
+- [x] Check current user subscription status
+- [x] Update user account to pro subscription tier
+- [x] Set subscription status to active
+- [x] Set subscription expiration date to future date (2026-12-31)
+- [x] Verify Money Hub features are accessible
+- [x] Test all Money Hub functionality
