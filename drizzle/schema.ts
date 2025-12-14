@@ -973,3 +973,108 @@ export const recurringTransactions = mysqlTable("recurring_transactions", {
 
 export type RecurringTransaction = typeof recurringTransactions.$inferSelect;
 export type InsertRecurringTransaction = typeof recurringTransactions.$inferInsert;
+
+/**
+ * Shared Budgets table - for collaborative budget management
+ */
+export const sharedBudgets = mysqlTable("shared_budgets", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  ownerId: int("ownerId").notNull(), // User who created the shared budget
+  status: mysqlEnum("status", ["active", "archived"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SharedBudget = typeof sharedBudgets.$inferSelect;
+export type InsertSharedBudget = typeof sharedBudgets.$inferInsert;
+
+/**
+ * Shared Budget Members table - users who have access to a shared budget
+ */
+export const sharedBudgetMembers = mysqlTable("shared_budget_members", {
+  id: int("id").autoincrement().primaryKey(),
+  sharedBudgetId: int("sharedBudgetId").notNull(),
+  userId: int("userId").notNull(),
+  role: mysqlEnum("role", ["owner", "editor", "viewer"]).notNull(),
+  invitedBy: int("invitedBy").notNull(),
+  invitedAt: timestamp("invitedAt").defaultNow().notNull(),
+  joinedAt: timestamp("joinedAt"),
+  status: mysqlEnum("status", ["pending", "active", "declined", "removed"]).default("pending").notNull(),
+});
+
+export type SharedBudgetMember = typeof sharedBudgetMembers.$inferSelect;
+export type InsertSharedBudgetMember = typeof sharedBudgetMembers.$inferInsert;
+
+/**
+ * Shared Budget Categories table - categories within a shared budget
+ */
+export const sharedBudgetCategories = mysqlTable("shared_budget_categories", {
+  id: int("id").autoincrement().primaryKey(),
+  sharedBudgetId: int("sharedBudgetId").notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  icon: varchar("icon", { length: 10 }).default("💰"),
+  color: varchar("color", { length: 20 }).default("#10b981"),
+  monthlyLimit: int("monthlyLimit").default(0).notNull(), // In cents
+  description: text("description"),
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SharedBudgetCategory = typeof sharedBudgetCategories.$inferSelect;
+export type InsertSharedBudgetCategory = typeof sharedBudgetCategories.$inferInsert;
+
+/**
+ * Shared Budget Transactions table - transactions in shared budgets
+ */
+export const sharedBudgetTransactions = mysqlTable("shared_budget_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  sharedBudgetId: int("sharedBudgetId").notNull(),
+  categoryId: int("categoryId").notNull(),
+  userId: int("userId").notNull(), // Who added the transaction
+  amount: int("amount").notNull(), // In cents
+  description: varchar("description", { length: 255 }).notNull(),
+  transactionDate: timestamp("transactionDate").notNull(),
+  receiptUrl: varchar("receiptUrl", { length: 512 }),
+  notes: text("notes"),
+  isSplit: int("isSplit").default(0).notNull(), // 1 if this is a split expense
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SharedBudgetTransaction = typeof sharedBudgetTransactions.$inferSelect;
+export type InsertSharedBudgetTransaction = typeof sharedBudgetTransactions.$inferInsert;
+
+/**
+ * Split Expenses table - track who owes what for split transactions
+ */
+export const splitExpenses = mysqlTable("split_expenses", {
+  id: int("id").autoincrement().primaryKey(),
+  transactionId: int("transactionId").notNull(), // References shared_budget_transactions
+  userId: int("userId").notNull(), // Who owes money
+  amount: int("amount").notNull(), // Amount this user owes in cents
+  isPaid: int("isPaid").default(0).notNull(), // 1 if settled
+  paidAt: timestamp("paidAt"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SplitExpense = typeof splitExpenses.$inferSelect;
+export type InsertSplitExpense = typeof splitExpenses.$inferInsert;
+
+/**
+ * Shared Budget Activity Log - track all changes for transparency
+ */
+export const sharedBudgetActivity = mysqlTable("shared_budget_activity", {
+  id: int("id").autoincrement().primaryKey(),
+  sharedBudgetId: int("sharedBudgetId").notNull(),
+  userId: int("userId").notNull(),
+  action: varchar("action", { length: 100 }).notNull(), // e.g., "added_transaction", "updated_category"
+  details: text("details"), // JSON string with action details
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SharedBudgetActivity = typeof sharedBudgetActivity.$inferSelect;
+export type InsertSharedBudgetActivity = typeof sharedBudgetActivity.$inferInsert;

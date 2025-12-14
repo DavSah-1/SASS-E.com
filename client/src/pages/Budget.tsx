@@ -27,6 +27,8 @@ import { getLoginUrl } from "@/const";
 import { SpendingTrendsChart } from "@/components/money-hub/SpendingTrendsChart";
 import { BudgetTemplates } from "@/components/money-hub/BudgetTemplates";
 import { RecurringTransactions } from "@/components/money-hub/RecurringTransactions";
+import { GoalProgressTracker } from "@/components/money-hub/GoalProgressTracker";
+import { ReceiptScanner } from "@/components/money-hub/ReceiptScanner";
 
 export default function Budget() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -449,6 +451,16 @@ export default function Budget() {
             Recurring Transactions & Subscriptions
           </h2>
           <RecurringTransactions />
+        </div>
+
+        {/* Financial Goals */}
+        <div className="mb-8">
+          <GoalProgressTracker />
+        </div>
+
+        {/* Receipt Scanner */}
+        <div className="mb-8">
+          <ReceiptScanner />
         </div>
 
         {/* Recent Transactions */}

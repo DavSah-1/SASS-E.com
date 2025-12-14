@@ -134,6 +134,13 @@
       "when": 1765710745503,
       "tag": "0018_heavy_songbird",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1765711461725,
+      "tag": "0019_tough_odin",
+      "breakpoints": true
     }
   ]
 }

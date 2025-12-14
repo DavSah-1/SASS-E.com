@@ -1186,4 +1186,210 @@ export const budgetRouter = router({
       const result = await updateRecurringTransaction(ctx.user.id, recurringId, updates);
       return result;
     }),
+
+  // ==================== Financial Goals ====================
+
+  /**
+   * Get all goals for user with progress
+   */
+  getGoals: protectedProcedure.query(async ({ ctx }) => {
+    const { getUserGoalsWithProgress } = await import("./goalHelpers");
+    const goals = await getUserGoalsWithProgress(ctx.user.id);
+    return goals;
+  }),
+
+  /**
+   * Get detailed goal statistics
+   */
+  getGoalStats: protectedProcedure
+    .input(
+      z.object({
+        goalId: z.number().int(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { calculateGoalStats } = await import("./goalHelpers");
+      const stats = await calculateGoalStats(input.goalId, ctx.user.id);
+      return stats;
+    }),
+
+  /**
+   * Update goal progress
+   */
+  updateGoalProgress: protectedProcedure
+    .input(
+      z.object({
+        goalId: z.number().int(),
+        newAmount: z.number().int(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { updateGoalProgress } = await import("./goalHelpers");
+      const result = await updateGoalProgress(input.goalId, input.newAmount, ctx.user.id);
+      return result;
+    }),
+
+  /**
+   * Generate AI insights for a goal
+   */
+  generateGoalInsights: protectedProcedure
+    .input(
+      z.object({
+        goalId: z.number().int(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { generateGoalInsights } = await import("./goalHelpers");
+      const insights = await generateGoalInsights(input.goalId, ctx.user.id);
+      return insights;
+    }),
+
+  /**
+   * Get uncelebrated milestones
+   */
+  getUncelebratedMilestones: protectedProcedure.query(async ({ ctx }) => {
+    const { getUncelebratedMilestones } = await import("./goalHelpers");
+    const milestones = await getUncelebratedMilestones(ctx.user.id);
+    return milestones;
+  }),
+
+  /**
+   * Mark milestone as celebrated
+   */
+  markMilestoneCelebrated: protectedProcedure
+    .input(
+      z.object({
+        milestoneId: z.number().int(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { markMilestoneCelebrated } = await import("./goalHelpers");
+      const result = await markMilestoneCelebrated(input.milestoneId);
+      return result;
+    }),
+
+  /**
+   * Auto-update linked goals
+   */
+  autoUpdateLinkedGoals: protectedProcedure.mutation(async ({ ctx }) => {
+    const { autoUpdateLinkedGoals } = await import("./goalHelpers");
+    const result = await autoUpdateLinkedGoals(ctx.user.id);
+    return result;
+  }),
+
+  // ==================== Receipt Scanner ====================
+
+  /**
+   * Process receipt image and extract data
+   */
+  processReceipt: protectedProcedure
+    .input(
+      z.object({
+        imageUrl: z.string().url(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { processReceiptImage } = await import("./receiptHelpers");
+      const result = await processReceiptImage(input.imageUrl, ctx.user.id);
+      return result;
+    }),
+
+  /**
+   * Suggest category for merchant
+   */
+  suggestCategory: protectedProcedure
+    .input(
+      z.object({
+        merchantName: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { suggestCategory } = await import("./receiptHelpers");
+      const result = await suggestCategory(input.merchantName, ctx.user.id);
+      return result;
+    }),
+
+  /**
+   * Learn from user category correction
+   */
+  learnFromCorrection: protectedProcedure
+    .input(
+      z.object({
+        merchantName: z.string(),
+        categoryId: z.number().int(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { learnFromCorrection } = await import("./receiptHelpers");
+      const result = await learnFromCorrection(
+        input.merchantName,
+        input.categoryId,
+        ctx.user.id
+      );
+      return result;
+    }),
+
+  // ==================== Budget Sharing ====================
+
+  /**
+   * Create shared budget
+   */
+  createSharedBudget: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        description: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { createSharedBudget } = await import("./sharingHelpers");
+      const result = await createSharedBudget(ctx.user.id, input.name, input.description);
+      return result;
+    }),
+
+  /**
+   * Get user's shared budgets
+   */
+  getUserSharedBudgets: protectedProcedure.query(async ({ ctx }) => {
+    const { getUserSharedBudgets } = await import("./sharingHelpers");
+    const budgets = await getUserSharedBudgets(ctx.user.id);
+    return budgets;
+  }),
+
+  /**
+   * Invite user to shared budget
+   */
+  inviteToSharedBudget: protectedProcedure
+    .input(
+      z.object({
+        budgetId: z.number().int(),
+        inviteeId: z.number().int(),
+        role: z.enum(["editor", "viewer"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { inviteToSharedBudget } = await import("./sharingHelpers");
+      const result = await inviteToSharedBudget(
+        input.budgetId,
+        ctx.user.id,
+        input.inviteeId,
+        input.role
+      );
+      return result;
+    }),
+
+  /**
+   * Get settlement summary
+   */
+  getSettlementSummary: protectedProcedure
+    .input(
+      z.object({
+        budgetId: z.number().int(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { getSettlementSummary } = await import("./sharingHelpers");
+      const summary = await getSettlementSummary(input.budgetId);
+      return summary;
+    }),
 });
