@@ -32,6 +32,8 @@ import { getLoginUrl } from "@/const";
 import Budget from "./Budget";
 import DebtCoach from "./DebtCoach";
 import Goals from "./Goals";
+import { BudgetAlerts } from "@/components/BudgetAlerts";
+import { FinancialInsights } from "@/components/FinancialInsights";
 
 // Wrapper to hide navigation in embedded context
 const BudgetTab = () => {
@@ -415,6 +417,12 @@ export default function Money() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Budget Alerts */}
+            <BudgetAlerts />
+
+            {/* Financial Insights */}
+            <FinancialInsights />
 
             {/* Quick Actions */}
             <Card className="bg-slate-800/50 border-slate-700">

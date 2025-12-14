@@ -15,6 +15,7 @@ import {
   getCategorySpendingBreakdown,
   getDebtSummary,
 } from "./db";
+import { invokeLLM } from "./_core/llm";
 
 export const budgetRouter = router({
   // ==================== Category Management ====================
@@ -326,4 +327,210 @@ export const budgetRouter = router({
 
     return { success: true, message: "Default categories initialized" };
   }),
+
+  // ==================== Budget Alerts ====================
+
+  /**
+   * Get user's budget alerts
+   */
+  getAlerts: protectedProcedure
+    .input(
+      z.object({
+        unreadOnly: z.boolean().default(false),
+        limit: z.number().int().default(50),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return [];
+
+      const { budgetAlerts } = await import("../drizzle/schema");
+      const { eq, and, desc } = await import("drizzle-orm");
+
+      let query = db
+        .select()
+        .from(budgetAlerts)
+        .where(eq(budgetAlerts.userId, ctx.user.id))
+        .orderBy(desc(budgetAlerts.createdAt))
+        .limit(input.limit);
+
+      const alerts = await query;
+      
+      if (input.unreadOnly) {
+        return alerts.filter(a => a.isRead === 0);
+      }
+
+      return alerts;
+    }),
+
+  /**
+   * Mark alert as read
+   */
+  markAlertRead: protectedProcedure
+    .input(
+      z.object({
+        alertId: z.number().int(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return { success: false };
+
+      const { budgetAlerts } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+
+      await db
+        .update(budgetAlerts)
+        .set({ isRead: 1 })
+        .where(eq(budgetAlerts.id, input.alertId));
+
+      return { success: true, message: "Alert marked as read" };
+    }),
+
+  // ==================== Financial Insights ====================
+
+  /**
+   * Get AI-powered financial insights
+   */
+  getInsights: protectedProcedure
+    .input(
+      z.object({
+        activeOnly: z.boolean().default(true),
+        limit: z.number().int().default(10),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return [];
+
+      const { financialInsights } = await import("../drizzle/schema");
+      const { eq, and, desc, or, isNull, gt } = await import("drizzle-orm");
+
+      let whereConditions = [eq(financialInsights.userId, ctx.user.id)];
+      
+      if (input.activeOnly) {
+        whereConditions.push(eq(financialInsights.isDismissed, 0));
+        whereConditions.push(
+          or(
+            isNull(financialInsights.expiresAt),
+            gt(financialInsights.expiresAt, new Date())
+          )!
+        );
+      }
+
+      const insights = await db
+        .select()
+        .from(financialInsights)
+        .where(and(...whereConditions))
+        .orderBy(desc(financialInsights.priority), desc(financialInsights.createdAt))
+        .limit(input.limit);
+
+      return insights;
+    }),
+
+  /**
+   * Generate new financial insights using AI
+   */
+  generateInsights: protectedProcedure.mutation(async ({ ctx }) => {
+    // Get user's recent transactions and spending patterns
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const summary = await calculateMonthlyBudgetSummary(ctx.user.id, currentMonth);
+    const breakdown = await getCategorySpendingBreakdown(ctx.user.id, currentMonth);
+    const transactions = await getUserBudgetTransactions(ctx.user.id, { limit: 50 });
+
+    if (!summary || transactions.length === 0) {
+      return { success: false, message: "Not enough data to generate insights" };
+    }
+
+    // Prepare data for LLM
+    const prompt = `Analyze this user's financial data and provide 3-5 actionable insights with SASS-E's sarcastic personality:
+
+Monthly Summary:
+- Total Income: $${(summary.totalIncome / 100).toFixed(2)}
+- Total Expenses: $${(summary.totalExpenses / 100).toFixed(2)}
+- Net Cash Flow: $${(summary.netCashFlow / 100).toFixed(2)}
+- Savings Rate: ${summary.savingsRate.toFixed(1)}%
+- Budget Health: ${summary.budgetHealth}
+
+Top Spending Categories:
+${breakdown.slice(0, 5).map(c => `- ${c.category.name}: $${(c.total / 100).toFixed(2)}`).join('\n')}
+
+Provide insights in JSON format:
+{
+  "insights": [
+    {
+      "type": "spending_pattern" | "saving_opportunity" | "cash_flow_prediction" | "budget_recommendation" | "trend_analysis",
+      "title": "Brief catchy title",
+      "description": "Detailed sarcastic insight (2-3 sentences)",
+      "actionable": true/false,
+      "actionText": "What user should do (if actionable)",
+      "priority": "low" | "medium" | "high"
+    }
+  ]
+}`;
+
+    try {
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: "You are SASS-E, a sarcastic financial advisor. Provide witty but helpful financial insights." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const content = response.choices?.[0]?.message?.content;
+      if (!content || typeof content !== 'string') {
+        throw new Error("No content in LLM response");
+      }
+
+      const result = JSON.parse(content);
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return { success: false };
+
+      const { financialInsights } = await import("../drizzle/schema");
+
+      // Save insights to database
+      for (const insight of result.insights) {
+        await db.insert(financialInsights).values({
+          userId: ctx.user.id,
+          insightType: insight.type,
+          title: insight.title,
+          description: insight.description,
+          actionable: insight.actionable ? 1 : 0,
+          actionText: insight.actionText,
+          priority: insight.priority,
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        });
+      }
+
+      return { success: true, message: `Generated ${result.insights.length} new insights` };
+    } catch (error) {
+      console.error("[generateInsights] Error:", error);
+      return { success: false, message: "Failed to generate insights" };
+    }
+  }),
+
+  /**
+   * Dismiss a financial insight
+   */
+  dismissInsight: protectedProcedure
+    .input(
+      z.object({
+        insightId: z.number().int(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return { success: false };
+
+      const { financialInsights } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+
+      await db
+        .update(financialInsights)
+        .set({ isDismissed: 1 })
+        .where(eq(financialInsights.id, input.insightId));
+
+      return { success: true, message: "Insight dismissed" };
+    }),
 });

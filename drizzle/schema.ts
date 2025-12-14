@@ -847,3 +847,42 @@ export const labQuizAttempts = mysqlTable("lab_quiz_attempts", {
 
 export type LabQuizAttempt = typeof labQuizAttempts.$inferSelect;
 export type InsertLabQuizAttempt = typeof labQuizAttempts.$inferInsert;
+
+/**
+ * Budget Alerts table - notifications for budget thresholds
+ */
+export const budgetAlerts = mysqlTable("budget_alerts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  categoryId: int("categoryId"), // null for overall budget alerts
+  alertType: mysqlEnum("alertType", ["threshold_80", "threshold_100", "exceeded", "weekly_summary", "monthly_report"]).notNull(),
+  threshold: int("threshold"), // Percentage (80 or 100) for threshold alerts
+  message: text("message").notNull(),
+  isRead: int("isRead").default(0).notNull(), // 1 if user has seen the alert
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BudgetAlert = typeof budgetAlerts.$inferSelect;
+export type InsertBudgetAlert = typeof budgetAlerts.$inferInsert;
+
+/**
+ * Financial Insights table - AI-generated insights and recommendations
+ */
+export const financialInsights = mysqlTable("financial_insights", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  insightType: mysqlEnum("insightType", ["spending_pattern", "saving_opportunity", "cash_flow_prediction", "budget_recommendation", "trend_analysis"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  actionable: int("actionable").default(1).notNull(), // 1 if user can act on this insight
+  actionText: varchar("actionText", { length: 255 }), // CTA text if actionable
+  priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium").notNull(),
+  relatedCategoryId: int("relatedCategoryId"), // Link to budget category if relevant
+  dataPoints: text("dataPoints"), // JSON with supporting data
+  isDismissed: int("isDismissed").default(0).notNull(), // 1 if user dismissed this insight
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"), // Insights can expire after a certain period
+});
+
+export type FinancialInsight = typeof financialInsights.$inferSelect;
+export type InsertFinancialInsight = typeof financialInsights.$inferInsert;
