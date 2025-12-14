@@ -24,6 +24,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import { SpendingTrendsChart } from "@/components/money-hub/SpendingTrendsChart";
+import { BudgetTemplates } from "@/components/money-hub/BudgetTemplates";
 
 export default function Budget() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -420,6 +422,24 @@ export default function Budget() {
             </div>
           </div>
         )}
+
+        {/* Budget Templates */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+            <Target className="h-6 w-6" />
+            Budget Templates
+          </h2>
+          <BudgetTemplates />
+        </div>
+
+        {/* Spending Trends */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+            <PieChart className="h-6 w-6" />
+            Spending Trends
+          </h2>
+          <SpendingTrendsChart />
+        </div>
 
         {/* Recent Transactions */}
         <div className="mb-8">

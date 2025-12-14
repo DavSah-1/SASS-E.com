@@ -533,4 +533,511 @@ Provide insights in JSON format:
 
       return { success: true, message: "Insight dismissed" };
     }),
+
+  // ==================== Spending Trends Visualization ====================
+
+  /**
+   * Get spending trends over time (monthly aggregation by category)
+   */
+  getSpendingTrends: protectedProcedure
+    .input(
+      z.object({
+        startMonth: z.string().regex(/^\d{4}-\d{2}$/), // Format: "2025-01"
+        endMonth: z.string().regex(/^\d{4}-\d{2}$/),
+        categoryId: z.number().int().optional(), // Filter by specific category
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return [];
+
+      const { budgetTransactions, budgetCategories } = await import("../drizzle/schema");
+      const { eq, and, gte, lte, sql } = await import("drizzle-orm");
+
+      // Parse start and end dates
+      const startDate = new Date(input.startMonth + "-01");
+      const endDate = new Date(input.endMonth + "-01");
+      endDate.setMonth(endDate.getMonth() + 1); // End of month
+
+      // Build query conditions
+      const conditions = [
+        eq(budgetTransactions.userId, ctx.user.id),
+        gte(budgetTransactions.transactionDate, startDate),
+        lte(budgetTransactions.transactionDate, endDate),
+      ];
+
+      if (input.categoryId) {
+        conditions.push(eq(budgetTransactions.categoryId, input.categoryId));
+      }
+
+      // Get all transactions in date range
+      const transactions = await db
+        .select({
+          amount: budgetTransactions.amount,
+          transactionDate: budgetTransactions.transactionDate,
+          categoryId: budgetTransactions.categoryId,
+          categoryName: budgetCategories.name,
+          categoryType: budgetCategories.type,
+          categoryColor: budgetCategories.color,
+          categoryIcon: budgetCategories.icon,
+        })
+        .from(budgetTransactions)
+        .innerJoin(budgetCategories, eq(budgetTransactions.categoryId, budgetCategories.id))
+        .where(and(...conditions))
+        .orderBy(budgetTransactions.transactionDate);
+
+      // Aggregate by month and category
+      const monthlyData: Record<string, Record<number, { total: number; count: number; category: any }>> = {};
+
+      for (const tx of transactions) {
+        const monthKey = tx.transactionDate.toISOString().slice(0, 7); // "YYYY-MM"
+        
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = {};
+        }
+
+        if (!monthlyData[monthKey][tx.categoryId]) {
+          monthlyData[monthKey][tx.categoryId] = {
+            total: 0,
+            count: 0,
+            category: {
+              id: tx.categoryId,
+              name: tx.categoryName,
+              type: tx.categoryType,
+              color: tx.categoryColor,
+              icon: tx.categoryIcon,
+            },
+          };
+        }
+
+        monthlyData[monthKey][tx.categoryId].total += tx.amount;
+        monthlyData[monthKey][tx.categoryId].count += 1;
+      }
+
+      // Convert to array format for charts
+      const trends = Object.entries(monthlyData).map(([month, categories]) => ({
+        month,
+        categories: Object.values(categories),
+        totalSpending: Object.values(categories)
+          .filter(c => c.category.type === "expense")
+          .reduce((sum, c) => sum + c.total, 0),
+        totalIncome: Object.values(categories)
+          .filter(c => c.category.type === "income")
+          .reduce((sum, c) => sum + c.total, 0),
+      }));
+
+      return trends.sort((a, b) => a.month.localeCompare(b.month));
+    }),
+
+  /**
+   * Get month-over-month comparison for a specific category
+   */
+  getCategoryTrend: protectedProcedure
+    .input(
+      z.object({
+        categoryId: z.number().int(),
+        months: z.number().int().default(6), // Number of months to look back
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return null;
+
+      const { budgetTransactions, budgetCategories } = await import("../drizzle/schema");
+      const { eq, and, gte } = await import("drizzle-orm");
+
+      // Get category details
+      const category = await db
+        .select()
+        .from(budgetCategories)
+        .where(and(
+          eq(budgetCategories.id, input.categoryId),
+          eq(budgetCategories.userId, ctx.user.id)
+        ))
+        .limit(1);
+
+      if (category.length === 0) {
+        return null;
+      }
+
+      // Calculate start date (N months ago)
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - input.months);
+      startDate.setDate(1); // First day of month
+
+      // Get transactions for this category
+      const transactions = await db
+        .select({
+          amount: budgetTransactions.amount,
+          transactionDate: budgetTransactions.transactionDate,
+        })
+        .from(budgetTransactions)
+        .where(and(
+          eq(budgetTransactions.userId, ctx.user.id),
+          eq(budgetTransactions.categoryId, input.categoryId),
+          gte(budgetTransactions.transactionDate, startDate)
+        ))
+        .orderBy(budgetTransactions.transactionDate);
+
+      // Aggregate by month
+      const monthlyTotals: Record<string, { total: number; count: number }> = {};
+
+      for (const tx of transactions) {
+        const monthKey = tx.transactionDate.toISOString().slice(0, 7);
+        
+        if (!monthlyTotals[monthKey]) {
+          monthlyTotals[monthKey] = { total: 0, count: 0 };
+        }
+
+        monthlyTotals[monthKey].total += tx.amount;
+        monthlyTotals[monthKey].count += 1;
+      }
+
+      // Calculate month-over-month changes
+      const months = Object.keys(monthlyTotals).sort();
+      const trends = months.map((month, index) => {
+        const current = monthlyTotals[month];
+        const previous = index > 0 ? monthlyTotals[months[index - 1]] : null;
+        
+        const percentageChange = previous && previous.total > 0
+          ? ((current.total - previous.total) / previous.total) * 100
+          : 0;
+
+        return {
+          month,
+          total: current.total,
+          count: current.count,
+          average: current.count > 0 ? Math.round(current.total / current.count) : 0,
+          percentageChange: Math.round(percentageChange * 100) / 100,
+          trend: percentageChange > 5 ? "increasing" : percentageChange < -5 ? "decreasing" : "stable",
+        };
+      });
+
+      return {
+        category: category[0],
+        trends,
+        overallAverage: trends.length > 0
+          ? Math.round(trends.reduce((sum, t) => sum + t.total, 0) / trends.length)
+          : 0,
+      };
+    }),
+
+  /**
+   * Get overall spending trends summary
+   */
+  getSpendingTrendsSummary: protectedProcedure
+    .input(
+      z.object({
+        months: z.number().int().default(6),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return null;
+
+      const { budgetTransactions, budgetCategories } = await import("../drizzle/schema");
+      const { eq, and, gte } = await import("drizzle-orm");
+
+      // Calculate start date
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - input.months);
+      startDate.setDate(1);
+
+      // Get all transactions
+      const transactions = await db
+        .select({
+          amount: budgetTransactions.amount,
+          transactionDate: budgetTransactions.transactionDate,
+          categoryType: budgetCategories.type,
+        })
+        .from(budgetTransactions)
+        .innerJoin(budgetCategories, eq(budgetTransactions.categoryId, budgetCategories.id))
+        .where(and(
+          eq(budgetTransactions.userId, ctx.user.id),
+          gte(budgetTransactions.transactionDate, startDate)
+        ));
+
+      // Aggregate by month
+      const monthlyData: Record<string, { income: number; expenses: number }> = {};
+
+      for (const tx of transactions) {
+        const monthKey = tx.transactionDate.toISOString().slice(0, 7);
+        
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = { income: 0, expenses: 0 };
+        }
+
+        if (tx.categoryType === "income") {
+          monthlyData[monthKey].income += tx.amount;
+        } else {
+          monthlyData[monthKey].expenses += tx.amount;
+        }
+      }
+
+      // Calculate trends
+      const months = Object.keys(monthlyData).sort();
+      const trends = months.map((month, index) => {
+        const current = monthlyData[month];
+        const previous = index > 0 ? monthlyData[months[index - 1]] : null;
+        
+        const netCashFlow = current.income - current.expenses;
+        const savingsRate = current.income > 0
+          ? Math.round((netCashFlow / current.income) * 10000) / 100
+          : 0;
+
+        const expenseChange = previous && previous.expenses > 0
+          ? ((current.expenses - previous.expenses) / previous.expenses) * 100
+          : 0;
+
+        return {
+          month,
+          income: current.income,
+          expenses: current.expenses,
+          netCashFlow,
+          savingsRate,
+          expenseChange: Math.round(expenseChange * 100) / 100,
+        };
+      });
+
+      // Calculate overall statistics
+      const totalIncome = trends.reduce((sum, t) => sum + t.income, 0);
+      const totalExpenses = trends.reduce((sum, t) => sum + t.expenses, 0);
+      const avgMonthlyIncome = trends.length > 0 ? Math.round(totalIncome / trends.length) : 0;
+      const avgMonthlyExpenses = trends.length > 0 ? Math.round(totalExpenses / trends.length) : 0;
+      const avgSavingsRate = trends.length > 0
+        ? Math.round(trends.reduce((sum, t) => sum + t.savingsRate, 0) / trends.length * 100) / 100
+        : 0;
+
+      return {
+        trends,
+        summary: {
+          avgMonthlyIncome,
+          avgMonthlyExpenses,
+          avgSavingsRate,
+          totalMonths: trends.length,
+        },
+      };
+    }),
+
+  // ==================== Budget Templates ====================
+
+  /**
+   * Get all available budget templates
+   */
+  getTemplates: protectedProcedure.query(async ({ ctx }) => {
+    const db = await import("./db").then(m => m.getDb());
+    if (!db) return [];
+
+    const { budgetTemplates } = await import("../drizzle/schema");
+    const { or, eq, isNull } = await import("drizzle-orm");
+
+    // Get system templates and user's custom templates
+    const templates = await db
+      .select()
+      .from(budgetTemplates)
+      .where(
+        or(
+          eq(budgetTemplates.isSystemTemplate, 1),
+          eq(budgetTemplates.userId, ctx.user.id)
+        )
+      )
+      .orderBy(budgetTemplates.sortOrder);
+
+    return templates.map(t => ({
+      ...t,
+      allocations: JSON.parse(t.allocations),
+      categoryMappings: t.categoryMappings ? JSON.parse(t.categoryMappings) : null,
+    }));
+  }),
+
+  /**
+   * Apply a budget template to user's budget
+   */
+  applyTemplate: protectedProcedure
+    .input(
+      z.object({
+        templateId: z.number().int(),
+        monthlyIncome: z.number().int(), // In cents
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return { success: false, message: "Database unavailable" };
+
+      const { budgetTemplates, budgetCategories, userBudgetTemplates } = await import("../drizzle/schema");
+      const { eq, and } = await import("drizzle-orm");
+
+      // Get template
+      const template = await db
+        .select()
+        .from(budgetTemplates)
+        .where(eq(budgetTemplates.id, input.templateId))
+        .limit(1);
+
+      if (template.length === 0) {
+        return { success: false, message: "Template not found" };
+      }
+
+      const tmpl = template[0];
+      const allocations = JSON.parse(tmpl.allocations);
+      const categoryMappings = tmpl.categoryMappings ? JSON.parse(tmpl.categoryMappings) : null;
+
+      // Get user's categories
+      const categories = await db
+        .select()
+        .from(budgetCategories)
+        .where(eq(budgetCategories.userId, ctx.user.id));
+
+      const appliedAllocations: Record<string, any> = {};
+
+      // Apply template based on strategy
+      if (tmpl.strategy === "50_30_20") {
+        // Calculate dollar amounts for each allocation
+        const needsAmount = Math.round(input.monthlyIncome * 0.5);
+        const wantsAmount = Math.round(input.monthlyIncome * 0.3);
+        const savingsAmount = Math.round(input.monthlyIncome * 0.2);
+
+        appliedAllocations.needs = needsAmount;
+        appliedAllocations.wants = wantsAmount;
+        appliedAllocations.savings = savingsAmount;
+
+        // Update category limits based on mappings
+        if (categoryMappings) {
+          const needsCategories = categories.filter(c => 
+            categoryMappings.needs?.includes(c.name)
+          );
+          const wantsCategories = categories.filter(c => 
+            categoryMappings.wants?.includes(c.name)
+          );
+
+          // Distribute needs budget evenly across needs categories
+          const needsPerCategory = needsCategories.length > 0
+            ? Math.round(needsAmount / needsCategories.length)
+            : 0;
+          
+          for (const cat of needsCategories) {
+            await db
+              .update(budgetCategories)
+              .set({ monthlyLimit: needsPerCategory })
+              .where(eq(budgetCategories.id, cat.id));
+          }
+
+          // Distribute wants budget evenly across wants categories
+          const wantsPerCategory = wantsCategories.length > 0
+            ? Math.round(wantsAmount / wantsCategories.length)
+            : 0;
+          
+          for (const cat of wantsCategories) {
+            await db
+              .update(budgetCategories)
+              .set({ monthlyLimit: wantsPerCategory })
+              .where(eq(budgetCategories.id, cat.id));
+          }
+        }
+      } else if (tmpl.strategy === "zero_based") {
+        // For zero-based, set all expense categories to have limits that sum to income
+        const expenseCategories = categories.filter(c => c.type === "expense");
+        const perCategory = expenseCategories.length > 0
+          ? Math.round(input.monthlyIncome / expenseCategories.length)
+          : 0;
+
+        appliedAllocations.method = "zero_based";
+        appliedAllocations.perCategory = perCategory;
+
+        for (const cat of expenseCategories) {
+          await db
+            .update(budgetCategories)
+            .set({ monthlyLimit: perCategory })
+            .where(eq(budgetCategories.id, cat.id));
+        }
+      } else if (tmpl.strategy === "envelope") {
+        // For envelope system, set suggested percentages for variable categories
+        appliedAllocations.method = "envelope";
+        appliedAllocations.envelopes = {};
+
+        if (categoryMappings?.variable_envelopes) {
+          for (const envelope of categoryMappings.variable_envelopes) {
+            const category = categories.find(c => c.name === envelope.category);
+            if (category) {
+              const amount = Math.round(input.monthlyIncome * (envelope.suggested_percentage / 100));
+              appliedAllocations.envelopes[envelope.category] = amount;
+
+              await db
+                .update(budgetCategories)
+                .set({ monthlyLimit: amount })
+                .where(eq(budgetCategories.id, category.id));
+            }
+          }
+        }
+      }
+
+      // Deactivate previous template applications
+      await db
+        .update(userBudgetTemplates)
+        .set({ isActive: 0 })
+        .where(eq(userBudgetTemplates.userId, ctx.user.id));
+
+      // Record template application
+      await db.insert(userBudgetTemplates).values({
+        userId: ctx.user.id,
+        templateId: input.templateId,
+        monthlyIncome: input.monthlyIncome,
+        appliedAllocations: JSON.stringify(appliedAllocations),
+        isActive: 1,
+      });
+
+      // Increment usage count
+      await db
+        .update(budgetTemplates)
+        .set({ usageCount: tmpl.usageCount + 1 })
+        .where(eq(budgetTemplates.id, input.templateId));
+
+      return {
+        success: true,
+        message: `Successfully applied ${tmpl.name} template`,
+        appliedAllocations,
+      };
+    }),
+
+  /**
+   * Get user's active budget template
+   */
+  getActiveTemplate: protectedProcedure.query(async ({ ctx }) => {
+    const db = await import("./db").then(m => m.getDb());
+    if (!db) return null;
+
+    const { userBudgetTemplates, budgetTemplates } = await import("../drizzle/schema");
+    const { eq, and } = await import("drizzle-orm");
+
+    const active = await db
+      .select({
+        application: userBudgetTemplates,
+        template: budgetTemplates,
+      })
+      .from(userBudgetTemplates)
+      .innerJoin(budgetTemplates, eq(userBudgetTemplates.templateId, budgetTemplates.id))
+      .where(
+        and(
+          eq(userBudgetTemplates.userId, ctx.user.id),
+          eq(userBudgetTemplates.isActive, 1)
+        )
+      )
+      .limit(1);
+
+    if (active.length === 0) {
+      return null;
+    }
+
+    return {
+      ...active[0].application,
+      appliedAllocations: JSON.parse(active[0].application.appliedAllocations),
+      template: {
+        ...active[0].template,
+        allocations: JSON.parse(active[0].template.allocations),
+        categoryMappings: active[0].template.categoryMappings
+          ? JSON.parse(active[0].template.categoryMappings)
+          : null,
+      },
+    };
+  }),
 });

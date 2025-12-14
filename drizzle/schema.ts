@@ -886,3 +886,41 @@ export const financialInsights = mysqlTable("financial_insights", {
 
 export type FinancialInsight = typeof financialInsights.$inferSelect;
 export type InsertFinancialInsight = typeof financialInsights.$inferInsert;
+
+/**
+ * Budget Templates table - pre-configured budget strategies
+ */
+export const budgetTemplates = mysqlTable("budget_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  strategy: mysqlEnum("strategy", ["50_30_20", "zero_based", "envelope", "custom"]).notNull(),
+  isSystemTemplate: int("isSystemTemplate").default(1).notNull(), // 1 for built-in, 0 for user-created
+  userId: int("userId"), // null for system templates, user ID for custom templates
+  allocations: text("allocations").notNull(), // JSON: { "needs": 50, "wants": 30, "savings": 20 } or category-specific
+  categoryMappings: text("categoryMappings"), // JSON: maps allocation types to category IDs
+  icon: varchar("icon", { length: 10 }).default("📊"),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  usageCount: int("usageCount").default(0).notNull(), // Track popularity
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BudgetTemplate = typeof budgetTemplates.$inferSelect;
+export type InsertBudgetTemplate = typeof budgetTemplates.$inferInsert;
+
+/**
+ * User Budget Template Applications table - track when users apply templates
+ */
+export const userBudgetTemplates = mysqlTable("user_budget_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  templateId: int("templateId").notNull(),
+  monthlyIncome: int("monthlyIncome").notNull(), // In cents, income at time of application
+  appliedAllocations: text("appliedAllocations").notNull(), // JSON: actual dollar amounts calculated
+  appliedAt: timestamp("appliedAt").defaultNow().notNull(),
+  isActive: int("isActive").default(1).notNull(), // 1 if currently using this template
+});
+
+export type UserBudgetTemplate = typeof userBudgetTemplates.$inferSelect;
+export type InsertUserBudgetTemplate = typeof userBudgetTemplates.$inferInsert;
