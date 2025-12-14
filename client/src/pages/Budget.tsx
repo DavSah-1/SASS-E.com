@@ -26,6 +26,7 @@ import {
 import { getLoginUrl } from "@/const";
 import { SpendingTrendsChart } from "@/components/money-hub/SpendingTrendsChart";
 import { BudgetTemplates } from "@/components/money-hub/BudgetTemplates";
+import { RecurringTransactions } from "@/components/money-hub/RecurringTransactions";
 
 export default function Budget() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -439,6 +440,15 @@ export default function Budget() {
             Spending Trends
           </h2>
           <SpendingTrendsChart />
+        </div>
+
+        {/* Recurring Transactions */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+            <Target className="h-6 w-6" />
+            Recurring Transactions & Subscriptions
+          </h2>
+          <RecurringTransactions />
         </div>
 
         {/* Recent Transactions */}

@@ -16,6 +16,7 @@ import {
   getDebtSummary,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
+import { checkCategoryAlerts, checkAllCategoryAlerts } from "./alertHelpers";
 
 export const budgetRouter = router({
   // ==================== Category Management ====================
@@ -123,6 +124,13 @@ export const budgetRouter = router({
         recurringFrequency: input.recurringFrequency,
         tags: input.tags,
       });
+
+      // Check for budget alerts after creating transaction
+      try {
+        await checkCategoryAlerts(ctx.user.id, input.categoryId);
+      } catch (error) {
+        console.error("[createTransaction] Failed to check alerts:", error);
+      }
 
       return { success: true, message: "Transaction created successfully" };
     }),
@@ -363,31 +371,16 @@ export const budgetRouter = router({
       return alerts;
     }),
 
-  /**
-   * Mark alert as read
-   */
-  markAlertRead: protectedProcedure
-    .input(
-      z.object({
-        alertId: z.number().int(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const db = await import("./db").then(m => m.getDb());
-      if (!db) return { success: false };
-
-      const { budgetAlerts } = await import("../drizzle/schema");
-      const { eq } = await import("drizzle-orm");
-
-      await db
-        .update(budgetAlerts)
-        .set({ isRead: 1 })
-        .where(eq(budgetAlerts.id, input.alertId));
-
-      return { success: true, message: "Alert marked as read" };
-    }),
-
   // ==================== Financial Insights ====================
+
+  /**
+   * Generate AI-powered spending insights
+   */
+  generateInsights: protectedProcedure.mutation(async ({ ctx }) => {
+    const { generateSpendingInsights } = await import("./insightsHelpers");
+    const result = await generateSpendingInsights(ctx.user.id);
+    return result;
+  }),
 
   /**
    * Get AI-powered financial insights
@@ -427,88 +420,6 @@ export const budgetRouter = router({
 
       return insights;
     }),
-
-  /**
-   * Generate new financial insights using AI
-   */
-  generateInsights: protectedProcedure.mutation(async ({ ctx }) => {
-    // Get user's recent transactions and spending patterns
-    const currentMonth = new Date().toISOString().slice(0, 7);
-    const summary = await calculateMonthlyBudgetSummary(ctx.user.id, currentMonth);
-    const breakdown = await getCategorySpendingBreakdown(ctx.user.id, currentMonth);
-    const transactions = await getUserBudgetTransactions(ctx.user.id, { limit: 50 });
-
-    if (!summary || transactions.length === 0) {
-      return { success: false, message: "Not enough data to generate insights" };
-    }
-
-    // Prepare data for LLM
-    const prompt = `Analyze this user's financial data and provide 3-5 actionable insights with SASS-E's sarcastic personality:
-
-Monthly Summary:
-- Total Income: $${(summary.totalIncome / 100).toFixed(2)}
-- Total Expenses: $${(summary.totalExpenses / 100).toFixed(2)}
-- Net Cash Flow: $${(summary.netCashFlow / 100).toFixed(2)}
-- Savings Rate: ${summary.savingsRate.toFixed(1)}%
-- Budget Health: ${summary.budgetHealth}
-
-Top Spending Categories:
-${breakdown.slice(0, 5).map(c => `- ${c.category.name}: $${(c.total / 100).toFixed(2)}`).join('\n')}
-
-Provide insights in JSON format:
-{
-  "insights": [
-    {
-      "type": "spending_pattern" | "saving_opportunity" | "cash_flow_prediction" | "budget_recommendation" | "trend_analysis",
-      "title": "Brief catchy title",
-      "description": "Detailed sarcastic insight (2-3 sentences)",
-      "actionable": true/false,
-      "actionText": "What user should do (if actionable)",
-      "priority": "low" | "medium" | "high"
-    }
-  ]
-}`;
-
-    try {
-      const response = await invokeLLM({
-        messages: [
-          { role: "system", content: "You are SASS-E, a sarcastic financial advisor. Provide witty but helpful financial insights." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" },
-      });
-
-      const content = response.choices?.[0]?.message?.content;
-      if (!content || typeof content !== 'string') {
-        throw new Error("No content in LLM response");
-      }
-
-      const result = JSON.parse(content);
-      const db = await import("./db").then(m => m.getDb());
-      if (!db) return { success: false };
-
-      const { financialInsights } = await import("../drizzle/schema");
-
-      // Save insights to database
-      for (const insight of result.insights) {
-        await db.insert(financialInsights).values({
-          userId: ctx.user.id,
-          insightType: insight.type,
-          title: insight.title,
-          description: insight.description,
-          actionable: insight.actionable ? 1 : 0,
-          actionText: insight.actionText,
-          priority: insight.priority,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        });
-      }
-
-      return { success: true, message: `Generated ${result.insights.length} new insights` };
-    } catch (error) {
-      console.error("[generateInsights] Error:", error);
-      return { success: false, message: "Failed to generate insights" };
-    }
-  }),
 
   /**
    * Dismiss a financial insight
@@ -1038,6 +949,241 @@ Provide insights in JSON format:
           ? JSON.parse(active[0].template.categoryMappings)
           : null,
       },
-    };
+      };
+    }),
+
+  // ==================== Notifications & Alerts ====================
+
+  /**
+   * Get user's notification preferences
+   */
+  getNotificationPreferences: protectedProcedure.query(async ({ ctx }) => {
+    const db = await import("./db").then(m => m.getDb());
+    if (!db) return null;
+
+    const { notificationPreferences } = await import("../drizzle/schema");
+    const { eq } = await import("drizzle-orm");
+
+    const prefs = await db
+      .select()
+      .from(notificationPreferences)
+      .where(eq(notificationPreferences.userId, ctx.user.id))
+      .limit(1);
+
+    if (prefs.length === 0) {
+      // Return default preferences
+      return {
+        budgetAlertsEnabled: 1,
+        threshold80Enabled: 1,
+        threshold100Enabled: 1,
+        exceededEnabled: 1,
+        weeklySummaryEnabled: 1,
+        monthlySummaryEnabled: 1,
+        insightsEnabled: 1,
+        recurringAlertsEnabled: 1,
+        notificationMethod: "both" as const,
+        quietHoursStart: null,
+        quietHoursEnd: null,
+      };
+    }
+
+    return prefs[0];
   }),
+
+  /**
+   * Update notification preferences
+   */
+  updateNotificationPreferences: protectedProcedure
+    .input(
+      z.object({
+        budgetAlertsEnabled: z.number().int().min(0).max(1).optional(),
+        threshold80Enabled: z.number().int().min(0).max(1).optional(),
+        threshold100Enabled: z.number().int().min(0).max(1).optional(),
+        exceededEnabled: z.number().int().min(0).max(1).optional(),
+        weeklySummaryEnabled: z.number().int().min(0).max(1).optional(),
+        monthlySummaryEnabled: z.number().int().min(0).max(1).optional(),
+        insightsEnabled: z.number().int().min(0).max(1).optional(),
+        recurringAlertsEnabled: z.number().int().min(0).max(1).optional(),
+        notificationMethod: z.enum(["in_app", "push", "both"]).optional(),
+        quietHoursStart: z.number().int().min(0).max(23).nullable().optional(),
+        quietHoursEnd: z.number().int().min(0).max(23).nullable().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return { success: false, message: "Database unavailable" };
+
+      const { notificationPreferences } = await import("../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+
+      // Check if preferences exist
+      const existing = await db
+        .select()
+        .from(notificationPreferences)
+        .where(eq(notificationPreferences.userId, ctx.user.id))
+        .limit(1);
+
+      if (existing.length === 0) {
+        // Create new preferences
+        await db.insert(notificationPreferences).values({
+          userId: ctx.user.id,
+          ...input,
+        });
+      } else {
+        // Update existing preferences
+        await db
+          .update(notificationPreferences)
+          .set(input)
+          .where(eq(notificationPreferences.userId, ctx.user.id));
+      }
+
+      return { success: true, message: "Notification preferences updated" };
+    }),
+
+  /**
+   * Mark alert as read
+   */
+  markAlertRead: protectedProcedure
+    .input(
+      z.object({
+        alertId: z.number().int(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await import("./db").then(m => m.getDb());
+      if (!db) return { success: false };
+
+      const { budgetAlerts } = await import("../drizzle/schema");
+      const { eq, and } = await import("drizzle-orm");
+
+      await db
+        .update(budgetAlerts)
+        .set({ isRead: 1 })
+        .where(
+          and(
+            eq(budgetAlerts.id, input.alertId),
+            eq(budgetAlerts.userId, ctx.user.id)
+          )
+        );
+
+      return { success: true };
+    }),
+
+  /**
+   * Mark all alerts as read
+   */
+  markAllAlertsRead: protectedProcedure.mutation(async ({ ctx }) => {
+    const db = await import("./db").then(m => m.getDb());
+    if (!db) return { success: false };
+
+    const { budgetAlerts } = await import("../drizzle/schema");
+    const { eq } = await import("drizzle-orm");
+
+    await db
+      .update(budgetAlerts)
+      .set({ isRead: 1 })
+      .where(eq(budgetAlerts.userId, ctx.user.id));
+
+    return { success: true };
+  }),
+
+  /**
+   * Get unread alert count
+   */
+  getUnreadAlertCount: protectedProcedure.query(async ({ ctx }) => {
+    const db = await import("./db").then(m => m.getDb());
+    if (!db) return 0;
+
+    const { budgetAlerts } = await import("../drizzle/schema");
+    const { eq, and, count } = await import("drizzle-orm");
+
+    const result = await db
+      .select({ count: count() })
+      .from(budgetAlerts)
+      .where(
+        and(
+          eq(budgetAlerts.userId, ctx.user.id),
+          eq(budgetAlerts.isRead, 0)
+        )
+      );
+
+    return result[0]?.count || 0;
+  }),
+
+  /**
+   * Manually trigger alert check for all categories
+   */
+  checkAlerts: protectedProcedure.mutation(async ({ ctx }) => {
+    try {
+      await checkAllCategoryAlerts(ctx.user.id);
+      return { success: true, message: "Alert check completed" };
+    } catch (error) {
+      console.error("[checkAlerts] Error:", error);
+      return { success: false, message: "Failed to check alerts" };
+    }
+  }),
+
+  // ==================== Recurring Transactions ====================
+
+  /**
+   * Detect recurring transaction patterns
+   */
+  detectRecurring: protectedProcedure.mutation(async ({ ctx }) => {
+    const { detectRecurringPatterns } = await import("./recurringHelpers");
+    const result = await detectRecurringPatterns(ctx.user.id);
+    return result;
+  }),
+
+  /**
+   * Get user's recurring transactions
+   */
+  getRecurring: protectedProcedure
+    .input(
+      z.object({
+        activeOnly: z.boolean().default(true),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { getUserRecurringTransactions } = await import("./recurringHelpers");
+      const recurring = await getUserRecurringTransactions(ctx.user.id, input.activeOnly);
+      return recurring;
+    }),
+
+  /**
+   * Get recurring expense projections
+   */
+  getRecurringProjections: protectedProcedure.query(async ({ ctx }) => {
+    const { calculateRecurringProjections } = await import("./recurringHelpers");
+    const projections = await calculateRecurringProjections(ctx.user.id);
+    return projections;
+  }),
+
+  /**
+   * Get upcoming recurring transactions (next 30 days)
+   */
+  getUpcomingRecurring: protectedProcedure.query(async ({ ctx }) => {
+    const { getUpcomingRecurring } = await import("./recurringHelpers");
+    const upcoming = await getUpcomingRecurring(ctx.user.id);
+    return upcoming;
+  }),
+
+  /**
+   * Update recurring transaction settings
+   */
+  updateRecurring: protectedProcedure
+    .input(
+      z.object({
+        recurringId: z.number().int(),
+        reminderEnabled: z.boolean().optional(),
+        autoAdd: z.boolean().optional(),
+        isActive: z.boolean().optional(),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { updateRecurringTransaction } = await import("./recurringHelpers");
+      const { recurringId, ...updates } = input;
+      const result = await updateRecurringTransaction(ctx.user.id, recurringId, updates);
+      return result;
+    }),
 });

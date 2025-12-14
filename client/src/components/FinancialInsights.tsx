@@ -13,10 +13,10 @@ export function FinancialInsights() {
     onSuccess: (result) => {
       setGenerating(false);
       if (result.success) {
-        toast.success(result.message);
+        toast.success(`Generated ${result.insightsCount} new insights`);
         refetch();
       } else {
-        toast.error(result.message);
+        toast.error("Failed to generate insights");
       }
     },
     onError: () => {

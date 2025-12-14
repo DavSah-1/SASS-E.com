@@ -918,3 +918,102 @@
 - [ ] Add template suggestions based on user profile
 - [ ] Create template switching functionality
 - [ ] Build template performance tracking
+
+
+## Budget Alerts & Notifications
+
+### Real-time Alert System
+- [x] Design alert triggering logic for 80% threshold
+- [x] Create alert generation when category spending exceeds limits
+- [x] Implement 100% threshold alerts for budget exceeded
+- [x] Build weekly spending summary alerts
+- [x] Add monthly budget report notifications
+
+### Notification Infrastructure
+- [x] Set up notification delivery system using built-in notification API
+- [x] Create notification preferences table for user settings
+- [x] Implement notification batching to avoid spam
+- [x] Add notification history tracking
+- [x] Build notification dismissal functionality
+
+### Alert UI Components
+- [x] Create AlertBanner component for in-app alerts
+- [x] Build NotificationCenter dropdown in navigation
+- [x] Add alert badges showing unread count
+- [x] Implement alert action buttons (view details, dismiss)
+- [x] Create alert settings page for user preferences
+
+### Integration
+- [x] Integrate alerts with transaction creation flow
+- [x] Add background job for periodic alert checks
+- [x] Connect alerts to budget summary calculations
+- [x] Build alert testing and preview functionality
+
+
+## AI-Powered Spending Insights
+
+### AI Analysis Engine
+- [x] Design spending pattern analysis algorithms
+- [x] Implement category spending trend detection
+- [x] Build anomaly detection for unusual expenses
+- [x] Create seasonal spending pattern recognition
+- [x] Add comparison with similar user profiles (anonymized)
+
+### Personalized Recommendations
+- [x] Generate cost-cutting suggestions based on spending
+- [x] Identify subscription optimization opportunities
+- [x] Suggest category budget adjustments
+- [x] Recommend savings goals based on patterns
+- [x] Create actionable next steps for each insight
+
+### LLM Integration
+- [x] Build prompts for spending analysis
+- [x] Implement structured output for insights
+- [x] Add context from user's financial goals
+- [x] Generate natural language explanations
+- [x] Create sarcastic but helpful commentary (SASS-E style)
+
+### Insights UI
+- [x] Create InsightsCard component for displaying recommendations
+- [x] Build insights dashboard section
+- [x] Add "Take Action" buttons for implementing suggestions
+- [x] Implement insight dismissal and feedback
+- [x] Create insights history and tracking
+
+
+## Recurring Transaction Automation
+
+### Detection System
+- [x] Design recurring pattern detection algorithm
+- [x] Implement frequency analysis (weekly, monthly, yearly)
+- [x] Build amount similarity detection
+- [x] Create merchant/description matching logic
+- [x] Add confidence scoring for detected patterns
+
+### Smart Categorization
+- [x] Build automatic category assignment for recurring transactions
+- [x] Implement learning from user corrections
+- [x] Create category suggestion system
+- [x] Add bulk categorization for detected patterns
+- [x] Build category confidence indicators
+
+### Budget Forecasting
+- [x] Calculate projected monthly expenses from recurring transactions
+- [x] Generate 3-month spending forecast
+- [x] Predict category budget needs
+- [x] Create cash flow projections
+- [ ] Build "what-if" scenario analysis
+
+### Automation Features
+- [x] Create recurring transaction templates
+- [ ] Build auto-add functionality for predicted transactions
+- [x] Implement transaction reminders before due dates
+- [x] Add subscription tracking and renewal alerts
+- [x] Create recurring transaction management dashboard
+
+### UI Components
+- [x] Build RecurringTransactionsList component
+- [x] Create subscription tracker widget
+- [x] Add forecast visualization charts
+- [x] Implement transaction pattern review interface
+- [x] Build automation settings panel

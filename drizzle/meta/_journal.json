@@ -120,6 +120,20 @@
       "when": 1765709748839,
       "tag": "0016_tense_skin",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1765710493338,
+      "tag": "0017_broad_stingray",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1765710745503,
+      "tag": "0018_heavy_songbird",
+      "breakpoints": true
     }
   ]
 }

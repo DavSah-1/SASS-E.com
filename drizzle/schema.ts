@@ -924,3 +924,52 @@ export const userBudgetTemplates = mysqlTable("user_budget_templates", {
 
 export type UserBudgetTemplate = typeof userBudgetTemplates.$inferSelect;
 export type InsertUserBudgetTemplate = typeof userBudgetTemplates.$inferInsert;
+
+/**
+ * Notification Preferences table - user settings for alerts and notifications
+ */
+export const notificationPreferences = mysqlTable("notification_preferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  budgetAlertsEnabled: int("budgetAlertsEnabled").default(1).notNull(), // 1 to receive budget alerts
+  threshold80Enabled: int("threshold80Enabled").default(1).notNull(), // Alert at 80% of limit
+  threshold100Enabled: int("threshold100Enabled").default(1).notNull(), // Alert at 100% of limit
+  exceededEnabled: int("exceededEnabled").default(1).notNull(), // Alert when over budget
+  weeklySummaryEnabled: int("weeklySummaryEnabled").default(1).notNull(), // Weekly spending summary
+  monthlySummaryEnabled: int("monthlySummaryEnabled").default(1).notNull(), // Monthly budget report
+  insightsEnabled: int("insightsEnabled").default(1).notNull(), // AI-generated insights
+  recurringAlertsEnabled: int("recurringAlertsEnabled").default(1).notNull(), // Recurring transaction reminders
+  notificationMethod: mysqlEnum("notificationMethod", ["in_app", "push", "both"]).default("both").notNull(),
+  quietHoursStart: int("quietHoursStart"), // Hour (0-23) to start quiet period
+  quietHoursEnd: int("quietHoursEnd"), // Hour (0-23) to end quiet period
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+
+/**
+ * Recurring Transactions table - detected patterns and subscriptions
+ */
+export const recurringTransactions = mysqlTable("recurring_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  categoryId: int("categoryId").notNull(),
+  description: varchar("description", { length: 255 }).notNull(),
+  averageAmount: int("averageAmount").notNull(), // Average amount in cents
+  frequency: mysqlEnum("frequency", ["weekly", "biweekly", "monthly", "quarterly", "yearly"]).notNull(),
+  nextExpectedDate: timestamp("nextExpectedDate"), // When we expect the next occurrence
+  lastOccurrence: timestamp("lastOccurrence"), // Last detected transaction date
+  confidence: int("confidence").notNull(), // Confidence score 0-100
+  isActive: int("isActive").default(1).notNull(), // 1 if still recurring, 0 if stopped
+  isSubscription: int("isSubscription").default(0).notNull(), // 1 if identified as subscription
+  reminderEnabled: int("reminderEnabled").default(1).notNull(), // 1 to send reminders
+  autoAdd: int("autoAdd").default(0).notNull(), // 1 to automatically add predicted transactions
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type RecurringTransaction = typeof recurringTransactions.$inferSelect;
+export type InsertRecurringTransaction = typeof recurringTransactions.$inferInsert;
