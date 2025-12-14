@@ -808,3 +808,14 @@
 - [x] Create fallback quiz questions (6 generic questions for all experiments)
 - [x] Update getLabQuiz to use fallback questions instead of LLM
 - [x] Test Science Lab quiz system with fallback questions
+
+
+## Experiment-Specific Quiz Questions
+- [x] Create seed script with 6 tailored questions per experiment (180 total)
+- [x] Write questions for 10 basic experiments (Newton's Law, Pendulum, Refraction, etc.)
+- [x] Write questions for 10 intermediate experiments (Doppler, Kinetics, DNA Extraction, etc.)
+- [x] Write questions for 10 advanced experiments (Thermodynamics, Spectroscopy, PCR, etc.)
+- [x] Clear existing generic quiz questions from database
+- [x] Run seed script to populate experiment-specific questions
+- [x] Test quiz system with tailored questions for multiple experiments
+- [x] Verify questions are relevant to each experiment's content

@@ -1,0 +1,130 @@
+{
+  "query": "SELECT experimentId, COUNT(*) as question_count FROM lab_quiz_questions GROUP BY experimentId ORDER BY experimentId",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT experimentId, COUNT(*) as question_count FROM lab_quiz_questions GROUP BY experimentId ORDER BY experimentId",
+  "rows": [
+    {
+      "experimentId": "3",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "4",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "5",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "6",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "7",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "8",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "9",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "10",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "11",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "12",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "13",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "14",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "15",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "16",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "17",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "18",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "19",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "20",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "21",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "22",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "23",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "24",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "25",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "26",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "27",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "28",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "29",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "30",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "31",
+      "question_count": "6"
+    },
+    {
+      "experimentId": "32",
+      "question_count": "6"
+    }
+  ],
+  "messages": [],
+  "stdout": "experimentId\tquestion_count\n3\t6\n4\t6\n5\t6\n6\t6\n7\t6\n8\t6\n9\t6\n10\t6\n11\t6\n12\t6\n13\t6\n14\t6\n15\t6\n16\t6\n17\t6\n18\t6\n19\t6\n20\t6\n21\t6\n22\t6\n23\t6\n24\t6\n25\t6\n26\t6\n27\t6\n28\t6\n29\t6\n30\t6\n31\t6\n32\t6\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}
