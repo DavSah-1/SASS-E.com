@@ -24,6 +24,13 @@ import {
   Lock,
   Crown,
   Zap,
+  Bell,
+  Camera,
+  Users,
+  BarChart3,
+  Lightbulb,
+  Repeat,
+  FileText,
 } from "lucide-react";
 import {
   DEMO_DEBTS,
@@ -36,6 +43,15 @@ import {
   DEMO_MONTHLY_SUMMARY,
   DEMO_DEBT_SUMMARY,
   DEMO_STRATEGY_COMPARISON,
+  DEMO_SPENDING_TRENDS,
+  DEMO_BUDGET_TEMPLATES,
+  DEMO_BUDGET_ALERTS,
+  DEMO_AI_INSIGHTS,
+  DEMO_RECURRING_TRANSACTIONS,
+  DEMO_GOAL_PREDICTIONS,
+  DEMO_RECEIPT_EXAMPLES,
+  DEMO_SHARED_BUDGETS,
+  DEMO_SPLIT_EXPENSES,
 } from "@/lib/demoData";
 
 export default function MoneyDemo() {
@@ -367,6 +383,300 @@ export default function MoneyDemo() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* NEW FEATURES SHOWCASE */}
+
+            {/* Spending Trends */}
+            <Card className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 border-blue-700">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-blue-400" />
+                    <CardTitle className="text-white">Spending Trends</CardTitle>
+                  </div>
+                  <Badge variant="secondary">6 Months</Badge>
+                </div>
+                <CardDescription>Track your spending patterns over time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-6 gap-2">
+                    {DEMO_SPENDING_TRENDS.monthlyData.map((month, idx) => (
+                      <div key={idx} className="text-center">
+                        <div
+                          className="bg-blue-500 rounded-t"
+                          style={{ height: `${(month.total / 4000)}px` }}
+                        />
+                        <p className="text-xs text-slate-400 mt-1">{month.month}</p>
+                        <p className="text-xs text-white font-semibold">
+                          {formatCurrency(month.total)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-3 bg-blue-900/30 rounded-lg border border-blue-700">
+                    <p className="text-sm text-blue-200 flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      {DEMO_SPENDING_TRENDS.insights.savingsOpportunity}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Budget Templates */}
+            <Card className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-green-700">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-green-400" />
+                  <CardTitle className="text-white">Budget Templates</CardTitle>
+                </div>
+                <CardDescription>Pre-configured strategies for quick setup</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {DEMO_BUDGET_TEMPLATES.map((template) => (
+                    <div
+                      key={template.id}
+                      className="p-4 bg-green-900/30 rounded-lg border border-green-700 hover:border-green-500 transition-colors"
+                    >
+                      <h4 className="font-semibold text-white mb-2">{template.name}</h4>
+                      <p className="text-xs text-slate-300 mb-3">{template.description}</p>
+                      <UpgradeTooltip>
+                        <Button size="sm" disabled className="w-full opacity-50">
+                          Apply Template
+                        </Button>
+                      </UpgradeTooltip>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Budget Alerts */}
+            <Card className="bg-gradient-to-br from-orange-900/30 to-red-900/30 border-orange-700">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-5 w-5 text-orange-400" />
+                    <CardTitle className="text-white">Budget Alerts</CardTitle>
+                  </div>
+                  <Badge variant="destructive">
+                    {DEMO_BUDGET_ALERTS.filter((a) => !a.isRead).length} New
+                  </Badge>
+                </div>
+                <CardDescription>Real-time notifications for spending thresholds</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {DEMO_BUDGET_ALERTS.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className={`p-3 rounded-lg border ${
+                        alert.type === "exceeded"
+                          ? "bg-red-900/30 border-red-700"
+                          : alert.type === "warning"
+                            ? "bg-orange-900/30 border-orange-700"
+                            : "bg-green-900/30 border-green-700"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <AlertCircle
+                          className={`h-5 w-5 mt-0.5 ${
+                            alert.type === "exceeded"
+                              ? "text-red-400"
+                              : alert.type === "warning"
+                                ? "text-orange-400"
+                                : "text-green-400"
+                          }`}
+                        />
+                        <div className="flex-1">
+                          <p className="text-sm text-white font-medium">{alert.category}</p>
+                          <p className="text-xs text-slate-300 mt-1">{alert.message}</p>
+                        </div>
+                        {!alert.isRead && (
+                          <div className="w-2 h-2 rounded-full bg-orange-400" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* AI Insights */}
+            <Card className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-purple-700">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-purple-400" />
+                  <CardTitle className="text-white">AI-Powered Insights</CardTitle>
+                </div>
+                <CardDescription>Personalized recommendations from SASS-E</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {DEMO_AI_INSIGHTS.map((insight) => (
+                    <div
+                      key={insight.id}
+                      className="p-4 bg-purple-900/30 rounded-lg border border-purple-700"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-semibold text-white">{insight.title}</h4>
+                        <Badge variant="secondary">{insight.confidence}% confident</Badge>
+                      </div>
+                      <p className="text-sm text-slate-300 mb-3">{insight.insight}</p>
+                      {insight.potentialSavings > 0 && (
+                        <div className="flex items-center gap-2 text-green-400 text-sm font-semibold">
+                          <DollarSign className="h-4 w-4" />
+                          Save {formatCurrency(insight.potentialSavings)}/month
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recurring Transactions */}
+            <Card className="bg-gradient-to-br from-indigo-900/30 to-blue-900/30 border-indigo-700">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Repeat className="h-5 w-5 text-indigo-400" />
+                  <CardTitle className="text-white">Recurring Transactions</CardTitle>
+                </div>
+                <CardDescription>Automatically detected subscriptions and bills</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {DEMO_RECURRING_TRANSACTIONS.map((recurring) => (
+                    <div
+                      key={recurring.id}
+                      className="flex items-center justify-between p-3 bg-indigo-900/30 rounded-lg border border-indigo-700"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Repeat className="h-4 w-4 text-indigo-400" />
+                        <div>
+                          <p className="font-medium text-white">{recurring.merchantName}</p>
+                          <p className="text-xs text-slate-400">
+                            {recurring.category} • {recurring.frequency}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-white">
+                          {formatCurrency(recurring.amount)}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          Next: {formatDate(recurring.nextDate)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Receipt Scanner */}
+            <Card className="bg-gradient-to-br from-teal-900/30 to-cyan-900/30 border-teal-700">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Camera className="h-5 w-5 text-teal-400" />
+                  <CardTitle className="text-white">Receipt Scanner</CardTitle>
+                </div>
+                <CardDescription>OCR-powered receipt processing</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-teal-900/30 rounded-lg border border-teal-700 text-center">
+                    <Camera className="h-12 w-12 mx-auto mb-3 text-teal-400" />
+                    <p className="text-sm text-slate-300 mb-3">
+                      Snap a photo of your receipt and let AI extract all the details
+                    </p>
+                    <UpgradeTooltip>
+                      <Button disabled className="opacity-50">
+                        <Camera className="h-4 w-4 mr-2" />
+                        Scan Receipt
+                      </Button>
+                    </UpgradeTooltip>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-xs text-slate-400 font-semibold">Recent Scans</p>
+                    {DEMO_RECEIPT_EXAMPLES.map((receipt) => (
+                      <div
+                        key={receipt.id}
+                        className="p-3 bg-teal-900/20 rounded-lg border border-teal-800"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="font-medium text-white">{receipt.merchant}</p>
+                          <Badge variant="secondary">{receipt.confidence}% match</Badge>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-400">{receipt.category}</span>
+                          <span className="text-white font-semibold">
+                            {formatCurrency(receipt.amount)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Budget Sharing */}
+            <Card className="bg-gradient-to-br from-pink-900/30 to-rose-900/30 border-pink-700">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-pink-400" />
+                  <CardTitle className="text-white">Budget Sharing & Collaboration</CardTitle>
+                </div>
+                <CardDescription>Manage finances with family or roommates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {DEMO_SHARED_BUDGETS.map((budget) => (
+                    <div
+                      key={budget.id}
+                      className="p-4 bg-pink-900/30 rounded-lg border border-pink-700"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="font-semibold text-white">{budget.name}</h4>
+                          <p className="text-xs text-slate-400">{budget.description}</p>
+                        </div>
+                        <Badge variant="secondary">{budget.members.length} members</Badge>
+                      </div>
+                      <div className="flex items-center gap-2 mb-3">
+                        {budget.members.map((member) => (
+                          <div
+                            key={member.id}
+                            className="flex items-center gap-1 px-2 py-1 bg-pink-900/50 rounded text-xs"
+                          >
+                            <span>{member.avatar}</span>
+                            <span className="text-white">{member.name}</span>
+                            <span className="text-slate-400">({member.role})</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-slate-400">Total Spending</p>
+                          <p className="text-white font-semibold">
+                            {formatCurrency(budget.totalSpending)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400">Your Share</p>
+                          <p className="text-white font-semibold">
+                            {formatCurrency(budget.yourShare)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Debt Coach Tab */}
@@ -635,6 +945,70 @@ export default function MoneyDemo() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* AI-Powered Goal Predictions */}
+            <Card className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border-purple-700">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-purple-400" />
+                  <CardTitle className="text-white">AI Goal Predictions</CardTitle>
+                </div>
+                <CardDescription>Smart forecasts and motivational insights</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Object.values(DEMO_GOAL_PREDICTIONS).map((prediction, idx) => {
+                    const goal = DEMO_GOALS.find((g) => g.id === prediction.goalId);
+                    if (!goal) return null;
+
+                    return (
+                      <div
+                        key={idx}
+                        className="p-4 bg-purple-900/30 rounded-lg border border-purple-700"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h4 className="font-semibold text-white">{goal.name}</h4>
+                            <p className="text-xs text-slate-400">Current Progress: {prediction.currentProgress}%</p>
+                          </div>
+                          <Badge variant={prediction.onTrack ? "default" : "destructive"}>
+                            {prediction.onTrack ? "On Track" : "Behind"}
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-3">
+                          <div>
+                            <p className="text-xs text-slate-400">Estimated Completion</p>
+                            <p className="text-sm text-white font-semibold">
+                              {formatDate(prediction.estimatedCompletionDate)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-slate-400">Monthly Contribution</p>
+                            <p className="text-sm text-white font-semibold">
+                              {formatCurrency(prediction.monthlyContribution)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-3 bg-purple-900/50 rounded border border-purple-600">
+                          <p className="text-sm text-purple-100">{prediction.motivationalMessage}</p>
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between text-xs">
+                          <span className="text-slate-400">
+                            Next milestone: {prediction.nextMilestone}%
+                          </span>
+                          <span className="text-purple-300 font-semibold">
+                            {prediction.daysUntilMilestone} days away
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
 

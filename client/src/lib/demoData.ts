@@ -159,3 +159,298 @@ export const DEMO_STRATEGY_COMPARISON = {
     monthsToPayoff: 24,
   },
 };
+
+// ==================== New Features Demo Data ====================
+
+export const DEMO_SPENDING_TRENDS = {
+  monthlyData: [
+    { month: "Jul", total: 350000, categories: { Housing: 150000, Food: 55000, Transport: 38000, Entertainment: 28000, Shopping: 22000, Other: 57000 } },
+    { month: "Aug", total: 365000, categories: { Housing: 150000, Food: 58000, Transport: 42000, Entertainment: 32000, Shopping: 25000, Other: 58000 } },
+    { month: "Sep", total: 340000, categories: { Housing: 150000, Food: 52000, Transport: 35000, Entertainment: 25000, Shopping: 20000, Other: 58000 } },
+    { month: "Oct", total: 375000, categories: { Housing: 150000, Food: 62000, Transport: 45000, Entertainment: 35000, Shopping: 28000, Other: 55000 } },
+    { month: "Nov", total: 360000, categories: { Housing: 150000, Food: 56000, Transport: 40000, Entertainment: 30000, Shopping: 24000, Other: 60000 } },
+    { month: "Dec", total: 380000, categories: { Housing: 150000, Food: 60000, Transport: 40000, Entertainment: 35000, Shopping: 30000, Other: 65000 } },
+  ],
+  insights: {
+    trend: "increasing" as const,
+    percentageChange: 8.6,
+    highestCategory: "Housing",
+    savingsOpportunity: "Entertainment spending increased 25% - consider streaming service consolidation",
+  },
+};
+
+export const DEMO_BUDGET_TEMPLATES = [
+  {
+    id: 1,
+    name: "50/30/20 Rule",
+    description: "50% needs, 30% wants, 20% savings - balanced approach for most people",
+    allocations: [
+      { category: "Housing", percentage: 30, type: "needs" },
+      { category: "Transportation", percentage: 10, type: "needs" },
+      { category: "Food & Dining", percentage: 10, type: "needs" },
+      { category: "Entertainment", percentage: 15, type: "wants" },
+      { category: "Shopping", percentage: 10, type: "wants" },
+      { category: "Savings", percentage: 20, type: "savings" },
+      { category: "Other", percentage: 5, type: "needs" },
+    ],
+  },
+  {
+    id: 2,
+    name: "Zero-Based Budget",
+    description: "Every dollar has a job - assign all income to specific categories",
+    allocations: [
+      { category: "Housing", percentage: 28 },
+      { category: "Transportation", percentage: 12 },
+      { category: "Food & Dining", percentage: 15 },
+      { category: "Utilities", percentage: 8 },
+      { category: "Debt Payments", percentage: 15 },
+      { category: "Savings", percentage: 12 },
+      { category: "Entertainment", percentage: 6 },
+      { category: "Healthcare", percentage: 4 },
+    ],
+  },
+  {
+    id: 3,
+    name: "Envelope System",
+    description: "Cash-based budgeting with fixed amounts per category",
+    allocations: [
+      { category: "Housing", amount: 150000 },
+      { category: "Food & Dining", amount: 60000 },
+      { category: "Transportation", amount: 40000 },
+      { category: "Entertainment", amount: 30000 },
+      { category: "Shopping", amount: 25000 },
+      { category: "Emergency Fund", amount: 50000 },
+    ],
+  },
+];
+
+export const DEMO_BUDGET_ALERTS = [
+  {
+    id: 1,
+    type: "warning" as const,
+    category: "Food & Dining",
+    message: "You've spent 85% of your Food & Dining budget ($51 of $60)",
+    threshold: 85,
+    isRead: false,
+    createdAt: new Date("2024-12-12"),
+  },
+  {
+    id: 2,
+    type: "exceeded" as const,
+    category: "Entertainment",
+    message: "Entertainment budget exceeded by $5 (spent $35 of $30 limit)",
+    threshold: 100,
+    isRead: false,
+    createdAt: new Date("2024-12-10"),
+  },
+  {
+    id: 3,
+    type: "info" as const,
+    category: "Transportation",
+    message: "Great job! You're on track with Transportation spending ($40 of $40)",
+    threshold: 100,
+    isRead: true,
+    createdAt: new Date("2024-12-08"),
+  },
+];
+
+export const DEMO_AI_INSIGHTS = [
+  {
+    id: 1,
+    type: "savings_opportunity" as const,
+    title: "Subscription Consolidation",
+    insight: "You're spending $47/month on 4 streaming services. Consider keeping Netflix and Disney+ only to save $23/month ($276/year). Or try rotating subscriptions seasonally!",
+    potentialSavings: 27600,
+    confidence: 92,
+    actionable: true,
+  },
+  {
+    id: 2,
+    type: "spending_pattern" as const,
+    title: "Weekend Dining Spike",
+    insight: "Your restaurant spending jumps 3x on weekends. Meal prepping Sunday dinners could save $120/month while still enjoying Friday date nights.",
+    potentialSavings: 12000,
+    confidence: 88,
+    actionable: true,
+  },
+  {
+    id: 3,
+    type: "goal_acceleration" as const,
+    title: "Emergency Fund Boost",
+    insight: "You're $600 away from your next milestone! Redirecting your entertainment overspend for 2 months would get you there by February. Your future self will thank you!",
+    potentialSavings: 0,
+    confidence: 95,
+    actionable: true,
+  },
+  {
+    id: 4,
+    type: "anomaly" as const,
+    title: "Unusual Gas Spending",
+    insight: "Gas expenses are 40% higher than usual this month. If this continues, consider carpooling or reviewing your commute route for efficiency.",
+    potentialSavings: 0,
+    confidence: 75,
+    actionable: false,
+  },
+];
+
+export const DEMO_RECURRING_TRANSACTIONS = [
+  {
+    id: 1,
+    merchantName: "Netflix",
+    amount: 1599,
+    frequency: "monthly" as const,
+    nextDate: new Date("2025-01-15"),
+    category: "Entertainment",
+    confidence: 98,
+    isActive: true,
+  },
+  {
+    id: 2,
+    merchantName: "Spotify Premium",
+    amount: 1099,
+    frequency: "monthly" as const,
+    nextDate: new Date("2025-01-08"),
+    category: "Entertainment",
+    confidence: 95,
+    isActive: true,
+  },
+  {
+    id: 3,
+    merchantName: "Electric Company",
+    amount: 12000,
+    frequency: "monthly" as const,
+    nextDate: new Date("2025-01-05"),
+    category: "Utilities",
+    confidence: 92,
+    isActive: true,
+  },
+  {
+    id: 4,
+    merchantName: "Gym Membership",
+    amount: 4500,
+    frequency: "monthly" as const,
+    nextDate: new Date("2025-01-01"),
+    category: "Healthcare",
+    confidence: 97,
+    isActive: true,
+  },
+  {
+    id: 5,
+    merchantName: "Car Insurance",
+    amount: 15000,
+    frequency: "monthly" as const,
+    nextDate: new Date("2025-01-20"),
+    category: "Transportation",
+    confidence: 99,
+    isActive: true,
+  },
+];
+
+export const DEMO_GOAL_PREDICTIONS = {
+  emergencyFund: {
+    goalId: 1,
+    currentProgress: 40,
+    estimatedCompletionDate: new Date("2025-10-15"),
+    onTrack: true,
+    monthlyContribution: 50000,
+    motivationalMessage: "You're absolutely crushing it! At this pace, you'll hit your emergency fund goal 2.5 months early. That's the power of consistency!",
+    nextMilestone: 50,
+    daysUntilMilestone: 45,
+  },
+  vacationFund: {
+    goalId: 2,
+    currentProgress: 60,
+    estimatedCompletionDate: new Date("2025-05-20"),
+    onTrack: true,
+    monthlyContribution: 30000,
+    motivationalMessage: "Europe is calling! You're 60% there and ahead of schedule. Keep this momentum and you might even upgrade to business class!",
+    nextMilestone: 75,
+    daysUntilMilestone: 60,
+  },
+};
+
+export const DEMO_RECEIPT_EXAMPLES = [
+  {
+    id: 1,
+    merchant: "Whole Foods",
+    amount: 8750,
+    date: new Date("2024-12-13"),
+    category: "Food & Dining",
+    confidence: 94,
+    items: [
+      { name: "Organic Bananas", amount: 450 },
+      { name: "Almond Milk", amount: 599 },
+      { name: "Chicken Breast", amount: 1299 },
+      { name: "Mixed Greens", amount: 399 },
+    ],
+    tax: 750,
+    total: 8750,
+  },
+  {
+    id: 2,
+    merchant: "Shell Gas Station",
+    amount: 5200,
+    date: new Date("2024-12-12"),
+    category: "Transportation",
+    confidence: 98,
+    items: [{ name: "Unleaded Gas", amount: 5200 }],
+    tax: 0,
+    total: 5200,
+  },
+];
+
+export const DEMO_SHARED_BUDGETS = [
+  {
+    id: 1,
+    name: "Family Budget",
+    description: "Shared household expenses",
+    members: [
+      { id: 1, name: "You", role: "owner" as const, avatar: "👤" },
+      { id: 2, name: "Partner", role: "editor" as const, avatar: "👥" },
+    ],
+    totalSpending: 280000,
+    yourShare: 140000,
+    categories: ["Housing", "Utilities", "Food & Dining"],
+    lastActivity: new Date("2024-12-13"),
+  },
+  {
+    id: 2,
+    name: "Roommate Expenses",
+    description: "Apartment shared costs",
+    members: [
+      { id: 1, name: "You", role: "owner" as const, avatar: "👤" },
+      { id: 3, name: "Alex", role: "editor" as const, avatar: "🧑" },
+      { id: 4, name: "Sam", role: "viewer" as const, avatar: "👨" },
+    ],
+    totalSpending: 180000,
+    yourShare: 60000,
+    categories: ["Housing", "Utilities"],
+    lastActivity: new Date("2024-12-10"),
+  },
+];
+
+export const DEMO_SPLIT_EXPENSES = [
+  {
+    id: 1,
+    description: "Rent - December",
+    totalAmount: 150000,
+    splits: [
+      { userId: 1, name: "You", amount: 75000, isPaid: true },
+      { userId: 2, name: "Partner", amount: 75000, isPaid: true },
+    ],
+    category: "Housing",
+    date: new Date("2024-12-01"),
+  },
+  {
+    id: 2,
+    description: "Grocery Shopping",
+    totalAmount: 12000,
+    splits: [
+      { userId: 1, name: "You", amount: 4000, isPaid: true },
+      { userId: 3, name: "Alex", amount: 4000, isPaid: false },
+      { userId: 4, name: "Sam", amount: 4000, isPaid: true },
+    ],
+    category: "Food & Dining",
+    date: new Date("2024-12-10"),
+  },
+];
