@@ -13,6 +13,7 @@ import { languageLearningRouter } from "./languageLearningRouter";
 import { debtCoachRouter } from "./debtCoachRouter";
 import { budgetRouter } from "./budgetRouter";
 import { goalsRouter } from "./goalsRouter";
+import { mathRouter } from "./mathRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -20,6 +21,7 @@ export const appRouter = router({
   debtCoach: debtCoachRouter,
   budget: budgetRouter,
   goals: goalsRouter,
+  math: mathRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

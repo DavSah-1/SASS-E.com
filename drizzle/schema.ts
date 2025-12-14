@@ -671,3 +671,61 @@ export const goalProgressHistory = mysqlTable("goal_progress_history", {
 
 export type GoalProgressHistory = typeof goalProgressHistory.$inferSelect;
 export type InsertGoalProgressHistory = typeof goalProgressHistory.$inferInsert;
+
+/**
+ * Math Tutor - Problem Library table
+ */
+export const mathProblems = mysqlTable("math_problems", {
+  id: int("id").autoincrement().primaryKey(),
+  topic: varchar("topic", { length: 100 }).notNull(), // algebra, calculus, geometry, etc.
+  subtopic: varchar("subtopic", { length: 100 }), // linear_equations, derivatives, triangles, etc.
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  problemText: text("problemText").notNull(),
+  solution: text("solution").notNull(), // JSON array of solution steps
+  answer: varchar("answer", { length: 255 }).notNull(),
+  hints: text("hints"), // JSON array of progressive hints
+  explanation: text("explanation"), // Conceptual explanation
+  relatedConcepts: text("relatedConcepts"), // JSON array of related topics
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MathProblem = typeof mathProblems.$inferSelect;
+export type InsertMathProblem = typeof mathProblems.$inferInsert;
+
+/**
+ * Math Tutor - User Solutions table (track user attempts)
+ */
+export const mathSolutions = mysqlTable("math_solutions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  problemId: int("problemId"), // null if custom problem
+  problemText: text("problemText").notNull(),
+  userAnswer: varchar("userAnswer", { length: 255 }),
+  isCorrect: int("isCorrect"), // 1 if correct, 0 if incorrect, null if not checked
+  steps: text("steps").notNull(), // JSON array of solution steps with explanations
+  hintsUsed: int("hintsUsed").default(0).notNull(),
+  timeSpent: int("timeSpent"), // Seconds
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MathSolution = typeof mathSolutions.$inferSelect;
+export type InsertMathSolution = typeof mathSolutions.$inferInsert;
+
+/**
+ * Math Tutor - User Progress table
+ */
+export const mathProgress = mysqlTable("math_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  totalProblemsAttempted: int("totalProblemsAttempted").default(0).notNull(),
+  totalProblemsSolved: int("totalProblemsSolved").default(0).notNull(),
+  topicsExplored: text("topicsExplored"), // JSON array of topics
+  currentStreak: int("currentStreak").default(0).notNull(), // Days
+  longestStreak: int("longestStreak").default(0).notNull(),
+  lastPracticeDate: timestamp("lastPracticeDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type MathProgress = typeof mathProgress.$inferSelect;
+export type InsertMathProgress = typeof mathProgress.$inferInsert;

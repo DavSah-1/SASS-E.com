@@ -58,7 +58,13 @@ import {
   goalMilestones,
   InsertGoalMilestone,
   goalProgressHistory,
-  InsertGoalProgressHistory
+  InsertGoalProgressHistory,
+  mathProblems,
+  InsertMathProblem,
+  mathSolutions,
+  InsertMathSolution,
+  mathProgress,
+  InsertMathProgress
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -1764,4 +1770,191 @@ function getMilestoneMessage(percentage: number, goalName: string): string {
   };
 
   return messages[percentage] || `You've reached ${percentage}% of "${goalName}"!`;
+}
+
+// ============================================================================
+// Math Tutor Database Helpers
+// ============================================================================
+
+/**
+ * Get math problems by topic and difficulty
+ */
+export async function getMathProblems(topic?: string, difficulty?: string, limit: number = 10) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get math problems: database not available");
+    return [];
+  }
+
+  let query = db.select().from(mathProblems);
+  
+  const conditions = [];
+  if (topic) {
+    conditions.push(eq(mathProblems.topic, topic));
+  }
+  if (difficulty) {
+    conditions.push(eq(mathProblems.difficulty, difficulty as any));
+  }
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+
+  const result = await query.limit(limit);
+  return result;
+}
+
+/**
+ * Get a single math problem by ID
+ */
+export async function getMathProblem(problemId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get math problem: database not available");
+    return null;
+  }
+
+  const result = await db
+    .select()
+    .from(mathProblems)
+    .where(eq(mathProblems.id, problemId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+/**
+ * Save a math problem to the library
+ */
+export async function saveMathProblem(problem: InsertMathProblem) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save math problem: database not available");
+    return null;
+  }
+
+  const result = await db.insert(mathProblems).values(problem);
+  return (result as any).insertId;
+}
+
+/**
+ * Save a user's solution attempt
+ */
+export async function saveMathSolution(solution: InsertMathSolution) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot save solution: database not available");
+    return null;
+  }
+
+  const result = await db.insert(mathSolutions).values(solution);
+  return (result as any).insertId;
+}
+
+/**
+ * Get user's solution history
+ */
+export async function getUserMathSolutions(userId: number, limit: number = 20) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get solutions: database not available");
+    return [];
+  }
+
+  const result = await db
+    .select()
+    .from(mathSolutions)
+    .where(eq(mathSolutions.userId, userId))
+    .orderBy(desc(mathSolutions.createdAt))
+    .limit(limit);
+
+  return result;
+}
+
+/**
+ * Get or create user's math progress
+ */
+export async function getMathProgress(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get math progress: database not available");
+    return null;
+  }
+
+  const result = await db
+    .select()
+    .from(mathProgress)
+    .where(eq(mathProgress.userId, userId))
+    .limit(1);
+
+  if (result.length > 0) {
+    return result[0];
+  }
+
+  // Create new progress record
+  await db.insert(mathProgress).values({
+    userId,
+    totalProblemsAttempted: 0,
+    totalProblemsSolved: 0,
+    topicsExplored: JSON.stringify([]),
+    currentStreak: 0,
+    longestStreak: 0,
+  });
+
+  const newResult = await db
+    .select()
+    .from(mathProgress)
+    .where(eq(mathProgress.userId, userId))
+    .limit(1);
+
+  return newResult.length > 0 ? newResult[0] : null;
+}
+
+/**
+ * Update user's math progress
+ */
+export async function updateMathProgress(
+  userId: number,
+  updates: {
+    totalProblemsAttempted?: number;
+    totalProblemsSolved?: number;
+    topicsExplored?: string[];
+    currentStreak?: number;
+    longestStreak?: number;
+    lastPracticeDate?: Date;
+  }
+) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update math progress: database not available");
+    return false;
+  }
+
+  const updateData: any = {};
+  
+  if (updates.totalProblemsAttempted !== undefined) {
+    updateData.totalProblemsAttempted = updates.totalProblemsAttempted;
+  }
+  if (updates.totalProblemsSolved !== undefined) {
+    updateData.totalProblemsSolved = updates.totalProblemsSolved;
+  }
+  if (updates.topicsExplored !== undefined) {
+    updateData.topicsExplored = JSON.stringify(updates.topicsExplored);
+  }
+  if (updates.currentStreak !== undefined) {
+    updateData.currentStreak = updates.currentStreak;
+  }
+  if (updates.longestStreak !== undefined) {
+    updateData.longestStreak = updates.longestStreak;
+  }
+  if (updates.lastPracticeDate !== undefined) {
+    updateData.lastPracticeDate = updates.lastPracticeDate;
+  }
+
+  await db
+    .update(mathProgress)
+    .set(updateData)
+    .where(eq(mathProgress.userId, userId));
+
+  return true;
 }
