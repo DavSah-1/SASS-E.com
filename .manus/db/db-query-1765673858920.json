@@ -1,0 +1,130 @@
+{
+  "query": "SELECT topic, difficulty, COUNT(*) as count FROM math_problems GROUP BY topic, difficulty ORDER BY topic, difficulty;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT topic, difficulty, COUNT(*) as count FROM math_problems GROUP BY topic, difficulty ORDER BY topic, difficulty;",
+  "rows": [
+    {
+      "topic": "algebra",
+      "difficulty": "beginner",
+      "count": "5"
+    },
+    {
+      "topic": "algebra",
+      "difficulty": "intermediate",
+      "count": "5"
+    },
+    {
+      "topic": "algebra",
+      "difficulty": "advanced",
+      "count": "5"
+    },
+    {
+      "topic": "arithmetic",
+      "difficulty": "beginner",
+      "count": "5"
+    },
+    {
+      "topic": "arithmetic",
+      "difficulty": "intermediate",
+      "count": "5"
+    },
+    {
+      "topic": "arithmetic",
+      "difficulty": "advanced",
+      "count": "5"
+    },
+    {
+      "topic": "calculus",
+      "difficulty": "beginner",
+      "count": "5"
+    },
+    {
+      "topic": "calculus",
+      "difficulty": "intermediate",
+      "count": "5"
+    },
+    {
+      "topic": "calculus",
+      "difficulty": "advanced",
+      "count": "5"
+    },
+    {
+      "topic": "differential_equations",
+      "difficulty": "beginner",
+      "count": "5"
+    },
+    {
+      "topic": "differential_equations",
+      "difficulty": "intermediate",
+      "count": "5"
+    },
+    {
+      "topic": "differential_equations",
+      "difficulty": "advanced",
+      "count": "5"
+    },
+    {
+      "topic": "geometry",
+      "difficulty": "beginner",
+      "count": "5"
+    },
+    {
+      "topic": "geometry",
+      "difficulty": "intermediate",
+      "count": "5"
+    },
+    {
+      "topic": "geometry",
+      "difficulty": "advanced",
+      "count": "5"
+    },
+    {
+      "topic": "linear_algebra",
+      "difficulty": "beginner",
+      "count": "5"
+    },
+    {
+      "topic": "linear_algebra",
+      "difficulty": "intermediate",
+      "count": "5"
+    },
+    {
+      "topic": "linear_algebra",
+      "difficulty": "advanced",
+      "count": "5"
+    },
+    {
+      "topic": "statistics",
+      "difficulty": "beginner",
+      "count": "5"
+    },
+    {
+      "topic": "statistics",
+      "difficulty": "intermediate",
+      "count": "5"
+    },
+    {
+      "topic": "statistics",
+      "difficulty": "advanced",
+      "count": "5"
+    },
+    {
+      "topic": "trigonometry",
+      "difficulty": "beginner",
+      "count": "5"
+    },
+    {
+      "topic": "trigonometry",
+      "difficulty": "intermediate",
+      "count": "5"
+    },
+    {
+      "topic": "trigonometry",
+      "difficulty": "advanced",
+      "count": "5"
+    }
+  ],
+  "messages": [],
+  "stdout": "topic\tdifficulty\tcount\nalgebra\tbeginner\t5\nalgebra\tintermediate\t5\nalgebra\tadvanced\t5\narithmetic\tbeginner\t5\narithmetic\tintermediate\t5\narithmetic\tadvanced\t5\ncalculus\tbeginner\t5\ncalculus\tintermediate\t5\ncalculus\tadvanced\t5\ndifferential_equations\tbeginner\t5\ndifferential_equations\tintermediate\t5\ndifferential_equations\tadvanced\t5\ngeometry\tbeginner\t5\ngeometry\tintermediate\t5\ngeometry\tadvanced\t5\nlinear_algebra\tbeginner\t5\nlinear_algebra\tintermediate\t5\nlinear_algebra\tadvanced\t5\nstatistics\tbeginner\t5\nstatistics\tintermediate\t5\nstatistics\tadvanced\t5\ntrigonometry\tbeginner\t5\ntrigonometry\tintermediate\t5\ntrigonometry\tadvanced\t5\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

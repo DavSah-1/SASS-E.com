@@ -1,17 +1,19 @@
 import { drizzle } from "drizzle-orm/mysql2";
-import { mathProblems } from "../drizzle/schema.js";
+import { mathProblems } from "../drizzle/schema";
+import { sql } from "drizzle-orm";
 
 // Database connection
-const db = drizzle(process.env.DATABASE_URL);
+const db = drizzle(process.env.DATABASE_URL!);
 
 /**
- * Math Practice Problem Library - 120+ problems across 8 topics
- * 15 problems per topic (5 beginner, 5 intermediate, 5 advanced)
+ * Comprehensive Math Practice Problem Library - 120 problems
+ * 15 problems per topic × 8 topics = 120 total
+ * Each topic: 5 beginner + 5 intermediate + 5 advanced
  */
 
 const problemLibrary = [
   // ============================================================================
-  // ALGEBRA (15 problems)
+  // ALGEBRA (15 problems) - Linear equations, quadratics, systems, polynomials, exponentials
   // ============================================================================
   {
     topic: "algebra",
@@ -26,11 +28,7 @@ const problemLibrary = [
       { step: 4, work: "x = 8 / 2", explanation: "Divide both sides by 2" },
       { step: 5, work: "x = 4", explanation: "Final answer" }
     ]),
-    hints: JSON.stringify([
-      "Start by isolating the term with x",
-      "Subtract 5 from both sides",
-      "Then divide by the coefficient of x"
-    ]),
+    hints: JSON.stringify(["Start by isolating the term with x", "Subtract 5 from both sides", "Then divide by the coefficient of x"]),
     explanation: "Linear equations are solved by isolating the variable through inverse operations.",
     relatedConcepts: JSON.stringify(["inverse operations", "equation solving", "variable isolation"])
   },
@@ -190,7 +188,7 @@ const problemLibrary = [
   },
 
   // ============================================================================
-  // CALCULUS (15 problems)
+  // CALCULUS (15 problems) - Derivatives, integrals, limits, optimization, related rates
   // ============================================================================
   {
     topic: "calculus",
@@ -274,7 +272,7 @@ const problemLibrary = [
     subtopic: "quotient_rule",
     difficulty: "intermediate",
     problemText: "Find the derivative of f(x) = (2x + 1)/(x² + 1)",
-    answer: "f'(x) = (2x² + 2 - 4x² - 2x)/(x² + 1)²",
+    answer: "f'(x) = (2 - 4x² - 2x)/(x² + 1)²",
     solution: JSON.stringify([]),
     hints: JSON.stringify(["Use quotient rule: (u/v)' = (u'v - uv')/v²"]),
     explanation: "Quotient rule is used for derivatives of fractions.",
@@ -431,7 +429,7 @@ const problemLibrary = [
     topic: "geometry",
     subtopic: "similar_triangles",
     difficulty: "intermediate",
-    problemText: "Two similar triangles have corresponding sides 4 and 6. If the smaller triangle has area 8 cm², find the area of the larger triangle.",
+    problemText: "Two similar triangles have corresponding sides 4 and 6. If the smaller has area 8 cm², find the larger triangle's area.",
     answer: "18 cm²",
     solution: JSON.stringify([]),
     hints: JSON.stringify(["Ratio of areas equals square of ratio of sides", "(6/4)² = 9/4"]),
@@ -1277,7 +1275,7 @@ const problemLibrary = [
     subtopic: "linear_first_order",
     difficulty: "intermediate",
     problemText: "Solve: dy/dx + y = e^x",
-    answer: "y = (x + C)e^(-x) + e^x",
+    answer: "y = (x/2 + C)e^x",
     solution: JSON.stringify([]),
     hints: JSON.stringify(["Use integrating factor method", "μ(x) = e^x"]),
     explanation: "Integrating factors solve linear first-order DEs.",
@@ -1373,17 +1371,39 @@ const problemLibrary = [
   }
 ];
 
-console.log(`Seeding ${problemLibrary.length} math problems...`);
+async function seedProblems() {
+  console.log("🗑️  Clearing existing math problems...");
+  
+  // Clear existing problems
+  await db.delete(mathProblems);
+  
+  console.log(`📚 Seeding ${problemLibrary.length} math problems...`);
 
-// Insert all problems
-for (const problem of problemLibrary) {
-  try {
-    await db.insert(mathProblems).values(problem);
-  } catch (error) {
-    console.error(`Error inserting problem: ${problem.problemText}`, error);
+  // Insert all problems
+  for (const problem of problemLibrary) {
+    try {
+      await db.insert(mathProblems).values(problem);
+    } catch (error) {
+      console.error(`Error inserting problem: ${problem.problemText}`, error);
+    }
   }
+
+  console.log("✅ Math problem library seeded successfully!");
+  console.log(`Total problems: ${problemLibrary.length}`);
+  console.log("Topics covered: Algebra, Calculus, Geometry, Trigonometry, Statistics, Arithmetic, Linear Algebra, Differential Equations");
+  
+  // Verify distribution
+  const distribution = await db.execute(sql`
+    SELECT topic, difficulty, COUNT(*) as count 
+    FROM math_problems 
+    GROUP BY topic, difficulty 
+    ORDER BY topic, difficulty
+  `);
+  
+  console.log("\n📊 Problem Distribution:");
+  console.table(distribution.rows);
+  
+  process.exit(0);
 }
 
-console.log("✅ Math problem library seeded successfully!");
-console.log(`Total problems: ${problemLibrary.length}`);
-console.log("Topics covered: Algebra, Calculus, Geometry, Trigonometry, Statistics, Arithmetic, Linear Algebra, Differential Equations");
+seedProblems();

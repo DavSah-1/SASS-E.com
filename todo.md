@@ -709,3 +709,12 @@
 - [x] Update Math Tutor UI with practice library browser
 - [x] Add topic filter and difficulty selector
 - [x] Test problem selection and solving workflow
+
+
+## Expand Math Problem Library to 120+
+- [x] Create comprehensive seed script with 120+ problems
+- [x] Ensure 15 problems per topic (5 beginner, 5 intermediate, 5 advanced)
+- [x] Cover diverse subtopics for each main topic
+- [x] Clear existing problems from database
+- [x] Seed expanded problem library
+- [x] Verify problem distribution across topics and difficulties
