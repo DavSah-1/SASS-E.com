@@ -35,6 +35,9 @@ export default function MathTutor() {
   const [solution, setSolution] = useState<Solution | null>(null);
   const [userAnswer, setUserAnswer] = useState("");
   const [checkResult, setCheckResult] = useState<any>(null);
+  const [selectedTopic, setSelectedTopic] = useState<string>("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState<"beginner" | "intermediate" | "advanced" | "">("");
+  const [showPracticeLibrary, setShowPracticeLibrary] = useState(false);
 
   const solveMutation = trpc.math.solveProblem.useMutation({
     onSuccess: (data) => {
@@ -68,6 +71,15 @@ export default function MathTutor() {
   const solutionHistoryQuery = trpc.math.getSolutionHistory.useQuery(
     { limit: 10 },
     { enabled: isAuthenticated }
+  );
+
+  const practiceProblemsQuery = trpc.math.getPracticeProblems.useQuery(
+    {
+      topic: selectedTopic || undefined,
+      difficulty: (selectedDifficulty || undefined) as "beginner" | "intermediate" | "advanced" | undefined,
+      limit: 20,
+    },
+    { enabled: isAuthenticated && showPracticeLibrary }
   );
 
   const handleSolveProblem = () => {
@@ -240,6 +252,13 @@ export default function MathTutor() {
                     {solveMutation.isPending ? "Solving..." : "Solve Problem"}
                   </Button>
                   <Button
+                    onClick={() => setShowPracticeLibrary(!showPracticeLibrary)}
+                    variant="outline"
+                    className="flex-1 border-blue-600 text-blue-400 hover:bg-blue-900/30"
+                  >
+                    {showPracticeLibrary ? "Hide Library" : "Practice Library"}
+                  </Button>
+                  <Button
                     onClick={handleNewProblem}
                     variant="outline"
                     className="flex-1 border-slate-600 text-white hover:bg-slate-800"
@@ -249,6 +268,110 @@ export default function MathTutor() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Practice Library */}
+            {showPracticeLibrary && (
+              <Card className="bg-slate-800/50 border-blue-500/30">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-white">
+                    📚 Practice Problem Library
+                  </CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Browse curated problems by topic and difficulty
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Filters */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="filterTopic" className="text-white">Filter by Topic</Label>
+                      <Select value={selectedTopic} onValueChange={setSelectedTopic}>
+                        <SelectTrigger className="bg-slate-900/50 border-slate-700 text-white">
+                          <SelectValue placeholder="All topics" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All Topics</SelectItem>
+                          <SelectItem value="algebra">Algebra</SelectItem>
+                          <SelectItem value="calculus">Calculus</SelectItem>
+                          <SelectItem value="geometry">Geometry</SelectItem>
+                          <SelectItem value="trigonometry">Trigonometry</SelectItem>
+                          <SelectItem value="statistics">Statistics</SelectItem>
+                          <SelectItem value="arithmetic">Arithmetic</SelectItem>
+                          <SelectItem value="linear_algebra">Linear Algebra</SelectItem>
+                          <SelectItem value="differential_equations">Differential Equations</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="filterDifficulty" className="text-white">Filter by Difficulty</Label>
+                      <Select value={selectedDifficulty} onValueChange={(v) => setSelectedDifficulty(v as any)}>
+                        <SelectTrigger className="bg-slate-900/50 border-slate-700 text-white">
+                          <SelectValue placeholder="All difficulties" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All Difficulties</SelectItem>
+                          <SelectItem value="beginner">Beginner</SelectItem>
+                          <SelectItem value="intermediate">Intermediate</SelectItem>
+                          <SelectItem value="advanced">Advanced</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Problem List */}
+                  {practiceProblemsQuery.isLoading ? (
+                    <p className="text-gray-400 text-sm">Loading problems...</p>
+                  ) : practiceProblemsQuery.data && practiceProblemsQuery.data.length > 0 ? (
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {practiceProblemsQuery.data.map((problem) => (
+                        <div
+                          key={problem.id}
+                          className="p-3 bg-slate-900/50 rounded-lg border border-slate-700 hover:border-blue-500/50 transition-colors cursor-pointer"
+                          onClick={() => {
+                            setProblemText(problem.problemText);
+                            setTopic(problem.topic);
+                            setShowPracticeLibrary(false);
+                            setSolution(null);
+                            setCheckResult(null);
+                            toast.success("Problem loaded! Click 'Solve Problem' to see the solution.");
+                          }}
+                        >
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <p className="text-white text-sm font-medium flex-1">
+                              {problem.problemText}
+                            </p>
+                            <div className="flex gap-1 flex-shrink-0">
+                              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                problem.difficulty === 'beginner' ? 'bg-green-900/30 text-green-400 border border-green-500/50' :
+                                problem.difficulty === 'intermediate' ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-500/50' :
+                                'bg-red-900/30 text-red-400 border border-red-500/50'
+                              }`}>
+                                {problem.difficulty}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-blue-400 capitalize">
+                              {problem.topic.replace('_', ' ')}
+                            </span>
+                            {problem.subtopic && (
+                              <>
+                                <span className="text-gray-600">•</span>
+                                <span className="text-gray-500 capitalize">
+                                  {problem.subtopic.replace('_', ' ')}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-400 text-sm">No problems found. Try different filters.</p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Solution Display */}
             {solution && (

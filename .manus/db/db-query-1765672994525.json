@@ -1,0 +1,70 @@
+{
+  "query": "SELECT COUNT(*) as total, topic, difficulty FROM math_problems GROUP BY topic, difficulty ORDER BY topic, difficulty;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT COUNT(*) as total, topic, difficulty FROM math_problems GROUP BY topic, difficulty ORDER BY topic, difficulty;",
+  "rows": [
+    {
+      "total": "5",
+      "topic": "algebra",
+      "difficulty": "beginner"
+    },
+    {
+      "total": "5",
+      "topic": "algebra",
+      "difficulty": "intermediate"
+    },
+    {
+      "total": "5",
+      "topic": "algebra",
+      "difficulty": "advanced"
+    },
+    {
+      "total": "1",
+      "topic": "arithmetic",
+      "difficulty": "beginner"
+    },
+    {
+      "total": "5",
+      "topic": "calculus",
+      "difficulty": "beginner"
+    },
+    {
+      "total": "5",
+      "topic": "calculus",
+      "difficulty": "intermediate"
+    },
+    {
+      "total": "5",
+      "topic": "calculus",
+      "difficulty": "advanced"
+    },
+    {
+      "total": "1",
+      "topic": "differential_equations",
+      "difficulty": "beginner"
+    },
+    {
+      "total": "1",
+      "topic": "geometry",
+      "difficulty": "beginner"
+    },
+    {
+      "total": "1",
+      "topic": "linear_algebra",
+      "difficulty": "beginner"
+    },
+    {
+      "total": "1",
+      "topic": "statistics",
+      "difficulty": "beginner"
+    },
+    {
+      "total": "1",
+      "topic": "trigonometry",
+      "difficulty": "beginner"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\ttopic\tdifficulty\n5\talgebra\tbeginner\n5\talgebra\tintermediate\n5\talgebra\tadvanced\n1\tarithmetic\tbeginner\n5\tcalculus\tbeginner\n5\tcalculus\tintermediate\n5\tcalculus\tadvanced\n1\tdifferential_equations\tbeginner\n1\tgeometry\tbeginner\n1\tlinear_algebra\tbeginner\n1\tstatistics\tbeginner\n1\ttrigonometry\tbeginner\n",
+  "stderr": "",
+  "execution_time_ms": 177
+}

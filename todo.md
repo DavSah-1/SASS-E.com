@@ -693,3 +693,19 @@
 - [x] Create interactive problem solver with hints system
 - [x] Add Math Tutor card to Specialized Learning Paths section
 - [x] Test all math topics and solution generation
+
+
+## Math Practice Problem Library
+- [x] Create LLM-powered problem generation script for all 8 topics
+- [x] Generate 15+ problems per topic per difficulty (beginner/intermediate/advanced)
+- [x] Seed Algebra problems (linear equations, quadratic equations, polynomials)
+- [x] Seed Calculus problems (derivatives, integrals, limits)
+- [x] Seed Geometry problems (triangles, circles, area/volume)
+- [x] Seed Trigonometry problems (sin/cos/tan, identities, angles)
+- [x] Seed Statistics problems (mean/median/mode, probability, distributions)
+- [x] Seed Arithmetic problems (fractions, percentages, order of operations)
+- [x] Seed Linear Algebra problems (matrices, vectors, systems of equations)
+- [x] Seed Differential Equations problems (first-order, second-order, separable)
+- [x] Update Math Tutor UI with practice library browser
+- [x] Add topic filter and difficulty selector
+- [x] Test problem selection and solving workflow
