@@ -1209,3 +1209,14 @@
 - [x] Factor in refinancing fees and closing costs
 - [x] Provide recommendation on whether to refinance
 - [x] Add time-to-recoup analysis for upfront costs
+
+
+## Receipt Scanner Camera Enhancement
+
+- [x] Add direct camera capture button for mobile devices
+- [x] Implement camera access using getUserMedia API
+- [x] Create camera preview with capture button
+- [x] Support both front and rear camera selection
+- [x] Auto-process captured image through OCR
+- [x] Add mobile-optimized UI for camera mode
+- [x] Implement fallback for devices without camera access
