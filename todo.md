@@ -1244,3 +1244,14 @@
 - [x] Fix SpendingTrendsChart to use currency context
 - [x] Fix RecurringTransactions to use currency context
 - [x] Fix DebtCoach page to use currency context
+
+
+## Currency Support for Loan Components
+
+- [x] Add useCurrency hook to LoanCalculator component
+- [x] Replace hardcoded $ with currency symbol in LoanCalculator
+- [x] Add useCurrency hook to LoanComparison component
+- [x] Replace hardcoded $ with currency symbol in LoanComparison
+- [x] Add useCurrency hook to RefinanceAnalyzer component
+- [x] Replace hardcoded $ with currency symbol in RefinanceAnalyzer
+- [x] Test all loan components with different currencies

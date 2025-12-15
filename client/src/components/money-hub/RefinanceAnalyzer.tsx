@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -44,16 +45,16 @@ function calculateTotalInterest(principal: number, rate: number, months: number)
   return (monthlyPayment * months) - principal;
 }
 
-function formatCurrency(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
+// formatCurrency is defined inside the component using currency context
 
 export function RefinanceAnalyzer() {
+  const { formatRaw } = useCurrency();
+  
+  // Use currency context for formatting
+  const formatCurrency = (cents: number): string => {
+    return formatRaw(cents / 100);
+  };
+  
   const [currentLoan, setCurrentLoan] = useState<CurrentLoan>({
     remainingBalance: 2000000, // $20,000
     annualInterestRate: 8.5,

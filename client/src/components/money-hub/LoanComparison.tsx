@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -56,14 +57,7 @@ function calculateLoanResult(scenario: LoanScenario): LoanResult {
   return { monthlyPayment, totalPayment, totalInterest };
 }
 
-function formatCurrency(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
+
 
 const DEFAULT_SCENARIOS: LoanScenario[] = [
   { id: "1", name: "Option A", principal: 2500000, annualInterestRate: 6.5, termMonths: 48 },
@@ -71,6 +65,13 @@ const DEFAULT_SCENARIOS: LoanScenario[] = [
 ];
 
 export function LoanComparison() {
+  const { formatRaw } = useCurrency();
+  
+  // Use currency context for formatting
+  const formatCurrency = (cents: number): string => {
+    return formatRaw(cents / 100);
+  };
+  
   const [scenarios, setScenarios] = useState<LoanScenario[]>(DEFAULT_SCENARIOS);
   
   const results = useMemo(() => {

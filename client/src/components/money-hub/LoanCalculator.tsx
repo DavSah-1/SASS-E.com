@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useEffect, forwardRef, useImperativeHandle } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -92,12 +93,7 @@ function generateAmortization(
   return entries;
 }
 
-function formatCurrency(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(cents / 100);
-}
+// formatCurrency is now passed as a prop or uses context inside the component
 
 export interface LoanCalculatorProps {
   initialValues?: {
@@ -116,6 +112,13 @@ export interface LoanCalculatorRef {
 
 export const LoanCalculator = forwardRef<LoanCalculatorRef, LoanCalculatorProps>(
   function LoanCalculator({ initialValues, onValuesChange }, ref) {
+  const { formatRaw } = useCurrency();
+  
+  // Use currency context for formatting
+  const formatCurrency = (cents: number): string => {
+    return formatRaw(cents / 100);
+  };
+  
   const [loanInput, setLoanInput] = useState<LoanInput>({
     principal: initialValues?.principal ?? 2500000, // $25,000
     annualInterestRate: initialValues?.annualInterestRate ?? 6.5,
