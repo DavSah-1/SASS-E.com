@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Navigation } from "@/components/Navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCurrency, CURRENCY_LIST, CurrencyCode } from "@/contexts/CurrencyContext";
 import { Language, getLanguageName, getLanguageFlag } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
-import { User, Globe, Activity, TrendingUp, MessageSquare } from "lucide-react";
+import { User, Globe, Activity, TrendingUp, MessageSquare, DollarSign } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -16,8 +17,11 @@ const SUPPORTED_LANGUAGES: Language[] = ['en', 'es', 'fr', 'de'];
 export default function Profile() {
   const { user, loading } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { currency, setCurrency } = useCurrency();
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(language);
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>(currency);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingCurrency, setIsSavingCurrency] = useState(false);
 
   const profileQuery = trpc.assistant.getProfile.useQuery(undefined, {
     enabled: !!user,
@@ -26,6 +30,30 @@ export default function Profile() {
   useEffect(() => {
     setSelectedLanguage(language);
   }, [language]);
+
+  useEffect(() => {
+    setSelectedCurrency(currency);
+  }, [currency]);
+
+  const handleCurrencyChange = async (newCurrency: CurrencyCode) => {
+    setSelectedCurrency(newCurrency);
+    setIsSavingCurrency(true);
+    
+    try {
+      setCurrency(newCurrency);
+      const currencyInfo = CURRENCY_LIST.find(c => c.code === newCurrency);
+      toast.success("Currency Updated", {
+        description: `Currency changed to ${currencyInfo?.name || newCurrency}`,
+      });
+    } catch (error) {
+      console.error('Failed to save currency preference:', error);
+      toast.error("Error", {
+        description: 'Failed to save currency preference',
+      });
+    } finally {
+      setIsSavingCurrency(false);
+    }
+  };
 
   const handleLanguageChange = async (newLang: Language) => {
     setSelectedLanguage(newLang);
@@ -157,6 +185,51 @@ export default function Profile() {
                 </Select>
                 <p className="text-xs text-slate-400">
                   Your language preference is automatically saved and will be used across all pages
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Currency Preference */}
+          <Card className="bg-slate-800/50 border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white">
+                <DollarSign className="h-5 w-5" />
+                Currency Preference
+              </CardTitle>
+              <CardDescription className="text-slate-400">
+                Choose your preferred currency for Money Hub
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="currency" className="text-slate-300">
+                  Display Currency
+                </Label>
+                <Select
+                  value={selectedCurrency}
+                  onValueChange={(value) => handleCurrencyChange(value as CurrencyCode)}
+                  disabled={isSavingCurrency}
+                >
+                  <SelectTrigger id="currency" className="bg-slate-700/50 border-purple-500/30 text-white">
+                    <SelectValue>
+                      {CURRENCY_LIST.find(c => c.code === selectedCurrency)?.symbol} {CURRENCY_LIST.find(c => c.code === selectedCurrency)?.name}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-purple-500/30 max-h-64">
+                    {CURRENCY_LIST.map((curr) => (
+                      <SelectItem key={curr.code} value={curr.code} className="text-white hover:bg-slate-700">
+                        <span className="flex items-center gap-2">
+                          <span className="font-mono w-8">{curr.symbol}</span>
+                          <span>{curr.name}</span>
+                          <span className="text-slate-400 text-xs">({curr.code})</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-slate-400">
+                  This currency will be used throughout Money Hub for displaying amounts
                 </p>
               </div>
             </CardContent>

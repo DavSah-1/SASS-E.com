@@ -25,6 +25,7 @@ import {
   Clock,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { LoanCalculator, LoanCalculatorRef } from "@/components/money-hub/LoanCalculator";
 import { LoanComparison } from "@/components/money-hub/LoanComparison";
 import { RefinanceAnalyzer } from "@/components/money-hub/RefinanceAnalyzer";
@@ -32,6 +33,7 @@ import { Calculator } from "lucide-react";
 
 export default function DebtCoach() {
   const { user, isAuthenticated, loading } = useAuth();
+  const { symbol: currencySymbol, formatRaw } = useCurrency();
   const [addDebtOpen, setAddDebtOpen] = useState(false);
   const [paymentDebtId, setPaymentDebtId] = useState<number | null>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<"snowball" | "avalanche">("snowball");

@@ -24,6 +24,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { SpendingTrendsChart } from "@/components/money-hub/SpendingTrendsChart";
 import { BudgetTemplates } from "@/components/money-hub/BudgetTemplates";
 import { RecurringTransactions } from "@/components/money-hub/RecurringTransactions";
@@ -32,6 +33,7 @@ import { ReceiptScanner } from "@/components/money-hub/ReceiptScanner";
 
 export default function Budget() {
   const { user, isAuthenticated, loading } = useAuth();
+  const { symbol: currencySymbol, formatRaw } = useCurrency();
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -549,6 +551,7 @@ function AddTransactionForm({
   onSubmit: (data: any) => void;
   isSubmitting: boolean;
 }) {
+  const { symbol: currencySymbol } = useCurrency();
   const [formData, setFormData] = useState({
     categoryId: "",
     amount: "",
@@ -611,7 +614,7 @@ function AddTransactionForm({
       </div>
 
       <div>
-        <Label htmlFor="amount">Amount ($) *</Label>
+        <Label htmlFor="amount">Amount ({currencySymbol}) *</Label>
         <Input
           id="amount"
           type="number"
@@ -670,6 +673,7 @@ function AddCategoryForm({
   onSubmit: (data: any) => void;
   isSubmitting: boolean;
 }) {
+  const { symbol: currencySymbol } = useCurrency();
   const [formData, setFormData] = useState({
     name: "",
     type: "expense" as const,
@@ -725,7 +729,7 @@ function AddCategoryForm({
 
       {formData.type === "expense" && (
         <div>
-          <Label htmlFor="monthlyLimit">Monthly Limit ($)</Label>
+          <Label htmlFor="monthlyLimit">Monthly Limit ({currencySymbol})</Label>
           <Input
             id="monthlyLimit"
             type="number"

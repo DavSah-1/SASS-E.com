@@ -18,6 +18,7 @@ export const users = mysqlTable("users", {
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   preferredLanguage: varchar("preferredLanguage", { length: 10 }).default("en"),
+  preferredCurrency: varchar("preferredCurrency", { length: 3 }).default("USD"),
   subscriptionTier: mysqlEnum("subscriptionTier", ["free", "pro"]).default("free").notNull(),
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "inactive", "trial"]).default("inactive").notNull(),
   subscriptionExpiresAt: timestamp("subscriptionExpiresAt"),

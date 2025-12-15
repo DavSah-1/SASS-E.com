@@ -1,6 +1,9 @@
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { notifyOwner } from "./notification";
-import { adminProcedure, publicProcedure, router } from "./trpc";
+import { adminProcedure, protectedProcedure, publicProcedure, router } from "./trpc";
+import { getDb } from "../db";
+import { users } from "../../drizzle/schema";
 
 export const systemRouter = router({
   health: publicProcedure
@@ -25,5 +28,25 @@ export const systemRouter = router({
       return {
         success: delivered,
       } as const;
+    }),
+
+  updateCurrency: protectedProcedure
+    .input(
+      z.object({
+        currency: z.string().length(3, "Currency code must be 3 characters"),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) {
+        return { success: false, error: "Database not available" };
+      }
+
+      await db
+        .update(users)
+        .set({ preferredCurrency: input.currency })
+        .where(eq(users.openId, ctx.user.openId));
+
+      return { success: true };
     }),
 });

@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `preferredCurrency` varchar(3) DEFAULT 'USD';

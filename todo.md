@@ -1220,3 +1220,14 @@
 - [x] Auto-process captured image through OCR
 - [x] Add mobile-optimized UI for camera mode
 - [x] Implement fallback for devices without camera access
+
+
+## Currency Selector Feature
+
+- [x] Add currency preference field to user settings in database
+- [x] Create currency selector dropdown in Profile page
+- [x] Support major currencies (USD, EUR, GBP, JPY, CAD, AUD, etc.)
+- [x] Save currency preference to database
+- [x] Create currency context/hook for global access
+- [x] Update Money Hub components to use selected currency symbol
+- [x] Format amounts with proper currency symbol and locale
