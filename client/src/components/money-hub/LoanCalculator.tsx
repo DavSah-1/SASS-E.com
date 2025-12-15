@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,13 +99,59 @@ function formatCurrency(cents: number): string {
   }).format(cents / 100);
 }
 
-export function LoanCalculator() {
+export interface LoanCalculatorProps {
+  initialValues?: {
+    principal?: number;
+    annualInterestRate?: number;
+    termMonths?: number;
+    debtName?: string;
+  };
+  onValuesChange?: (values: LoanInput) => void;
+}
+
+export interface LoanCalculatorRef {
+  setValues: (values: Partial<LoanInput> & { debtName?: string }) => void;
+  scrollIntoView: () => void;
+}
+
+export const LoanCalculator = forwardRef<LoanCalculatorRef, LoanCalculatorProps>(
+  function LoanCalculator({ initialValues, onValuesChange }, ref) {
   const [loanInput, setLoanInput] = useState<LoanInput>({
-    principal: 2500000, // $25,000
-    annualInterestRate: 6.5,
-    termMonths: 60,
+    principal: initialValues?.principal ?? 2500000, // $25,000
+    annualInterestRate: initialValues?.annualInterestRate ?? 6.5,
+    termMonths: initialValues?.termMonths ?? 60,
     extraMonthlyPayment: 0,
   });
+  
+  const [prefilledFrom, setPrefilledFrom] = useState<string | null>(null);
+  const cardRef = React.useRef<HTMLDivElement>(null);
+  
+  // Expose methods via ref
+  useImperativeHandle(ref, () => ({
+    setValues: (values) => {
+      setLoanInput(prev => ({
+        ...prev,
+        principal: values.principal ?? prev.principal,
+        annualInterestRate: values.annualInterestRate ?? prev.annualInterestRate,
+        termMonths: values.termMonths ?? prev.termMonths,
+      }));
+      if (values.debtName) {
+        setPrefilledFrom(values.debtName);
+      }
+      setActiveTab("calculator");
+    },
+    scrollIntoView: () => {
+      cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+  }));
+  
+  // Clear prefilled indicator after user makes changes
+  useEffect(() => {
+    if (prefilledFrom) {
+      const timer = setTimeout(() => setPrefilledFrom(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [prefilledFrom]);
   
   const [showFullSchedule, setShowFullSchedule] = useState(false);
   const [activeTab, setActiveTab] = useState("calculator");
@@ -163,18 +209,23 @@ export function LoanCalculator() {
   };
   
   return (
-    <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700">
+    <Card ref={cardRef} className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700">
       <CardHeader>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="p-2 bg-blue-500/20 rounded-lg">
             <Calculator className="h-6 w-6 text-blue-400" />
           </div>
-          <div>
+          <div className="flex-1">
             <CardTitle className="text-white">Loan Interest Calculator</CardTitle>
             <CardDescription>
               See the true cost of your loan and how extra payments can save you money
             </CardDescription>
           </div>
+          {prefilledFrom && (
+            <Badge variant="secondary" className="bg-green-600/20 text-green-400 border-green-600">
+              Loaded from: {prefilledFrom}
+            </Badge>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -518,8 +569,8 @@ export function LoanCalculator() {
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>
+     </Card>
   );
-}
+});
 
 export default LoanCalculator;

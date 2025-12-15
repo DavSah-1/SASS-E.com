@@ -1182,3 +1182,30 @@
 - [x] Add calculator to Debt Coach section
 - [ ] Link existing debts to calculator for analysis
 - [x] Add demo version for Money Hub Demo page
+
+
+## Loan Calculator Enhancements
+
+### Link Existing Debts to Calculator
+- [x] Add "Calculate" button to each debt card in Debt Coach
+- [x] Create state management to pass debt data to calculator
+- [x] Pre-fill calculator with debt's current balance, interest rate, and term
+- [x] Scroll to calculator section when button is clicked
+- [x] Highlight pre-filled values to show they came from a debt
+
+### Loan Comparison Tool
+- [x] Create LoanComparison component for side-by-side analysis
+- [x] Support comparing 2-3 loan scenarios simultaneously
+- [x] Show differences in monthly payment, total interest, total cost
+- [x] Add visual comparison charts (bar chart for costs)
+- [x] Include payoff timeline comparison
+- [x] Highlight the best option based on user preference (lowest payment vs lowest total cost)
+
+### Refinance Analyzer
+- [x] Create RefinanceAnalyzer component
+- [x] Input fields for current loan details and new loan offer
+- [x] Calculate break-even point for refinancing costs
+- [x] Show monthly savings and total savings over loan life
+- [x] Factor in refinancing fees and closing costs
+- [x] Provide recommendation on whether to refinance
+- [x] Add time-to-recoup analysis for upfront costs

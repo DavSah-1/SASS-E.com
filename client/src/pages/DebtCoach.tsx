@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Navigation } from "@/components/Navigation";
 import { trpc } from "@/lib/trpc";
@@ -25,13 +25,30 @@ import {
   Clock,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
-import { LoanCalculator } from "@/components/money-hub/LoanCalculator";
+import { LoanCalculator, LoanCalculatorRef } from "@/components/money-hub/LoanCalculator";
+import { LoanComparison } from "@/components/money-hub/LoanComparison";
+import { RefinanceAnalyzer } from "@/components/money-hub/RefinanceAnalyzer";
+import { Calculator } from "lucide-react";
 
 export default function DebtCoach() {
   const { user, isAuthenticated, loading } = useAuth();
   const [addDebtOpen, setAddDebtOpen] = useState(false);
   const [paymentDebtId, setPaymentDebtId] = useState<number | null>(null);
   const [selectedStrategy, setSelectedStrategy] = useState<"snowball" | "avalanche">("snowball");
+  const calculatorRef = useRef<LoanCalculatorRef>(null);
+  
+  // Function to send debt to calculator
+  const sendToCalculator = (debt: { name: string; currentBalance: number; interestRate: number }) => {
+    if (calculatorRef.current) {
+      calculatorRef.current.setValues({
+        principal: debt.currentBalance,
+        annualInterestRate: debt.interestRate,
+        termMonths: 60, // Default to 60 months, user can adjust
+        debtName: debt.name,
+      });
+      calculatorRef.current.scrollIntoView();
+    }
+  };
 
   // Fetch data
   const { data: debts, refetch: refetchDebts } = trpc.debtCoach.getDebts.useQuery(
@@ -363,6 +380,20 @@ export default function DebtCoach() {
                     </div>
 
                     {/* Actions */}
+                    <div className="flex gap-2 mb-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1 gap-2 border-blue-600 text-blue-400 hover:bg-blue-600/20"
+                        onClick={() => sendToCalculator({
+                          name: debt.debtName,
+                          currentBalance: debt.currentBalance,
+                          interestRate: debt.interestRate,
+                        })}
+                      >
+                        <Calculator className="h-4 w-4" />
+                        Calculate
+                      </Button>
+                    </div>
                     <Dialog
                       open={paymentDebtId === debt.id}
                       onOpenChange={(open) => setPaymentDebtId(open ? debt.id : null)}
@@ -558,7 +589,17 @@ export default function DebtCoach() {
 
         {/* Loan Interest Calculator */}
         <div className="mb-8">
-          <LoanCalculator />
+          <LoanCalculator ref={calculatorRef} />
+        </div>
+        
+        {/* Loan Comparison Tool */}
+        <div className="mb-8">
+          <LoanComparison />
+        </div>
+        
+        {/* Refinance Analyzer */}
+        <div className="mb-8">
+          <RefinanceAnalyzer />
         </div>
       </div>
     </div>
