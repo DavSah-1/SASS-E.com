@@ -112,7 +112,7 @@ export interface LoanCalculatorRef {
 
 export const LoanCalculator = forwardRef<LoanCalculatorRef, LoanCalculatorProps>(
   function LoanCalculator({ initialValues, onValuesChange }, ref) {
-  const { formatRaw } = useCurrency();
+  const { formatRaw, symbol: currencySymbol } = useCurrency();
   
   // Use currency context for formatting
   const formatCurrency = (cents: number): string => {
@@ -255,7 +255,7 @@ export const LoanCalculator = forwardRef<LoanCalculatorRef, LoanCalculatorProps>
                   Loan Amount
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{currencySymbol}</span>
                   <Input
                     id="principal"
                     type="number"
@@ -320,7 +320,7 @@ export const LoanCalculator = forwardRef<LoanCalculatorRef, LoanCalculatorProps>
                   </TooltipProvider>
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{currencySymbol}</span>
                   <Input
                     id="extra"
                     type="number"

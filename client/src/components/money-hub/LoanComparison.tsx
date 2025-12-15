@@ -65,7 +65,7 @@ const DEFAULT_SCENARIOS: LoanScenario[] = [
 ];
 
 export function LoanComparison() {
-  const { formatRaw } = useCurrency();
+  const { formatRaw, symbol: currencySymbol } = useCurrency();
   
   // Use currency context for formatting
   const formatCurrency = (cents: number): string => {
@@ -186,7 +186,7 @@ export function LoanComparison() {
                 <div>
                   <Label className="text-slate-400 text-xs">Loan Amount</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{currencySymbol}</span>
                     <Input
                       type="number"
                       value={scenario.principal / 100}

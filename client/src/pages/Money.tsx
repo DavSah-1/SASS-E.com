@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { useLocation } from "wouter";
 import { Navigation } from "@/components/Navigation";
 import { trpc } from "@/lib/trpc";
@@ -112,12 +113,10 @@ export default function Money() {
   // Fetch goals data
   const { data: goals } = trpc.goals.getGoals.useQuery({ includeCompleted: false }, { enabled: isAuthenticated });
 
-  // Format currency
+  // Format currency using context
+  const { formatRaw } = useCurrency();
   const formatCurrency = (cents: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(cents / 100);
+    return formatRaw(cents / 100);
   };
 
   // Calculate financial health score (0-100)

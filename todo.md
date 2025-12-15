@@ -1255,3 +1255,14 @@
 - [x] Add useCurrency hook to RefinanceAnalyzer component
 - [x] Replace hardcoded $ with currency symbol in RefinanceAnalyzer
 - [x] Test all loan components with different currencies
+
+
+## Currency Symbol in Input Fields
+
+- [x] Add currency symbol prefix to LoanCalculator input fields
+- [x] Add currency symbol prefix to LoanComparison input fields
+- [x] Add currency symbol prefix to RefinanceAnalyzer input fields
+- [x] Add currency symbol prefix to Budget page transaction inputs
+- [x] Add currency symbol prefix to DebtCoach debt entry inputs
+- [x] Update Overview tab to use selected currency symbol
+- [x] Test all input fields display correct currency symbol

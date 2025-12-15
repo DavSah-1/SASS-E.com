@@ -48,7 +48,7 @@ function calculateTotalInterest(principal: number, rate: number, months: number)
 // formatCurrency is defined inside the component using currency context
 
 export function RefinanceAnalyzer() {
-  const { formatRaw } = useCurrency();
+  const { formatRaw, symbol: currencySymbol } = useCurrency();
   
   // Use currency context for formatting
   const formatCurrency = (cents: number): string => {
@@ -176,7 +176,7 @@ export function RefinanceAnalyzer() {
               <div>
                 <Label className="text-slate-400 text-xs">Remaining Balance</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{currencySymbol}</span>
                   <Input
                     type="number"
                     value={currentLoan.remainingBalance / 100}
@@ -216,7 +216,7 @@ export function RefinanceAnalyzer() {
               <div>
                 <Label className="text-slate-400 text-xs">Current Monthly Payment</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{currencySymbol}</span>
                   <Input
                     type="number"
                     value={currentLoan.monthlyPayment / 100}
@@ -281,7 +281,7 @@ export function RefinanceAnalyzer() {
               <div>
                 <Label className="text-slate-400 text-xs">Closing Costs / Fees</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">{currencySymbol}</span>
                   <Input
                     type="number"
                     value={newLoan.closingCosts / 100}
