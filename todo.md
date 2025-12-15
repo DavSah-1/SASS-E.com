@@ -1266,3 +1266,10 @@
 - [x] Add currency symbol prefix to DebtCoach debt entry inputs
 - [x] Update Overview tab to use selected currency symbol
 - [x] Test all input fields display correct currency symbol
+
+
+## Navbar Cleanup
+
+- [x] Remove Voice Assistant link from navbar
+- [x] Remove IoT Devices link from navbar
+- [x] Change Home link to icon-only (remove text)

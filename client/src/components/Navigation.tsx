@@ -23,17 +23,8 @@ export function Navigation() {
           </span>
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-4 lg:gap-6 ml-4 lg:ml-8">
-            <a href="/" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+            <a href="/" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center" title="Home">
               <HomeIcon className="h-4 w-4" />
-              {t.nav.home}
-            </a>
-            <a href="/assistant" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-              <Mic className="h-4 w-4" />
-              {t.nav.voiceAssistant}
-            </a>
-            <a href="/devices" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-              <Lightbulb className="h-4 w-4" />
-              {t.nav.iotDevices}
             </a>
             <a href="/learning" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <GraduationCap className="h-4 w-4" />
@@ -96,25 +87,10 @@ export function Navigation() {
               href="/"
               className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
+              title="Home"
             >
               <HomeIcon className="h-5 w-5" />
               <span>{t.nav.home}</span>
-            </a>
-            <a
-              href="/assistant"
-              className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Mic className="h-5 w-5" />
-              <span>{t.nav.voiceAssistant}</span>
-            </a>
-            <a
-              href="/devices"
-              className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Lightbulb className="h-5 w-5" />
-              <span>{t.nav.iotDevices}</span>
             </a>
             <a
               href="/learning"
