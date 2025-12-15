@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
@@ -23,6 +24,7 @@ import { TrendingUp, TrendingDown, Minus, Download } from "lucide-react";
 type ChartType = "line" | "bar" | "pie";
 
 export function SpendingTrendsChart() {
+  const { symbol: currencySymbol, formatRaw } = useCurrency();
   const [chartType, setChartType] = useState<ChartType>("line");
   const [monthsBack, setMonthsBack] = useState(6);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>(undefined);
@@ -113,7 +115,7 @@ export function SpendingTrendsChart() {
             <CardHeader className="pb-2">
               <CardDescription>Avg Monthly Income</CardDescription>
               <CardTitle className="text-2xl text-green-600">
-                ${(summaryData.summary.avgMonthlyIncome / 100).toFixed(2)}
+                {formatRaw(summaryData.summary.avgMonthlyIncome / 100)}
               </CardTitle>
             </CardHeader>
           </Card>
@@ -121,7 +123,7 @@ export function SpendingTrendsChart() {
             <CardHeader className="pb-2">
               <CardDescription>Avg Monthly Expenses</CardDescription>
               <CardTitle className="text-2xl text-red-600 flex items-center gap-2">
-                ${(summaryData.summary.avgMonthlyExpenses / 100).toFixed(2)}
+                {formatRaw(summaryData.summary.avgMonthlyExpenses / 100)}
                 {expenseTrend && (
                   <span className="text-sm flex items-center gap-1">
                     {expenseTrend.direction === "up" && <TrendingUp className="h-4 w-4 text-red-500" />}
@@ -220,9 +222,9 @@ export function SpendingTrendsChart() {
                   <LineChart data={monthlyChartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
-                    <YAxis tickFormatter={(value) => `$${value}`} />
+                    <YAxis tickFormatter={(value) => `${currencySymbol}${value}`} />
                     <Tooltip
-                      formatter={(value: number) => [`$${value.toFixed(2)}`, ""]}
+                      formatter={(value: number) => [`${currencySymbol}${value.toFixed(2)}`, ""]}
                       labelStyle={{ color: "#000" }}
                     />
                     <Legend />
@@ -259,9 +261,9 @@ export function SpendingTrendsChart() {
                   <BarChart data={monthlyChartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
-                    <YAxis tickFormatter={(value) => `$${value}`} />
+                    <YAxis tickFormatter={(value) => `${currencySymbol}${value}`} />
                     <Tooltip
-                      formatter={(value: number) => [`$${value.toFixed(2)}`, ""]}
+                      formatter={(value: number) => [`${currencySymbol}${value.toFixed(2)}`, ""]}
                       labelStyle={{ color: "#000" }}
                     />
                     <Legend />
@@ -279,7 +281,7 @@ export function SpendingTrendsChart() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={(entry) => `${entry.name}: $${entry.value.toFixed(0)}`}
+                      label={(entry) => `${entry.name}: ${currencySymbol}${entry.value.toFixed(0)}`}
                       outerRadius={120}
                       fill="#8884d8"
                       dataKey="value"
@@ -288,7 +290,7 @@ export function SpendingTrendsChart() {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => `$${value.toFixed(2)}`} />
+                    <Tooltip formatter={(value: number) => `${currencySymbol}${value.toFixed(2)}`} />
                   </PieChart>
                 </ResponsiveContainer>
               )}

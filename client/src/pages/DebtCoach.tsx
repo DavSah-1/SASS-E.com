@@ -121,11 +121,9 @@ export default function DebtCoach() {
   });
 
   // Format currency
+  // Use currency context for formatting
   const formatCurrency = (cents: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(cents / 100);
+    return formatRaw(cents / 100);
   };
 
   // Format interest rate
@@ -803,6 +801,7 @@ function PaymentForm({
   onSubmit: (data: any) => void;
   isSubmitting: boolean;
 }) {
+  const { formatRaw } = useCurrency();
   const [formData, setFormData] = useState({
     amount: "",
     paymentType: "extra" as const,
@@ -824,11 +823,9 @@ function PaymentForm({
     onSubmit(data);
   };
 
+  // Use currency context for formatting
   const formatCurrency = (cents: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(cents / 100);
+    return formatRaw(cents / 100);
   };
 
   return (

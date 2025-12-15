@@ -1231,3 +1231,16 @@
 - [x] Create currency context/hook for global access
 - [x] Update Money Hub components to use selected currency symbol
 - [x] Format amounts with proper currency symbol and locale
+
+
+## Currency Selector Bug Fix
+
+- [x] Investigate why currency selector is not working
+- [x] Check CurrencyContext provider setup
+- [x] Verify database update endpoint
+- [x] Test currency selection and persistence
+- [x] Ensure currency symbol displays correctly in Money Hub
+- [x] Fix formatCurrency function in Budget.tsx to use currency context
+- [x] Fix SpendingTrendsChart to use currency context
+- [x] Fix RecurringTransactions to use currency context
+- [x] Fix DebtCoach page to use currency context

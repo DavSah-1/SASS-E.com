@@ -98,12 +98,9 @@ export default function Budget() {
     },
   });
 
-  // Format currency
+  // Format currency - use context currency
   const formatCurrency = (cents: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(cents / 100);
+    return formatRaw(cents / 100);
   };
 
   // Format percentage

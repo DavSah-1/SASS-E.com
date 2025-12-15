@@ -1,5 +1,7 @@
-import { trpc } from "@/lib/trpc";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -8,6 +10,7 @@ import { Repeat, Calendar, TrendingUp, Bell, CheckCircle2, AlertCircle } from "l
 import { toast } from "sonner";
 
 export function RecurringTransactions() {
+  const { symbol: currencySymbol, formatRaw } = useCurrency();
   const utils = trpc.useUtils();
 
   const { data: recurring = [], isLoading } = trpc.budget.getRecurring.useQuery({
@@ -95,19 +98,19 @@ export function RecurringTransactions() {
               <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
                 <p className="text-sm text-gray-400 mb-1">Monthly</p>
                 <p className="text-2xl font-bold text-white">
-                  ${(projections.monthlyTotal / 100).toFixed(2)}
+                  {formatRaw(projections.monthlyTotal / 100)}
                 </p>
               </div>
               <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
                 <p className="text-sm text-gray-400 mb-1">Quarterly</p>
                 <p className="text-2xl font-bold text-white">
-                  ${(projections.quarterlyTotal / 100).toFixed(2)}
+                  {formatRaw(projections.quarterlyTotal / 100)}
                 </p>
               </div>
               <div className="text-center p-4 bg-white/5 rounded-lg border border-white/10">
                 <p className="text-sm text-gray-400 mb-1">Yearly</p>
                 <p className="text-2xl font-bold text-white">
-                  ${(projections.yearlyTotal / 100).toFixed(2)}
+                  {formatRaw(projections.yearlyTotal / 100)}
                 </p>
               </div>
             </div>
@@ -136,7 +139,7 @@ export function RecurringTransactions() {
                     <p className="text-sm text-gray-400">{item.category}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-white font-bold">${(item.amount / 100).toFixed(2)}</p>
+                    <p className="text-white font-bold">{formatRaw(item.amount / 100)}</p>
                     <p className="text-xs text-gray-400">
                       {item.daysUntilDue === 0
                         ? "Today"
@@ -224,7 +227,7 @@ export function RecurringTransactions() {
                     </div>
                     <div className="text-right">
                       <p className="text-xl font-bold text-white">
-                        ${(item.averageAmount / 100).toFixed(2)}
+                        {formatRaw(item.averageAmount / 100)}
                       </p>
                       {item.nextExpectedDate && (
                         <p className="text-xs text-gray-400">
