@@ -25,6 +25,7 @@ import {
   Clock,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
+import { LoanCalculator } from "@/components/money-hub/LoanCalculator";
 
 export default function DebtCoach() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -554,6 +555,11 @@ export default function DebtCoach() {
             </div>
           </div>
         )}
+
+        {/* Loan Interest Calculator */}
+        <div className="mb-8">
+          <LoanCalculator />
+        </div>
       </div>
     </div>
   );

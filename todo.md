@@ -1153,3 +1153,32 @@
 - [x] Add budget sharing and collaboration features
 - [x] Update feature descriptions and benefits
 - [x] Add interactive examples or screenshots
+
+
+## Loan Interest Calculator
+
+### Core Calculations
+- [x] Calculate monthly payment using loan amortization formula
+- [x] Calculate total interest paid over loan lifetime
+- [x] Calculate total cost of loan (principal + interest)
+- [x] Generate amortization schedule with payment breakdown
+- [x] Support different compounding frequencies
+
+### Calculator Features
+- [x] Input fields for principal, interest rate, loan term
+- [x] Real-time calculation as user types
+- [x] Show monthly payment amount
+- [x] Display total interest vs principal comparison
+- [x] Visual breakdown chart (pie/bar)
+- [x] Amortization table with each payment detail
+
+### Extra Payment Analysis
+- [x] Calculate impact of extra monthly payments
+- [x] Show time saved with extra payments
+- [x] Display interest savings from extra payments
+- [x] Compare scenarios side by side
+
+### Integration
+- [x] Add calculator to Debt Coach section
+- [ ] Link existing debts to calculator for analysis
+- [x] Add demo version for Money Hub Demo page

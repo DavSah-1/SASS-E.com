@@ -1392,4 +1392,82 @@ export const budgetRouter = router({
       const summary = await getSettlementSummary(input.budgetId);
       return summary;
     }),
+
+  // ==================== Loan Calculator ====================
+
+  /**
+   * Calculate loan payment details
+   */
+  calculateLoanPayment: protectedProcedure
+    .input(
+      z.object({
+        principal: z.number().int().positive(),
+        annualInterestRate: z.number().min(0).max(100),
+        termMonths: z.number().int().positive().max(600),
+      })
+    )
+    .query(async ({ input }) => {
+      const { calculateMonthlyPayment, getLoanSummary } = await import("./loanCalculator");
+      const payment = calculateMonthlyPayment(input);
+      const summary = getLoanSummary(input);
+      return {
+        ...payment,
+        summary,
+      };
+    }),
+
+  /**
+   * Generate full amortization schedule
+   */
+  getAmortizationSchedule: protectedProcedure
+    .input(
+      z.object({
+        principal: z.number().int().positive(),
+        annualInterestRate: z.number().min(0).max(100),
+        termMonths: z.number().int().positive().max(600),
+        extraMonthlyPayment: z.number().int().min(0).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { generateAmortizationSchedule } = await import("./loanCalculator");
+      const schedule = generateAmortizationSchedule(input);
+      return schedule;
+    }),
+
+  /**
+   * Compare loan with and without extra payments
+   */
+  compareExtraPayments: protectedProcedure
+    .input(
+      z.object({
+        principal: z.number().int().positive(),
+        annualInterestRate: z.number().min(0).max(100),
+        termMonths: z.number().int().positive().max(600),
+        extraMonthlyPayment: z.number().int().positive(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { compareExtraPayments } = await import("./loanCalculator");
+      const comparison = compareExtraPayments(input);
+      return comparison;
+    }),
+
+  /**
+   * Calculate affordability based on income
+   */
+  calculateAffordability: protectedProcedure
+    .input(
+      z.object({
+        monthlyIncome: z.number().int().positive(),
+        maxDebtToIncomeRatio: z.number().min(1).max(100).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { calculateAffordability } = await import("./loanCalculator");
+      const result = calculateAffordability(
+        input.monthlyIncome,
+        input.maxDebtToIncomeRatio
+      );
+      return result;
+    }),
 });

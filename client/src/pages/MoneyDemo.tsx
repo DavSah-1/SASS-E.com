@@ -31,6 +31,7 @@ import {
   Lightbulb,
   Repeat,
   FileText,
+  Calculator,
 } from "lucide-react";
 import {
   DEMO_DEBTS,
@@ -735,6 +736,87 @@ export default function MoneyDemo() {
                       </div>
                     );
                   })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Loan Interest Calculator Demo */}
+            <Card className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/20 rounded-lg">
+                    <Calculator className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-white">Loan Interest Calculator</CardTitle>
+                    <CardDescription>See the true cost of any loan</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Example Calculation */}
+                  <div className="space-y-4">
+                    <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
+                      <h4 className="font-semibold text-white mb-3">Example: $25,000 Car Loan</h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-slate-400">Principal</p>
+                          <p className="text-white font-semibold">$25,000</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400">Interest Rate</p>
+                          <p className="text-white font-semibold">6.5% APR</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400">Term</p>
+                          <p className="text-white font-semibold">60 months</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400">Monthly Payment</p>
+                          <p className="text-blue-400 font-semibold">$489.15</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 bg-purple-900/30 rounded-lg border border-purple-700">
+                        <p className="text-xs text-slate-400">Total Interest</p>
+                        <p className="text-xl font-bold text-purple-400">$4,349</p>
+                      </div>
+                      <div className="p-3 bg-red-900/30 rounded-lg border border-red-700">
+                        <p className="text-xs text-slate-400">Total Cost</p>
+                        <p className="text-xl font-bold text-red-400">$29,349</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Extra Payment Savings */}
+                  <div className="p-4 bg-green-900/20 rounded-lg border border-green-700">
+                    <h4 className="font-semibold text-white mb-3 flex items-center gap-2">
+                      <TrendingDown className="h-5 w-5 text-green-400" />
+                      Extra Payment Impact
+                    </h4>
+                    <p className="text-sm text-slate-300 mb-4">
+                      Adding just $100/month extra saves you money and time!
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 bg-green-900/50 rounded border border-green-600">
+                        <p className="text-xs text-slate-400">Interest Saved</p>
+                        <p className="text-xl font-bold text-green-400">$1,247</p>
+                      </div>
+                      <div className="p-3 bg-blue-900/50 rounded border border-blue-600">
+                        <p className="text-xs text-slate-400">Time Saved</p>
+                        <p className="text-xl font-bold text-blue-400">11 months</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-green-700">
+                      <UpgradeTooltip>
+                        <Button disabled className="w-full opacity-50">
+                          Try Full Calculator
+                        </Button>
+                      </UpgradeTooltip>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
