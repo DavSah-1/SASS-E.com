@@ -91,7 +91,89 @@ export function getVoicesForLanguage(languageCode: string): SpeechSynthesisVoice
 }
 
 /**
- * Get the best voice for a language (prefers native voices)
+ * Score a voice based on quality indicators
+ * Higher score = better quality voice
+ */
+function scoreVoice(voice: SpeechSynthesisVoice): number {
+  let score = 0;
+  const nameLower = voice.name.toLowerCase();
+  
+  // High-quality voice indicators (add significant points)
+  if (nameLower.includes('natural')) score += 100;
+  if (nameLower.includes('neural')) score += 100;
+  if (nameLower.includes('wavenet')) score += 90;
+  if (nameLower.includes('enhanced')) score += 80;
+  if (nameLower.includes('premium')) score += 80;
+  if (nameLower.includes('hd')) score += 70;
+  if (nameLower.includes('studio')) score += 70;
+  
+  // Female voice preference (generally clearer and more pleasant)
+  // Common female voice name patterns across different platforms
+  const femalePatterns = [
+    'female', 'woman', 'girl',
+    'samantha', 'victoria', 'karen', 'moira', 'tessa', 'fiona', 'veena',
+    'paulina', 'monica', 'lucia', 'joana', 'ioana', 'amelie', 'aurelie',
+    'anna', 'petra', 'yuna', 'kyoko', 'o-ren', 'mei-jia', 'sin-ji',
+    'lekha', 'kanya', 'damayanti', 'ellen', 'nora', 'zosia', 'iveta',
+    'laura', 'alva', 'klara', 'yelda', 'milena', 'mariska', 'melina',
+    'carmit', 'lihi', 'sara', 'daria', 'katya', 'maged', 'laila',
+    'google us english', 'google uk english female',
+    'microsoft zira', 'microsoft hazel', 'microsoft susan',
+    'microsoft huihui', 'microsoft yaoyao', 'microsoft hanhan',
+    'microsoft haruka', 'microsoft ayumi', 'microsoft sayaka',
+    'microsoft heami', 'microsoft heera', 'microsoft irina',
+    'microsoft paulina', 'microsoft sabina', 'microsoft hortense',
+    'microsoft hedda', 'microsoft katja', 'microsoft helena',
+    'microsoft elsa', 'microsoft helia', 'microsoft maria',
+    'siri female', 'cortana'
+  ];
+  
+  // Male voice patterns (to deprioritize)
+  const malePatterns = [
+    'male', 'man', 'guy',
+    'alex', 'daniel', 'thomas', 'oliver', 'fred', 'ralph', 'albert',
+    'bruce', 'junior', 'aaron', 'gordon', 'lee', 'rishi', 'sangeeta',
+    'jorge', 'diego', 'juan', 'carlos', 'luca', 'paolo', 'yuri',
+    'xander', 'mads', 'magnus', 'oskar', 'filip', 'andrei', 'maxim',
+    'microsoft david', 'microsoft mark', 'microsoft james',
+    'microsoft george', 'microsoft richard', 'microsoft sean',
+    'microsoft claude', 'microsoft guillaume', 'microsoft paul',
+    'microsoft stefan', 'microsoft michael', 'microsoft ravi',
+    'microsoft hemant', 'microsoft naayf', 'microsoft hamed',
+    'google us english male', 'google uk english male'
+  ];
+  
+  // Check for female voice
+  if (femalePatterns.some(pattern => nameLower.includes(pattern))) {
+    score += 50;
+  }
+  
+  // Penalize male voices
+  if (malePatterns.some(pattern => nameLower.includes(pattern))) {
+    score -= 30;
+  }
+  
+  // Network/cloud voices are often higher quality than local
+  if (!voice.localService) {
+    score += 20;
+  }
+  
+  // Penalize robotic-sounding voice indicators
+  if (nameLower.includes('compact')) score -= 40;
+  if (nameLower.includes('espeak')) score -= 50;
+  if (nameLower.includes('festival')) score -= 40;
+  if (nameLower.includes('mbrola')) score -= 40;
+  if (nameLower.includes('pico')) score -= 30;
+  
+  // Slight preference for default voices (usually better quality)
+  if (voice.default) score += 10;
+  
+  return score;
+}
+
+/**
+ * Get the best voice for a language
+ * Prioritizes: natural/neural voices > female voices > network voices
  */
 export function getBestVoiceForLanguage(languageCode: string): SpeechSynthesisVoice | null {
   const voices = getVoicesForLanguage(languageCode);
@@ -99,33 +181,32 @@ export function getBestVoiceForLanguage(languageCode: string): SpeechSynthesisVo
   if (voices.length === 0) {
     // Fallback: try to find any voice that starts with the language code
     const allVoices = getAllVoices();
-    const fallbackVoice = allVoices.find(v => 
+    const fallbackVoices = allVoices.filter(v => 
       v.lang.toLowerCase().startsWith(languageCode.toLowerCase())
     );
-    if (fallbackVoice) {
-      return fallbackVoice;
+    
+    if (fallbackVoices.length > 0) {
+      // Score and sort fallback voices too
+      fallbackVoices.sort((a, b) => scoreVoice(b) - scoreVoice(a));
+      return fallbackVoices[0];
     }
     return null;
   }
   
-  // Prefer local/native voices over network voices (better for mobile)
-  const localVoice = voices.find(voice => voice.localService);
-  if (localVoice) {
-    return localVoice;
-  }
+  // Score all voices and sort by quality
+  const scoredVoices = voices.map(voice => ({
+    voice,
+    score: scoreVoice(voice)
+  }));
   
-  // Prefer voices with "natural" or "enhanced" in the name
-  const enhancedVoice = voices.find(voice => 
-    voice.name.toLowerCase().includes('natural') || 
-    voice.name.toLowerCase().includes('enhanced') ||
-    voice.name.toLowerCase().includes('premium')
-  );
-  if (enhancedVoice) {
-    return enhancedVoice;
-  }
+  // Sort by score (highest first)
+  scoredVoices.sort((a, b) => b.score - a.score);
   
-  // Return the first available voice
-  return voices[0];
+  // Log the selected voice for debugging
+  const selected = scoredVoices[0];
+  console.log(`[TTS] Selected voice for ${languageCode}: "${selected.voice.name}" (score: ${selected.score})`);
+  
+  return selected.voice;
 }
 
 /**

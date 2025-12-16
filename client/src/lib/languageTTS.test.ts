@@ -108,13 +108,12 @@ describe('Language TTS Utility', () => {
   });
 
   describe('getBestVoiceForLanguage', () => {
-    it('should prefer local service voices', async () => {
+    it('should return a voice for supported languages', async () => {
       const { getBestVoiceForLanguage } = await import('./languageTTS');
       const voice = getBestVoiceForLanguage('es');
       
       expect(voice).not.toBeNull();
-      expect(voice?.localService).toBe(true);
-      expect(voice?.lang).toBe('es-ES');
+      expect(voice?.lang).toMatch(/^es/);
     });
 
     it('should return null for unsupported language with no fallback', async () => {
@@ -127,9 +126,9 @@ describe('Language TTS Utility', () => {
       expect(voice).toBeNull();
     });
 
-    it('should prefer enhanced/natural voices when available', async () => {
+    it('should prefer natural/neural voices over basic voices', async () => {
       const voicesWithNatural = [
-        { name: 'German', lang: 'de-DE', localService: false, default: false, voiceURI: 'de-DE' } as SpeechSynthesisVoice,
+        { name: 'German Basic', lang: 'de-DE', localService: true, default: false, voiceURI: 'de-DE' } as SpeechSynthesisVoice,
         { name: 'German Natural', lang: 'de-DE', localService: false, default: false, voiceURI: 'de-DE-natural' } as SpeechSynthesisVoice,
       ];
       mockSpeechSynthesis.getVoices.mockReturnValue(voicesWithNatural);
@@ -139,6 +138,34 @@ describe('Language TTS Utility', () => {
       const voice = getBestVoiceForLanguage('de');
       
       expect(voice?.name).toContain('Natural');
+    });
+
+    it('should prefer female voices over male voices', async () => {
+      const voicesWithGender = [
+        { name: 'Microsoft David', lang: 'en-US', localService: false, default: false, voiceURI: 'en-US-david' } as SpeechSynthesisVoice,
+        { name: 'Microsoft Zira', lang: 'en-US', localService: false, default: false, voiceURI: 'en-US-zira' } as SpeechSynthesisVoice,
+      ];
+      mockSpeechSynthesis.getVoices.mockReturnValue(voicesWithGender);
+      vi.resetModules();
+      
+      const { getBestVoiceForLanguage } = await import('./languageTTS');
+      const voice = getBestVoiceForLanguage('en');
+      
+      expect(voice?.name).toContain('Zira');
+    });
+
+    it('should deprioritize robotic/low-quality voices', async () => {
+      const voicesWithQuality = [
+        { name: 'espeak-ng German', lang: 'de-DE', localService: true, default: false, voiceURI: 'de-espeak' } as SpeechSynthesisVoice,
+        { name: 'German Standard', lang: 'de-DE', localService: false, default: false, voiceURI: 'de-standard' } as SpeechSynthesisVoice,
+      ];
+      mockSpeechSynthesis.getVoices.mockReturnValue(voicesWithQuality);
+      vi.resetModules();
+      
+      const { getBestVoiceForLanguage } = await import('./languageTTS');
+      const voice = getBestVoiceForLanguage('de');
+      
+      expect(voice?.name).not.toContain('espeak');
     });
   });
 

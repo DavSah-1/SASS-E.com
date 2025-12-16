@@ -1313,3 +1313,16 @@
   - Common languages assumed available even if voices aren't enumerated
   - Improved error messages with helpful suggestions
 - [x] Test on mobile browsers (Chrome, Safari, Firefox)
+
+
+## TTS Voice Quality Improvement
+- [x] Prioritize natural/enhanced voices over basic robotic voices
+  - Added scoring: natural (+100), neural (+100), wavenet (+90), enhanced (+80), premium (+80)
+- [x] Prefer female voices over male voices
+  - Added 50+ female voice name patterns across platforms
+  - Female voices get +50 score, male voices get -30 penalty
+- [x] Add voice quality scoring system
+  - Comprehensive scoring based on voice name indicators
+  - Network/cloud voices preferred (+20) over local robotic voices
+- [x] Filter out low-quality system voices
+  - Penalized: compact (-40), espeak (-50), festival (-40), mbrola (-40), pico (-30)
