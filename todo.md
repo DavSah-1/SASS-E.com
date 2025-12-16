@@ -1298,3 +1298,18 @@
   - [x] Added loading state during analysis
   - [x] Added detailed score breakdown with progress bars
   - [x] Added contextual improvement tips based on weak areas
+
+
+## Bug Fix - TTS Not Working on Mobile Devices
+- [x] Fix "Text-To-Speech Voice are unavailable" error on mobile browsers
+- [x] Investigate mobile browser TTS voice loading issues
+- [x] Implement proper voice initialization for mobile devices
+  - Added multiple retry attempts with increasing delays for voice loading
+  - Added visibility change listener to reload voices when user returns to app
+  - Expanded language locale mapping for better mobile voice matching
+  - Added voice caching to prevent repeated loading issues
+- [x] Add fallback mechanism when browser TTS is unavailable
+  - Now tries to speak even without enumerated voices (mobile browsers may still work)
+  - Common languages assumed available even if voices aren't enumerated
+  - Improved error messages with helpful suggestions
+- [x] Test on mobile browsers (Chrome, Safari, Firefox)

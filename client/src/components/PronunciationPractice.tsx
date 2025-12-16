@@ -13,7 +13,7 @@ import { Mic, Square, Play, RotateCcw, Volume2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AudioRecorder, type AudioRecording } from '@/lib/audioRecording';
 import { WaveformDisplay } from './WaveformDisplay';
-import { speakInLanguage } from '@/lib/languageTTS';
+import { speakInLanguage, isSpeechSynthesisSupported } from '@/lib/languageTTS';
 import { trpc } from '@/lib/trpc';
 
 interface PronunciationPracticeProps {
@@ -206,11 +206,16 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
   };
 
   const playNativePronunciation = () => {
+    if (!isSpeechSynthesisSupported()) {
+      toast.error('Text-to-speech is not supported in this browser');
+      return;
+    }
+    
     speakInLanguage(word, languageCode, {
       rate: 0.85,
       onEnd: () => {},
       onError: (error) => {
-        toast.error('Failed to play native pronunciation');
+        toast.error('Failed to play native pronunciation. Please check your device sound settings.');
         console.error(error);
       },
     });

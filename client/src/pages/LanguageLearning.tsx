@@ -27,7 +27,7 @@ import {
   Mic
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
-import { initializeSpeechSynthesis, speakInLanguage, stopSpeech, isTTSAvailableForLanguage } from "@/lib/languageTTS";
+import { initializeSpeechSynthesis, speakInLanguage, stopSpeech, isTTSAvailableForLanguage, isSpeechSynthesisSupported, reloadVoices } from "@/lib/languageTTS";
 import { PronunciationPractice } from "@/components/PronunciationPractice";
 import { Navigation } from "@/components/Navigation";
 
@@ -103,11 +103,35 @@ export default function LanguageLearning() {
     },
   });
 
-  // Initialize speech synthesis on mount
+  // Initialize speech synthesis on mount with mobile-friendly handling
   useEffect(() => {
+    // Check basic support first
+    if (!isSpeechSynthesisSupported()) {
+      console.warn('[TTS] Speech synthesis not supported in this browser');
+      setTtsAvailable(false);
+      return;
+    }
+
+    // Initialize and wait for voices to load
     initializeSpeechSynthesis(() => {
-      setTtsAvailable(isTTSAvailableForLanguage(selectedLanguage));
+      const available = isTTSAvailableForLanguage(selectedLanguage);
+      setTtsAvailable(available);
+      console.log(`[TTS] Availability for ${selectedLanguage}: ${available}`);
     });
+
+    // Mobile fix: Re-check when page becomes visible (user switches back to app)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        reloadVoices().then(() => {
+          setTtsAvailable(isTTSAvailableForLanguage(selectedLanguage));
+        });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Check TTS availability when language changes
@@ -167,26 +191,34 @@ export default function LanguageLearning() {
   const currentExercise = exercises?.[currentExerciseIndex];
 
   const handlePronounce = (text: string) => {
-    if (!ttsAvailable) {
-      toast.error("Text-to-speech voices are not available. Please try refreshing the page or use a different browser.");
+    // Check basic support
+    if (!isSpeechSynthesisSupported()) {
+      toast.error("Text-to-speech is not supported in this browser. Please try Chrome, Safari, or Firefox.");
       return;
     }
 
     setIsSpeaking(true);
     
     // User interaction is required for speech synthesis to work
+    // On mobile, we try even if voices aren't enumerated - the browser may still work
     try {
       speakInLanguage(text, selectedLanguage, {
         rate: 0.85, // Slower for learning
         onEnd: () => setIsSpeaking(false),
         onError: (error) => {
           setIsSpeaking(false);
-          toast.error(`Pronunciation failed: ${error.message}`);
+          // Provide more helpful error message for mobile users
+          if (error.message.includes('not supported')) {
+            toast.error("Text-to-speech is not available. Please try a different browser.");
+          } else {
+            toast.error("Pronunciation failed. Please try again or check your device's sound settings.");
+          }
+          console.error('[TTS] Error:', error);
         },
       });
     } catch (error) {
       setIsSpeaking(false);
-      toast.error("Failed to play pronunciation. Please try again.");
+      toast.error("Failed to play pronunciation. Please check your device's sound settings.");
       console.error('[TTS] Error:', error);
     }
   };
