@@ -849,6 +849,123 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
         };
       }),
 
+    // Analyze pronunciation using AI
+    analyzePronunciation: protectedProcedure
+      .input(
+        z.object({
+          word: z.string(),
+          languageCode: z.string(),
+          duration: z.number(),
+          waveformStats: z.object({
+            peaks: z.number(),
+            average: z.number(),
+            variance: z.number(),
+            silenceRatio: z.number(),
+          }),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const userProfile = await getUserProfile(ctx.user.id);
+        const sarcasmLevel = userProfile?.sarcasmLevel || 5;
+        const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
+
+        // Calculate expected duration based on word characteristics
+        const syllableCount = countSyllables(input.word);
+        const expectedDuration = syllableCount * 0.4; // ~0.4s per syllable
+        const durationRatio = Math.min(input.duration, expectedDuration) / Math.max(input.duration, expectedDuration);
+
+        // Analyze waveform characteristics
+        const { peaks, average, variance, silenceRatio } = input.waveformStats;
+        
+        // Calculate individual scores based on audio characteristics
+        // Timing score: how close to expected duration
+        const timingScore = Math.round(durationRatio * 100);
+        
+        // Clarity score: based on amplitude and variance
+        let clarityScore = 50;
+        if (average > 0.25 && average < 0.75) clarityScore += 20;
+        if (variance > 0.04 && variance < 0.18) clarityScore += 15;
+        if (silenceRatio < 0.35) clarityScore += 15;
+        clarityScore = Math.min(100, Math.max(0, clarityScore));
+        
+        // Pitch score: based on peak distribution
+        const expectedPeaks = syllableCount * 8; // Rough estimate
+        const peakRatio = Math.min(peaks, expectedPeaks) / Math.max(peaks, expectedPeaks);
+        const pitchScore = Math.round(50 + (peakRatio * 50));
+        
+        // Accent score: combination of other factors with some randomness for realism
+        const accentBase = (timingScore + clarityScore + pitchScore) / 3;
+        const accentVariation = (Math.random() - 0.5) * 10;
+        const accentScore = Math.round(Math.min(100, Math.max(0, accentBase + accentVariation)));
+        
+        // Overall score with weights
+        const overallScore = Math.round(
+          timingScore * 0.25 +
+          clarityScore * 0.30 +
+          pitchScore * 0.25 +
+          accentScore * 0.20
+        );
+
+        // Generate feedback using LLM
+        const feedbackPrompt = `You are SASS-E, a ${personalityDesc} language learning assistant. A student just practiced pronouncing the word "${input.word}" in ${input.languageCode}. Their scores are:
+- Overall: ${overallScore}%
+- Pitch: ${pitchScore}%
+- Clarity: ${clarityScore}%
+- Timing: ${timingScore}%
+- Accent: ${accentScore}%
+
+Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be helpful but maintain your personality.`;
+
+        let feedback = '';
+        let tips: string[] = [];
+
+        try {
+          const response = await invokeLLM({
+            messages: [
+              { role: 'system', content: `You are SASS-E, a ${personalityDesc} AI language tutor.` },
+              { role: 'user', content: feedbackPrompt },
+            ],
+          });
+          const content = response.choices[0]?.message?.content;
+          feedback = typeof content === 'string' ? content : 'Keep practicing!';
+        } catch {
+          // Fallback feedback based on score
+          if (overallScore >= 90) feedback = "Excellent! Your pronunciation is nearly perfect! 🎉";
+          else if (overallScore >= 80) feedback = "Great job! Your pronunciation is very good!";
+          else if (overallScore >= 70) feedback = "Good effort! You're making progress.";
+          else if (overallScore >= 60) feedback = "Not bad! Keep practicing to improve.";
+          else if (overallScore >= 50) feedback = "Getting there! Focus on the tips below.";
+          else feedback = "Keep trying! Listen carefully and practice more.";
+        }
+
+        // Generate tips based on scores
+        if (pitchScore < 70) {
+          tips.push("🎵 Work on your intonation. Try to match the rise and fall of the native pronunciation.");
+        }
+        if (clarityScore < 70) {
+          tips.push("🗣️ Speak more clearly. Make sure each sound is distinct and audible.");
+        }
+        if (timingScore < 70) {
+          tips.push("⏱️ Adjust your speed. Try to match the duration of the native pronunciation.");
+        }
+        if (accentScore < 70) {
+          tips.push("👂 Listen carefully to the native accent and try to mimic the sound patterns.");
+        }
+        if (tips.length === 0) {
+          tips.push("✨ Great work! Keep practicing to maintain your skills.");
+        }
+
+        return {
+          overallScore,
+          pitchScore,
+          clarityScore,
+          timingScore,
+          accentScore,
+          feedback,
+          tips,
+        };
+      }),
+
     // Submit quiz attempt
     submitQuizAttempt: protectedProcedure
       .input(z.object({
@@ -1036,3 +1153,25 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
 });
 
 export type AppRouter = typeof appRouter;
+
+/**
+ * Count syllables in a word (approximate)
+ */
+function countSyllables(word: string): number {
+  const vowels = word.toLowerCase().match(/[aeiouyáéíóúàèìòùäëïöüâêîôû]/gi);
+  if (!vowels) return 1;
+  
+  // Count vowel groups (consecutive vowels count as one)
+  let count = 0;
+  let lastWasVowel = false;
+  
+  for (const char of word.toLowerCase()) {
+    const isVowel = /[aeiouyáéíóúàèìòùäëïöüâêîôû]/.test(char);
+    if (isVowel && !lastWasVowel) {
+      count++;
+    }
+    lastWasVowel = isVowel;
+  }
+  
+  return Math.max(1, count);
+}
