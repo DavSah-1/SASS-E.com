@@ -1326,3 +1326,19 @@
   - Network/cloud voices preferred (+20) over local robotic voices
 - [x] Filter out low-quality system voices
   - Penalized: compact (-40), espeak (-50), festival (-40), mbrola (-40), pico (-30)
+
+
+## Server-Side TTS Implementation (High-Quality Voices)
+- [x] Implement server-side TTS API for consistent voice quality
+  - Created textToSpeech.ts service using OpenAI-compatible TTS API
+  - Uses tts-1-hd model for high-quality pronunciation
+- [x] Create backend endpoint for generating TTS audio
+  - Added learning.generatePronunciationAudio tRPC endpoint
+  - Returns base64-encoded MP3 audio
+- [x] Update frontend to fetch and play server-generated audio
+  - Updated LanguageLearning.tsx and PronunciationPractice.tsx
+  - Falls back to browser TTS if server fails
+- [x] Support multiple languages with natural female voices
+  - Uses "nova" voice (female, warm) for most languages
+  - Uses "shimmer" voice (female, clear) for French/Italian
+- [ ] Cache audio for frequently used words (future enhancement)

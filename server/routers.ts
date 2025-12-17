@@ -966,6 +966,42 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         };
       }),
 
+    // Generate pronunciation audio using server-side TTS
+    generatePronunciationAudio: protectedProcedure
+      .input(z.object({
+        word: z.string().min(1).max(500),
+        languageCode: z.string().min(2).max(5),
+        speed: z.number().min(0.5).max(1.5).default(0.85),
+      }))
+      .mutation(async ({ input }) => {
+        const { generatePronunciation } = await import("./_core/textToSpeech");
+        
+        try {
+          const result = await generatePronunciation(
+            input.word,
+            input.languageCode,
+            input.speed
+          );
+          
+          // Convert buffer to base64 for transmission
+          const base64Audio = result.audioBuffer.toString('base64');
+          
+          return {
+            success: true,
+            audio: base64Audio,
+            contentType: result.contentType,
+          };
+        } catch (error) {
+          console.error('[TTS] Error generating pronunciation:', error);
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to generate audio',
+            audio: null,
+            contentType: null,
+          };
+        }
+      }),
+
     // Submit quiz attempt
     submitQuizAttempt: protectedProcedure
       .input(z.object({

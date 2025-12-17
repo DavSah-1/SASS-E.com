@@ -47,6 +47,11 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
 
   // Use tRPC mutation for AI-powered pronunciation analysis
   const analyzePronunciation = trpc.learning.analyzePronunciation.useMutation();
+  
+  // Server-side TTS for high-quality native pronunciation
+  const generateAudio = trpc.learning.generatePronunciationAudio.useMutation();
+  const nativeAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlayingNative, setIsPlayingNative] = useState(false);
 
   const startRecording = async () => {
     try {
@@ -205,17 +210,59 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
     };
   };
 
-  const playNativePronunciation = () => {
+  const playNativePronunciation = async () => {
+    if (isPlayingNative) return;
+    
+    setIsPlayingNative(true);
+    
+    // Try server-side TTS first (high quality)
+    try {
+      const result = await generateAudio.mutateAsync({
+        word,
+        languageCode,
+        speed: 0.85,
+      });
+
+      if (result.success && result.audio) {
+        const audioData = `data:${result.contentType};base64,${result.audio}`;
+        
+        if (nativeAudioRef.current) {
+          nativeAudioRef.current.pause();
+        }
+        
+        const audio = new Audio(audioData);
+        nativeAudioRef.current = audio;
+        
+        audio.onended = () => setIsPlayingNative(false);
+        audio.onerror = () => {
+          setIsPlayingNative(false);
+          fallbackToBrowserTTS();
+        };
+        
+        await audio.play();
+        return;
+      }
+    } catch (error) {
+      console.log('[TTS] Server TTS failed, falling back to browser:', error);
+    }
+
+    // Fallback to browser TTS
+    fallbackToBrowserTTS();
+  };
+
+  const fallbackToBrowserTTS = () => {
     if (!isSpeechSynthesisSupported()) {
-      toast.error('Text-to-speech is not supported in this browser');
+      setIsPlayingNative(false);
+      toast.error('Text-to-speech is not available');
       return;
     }
     
     speakInLanguage(word, languageCode, {
       rate: 0.85,
-      onEnd: () => {},
+      onEnd: () => setIsPlayingNative(false),
       onError: (error) => {
-        toast.error('Failed to play native pronunciation. Please check your device sound settings.');
+        setIsPlayingNative(false);
+        toast.error('Failed to play pronunciation');
         console.error(error);
       },
     });

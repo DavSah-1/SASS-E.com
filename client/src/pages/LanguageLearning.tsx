@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -190,35 +190,70 @@ export default function LanguageLearning() {
   const currentFlashcard = flashcards?.[currentFlashcardIndex];
   const currentExercise = exercises?.[currentExerciseIndex];
 
-  const handlePronounce = (text: string) => {
-    // Check basic support
+  // Server-side TTS mutation for high-quality audio
+  const generateAudio = trpc.learning.generatePronunciationAudio.useMutation();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handlePronounce = async (text: string) => {
+    setIsSpeaking(true);
+    
+    // Try server-side TTS first (high quality)
+    try {
+      const result = await generateAudio.mutateAsync({
+        word: text,
+        languageCode: selectedLanguage,
+        speed: 0.85,
+      });
+
+      if (result.success && result.audio) {
+        // Play the server-generated audio
+        const audioData = `data:${result.contentType};base64,${result.audio}`;
+        
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        
+        const audio = new Audio(audioData);
+        audioRef.current = audio;
+        
+        audio.onended = () => setIsSpeaking(false);
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          // Fallback to browser TTS
+          fallbackToBrowserTTS(text);
+        };
+        
+        await audio.play();
+        return;
+      }
+    } catch (error) {
+      console.log('[TTS] Server TTS failed, falling back to browser:', error);
+    }
+
+    // Fallback to browser TTS
+    fallbackToBrowserTTS(text);
+  };
+
+  const fallbackToBrowserTTS = (text: string) => {
     if (!isSpeechSynthesisSupported()) {
-      toast.error("Text-to-speech is not supported in this browser. Please try Chrome, Safari, or Firefox.");
+      setIsSpeaking(false);
+      toast.error("Text-to-speech is not available. Please try a different browser.");
       return;
     }
 
-    setIsSpeaking(true);
-    
-    // User interaction is required for speech synthesis to work
-    // On mobile, we try even if voices aren't enumerated - the browser may still work
     try {
       speakInLanguage(text, selectedLanguage, {
-        rate: 0.85, // Slower for learning
+        rate: 0.85,
         onEnd: () => setIsSpeaking(false),
         onError: (error) => {
           setIsSpeaking(false);
-          // Provide more helpful error message for mobile users
-          if (error.message.includes('not supported')) {
-            toast.error("Text-to-speech is not available. Please try a different browser.");
-          } else {
-            toast.error("Pronunciation failed. Please try again or check your device's sound settings.");
-          }
-          console.error('[TTS] Error:', error);
+          toast.error("Pronunciation failed. Please try again.");
+          console.error('[TTS] Browser error:', error);
         },
       });
     } catch (error) {
       setIsSpeaking(false);
-      toast.error("Failed to play pronunciation. Please check your device's sound settings.");
+      toast.error("Failed to play pronunciation.");
       console.error('[TTS] Error:', error);
     }
   };
