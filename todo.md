@@ -1365,3 +1365,18 @@
 - [x] Persist user's preferred speed in local storage
   - Speed saved to localStorage on change
   - Speed loaded from localStorage on component mount
+
+
+## Update Money Demo Data
+- [x] Review current money-demo.mjs script
+- [x] Add sample data for all Money Hub features
+  - [x] 4 debts (credit card, student loan, auto loan, personal loan)
+  - [x] 18 debt payments with realistic interest/principal calculations
+  - [x] 2 shared budgets (Family Monthly Budget, Summer Vacation Fund)
+  - [x] 10 budget categories with monthly limits
+  - [x] 20 budget transactions across categories
+- [x] Run updated money-demo script
+  - Successfully populated all Money Hub tables
+  - Payment history spans 3-6 months per debt
+  - Budget transactions include both expenses and income
+- [ ] Verify all features display correctly in UI
