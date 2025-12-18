@@ -4,11 +4,12 @@
  * Uses AI-powered analysis for accurate pronunciation scoring
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { Mic, Square, Play, RotateCcw, Volume2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AudioRecorder, type AudioRecording } from '@/lib/audioRecording';
@@ -52,6 +53,17 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
   const generateAudio = trpc.learning.generatePronunciationAudio.useMutation();
   const nativeAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlayingNative, setIsPlayingNative] = useState(false);
+  
+  // TTS speed control with localStorage persistence
+  const [ttsSpeed, setTtsSpeed] = useState<number>(() => {
+    const saved = localStorage.getItem('ttsSpeed');
+    return saved ? parseFloat(saved) : 0.85;
+  });
+  
+  // Save speed to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('ttsSpeed', ttsSpeed.toString());
+  }, [ttsSpeed]);
 
   const startRecording = async () => {
     try {
@@ -220,7 +232,7 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
       const result = await generateAudio.mutateAsync({
         word,
         languageCode,
-        speed: 0.85,
+        speed: ttsSpeed,
       });
 
       if (result.success && result.audio) {
@@ -258,7 +270,7 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
     }
     
     speakInLanguage(word, languageCode, {
-      rate: 0.85,
+      rate: ttsSpeed,
       onEnd: () => setIsPlayingNative(false),
       onError: (error) => {
         setIsPlayingNative(false);
@@ -303,6 +315,24 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
           <p className="text-sm text-muted-foreground">
             Record yourself saying this word and get AI-powered feedback
           </p>
+          
+          {/* Speed Control */}
+          <div className="flex items-center justify-center gap-2 pt-2">
+            <Label htmlFor="pronunciation-speed" className="text-sm">
+              Speed: {ttsSpeed.toFixed(2)}x
+            </Label>
+            <input
+              id="pronunciation-speed"
+              type="range"
+              min="0.5"
+              max="1.5"
+              step="0.05"
+              value={ttsSpeed}
+              onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
+              className="w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+              title="Adjust pronunciation speed"
+            />
+          </div>
         </div>
 
         {/* Recording Controls */}

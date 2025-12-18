@@ -1348,3 +1348,20 @@
 - [x] Fix "Rendered more hooks than during the previous render" error in LanguageLearning
 - [x] Move generateAudio mutation and audioRef to top of component with other hooks
 - [x] Ensure all hooks are called in consistent order
+
+
+## TTS Playback Speed Control
+- [x] Add speed state management (0.5x to 1.5x)
+  - Added ttsSpeed state with default 0.85x (slightly slower for learning)
+- [x] Create speed control UI with slider
+  - Added range slider in LanguageLearning vocabulary tab
+  - Added range slider in PronunciationPractice component
+  - Shows current speed value (e.g., "Speed: 0.85x")
+- [x] Integrate speed with server-side TTS generation
+  - Updated handlePronounce to use ttsSpeed parameter
+  - Updated playNativePronunciation to use ttsSpeed parameter
+- [x] Apply speed to browser TTS fallback
+  - Browser TTS also uses ttsSpeed for consistent experience
+- [x] Persist user's preferred speed in local storage
+  - Speed saved to localStorage on change
+  - Speed loaded from localStorage on component mount

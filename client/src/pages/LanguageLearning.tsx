@@ -48,10 +48,20 @@ export default function LanguageLearning() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showPronunciationPractice, setShowPronunciationPractice] = useState(false);
   const [ttsAvailable, setTtsAvailable] = useState(false);
+  const [ttsSpeed, setTtsSpeed] = useState<number>(() => {
+    // Load saved speed from localStorage, default to 0.85 (slightly slower for learning)
+    const saved = localStorage.getItem('ttsSpeed');
+    return saved ? parseFloat(saved) : 0.85;
+  });
 
   // Server-side TTS mutation for high-quality audio (must be declared before any conditional returns)
   const generateAudio = trpc.learning.generatePronunciationAudio.useMutation();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Save TTS speed to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('ttsSpeed', ttsSpeed.toString());
+  }, [ttsSpeed]);
 
   // Queries
   const { data: languages } = trpc.languageLearning.getSupportedLanguages.useQuery();
@@ -202,7 +212,7 @@ export default function LanguageLearning() {
       const result = await generateAudio.mutateAsync({
         word: text,
         languageCode: selectedLanguage,
-        speed: 0.85,
+        speed: ttsSpeed,
       });
 
       if (result.success && result.audio) {
@@ -243,7 +253,7 @@ export default function LanguageLearning() {
 
     try {
       speakInLanguage(text, selectedLanguage, {
-        rate: 0.85,
+        rate: ttsSpeed,
         onEnd: () => setIsSpeaking(false),
         onError: (error) => {
           setIsSpeaking(false);
@@ -485,21 +495,42 @@ export default function LanguageLearning() {
           <TabsContent value="vocabulary" className="space-y-6">
             {flashcards && flashcards.length > 0 ? (
               <div className="max-w-2xl mx-auto">
-                <div className="mb-4 flex items-center justify-between">
+                <div className="mb-4 flex items-center justify-between gap-4">
                   <span className="text-sm text-muted-foreground">
                     Card {currentFlashcardIndex + 1} of {flashcards.length}
                   </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setCurrentFlashcardIndex(0);
-                      setShowAnswer(false);
-                    }}
-                  >
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    Restart
-                  </Button>
+                  
+                  <div className="flex items-center gap-4">
+                    {/* Speed Control */}
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="tts-speed" className="text-sm whitespace-nowrap">
+                        Speed: {ttsSpeed.toFixed(2)}x
+                      </Label>
+                      <Input
+                        id="tts-speed"
+                        type="range"
+                        min="0.5"
+                        max="1.5"
+                        step="0.05"
+                        value={ttsSpeed}
+                        onChange={(e) => setTtsSpeed(parseFloat(e.target.value))}
+                        className="w-24 h-8"
+                        title="Adjust pronunciation speed"
+                      />
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setCurrentFlashcardIndex(0);
+                        setShowAnswer(false);
+                      }}
+                    >
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      Restart
+                    </Button>
+                  </div>
                 </div>
 
                 {currentFlashcard ? (
