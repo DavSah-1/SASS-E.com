@@ -49,6 +49,10 @@ export default function LanguageLearning() {
   const [showPronunciationPractice, setShowPronunciationPractice] = useState(false);
   const [ttsAvailable, setTtsAvailable] = useState(false);
 
+  // Server-side TTS mutation for high-quality audio (must be declared before any conditional returns)
+  const generateAudio = trpc.learning.generatePronunciationAudio.useMutation();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   // Queries
   const { data: languages } = trpc.languageLearning.getSupportedLanguages.useQuery();
   const { data: progress, refetch: refetchProgress } = trpc.languageLearning.getProgress.useQuery(
@@ -189,10 +193,6 @@ export default function LanguageLearning() {
 
   const currentFlashcard = flashcards?.[currentFlashcardIndex];
   const currentExercise = exercises?.[currentExerciseIndex];
-
-  // Server-side TTS mutation for high-quality audio
-  const generateAudio = trpc.learning.generatePronunciationAudio.useMutation();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handlePronounce = async (text: string) => {
     setIsSpeaking(true);

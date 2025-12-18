@@ -1342,3 +1342,9 @@
   - Uses "nova" voice (female, warm) for most languages
   - Uses "shimmer" voice (female, clear) for French/Italian
 - [ ] Cache audio for frequently used words (future enhancement)
+
+
+## Bug Fix - React Hooks Order Error
+- [x] Fix "Rendered more hooks than during the previous render" error in LanguageLearning
+- [x] Move generateAudio mutation and audioRef to top of component with other hooks
+- [x] Ensure all hooks are called in consistent order
