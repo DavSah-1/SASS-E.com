@@ -1428,3 +1428,11 @@
 ## Bug Fix - Start Learning Button Link
 - [x] Fix "Start Learning" button to link to /learning instead of /language-learning
 - [x] Verify button navigates to correct page
+
+
+## Clear Demo Data from Debt Coach
+- [x] Remove demo debts and payments from database
+  - Cleared debt_payments, debts, shared_budget_*, budget_* tables
+- [x] Ensure Debt Coach starts empty for new users
+- [x] Keep money-demo.mjs script available for testing
+  - Script remains at scripts/money-demo.mjs for re-populating demo data

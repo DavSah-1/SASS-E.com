@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM debt_payments; DELETE FROM debts; DELETE FROM shared_budget_transactions; DELETE FROM shared_budget_categories; DELETE FROM shared_budget_members; DELETE FROM shared_budgets; DELETE FROM budget_transactions; DELETE FROM budget_categories;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute DELETE FROM debt_payments; DELETE FROM debts; DELETE FROM shared_budget_transactions; DELETE FROM shared_budget_categories; DELETE FROM shared_budget_members; DELETE FROM shared_budgets; DELETE FROM budget_transactions; DELETE FROM budget_categories;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 160
+}
