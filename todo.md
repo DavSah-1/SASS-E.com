@@ -1423,3 +1423,8 @@
 - [x] Fix "Explore Money Hub" button to link to /money instead of /money-hub
   - Fixed both hero section and main CTA button
 - [x] Verify button navigates to correct page
+
+
+## Bug Fix - Start Learning Button Link
+- [x] Fix "Start Learning" button to link to /learning instead of /language-learning
+- [x] Verify button navigates to correct page

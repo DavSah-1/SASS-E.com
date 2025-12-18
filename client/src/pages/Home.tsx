@@ -359,7 +359,7 @@ export default function Home() {
 
           <div className="text-center">
             <Button asChild size="lg" variant="outline" className="border-purple-500 text-purple-300 hover:bg-purple-900/50 px-8 py-6 text-lg">
-              <Link href="/language-learning">
+              <Link href="/learning">
                 <BookOpen className="mr-2 h-5 w-5" />
                 Start Learning
                 <ArrowRight className="ml-2 h-5 w-5" />
