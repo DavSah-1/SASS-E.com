@@ -1380,3 +1380,27 @@
   - Payment history spans 3-6 months per debt
   - Budget transactions include both expenses and income
 - [ ] Verify all features display correctly in UI
+
+
+## Home Page Redesign - Feature Showcase
+- [x] Update home page to showcase all available features
+- [x] Highlight Learning page features:
+  - [x] Language Learning with vocabulary and pronunciation
+  - [x] Math Tutor with step-by-step solutions
+  - [x] Science Lab with experiments
+  - [x] Specialized Learning Paths (prominent highlight with featured badge)
+- [x] Prominently highlight Money Hub features:
+  - [x] Premium section with gradient background and decorative elements
+  - [x] Debt Coach with payment tracking
+  - [x] Budget Management
+  - [x] Loan Calculators
+  - [x] Receipt Scanner
+  - [x] Financial Goals
+  - [x] Currency Tools
+- [x] Add compelling CTAs for each feature section
+  - "Explore Money Hub" button
+  - "Start Learning" button
+- [x] Ensure responsive design and visual hierarchy
+  - Money Hub gets top placement with NEW FEATURE badge
+  - Specialized Learning Paths highlighted with Featured badge
+  - Responsive grid layouts for all sections
