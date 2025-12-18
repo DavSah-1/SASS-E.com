@@ -245,13 +245,23 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
         const audio = new Audio(audioData);
         nativeAudioRef.current = audio;
         
+        // iOS requires loading the audio before playing
+        audio.load();
+        
         audio.onended = () => setIsPlayingNative(false);
-        audio.onerror = () => {
+        audio.onerror = (e) => {
+          console.error('[TTS] Native audio playback error:', e);
           setIsPlayingNative(false);
           fallbackToBrowserTTS();
         };
         
-        await audio.play();
+        // iOS Safari requires user interaction to play audio
+        try {
+          await audio.play();
+        } catch (playError) {
+          console.error('[TTS] Native play error:', playError);
+          fallbackToBrowserTTS();
+        }
         return;
       }
     } catch (error) {

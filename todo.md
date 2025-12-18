@@ -1436,3 +1436,16 @@
 - [x] Ensure Debt Coach starts empty for new users
 - [x] Keep money-demo.mjs script available for testing
   - Script remains at scripts/money-demo.mjs for re-populating demo data
+
+
+## Bug Fix - TTS Not Working on iPad
+- [x] Investigate iOS Safari audio handling requirements
+  - iOS requires audio.load() before play()
+  - Play must be in direct response to user interaction
+- [x] Fix server-side TTS audio playback on iPad
+  - Added audio.load() call before play()
+  - Added try-catch for play() with fallback to browser TTS
+  - Added detailed error logging
+- [x] Ensure audio plays on user interaction (iOS requirement)
+  - Play is triggered by button click (user action)
+- [ ] Test on iPad Safari and Chrome (requires user testing)

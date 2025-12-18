@@ -226,14 +226,26 @@ export default function LanguageLearning() {
         const audio = new Audio(audioData);
         audioRef.current = audio;
         
+        // iOS requires loading the audio before playing
+        audio.load();
+        
         audio.onended = () => setIsSpeaking(false);
-        audio.onerror = () => {
+        audio.onerror = (e) => {
+          console.error('[TTS] Audio playback error:', e);
           setIsSpeaking(false);
           // Fallback to browser TTS
           fallbackToBrowserTTS(text);
         };
         
-        await audio.play();
+        // iOS Safari requires user interaction to play audio
+        // The play() call must be in direct response to user action
+        try {
+          await audio.play();
+        } catch (playError) {
+          console.error('[TTS] Play error:', playError);
+          // Fallback to browser TTS if play fails
+          fallbackToBrowserTTS(text);
+        }
         return;
       }
     } catch (error) {
