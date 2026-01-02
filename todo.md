@@ -1625,3 +1625,13 @@
 - [x] Ensure consistency with Money (green) and Learning (purple) page styling patterns
 - [x] Update tab indicators and active states to cyan
 - [x] Adjust button colors to match cyan/blue theme
+
+
+## Rename Wellbeing to Wellness
+- [x] Update Navigation component - change "Wellbeing" to "Wellness"
+- [x] Update page route from /wellbeing to /wellness
+- [x] Rename Wellbeing.tsx page file to Wellness.tsx
+- [x] Update page title and header text to "Wellness"
+- [x] Update Home page Wellbeing section to "Wellness"
+- [x] Update all "Wellbeing Hub" references to "Wellness Hub"
+- [x] Update App.tsx route configuration

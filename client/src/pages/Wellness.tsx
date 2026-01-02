@@ -1,5 +1,5 @@
 /**
- * Wellbeing page - Fitness, Nutrition, Mental Wellness, Health Metrics
+ * Wellness page - Fitness, Nutrition, Mental Wellness, Health Metrics
  * Foundational version with core functionality
  */
 
@@ -41,7 +41,7 @@ import { MacroMicroDashboard } from "@/components/wellbeing/MacroMicroDashboard"
 import { WorkoutLibrary } from "@/components/WorkoutLibrary";
 import { WearableDevices } from "@/components/WearableDevices";
 
-export default function Wellbeing() {
+export default function Wellness() {
   const { user, isAuthenticated, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -159,7 +159,7 @@ export default function Wellbeing() {
             <CardHeader>
               <CardTitle>Sign In Required</CardTitle>
               <CardDescription>
-                Please sign in to access your Wellbeing dashboard
+                Please sign in to access your Wellness dashboard
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -304,11 +304,11 @@ export default function Wellbeing() {
           <div className="inline-flex items-center gap-2 mb-4">
             <Badge className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 py-1.5">
               <Heart className="h-4 w-4 mr-1.5 inline" />
-              WELLBEING HUB
+              WELLNESS HUB
             </Badge>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">
-            💪 Wellbeing Dashboard
+            💪 Wellness Dashboard
           </h1>
           <p className="text-lg text-slate-300 max-w-2xl mx-auto">
             Track your fitness, nutrition, mental health, and overall wellness in one comprehensive hub

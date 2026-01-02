@@ -35,9 +35,9 @@ export function Navigation() {
               <Wallet className="h-4 w-4" />
               Money
             </a>
-            <a href="/wellbeing" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+            <a href="/wellness" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Heart className="h-4 w-4" />
-              Wellbeing
+              Wellness
             </a>
           </div>
         </div>

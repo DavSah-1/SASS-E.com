@@ -18,7 +18,7 @@ import MoneyDemo from "./pages/MoneyDemo";
 import Goals from "./pages/Goals";
 import MathTutor from "./pages/MathTutor";
 import ScienceLab from "./pages/ScienceLab";
-import Wellbeing from "./pages/Wellbeing";
+import Wellness from "./pages/Wellness";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -31,7 +31,9 @@ function Router() {
       <Route path={"/language-learning"} component={LanguageLearning} />
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/science-lab"} component={ScienceLab} />
-      <Route path={"/wellbeing"} component={Wellbeing} />
+      <Route path={"/wellness"} component={Wellness} />
+      {/* Redirect old wellbeing route to wellness */}
+      <Route path={"/wellbeing"}>{() => { window.location.href = "/wellness"; return null; }}</Route>
       <Route path={"/profile"} component={Profile} />
       <Route path={"/money"} component={Money} />
       <Route path={"/money-demo"} component={MoneyDemo} />
