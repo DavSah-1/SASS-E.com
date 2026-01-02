@@ -296,14 +296,22 @@ export default function Wellbeing() {
   const waterProgress = Math.min((totalWaterIntake / waterGoal) * 100, 100);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-950">
       <Navigation />
       
       <main className="flex-1 container py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Wellbeing Dashboard</h1>
-          <p className="text-muted-foreground">
-            Track your fitness, nutrition, mental health, and overall wellness
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <Badge className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 py-1.5">
+              <Heart className="h-4 w-4 mr-1.5 inline" />
+              WELLBEING HUB
+            </Badge>
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">
+            💪 Wellbeing Dashboard
+          </h1>
+          <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+            Track your fitness, nutrition, mental health, and overall wellness in one comprehensive hub
           </p>
         </div>
 
@@ -320,7 +328,7 @@ export default function Wellbeing() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-cyan-500/30">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="fitness">Fitness</TabsTrigger>
             <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
@@ -331,7 +339,7 @@ export default function Wellbeing() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Steps Today</CardTitle>
                   <Activity className="h-4 w-4 text-muted-foreground" />
@@ -342,7 +350,7 @@ export default function Wellbeing() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Calories</CardTitle>
                   <Apple className="h-4 w-4 text-muted-foreground" />
@@ -353,7 +361,7 @@ export default function Wellbeing() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Hydration</CardTitle>
                   <Droplet className="h-4 w-4 text-muted-foreground" />
@@ -364,7 +372,7 @@ export default function Wellbeing() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Mood</CardTitle>
                   <Smile className="h-4 w-4 text-muted-foreground" />
@@ -377,7 +385,7 @@ export default function Wellbeing() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle>Recent Workouts</CardTitle>
                 </CardHeader>
@@ -402,7 +410,7 @@ export default function Wellbeing() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle>Recent Journal Entries</CardTitle>
                 </CardHeader>
@@ -427,7 +435,7 @@ export default function Wellbeing() {
 
           {/* Fitness Tab */}
           <TabsContent value="fitness" className="space-y-6">
-            <Card>
+            <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Log Workout</CardTitle>
                 <CardDescription>Record your exercise session</CardDescription>
@@ -464,14 +472,14 @@ export default function Wellbeing() {
                     />
                   </div>
                 </div>
-                <Button onClick={handleLogWorkout} disabled={logWorkoutMutation.isPending}>
+                <Button onClick={handleLogWorkout} className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700" disabled={logWorkoutMutation.isPending}>
                   <Plus className="h-4 w-4 mr-2" />
                   Log Workout
                 </Button>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Daily Activity</CardTitle>
                 <CardDescription>Your activity stats for {selectedDate}</CardDescription>
@@ -499,7 +507,7 @@ export default function Wellbeing() {
             </Card>
 
             {/* Workout Library */}
-            <Card>
+            <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Dumbbell className="h-5 w-5" />
@@ -514,7 +522,7 @@ export default function Wellbeing() {
 
             {/* Workout Trends Chart */}
             {workoutHistory.data && workoutHistory.data.length > 0 && (
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
@@ -534,7 +542,7 @@ export default function Wellbeing() {
               </Card>
             )}
 
-            <Card>
+            <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Workout History</CardTitle>
               </CardHeader>
@@ -563,7 +571,7 @@ export default function Wellbeing() {
           {/* Nutrition Tab */}
           <TabsContent value="nutrition" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle>Log Food</CardTitle>
                   <CardDescription>Track your meals and snacks</CardDescription>
@@ -642,14 +650,14 @@ export default function Wellbeing() {
                       />
                     </div>
                   </div>
-                  <Button onClick={handleAddFood} disabled={addFoodLogMutation.isPending}>
+                  <Button onClick={handleAddFood} className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700" disabled={addFoodLogMutation.isPending}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Food
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle>Hydration</CardTitle>
                   <CardDescription>Track your water intake</CardDescription>
@@ -678,7 +686,7 @@ export default function Wellbeing() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button onClick={handleAddWater} disabled={addHydrationMutation.isPending}>
+                  <Button onClick={handleAddWater} className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700" disabled={addHydrationMutation.isPending}>
                     <Droplet className="h-4 w-4 mr-2" />
                     Log Water
                   </Button>
@@ -701,7 +709,7 @@ export default function Wellbeing() {
 
             {/* Calorie Tracking Chart */}
             {foodLog.data && foodLog.data.length > 0 && (
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
@@ -726,7 +734,7 @@ export default function Wellbeing() {
               </Card>
             )}
 
-            <Card>
+            <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Today's Food Log</CardTitle>
                 <CardDescription>{selectedDate}</CardDescription>
@@ -757,7 +765,7 @@ export default function Wellbeing() {
           {/* Mental Wellness Tab */}
           <TabsContent value="mental" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle>Mood Tracker</CardTitle>
                   <CardDescription>How are you feeling today?</CardDescription>
@@ -800,13 +808,13 @@ export default function Wellbeing() {
                       className="mt-2"
                     />
                   </div>
-                  <Button onClick={handleUpdateMood} disabled={updateMoodMutation.isPending}>
+                  <Button onClick={handleUpdateMood} className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700" disabled={updateMoodMutation.isPending}>
                     Update Mood
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle>Meditation</CardTitle>
                   <CardDescription>Log your mindfulness practice</CardDescription>
@@ -822,7 +830,7 @@ export default function Wellbeing() {
                       onChange={(e) => setMeditationDuration(e.target.value)}
                     />
                   </div>
-                  <Button onClick={handleLogMeditation} disabled={logMeditationMutation.isPending}>
+                  <Button onClick={handleLogMeditation} className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700" disabled={logMeditationMutation.isPending}>
                     <Brain className="h-4 w-4 mr-2" />
                     Log Session
                   </Button>
@@ -844,7 +852,7 @@ export default function Wellbeing() {
               </Card>
             </div>
 
-            <Card>
+            <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Journal</CardTitle>
                 <CardDescription>Write your thoughts and reflections</CardDescription>
@@ -856,7 +864,7 @@ export default function Wellbeing() {
                   onChange={(e) => setJournalContent(e.target.value)}
                   rows={6}
                 />
-                <Button onClick={handleAddJournal} disabled={addJournalMutation.isPending}>
+                <Button onClick={handleAddJournal} className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700" disabled={addJournalMutation.isPending}>
                   <BookOpen className="h-4 w-4 mr-2" />
                   Save Entry
                 </Button>
@@ -864,7 +872,7 @@ export default function Wellbeing() {
             </Card>
             {/* Mood Patterns Chart */}
             {Array.isArray(moodLog.data) && moodLog.data.length > 0 && (
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
@@ -891,7 +899,7 @@ export default function Wellbeing() {
 
           {/* Health Metrics Tab */}
           <TabsContent value="health" className="space-y-6">
-            <Card>
+            <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Log Health Metrics</CardTitle>
                 <CardDescription>Track your biometric data</CardDescription>
@@ -920,7 +928,7 @@ export default function Wellbeing() {
                     />
                   </div>
                 </div>
-                <Button onClick={handleAddHealthMetric} disabled={addHealthMetricMutation.isPending}>
+                <Button onClick={handleAddHealthMetric} className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700" disabled={addHealthMetricMutation.isPending}>
                   <Plus className="h-4 w-4 mr-2" />
                   Log Metrics
                 </Button>
@@ -928,7 +936,7 @@ export default function Wellbeing() {
             </Card>
 
             {/* Wearable Devices */}
-            <Card>
+            <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Activity className="h-5 w-5" />
@@ -943,7 +951,7 @@ export default function Wellbeing() {
 
             {/* Weight Progress Chart */}
             {healthMetrics.data && healthMetrics.data.length > 0 && healthMetrics.data.some(m => m.weight) && (
-              <Card>
+              <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
@@ -965,7 +973,7 @@ export default function Wellbeing() {
               </Card>
             )}
 
-            <Card>
+            <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Health Metrics History</CardTitle>
               </CardHeader>

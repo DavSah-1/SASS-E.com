@@ -1616,3 +1616,12 @@
 - [x] Feature mental wellness tools (mood tracking, meditation, journaling)
 - [x] Update layout to balance Money Hub, Learning, and Wellbeing sections
 - [x] Add navigation links to Wellbeing page
+
+
+## Wellbeing Page Styling
+- [x] Update Wellbeing page header to use cyan/blue gradient (matching home page)
+- [x] Change accent colors from current theme to cyan/blue tones
+- [x] Update card borders and highlights to cyan color scheme
+- [x] Ensure consistency with Money (green) and Learning (purple) page styling patterns
+- [x] Update tab indicators and active states to cyan
+- [x] Adjust button colors to match cyan/blue theme
