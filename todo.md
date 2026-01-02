@@ -1587,3 +1587,23 @@
   - [x] Color-coded status (green/yellow/red) based on goal achievement
   - [x] Badge indicators for RDA percentages
   - [x] Special handling for sodium (lower is better)
+
+
+## Wellbeing - Workout Library
+- [x] Create workout_library table in database schema
+- [x] Create seed script with 20-30 guided workouts (yoga, HIIT, strength)
+- [x] Add workout difficulty levels, durations, equipment requirements
+- [x] Build workout library browser UI in Fitness tab
+- [x] Add workout filtering by type, difficulty, duration
+- [x] Integrate "Start Workout" button to create workout sessions
+- [x] Add workout preview with exercise list
+
+## Wellbeing - Wearable Device Integration
+- [x] Research Apple Health, Google Fit, Fitbit API integration options
+- [x] Create wearable_connections table for device linking
+- [x] Create wearable_sync_logs table for tracking syncs
+- [x] Add backend API endpoints for device authorization
+- [x] Implement automatic data sync for steps, heart rate, sleep, weight
+- [x] Build device connection UI in Health Metrics tab
+- [x] Add sync status indicators and manual sync button
+- [x] Handle OAuth flows for device authorization

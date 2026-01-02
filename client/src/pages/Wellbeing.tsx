@@ -38,6 +38,8 @@ import { WorkoutTrendsChart, CalorieTrackingChart, MoodPatternsChart, WeightProg
 import { BarcodeScanner } from "@/components/wellbeing/BarcodeScanner";
 import { FoodSearch } from "@/components/wellbeing/FoodSearch";
 import { MacroMicroDashboard } from "@/components/wellbeing/MacroMicroDashboard";
+import { WorkoutLibrary } from "@/components/WorkoutLibrary";
+import { WearableDevices } from "@/components/WearableDevices";
 
 export default function Wellbeing() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -496,6 +498,20 @@ export default function Wellbeing() {
               </CardContent>
             </Card>
 
+            {/* Workout Library */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Dumbbell className="h-5 w-5" />
+                  Workout Library
+                </CardTitle>
+                <CardDescription>Browse and start guided workouts</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <WorkoutLibrary onWorkoutStart={() => workoutHistory.refetch()} />
+              </CardContent>
+            </Card>
+
             {/* Workout Trends Chart */}
             {workoutHistory.data && workoutHistory.data.length > 0 && (
               <Card>
@@ -908,6 +924,20 @@ export default function Wellbeing() {
                   <Plus className="h-4 w-4 mr-2" />
                   Log Metrics
                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Wearable Devices */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Wearable Devices
+                </CardTitle>
+                <CardDescription>Connect fitness trackers and smartwatches to automatically sync health data</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <WearableDevices />
               </CardContent>
             </Card>
 

@@ -162,6 +162,20 @@
       "when": 1767361420081,
       "tag": "0022_outstanding_the_call",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1767363293790,
+      "tag": "0023_light_wolfsbane",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1767363399168,
+      "tag": "0024_needy_skullbuster",
+      "breakpoints": true
     }
   ]
 }

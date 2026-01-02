@@ -16,6 +16,7 @@ import { goalsRouter } from "./goalsRouter";
 import { mathRouter } from "./mathRouter";
 import { scienceRouter } from "./scienceRouter";
 import { wellbeingRouter } from "./wellbeingRouter";
+import { wearableRouter } from "./wearableRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -26,6 +27,7 @@ export const appRouter = router({
   math: mathRouter,
   science: scienceRouter,
   wellbeing: wellbeingRouter,
+  wearable: wearableRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

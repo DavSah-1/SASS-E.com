@@ -1099,6 +1099,8 @@ export const workouts = mysqlTable("workouts", {
   duration: int("duration").notNull(), // in minutes
   equipment: text("equipment"), // JSON array of required equipment
   focusArea: varchar("focusArea", { length: 100 }), // e.g., "core", "legs", "full body"
+  caloriesBurned: int("caloriesBurned"), // estimated calories burned
+  instructions: text("instructions"), // JSON array of workout steps
   videoUrl: varchar("videoUrl", { length: 512 }),
   audioUrl: varchar("audioUrl", { length: 512 }),
   thumbnailUrl: varchar("thumbnailUrl", { length: 512 }),
@@ -1297,3 +1299,60 @@ export const wellbeingReminders = mysqlTable("wellbeing_reminders", {
 
 export type WellbeingReminder = typeof wellbeingReminders.$inferSelect;
 export type InsertWellbeingReminder = typeof wellbeingReminders.$inferInsert;
+
+/**
+ * Wearable Connections - tracks connected devices and authorization
+ */
+export const wearableConnections = mysqlTable("wearable_connections", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  provider: mysqlEnum("provider", ["apple_health", "google_fit", "fitbit", "garmin", "samsung_health", "other"]).notNull(),
+  deviceName: varchar("deviceName", { length: 255 }),
+  accessToken: text("accessToken"), // encrypted OAuth token
+  refreshToken: text("refreshToken"), // encrypted refresh token
+  tokenExpiresAt: timestamp("tokenExpiresAt"),
+  scope: text("scope"), // permissions granted
+  isActive: int("isActive").default(1).notNull(),
+  lastSyncAt: timestamp("lastSyncAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WearableConnection = typeof wearableConnections.$inferSelect;
+export type InsertWearableConnection = typeof wearableConnections.$inferInsert;
+
+/**
+ * Wearable Sync Logs - tracks sync history and errors
+ */
+export const wearableSyncLogs = mysqlTable("wearable_sync_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  connectionId: int("connectionId").notNull(),
+  userId: int("userId").notNull(),
+  dataType: mysqlEnum("dataType", ["steps", "heart_rate", "sleep", "weight", "calories", "distance", "active_minutes", "blood_pressure", "blood_glucose", "oxygen_saturation"]).notNull(),
+  recordsProcessed: int("recordsProcessed").default(0).notNull(),
+  status: mysqlEnum("status", ["success", "failed", "partial"]).notNull(),
+  errorMessage: text("errorMessage"),
+  syncStartedAt: timestamp("syncStartedAt").notNull(),
+  syncCompletedAt: timestamp("syncCompletedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WearableSyncLog = typeof wearableSyncLogs.$inferSelect;
+export type InsertWearableSyncLog = typeof wearableSyncLogs.$inferInsert;
+
+/**
+ * Wearable Data Cache - temporary storage for synced data before processing
+ */
+export const wearableDataCache = mysqlTable("wearable_data_cache", {
+  id: int("id").autoincrement().primaryKey(),
+  connectionId: int("connectionId").notNull(),
+  userId: int("userId").notNull(),
+  dataType: mysqlEnum("dataType", ["steps", "heart_rate", "sleep", "weight", "calories", "distance", "active_minutes", "blood_pressure", "blood_glucose", "oxygen_saturation"]).notNull(),
+  rawData: text("rawData").notNull(), // JSON string of raw API response
+  timestamp: timestamp("timestamp").notNull(), // when the data was recorded by the device
+  processed: int("processed").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WearableDataCache = typeof wearableDataCache.$inferSelect;
+export type InsertWearableDataCache = typeof wearableDataCache.$inferInsert;
