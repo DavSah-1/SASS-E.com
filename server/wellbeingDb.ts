@@ -16,6 +16,9 @@ import {
   sleepTracking,
   healthMetrics,
   wellbeingReminders,
+  wellnessProfiles,
+  coachingRecommendations,
+  coachingFeedback,
   type InsertWorkout,
   type InsertUserWorkoutHistory,
   type InsertDailyActivityStats,
@@ -27,6 +30,9 @@ import {
   type InsertSleepTracking,
   type InsertHealthMetric,
   type InsertWellbeingReminder,
+  type InsertWellnessProfile,
+  type InsertCoachingRecommendation,
+  type InsertCoachingFeedback,
 } from "../drizzle/schema";
 
 // ============================================================================
@@ -303,4 +309,161 @@ export async function toggleWellbeingReminder(id: number, userId: number, isActi
     .update(wellbeingReminders)
     .set({ isActive: isActive ? 1 : 0 })
     .where(and(eq(wellbeingReminders.id, id), eq(wellbeingReminders.userId, userId)));
+}
+
+
+// ============================================================================
+// WELLNESS PROFILE & ONBOARDING
+// ============================================================================
+
+export async function getWellnessProfile(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(wellnessProfiles).where(eq(wellnessProfiles.userId, userId)).limit(1);
+  return result[0] || null;
+}
+
+export async function createWellnessProfile(userId: number, data: Omit<InsertWellnessProfile, "userId">) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const profile: InsertWellnessProfile = {
+    userId,
+    ...data,
+    completedOnboarding: 1,
+    onboardingCompletedAt: new Date(),
+  };
+  
+  await db.insert(wellnessProfiles).values(profile);
+  return { success: true };
+}
+
+export async function updateWellnessProfile(userId: number, data: Partial<Omit<InsertWellnessProfile, "userId">>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(wellnessProfiles)
+    .set({ ...data, lastUpdated: new Date() })
+    .where(eq(wellnessProfiles.userId, userId));
+  
+  return { success: true };
+}
+
+
+// ============================================================================
+// COACHING RECOMMENDATIONS
+// ============================================================================
+
+export async function getActiveCoachingRecommendations(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const now = new Date();
+  return db.select()
+    .from(coachingRecommendations)
+    .where(
+      and(
+        eq(coachingRecommendations.userId, userId),
+        eq(coachingRecommendations.dismissed, 0),
+        eq(coachingRecommendations.completed, 0)
+      )
+    )
+    .orderBy(desc(coachingRecommendations.priority), desc(coachingRecommendations.createdAt))
+    .limit(10);
+}
+
+export async function createCoachingRecommendation(data: InsertCoachingRecommendation) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(coachingRecommendations).values(data);
+  return { success: true };
+}
+
+export async function markRecommendationViewed(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(coachingRecommendations)
+    .set({ viewed: 1, viewedAt: new Date() })
+    .where(and(eq(coachingRecommendations.id, id), eq(coachingRecommendations.userId, userId)));
+  
+  return { success: true };
+}
+
+export async function dismissRecommendation(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(coachingRecommendations)
+    .set({ dismissed: 1, dismissedAt: new Date() })
+    .where(and(eq(coachingRecommendations.id, id), eq(coachingRecommendations.userId, userId)));
+  
+  return { success: true };
+}
+
+export async function completeRecommendation(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(coachingRecommendations)
+    .set({ completed: 1, completedAt: new Date() })
+    .where(and(eq(coachingRecommendations.id, id), eq(coachingRecommendations.userId, userId)));
+  
+  return { success: true };
+}
+
+export async function addCoachingFeedback(data: InsertCoachingFeedback) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(coachingFeedback).values(data);
+  return { success: true };
+}
+
+
+// Helper functions for date range queries (used by coaching)
+export async function getFoodLogByDateRange(userId: number, startDate: Date, endDate: Date) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select()
+    .from(foodLog)
+    .where(
+      and(
+        eq(foodLog.userId, userId),
+        sql`${foodLog.date} >= ${startDate.toISOString().split('T')[0]}`,
+        sql`${foodLog.date} <= ${endDate.toISOString().split('T')[0]}`
+      )
+    )
+    .orderBy(desc(foodLog.date));
+}
+
+export async function getMoodLogByDateRange(userId: number, startDate: Date, endDate: Date) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select()
+    .from(moodLog)
+    .where(
+      and(
+        eq(moodLog.userId, userId),
+        sql`${moodLog.date} >= ${startDate.toISOString().split('T')[0]}`,
+        sql`${moodLog.date} <= ${endDate.toISOString().split('T')[0]}`
+      )
+    )
+    .orderBy(desc(moodLog.date));
+}
+
+export async function getHealthMetricsByDateRange(userId: number, startDate: Date, endDate: Date) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select()
+    .from(healthMetrics)
+    .where(
+      and(
+        eq(healthMetrics.userId, userId),
+        sql`${healthMetrics.date} >= ${startDate.toISOString().split('T')[0]}`,
+        sql`${healthMetrics.date} <= ${endDate.toISOString().split('T')[0]}`
+      )
+    )
+    .orderBy(desc(healthMetrics.date));
 }

@@ -383,4 +383,164 @@ export const wellbeingRouter = router({
       await toggleWellbeingReminder(input.id, ctx.user.id, input.isActive);
       return { success: true };
     }),
+
+  // ============================================================================
+  // WELLNESS ONBOARDING & PROFILE
+  // ============================================================================
+
+  getWellnessProfile: protectedProcedure.query(async ({ ctx }) => {
+    const { getWellnessProfile } = await import("./wellbeingDb");
+    return getWellnessProfile(ctx.user.id);
+  }),
+
+  createWellnessProfile: protectedProcedure
+    .input(z.object({
+      fitnessLevel: z.enum(["beginner", "intermediate", "advanced"]),
+      primaryGoals: z.string(),
+      activityLevel: z.enum(["sedentary", "lightly_active", "moderately_active", "very_active", "extremely_active"]),
+      sleepHoursPerNight: z.number().optional(),
+      dietPreference: z.string().optional(),
+      challenges: z.string().optional(),
+      availableEquipment: z.string().optional(),
+      workoutDaysPerWeek: z.number().optional(),
+      workoutDurationPreference: z.number().optional(),
+      medicalConditions: z.string().nullable().optional(),
+      injuries: z.string().nullable().optional(),
+      preferredWorkoutTypes: z.string().optional(),
+      preferredWorkoutTime: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { createWellnessProfile } = await import("./wellbeingDb");
+      return createWellnessProfile(ctx.user.id, input);
+    }),
+
+  updateWellnessProfile: protectedProcedure
+    .input(z.object({
+      fitnessLevel: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+      primaryGoals: z.string().optional(),
+      activityLevel: z.enum(["sedentary", "lightly_active", "moderately_active", "very_active", "extremely_active"]).optional(),
+      sleepHoursPerNight: z.number().optional(),
+      dietPreference: z.string().optional(),
+      challenges: z.string().optional(),
+      availableEquipment: z.string().optional(),
+      workoutDaysPerWeek: z.number().optional(),
+      workoutDurationPreference: z.number().optional(),
+      medicalConditions: z.string().nullable().optional(),
+      injuries: z.string().nullable().optional(),
+      preferredWorkoutTypes: z.string().optional(),
+      preferredWorkoutTime: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { updateWellnessProfile } = await import("./wellbeingDb");
+      return updateWellnessProfile(ctx.user.id, input);
+    }),
+
+  // ============================================================================
+  // AI COACHING
+  // ============================================================================
+
+  getCoachingRecommendations: protectedProcedure.query(async ({ ctx }) => {
+    const { getActiveCoachingRecommendations } = await import("./wellbeingDb");
+    return getActiveCoachingRecommendations(ctx.user.id);
+  }),
+
+  generateCoaching: protectedProcedure.mutation(async ({ ctx }) => {
+    const { generateCoachingRecommendations } = await import("./coachingService");
+    const {
+      getWellnessProfile,
+      getUserWorkoutHistory,
+      getFoodLogByDateRange,
+      getMoodLogByDateRange,
+      getHealthMetricsByDateRange,
+    } = await import("./wellbeingDb");
+
+    // Gather user data
+    const profile = await getWellnessProfile(ctx.user.id);
+    if (!profile) {
+      throw new Error("Please complete onboarding first");
+    }
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const recentWorkouts = await getUserWorkoutHistory(ctx.user.id, 7);
+    const recentMeals = await getFoodLogByDateRange(ctx.user.id, sevenDaysAgo, new Date());
+    const recentMoods = await getMoodLogByDateRange(ctx.user.id, sevenDaysAgo, new Date());
+    const recentMetrics = await getHealthMetricsByDateRange(ctx.user.id, sevenDaysAgo, new Date());
+
+    const daysSinceOnboarding = Math.floor(
+      (new Date().getTime() - new Date(profile.onboardingCompletedAt).getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    // Generate recommendations
+    const recommendations = await generateCoachingRecommendations({
+      profile,
+      recentWorkouts,
+      recentMeals,
+      recentMoods,
+      recentMetrics,
+      daysSinceOnboarding,
+    });
+
+    // Save to database
+    const { createCoachingRecommendation } = await import("./wellbeingDb");
+    for (const rec of recommendations) {
+      await createCoachingRecommendation({
+        userId: ctx.user.id,
+        recommendationType: rec.type,
+        title: rec.title,
+        content: rec.content,
+        reasoning: rec.reasoning,
+        priority: rec.priority,
+        actionable: rec.actionable ? 1 : 0,
+        actionUrl: rec.actionUrl || null,
+        basedOnData: JSON.stringify({
+          workouts: recentWorkouts.length,
+          meals: recentMeals.length,
+          daysSinceStart: daysSinceOnboarding,
+        }),
+      });
+    }
+
+    return { success: true, count: recommendations.length };
+  }),
+
+  markRecommendationViewed: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { markRecommendationViewed } = await import("./wellbeingDb");
+      return markRecommendationViewed(input.id, ctx.user.id);
+    }),
+
+  dismissRecommendation: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { dismissRecommendation } = await import("./wellbeingDb");
+      return dismissRecommendation(input.id, ctx.user.id);
+    }),
+
+  completeRecommendation: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { completeRecommendation } = await import("./wellbeingDb");
+      return completeRecommendation(input.id, ctx.user.id);
+    }),
+
+  addCoachingFeedback: protectedProcedure
+    .input(z.object({
+      recommendationId: z.number(),
+      helpful: z.number().optional(),
+      rating: z.number().optional(),
+      comment: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { addCoachingFeedback } = await import("./wellbeingDb");
+      return addCoachingFeedback({
+        recommendationId: input.recommendationId,
+        userId: ctx.user.id,
+        helpful: input.helpful,
+        rating: input.rating,
+        comment: input.comment,
+      });
+    }),
 });

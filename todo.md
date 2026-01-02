@@ -1635,3 +1635,28 @@
 - [x] Update Home page Wellbeing section to "Wellness"
 - [x] Update all "Wellbeing Hub" references to "Wellness Hub"
 - [x] Update App.tsx route configuration
+
+
+## Wellness Onboarding Assessment
+- [x] Create user_wellness_profile table for storing assessment data
+- [x] Create wellness_goals table for tracking user goals
+- [x] Build onboarding questionnaire UI component
+- [x] Add questions about fitness level (beginner/intermediate/advanced)
+- [x] Add questions about wellness goals (weight loss, muscle gain, stress reduction, etc.)
+- [x] Add questions about lifestyle (activity level, sleep, diet preferences)
+- [x] Add questions about challenges and barriers
+- [x] Create onboarding flow that triggers on first Wellness page visit
+- [x] Store assessment results in database
+
+## AI-Powered Adaptive Coaching
+- [x] Create coaching_recommendations table for storing AI suggestions
+- [x] Create coaching_feedback table for tracking user feedback
+- [x] Implement AI service for generating personalized recommendations
+- [x] Build recommendation engine that analyzes user progress data
+- [x] Create daily/weekly coaching insights based on logged activities
+- [x] Add adaptive workout suggestions based on fitness level and progress
+- [x] Add nutrition recommendations based on goals and food logs
+- [x] Add mental wellness tips based on mood patterns
+- [x] Create coaching dashboard widget in Wellness Overview
+- [x] Implement feedback mechanism for coaching suggestions
+- [x] Add progress-based plan adjustments

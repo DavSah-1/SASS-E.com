@@ -40,6 +40,8 @@ import { FoodSearch } from "@/components/wellbeing/FoodSearch";
 import { MacroMicroDashboard } from "@/components/wellbeing/MacroMicroDashboard";
 import { WorkoutLibrary } from "@/components/WorkoutLibrary";
 import { WearableDevices } from "@/components/WearableDevices";
+import { WellnessOnboarding } from "@/components/WellnessOnboarding";
+import { CoachingDashboard } from "@/components/CoachingDashboard";
 
 export default function Wellness() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -72,6 +74,10 @@ export default function Wellness() {
   // Health metrics state
   const [weight, setWeight] = useState("");
   const [restingHeartRate, setRestingHeartRate] = useState("");
+
+  // Check if user has completed onboarding
+  const wellnessProfile = trpc.wellbeing.getWellnessProfile.useQuery();
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Queries
   const workoutHistory = trpc.wellbeing.getWorkoutHistory.useQuery({ limit: 10 });
@@ -142,11 +148,30 @@ export default function Wellness() {
     },
   });
 
-  if (loading) {
+  // Show onboarding if profile doesn't exist
+  if (!wellnessProfile.isLoading && !wellnessProfile.data && isAuthenticated) {
+    if (!showOnboarding) {
+      setShowOnboarding(true);
+    }
+  }
+
+  if (loading || wellnessProfile.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
+    );
+  }
+
+  // Show onboarding questionnaire
+  if (showOnboarding && isAuthenticated) {
+    return (
+      <WellnessOnboarding
+        onComplete={() => {
+          setShowOnboarding(false);
+          wellnessProfile.refetch();
+        }}
+      />
     );
   }
 
@@ -338,6 +363,9 @@ export default function Wellness() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            {/* AI Coaching Dashboard */}
+            <CoachingDashboard />
+
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

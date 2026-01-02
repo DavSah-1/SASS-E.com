@@ -1356,3 +1356,105 @@ export const wearableDataCache = mysqlTable("wearable_data_cache", {
 
 export type WearableDataCache = typeof wearableDataCache.$inferSelect;
 export type InsertWearableDataCache = typeof wearableDataCache.$inferInsert;
+
+/**
+ * Wellness Profile - stores user's onboarding assessment and preferences
+ */
+export const wellnessProfiles = mysqlTable("wellness_profiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  // Fitness level
+  fitnessLevel: mysqlEnum("fitnessLevel", ["beginner", "intermediate", "advanced"]).notNull(),
+  // Primary goals (can be multiple, stored as JSON array)
+  primaryGoals: text("primaryGoals").notNull(), // JSON: ["weight_loss", "muscle_gain", "stress_reduction", "better_sleep", "increase_energy", "improve_flexibility"]
+  // Lifestyle factors
+  activityLevel: mysqlEnum("activityLevel", ["sedentary", "lightly_active", "moderately_active", "very_active", "extremely_active"]).notNull(),
+  sleepHoursPerNight: int("sleepHoursPerNight"), // Average hours
+  dietPreference: varchar("dietPreference", { length: 100 }), // vegetarian, vegan, keto, paleo, none, etc.
+  // Challenges and barriers
+  challenges: text("challenges"), // JSON array of challenges
+  availableEquipment: text("availableEquipment"), // JSON array of equipment
+  workoutDaysPerWeek: int("workoutDaysPerWeek"), // Target workout frequency
+  workoutDurationPreference: int("workoutDurationPreference"), // Preferred duration in minutes
+  // Medical considerations
+  medicalConditions: text("medicalConditions"), // JSON array or text
+  injuries: text("injuries"), // JSON array or text
+  // Preferences
+  preferredWorkoutTypes: text("preferredWorkoutTypes"), // JSON: ["yoga", "hiit", "strength", "cardio", "pilates"]
+  preferredWorkoutTime: varchar("preferredWorkoutTime", { length: 50 }), // morning, afternoon, evening
+  // Tracking
+  completedOnboarding: int("completedOnboarding").default(1).notNull(),
+  onboardingCompletedAt: timestamp("onboardingCompletedAt").defaultNow().notNull(),
+  lastUpdated: timestamp("lastUpdated").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WellnessProfile = typeof wellnessProfiles.$inferSelect;
+export type InsertWellnessProfile = typeof wellnessProfiles.$inferInsert;
+
+/**
+ * Wellness Goals - specific, measurable goals set by users
+ */
+export const wellnessGoals = mysqlTable("wellness_goals", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  goalType: mysqlEnum("goalType", ["weight", "workout_frequency", "nutrition", "sleep", "meditation", "custom"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  targetValue: varchar("targetValue", { length: 100 }), // e.g., "70kg", "5 workouts/week", "8 hours sleep"
+  currentValue: varchar("currentValue", { length: 100 }),
+  targetDate: timestamp("targetDate"),
+  status: mysqlEnum("status", ["active", "completed", "paused", "abandoned"]).default("active").notNull(),
+  progress: int("progress").default(0), // 0-100 percentage
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  lastUpdated: timestamp("lastUpdated").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WellnessGoal = typeof wellnessGoals.$inferSelect;
+export type InsertWellnessGoal = typeof wellnessGoals.$inferInsert;
+
+/**
+ * Coaching Recommendations - AI-generated personalized suggestions
+ */
+export const coachingRecommendations = mysqlTable("coaching_recommendations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  recommendationType: mysqlEnum("recommendationType", ["workout", "nutrition", "mental_wellness", "sleep", "general"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(), // Detailed recommendation text
+  reasoning: text("reasoning"), // Why this recommendation was made
+  priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium").notNull(),
+  actionable: int("actionable").default(1).notNull(), // Whether user can take immediate action
+  actionUrl: varchar("actionUrl", { length: 512 }), // Link to relevant section/workout/etc
+  // Context that generated this recommendation
+  basedOnData: text("basedOnData"), // JSON: what data points influenced this
+  // User interaction
+  viewed: int("viewed").default(0).notNull(),
+  viewedAt: timestamp("viewedAt"),
+  dismissed: int("dismissed").default(0).notNull(),
+  dismissedAt: timestamp("dismissedAt"),
+  completed: int("completed").default(0).notNull(),
+  completedAt: timestamp("completedAt"),
+  // Validity
+  expiresAt: timestamp("expiresAt"), // Some recommendations are time-sensitive
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CoachingRecommendation = typeof coachingRecommendations.$inferSelect;
+export type InsertCoachingRecommendation = typeof coachingRecommendations.$inferInsert;
+
+/**
+ * Coaching Feedback - user feedback on recommendations
+ */
+export const coachingFeedback = mysqlTable("coaching_feedback", {
+  id: int("id").autoincrement().primaryKey(),
+  recommendationId: int("recommendationId").notNull(),
+  userId: int("userId").notNull(),
+  helpful: int("helpful"), // 1 = helpful, 0 = not helpful
+  rating: int("rating"), // 1-5 stars
+  comment: text("comment"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CoachingFeedback = typeof coachingFeedback.$inferSelect;
+export type InsertCoachingFeedback = typeof coachingFeedback.$inferInsert;
