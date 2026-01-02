@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -34,6 +34,10 @@ export function Navigation() {
             <a href="/money" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Wallet className="h-4 w-4" />
               Money
+            </a>
+            <a href="/wellbeing" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              Wellbeing
             </a>
           </div>
         </div>

@@ -1079,3 +1079,208 @@ export const sharedBudgetActivity = mysqlTable("shared_budget_activity", {
 
 export type SharedBudgetActivity = typeof sharedBudgetActivity.$inferSelect;
 export type InsertSharedBudgetActivity = typeof sharedBudgetActivity.$inferInsert;
+
+
+/**
+ * =============================================================================
+ * WELLBEING FEATURE - Fitness, Nutrition, Mental Wellness, Health Metrics
+ * =============================================================================
+ */
+
+/**
+ * Workouts table - library of available workouts
+ */
+export const workouts = mysqlTable("workouts", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  type: mysqlEnum("type", ["yoga", "hiit", "strength", "pilates", "cardio", "stretching", "other"]).notNull(),
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  duration: int("duration").notNull(), // in minutes
+  equipment: text("equipment"), // JSON array of required equipment
+  focusArea: varchar("focusArea", { length: 100 }), // e.g., "core", "legs", "full body"
+  videoUrl: varchar("videoUrl", { length: 512 }),
+  audioUrl: varchar("audioUrl", { length: 512 }),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 512 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Workout = typeof workouts.$inferSelect;
+export type InsertWorkout = typeof workouts.$inferInsert;
+
+/**
+ * User Workout History - tracks completed workouts
+ */
+export const userWorkoutHistory = mysqlTable("user_workout_history", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  workoutId: int("workoutId"), // null if custom workout
+  workoutTitle: varchar("workoutTitle", { length: 255 }).notNull(),
+  duration: int("duration").notNull(), // actual duration in minutes
+  caloriesBurned: int("caloriesBurned"), // estimated calories
+  notes: text("notes"),
+  completedAt: timestamp("completedAt").defaultNow().notNull(),
+});
+
+export type UserWorkoutHistory = typeof userWorkoutHistory.$inferSelect;
+export type InsertUserWorkoutHistory = typeof userWorkoutHistory.$inferInsert;
+
+/**
+ * Daily Activity Stats - aggregated daily activity data
+ */
+export const dailyActivityStats = mysqlTable("daily_activity_stats", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  steps: int("steps").default(0),
+  distance: int("distance").default(0), // in meters
+  calories: int("calories").default(0),
+  activeMinutes: int("activeMinutes").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DailyActivityStats = typeof dailyActivityStats.$inferSelect;
+export type InsertDailyActivityStats = typeof dailyActivityStats.$inferInsert;
+
+/**
+ * Food Log - user's daily food intake
+ */
+export const foodLog = mysqlTable("food_log", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  mealType: mysqlEnum("mealType", ["breakfast", "lunch", "dinner", "snack"]).notNull(),
+  foodName: varchar("foodName", { length: 255 }).notNull(),
+  servingSize: varchar("servingSize", { length: 100 }),
+  calories: int("calories").default(0),
+  protein: int("protein").default(0), // in grams
+  carbs: int("carbs").default(0), // in grams
+  fat: int("fat").default(0), // in grams
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type FoodLog = typeof foodLog.$inferSelect;
+export type InsertFoodLog = typeof foodLog.$inferInsert;
+
+/**
+ * Hydration Log - water intake tracking
+ */
+export const hydrationLog = mysqlTable("hydration_log", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  amount: int("amount").notNull(), // in ml
+  loggedAt: timestamp("loggedAt").defaultNow().notNull(),
+});
+
+export type HydrationLog = typeof hydrationLog.$inferSelect;
+export type InsertHydrationLog = typeof hydrationLog.$inferInsert;
+
+/**
+ * Meditation Sessions - tracks meditation and mindfulness practice
+ */
+export const meditationSessions = mysqlTable("meditation_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: mysqlEnum("type", ["meditation", "breathing", "sleep", "focus", "stress"]).notNull(),
+  duration: int("duration").notNull(), // in minutes
+  title: varchar("title", { length: 255 }),
+  notes: text("notes"),
+  completedAt: timestamp("completedAt").defaultNow().notNull(),
+});
+
+export type MeditationSession = typeof meditationSessions.$inferSelect;
+export type InsertMeditationSession = typeof meditationSessions.$inferInsert;
+
+/**
+ * Mood Log - daily mood tracking
+ */
+export const moodLog = mysqlTable("mood_log", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  mood: mysqlEnum("mood", ["great", "good", "okay", "bad", "terrible"]).notNull(),
+  energy: int("energy").default(5), // 1-10 scale
+  stress: int("stress").default(5), // 1-10 scale
+  notes: text("notes"),
+  factors: text("factors"), // JSON array of contributing factors
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type MoodLog = typeof moodLog.$inferSelect;
+export type InsertMoodLog = typeof moodLog.$inferInsert;
+
+/**
+ * Journal Entries - reflective journaling
+ */
+export const journalEntries = mysqlTable("journal_entries", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  title: varchar("title", { length: 255 }),
+  content: text("content").notNull(),
+  prompt: varchar("prompt", { length: 255 }), // Optional guided prompt
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type JournalEntry = typeof journalEntries.$inferSelect;
+export type InsertJournalEntry = typeof journalEntries.$inferInsert;
+
+/**
+ * Sleep Tracking - sleep quality and duration
+ */
+export const sleepTracking = mysqlTable("sleep_tracking", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD (sleep start date)
+  bedtime: varchar("bedtime", { length: 5 }), // HH:MM
+  wakeTime: varchar("wakeTime", { length: 5 }), // HH:MM
+  duration: int("duration").notNull(), // in minutes
+  quality: mysqlEnum("quality", ["excellent", "good", "fair", "poor"]).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SleepTracking = typeof sleepTracking.$inferSelect;
+export type InsertSleepTracking = typeof sleepTracking.$inferInsert;
+
+/**
+ * Health Metrics - centralized biometric data
+ */
+export const healthMetrics = mysqlTable("health_metrics", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
+  weight: int("weight"), // in grams (e.g., 70000 = 70kg)
+  bodyFatPercentage: int("bodyFatPercentage"), // stored as integer (e.g., 185 = 18.5%)
+  muscleMass: int("muscleMass"), // in grams
+  restingHeartRate: int("restingHeartRate"), // bpm
+  bloodPressureSystolic: int("bloodPressureSystolic"),
+  bloodPressureDiastolic: int("bloodPressureDiastolic"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type HealthMetric = typeof healthMetrics.$inferSelect;
+export type InsertHealthMetric = typeof healthMetrics.$inferInsert;
+
+/**
+ * Reminders - medication, habits, and health reminders
+ */
+export const wellbeingReminders = mysqlTable("wellbeing_reminders", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: mysqlEnum("type", ["medication", "hydration", "exercise", "meditation", "custom"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  time: varchar("time", { length: 5 }), // HH:MM
+  frequency: mysqlEnum("frequency", ["daily", "weekly", "custom"]).notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WellbeingReminder = typeof wellbeingReminders.$inferSelect;
+export type InsertWellbeingReminder = typeof wellbeingReminders.$inferInsert;
