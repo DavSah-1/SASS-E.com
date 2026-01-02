@@ -243,7 +243,7 @@ export default function Wellbeing() {
     });
   };
 
-  const totalCaloriesConsumed = foodLog.data?.reduce((sum, item) => sum + (item.calories || 0), 0) || 0;
+  const totalCaloriesConsumed = foodLog.data?.reduce((sum, item) => sum + (parseFloat(item.calories?.toString() || '0') || 0), 0) || 0;
   const totalWaterIntake = hydrationLog.data?.total || 0;
   const waterGoal = 2000; // 2L in ml
   const waterProgress = Math.min((totalWaterIntake / waterGoal) * 100, 100);

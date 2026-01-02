@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { decimal, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -1152,11 +1152,24 @@ export const foodLog = mysqlTable("food_log", {
   date: varchar("date", { length: 10 }).notNull(), // YYYY-MM-DD
   mealType: mysqlEnum("mealType", ["breakfast", "lunch", "dinner", "snack"]).notNull(),
   foodName: varchar("foodName", { length: 255 }).notNull(),
+  barcode: varchar("barcode", { length: 50 }), // Product barcode if scanned
   servingSize: varchar("servingSize", { length: 100 }),
-  calories: int("calories").default(0),
-  protein: int("protein").default(0), // in grams
-  carbs: int("carbs").default(0), // in grams
-  fat: int("fat").default(0), // in grams
+  servingQuantity: decimal("servingQuantity", { precision: 10, scale: 2 }).default("1"),
+  // Macronutrients (per serving)
+  calories: decimal("calories", { precision: 10, scale: 2 }).default("0"),
+  protein: decimal("protein", { precision: 10, scale: 2 }).default("0"), // grams
+  carbs: decimal("carbs", { precision: 10, scale: 2 }).default("0"), // grams
+  fat: decimal("fat", { precision: 10, scale: 2 }).default("0"), // grams
+  fiber: decimal("fiber", { precision: 10, scale: 2 }).default("0"), // grams
+  sugars: decimal("sugars", { precision: 10, scale: 2 }).default("0"), // grams
+  saturatedFat: decimal("saturatedFat", { precision: 10, scale: 2 }).default("0"), // grams
+  // Micronutrients (per serving)
+  sodium: decimal("sodium", { precision: 10, scale: 2 }).default("0"), // mg
+  cholesterol: decimal("cholesterol", { precision: 10, scale: 2 }).default("0"), // mg
+  vitaminA: decimal("vitaminA", { precision: 10, scale: 2 }), // mcg
+  vitaminC: decimal("vitaminC", { precision: 10, scale: 2 }), // mg
+  calcium: decimal("calcium", { precision: 10, scale: 2 }), // mg
+  iron: decimal("iron", { precision: 10, scale: 2 }), // mg
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

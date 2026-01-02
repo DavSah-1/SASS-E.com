@@ -1,9 +1,9 @@
 /**
  * Wellbeing router - fitness, nutrition, mental wellness, health metrics
  */
-
 import { z } from "zod";
-import { protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { lookupProductByBarcode, searchProducts } from "./_core/openFoodFactsApi";
 import {
   getAllWorkouts,
   getWorkoutById,
@@ -117,18 +117,50 @@ export const wellbeingRouter = router({
       date: z.string(),
       mealType: z.enum(["breakfast", "lunch", "dinner", "snack"]),
       foodName: z.string(),
+      barcode: z.string().optional(),
       servingSize: z.string().optional(),
+      servingQuantity: z.number().optional(),
       calories: z.number().optional(),
       protein: z.number().optional(),
       carbs: z.number().optional(),
       fat: z.number().optional(),
+      fiber: z.number().optional(),
+      sugars: z.number().optional(),
+      saturatedFat: z.number().optional(),
+      sodium: z.number().optional(),
+      cholesterol: z.number().optional(),
+      vitaminA: z.number().optional(),
+      vitaminC: z.number().optional(),
+      calcium: z.number().optional(),
+      iron: z.number().optional(),
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await addFoodLog({
+      // Convert numeric values to strings for decimal fields
+      const foodLogData: any = {
         userId: ctx.user.id,
-        ...input,
-      });
+        date: input.date,
+        mealType: input.mealType,
+        foodName: input.foodName,
+        barcode: input.barcode,
+        servingSize: input.servingSize,
+        servingQuantity: input.servingQuantity?.toString(),
+        calories: input.calories?.toString(),
+        protein: input.protein?.toString(),
+        carbs: input.carbs?.toString(),
+        fat: input.fat?.toString(),
+        fiber: input.fiber?.toString(),
+        sugars: input.sugars?.toString(),
+        saturatedFat: input.saturatedFat?.toString(),
+        sodium: input.sodium?.toString(),
+        cholesterol: input.cholesterol?.toString(),
+        vitaminA: input.vitaminA?.toString(),
+        vitaminC: input.vitaminC?.toString(),
+        calcium: input.calcium?.toString(),
+        iron: input.iron?.toString(),
+        notes: input.notes,
+      };
+      await addFoodLog(foodLogData);
       return { success: true };
     }),
 
@@ -137,6 +169,21 @@ export const wellbeingRouter = router({
     .mutation(async ({ ctx, input }) => {
       await deleteFoodLog(input.id, ctx.user.id);
       return { success: true };
+    }),
+
+  // Food Database - Barcode Scanning & Search
+  lookupFoodByBarcode: publicProcedure
+    .input(z.object({ barcode: z.string() }))
+    .query(async ({ input }) => {
+      const product = await lookupProductByBarcode(input.barcode);
+      return product;
+    }),
+
+  searchFoods: publicProcedure
+    .input(z.object({ query: z.string(), limit: z.number().optional() }))
+    .query(async ({ input }) => {
+      const products = await searchProducts(input.query, input.limit);
+      return products;
     }),
 
   getHydrationLog: protectedProcedure

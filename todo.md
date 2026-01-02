@@ -1516,3 +1516,52 @@
 - [x] Add weight progress chart to Health Metrics tab
   - Line chart with optional goal weight
   - Filters out entries without weight data
+
+
+## Enhanced Food Logging System
+### Food Database Integration
+- [x] Research food database APIs (OpenFoodFacts, USDA FoodData Central, Nutritionix)
+  - Selected OpenFoodFacts API (free, no auth required, 2.9M+ products)
+  - Barcode endpoint: GET /api/v2/product/{barcode}
+  - Search endpoint: GET /cgi/search.pl
+- [x] Integrate barcode scanning API
+  - Created OpenFoodFacts API service
+  - Added lookupProductByBarcode endpoint
+  - Added searchProducts endpoint
+- [x] Create food search endpoint with nutritional data
+  - Returns complete nutritional data (macros + micros)
+  - Includes Nutri-Score and NOVA group
+- [ ] Cache frequently searched foods (future enhancement)
+
+### Database Schema Updates
+- [x] Extend food_log table with macro/micronutrient fields
+  - Added barcode field for scanned products
+  - Added servingQuantity for portion tracking
+  - Extended macros: fiber, sugars, saturatedFat
+  - Added micronutrients: sodium, cholesterol, vitaminA, vitaminC, calcium, iron
+  - Changed numeric fields to decimal for precision
+- [x] Updated wellbeingRouter input schema to match new fields
+- [x] Database migration applied successfully
+- [ ] Add food_database table for cached foods (future enhancement)
+- [ ] Add custom_foods table for user-created entries (future enhancement)
+
+### Barcode Scanner UI
+- [x] Implement camera-based barcode scanner component
+  - Created BarcodeScanner.tsx with camera access
+  - Uses environment-facing camera on mobile
+- [x] Add manual barcode entry fallback
+  - Manual input field for barcode entry
+- [x] Display scanned food nutritional information
+  - Created FoodSearch.tsx component
+  - Shows calories, macros, micros, Nutri-Score
+  - Badge-based nutritional display
+- [x] Handle scan errors gracefully
+  - Camera permission error handling
+  - Fallback to manual entry
+
+### Enhanced Food Logging
+- [ ] Add food search with autocomplete
+- [ ] Display detailed nutritional breakdown (protein, carbs, fats, fiber, vitamins, minerals)
+- [ ] Add serving size adjustment
+- [ ] Show daily macro/micro totals with progress bars
+- [ ] Add nutritional goals setting
