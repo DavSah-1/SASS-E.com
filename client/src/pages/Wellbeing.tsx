@@ -35,6 +35,9 @@ import {
 import { Navigation } from "@/components/Navigation";
 import { getLoginUrl } from "@/const";
 import { WorkoutTrendsChart, CalorieTrackingChart, MoodPatternsChart, WeightProgressChart } from "@/components/wellbeing/WellbeingCharts";
+import { BarcodeScanner } from "@/components/wellbeing/BarcodeScanner";
+import { FoodSearch } from "@/components/wellbeing/FoodSearch";
+import { MacroMicroDashboard } from "@/components/wellbeing/MacroMicroDashboard";
 
 export default function Wellbeing() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -50,7 +53,12 @@ export default function Wellbeing() {
   const [foodName, setFoodName] = useState("");
   const [mealType, setMealType] = useState<"breakfast" | "lunch" | "dinner" | "snack">("breakfast");
   const [calories, setCalories] = useState("");
+  const [protein, setProtein] = useState("");
+  const [carbs, setCarbs] = useState("");
+  const [fat, setFat] = useState("");
   const [waterAmount, setWaterAmount] = useState("250");
+  const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
+  const [showFoodSearch, setShowFoodSearch] = useState(false);
 
   // Mental wellness state
   const [mood, setMood] = useState<"great" | "good" | "okay" | "bad" | "terrible">("good");
@@ -186,8 +194,45 @@ export default function Wellbeing() {
       date: selectedDate,
       mealType,
       foodName,
-      calories: calories ? parseInt(calories) : undefined,
+      calories: calories ? parseFloat(calories) : undefined,
+      protein: protein ? parseFloat(protein) : undefined,
+      carbs: carbs ? parseFloat(carbs) : undefined,
+      fat: fat ? parseFloat(fat) : undefined,
     });
+  };
+
+  const handleBarcodeScanned = (barcode: string) => {
+    // Trigger barcode lookup
+    fetch(`/api/trpc/wellbeing.lookupFoodByBarcode?input=${encodeURIComponent(JSON.stringify({ barcode }))}`)
+      .then(res => res.json())
+      .then(data => {
+        const product = data.result?.data;
+        if (product) {
+          setFoodName(product.name + (product.brand ? ` (${product.brand})` : ""));
+          setCalories(product.calories?.toString() || "");
+          setProtein(product.protein?.toString() || "");
+          setCarbs(product.carbs?.toString() || "");
+          setFat(product.fat?.toString() || "");
+          setShowBarcodeScanner(false);
+          toast.success("Food details loaded from barcode!");
+        } else {
+          toast.error("Product not found in database");
+        }
+      })
+      .catch(() => {
+        toast.error("Error looking up barcode");
+      });
+  };
+
+  const handleFoodSelected = (food: any) => {
+    setFoodName(food.name + (food.brand ? ` (${food.brand})` : ""));
+    setCalories(food.calories?.toString() || "");
+    setProtein(food.protein?.toString() || "");
+    setCarbs(food.carbs?.toString() || "");
+    setFat(food.fat?.toString() || "");
+    toast.success("Food details loaded!");
+    // Close modal after short delay to show success message
+    setTimeout(() => setShowFoodSearch(false), 500);
   };
 
   const handleAddWater = () => {
@@ -508,6 +553,14 @@ export default function Wellbeing() {
                   <CardDescription>Track your meals and snacks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setShowBarcodeScanner(true)}>
+                      Scan Barcode
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setShowFoodSearch(true)}>
+                      Search Food
+                    </Button>
+                  </div>
                   <div>
                     <Label htmlFor="meal-type">Meal Type</Label>
                     <Select value={mealType} onValueChange={(value: any) => setMealType(value)}>
@@ -531,15 +584,47 @@ export default function Wellbeing() {
                       onChange={(e) => setFoodName(e.target.value)}
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="calories">Calories</Label>
-                    <Input
-                      id="calories"
-                      type="number"
-                      placeholder="350"
-                      value={calories}
-                      onChange={(e) => setCalories(e.target.value)}
-                    />
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor="calories">Calories</Label>
+                      <Input
+                        id="calories"
+                        type="number"
+                        placeholder="350"
+                        value={calories}
+                        onChange={(e) => setCalories(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="protein">Protein (g)</Label>
+                      <Input
+                        id="protein"
+                        type="number"
+                        placeholder="25"
+                        value={protein}
+                        onChange={(e) => setProtein(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="carbs">Carbs (g)</Label>
+                      <Input
+                        id="carbs"
+                        type="number"
+                        placeholder="40"
+                        value={carbs}
+                        onChange={(e) => setCarbs(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="fat">Fat (g)</Label>
+                      <Input
+                        id="fat"
+                        type="number"
+                        placeholder="15"
+                        value={fat}
+                        onChange={(e) => setFat(e.target.value)}
+                      />
+                    </div>
                   </div>
                   <Button onClick={handleAddFood} disabled={addFoodLogMutation.isPending}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -584,6 +669,19 @@ export default function Wellbeing() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Macro/Micro Tracking Dashboard */}
+            {foodLog.data && foodLog.data.length > 0 && (
+              <MacroMicroDashboard
+                foodLog={foodLog.data.filter(entry => entry.date === selectedDate)}
+                dailyGoals={{
+                  calories: 2000,
+                  protein: 50,
+                  carbs: 275,
+                  fat: 78,
+                }}
+              />
+            )}
 
             {/* Calorie Tracking Chart */}
             {foodLog.data && foodLog.data.length > 0 && (
@@ -872,6 +970,21 @@ export default function Wellbeing() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Barcode Scanner Modal */}
+      {showBarcodeScanner && (
+        <BarcodeScanner
+          onScan={handleBarcodeScanned}
+          onClose={() => setShowBarcodeScanner(false)}
+        />
+      )}
+
+      {/* Food Search Modal */}
+      {showFoodSearch && (
+        <FoodSearch
+          onSelectFood={handleFoodSelected}
+        />
+      )}
     </div>
   );
 }

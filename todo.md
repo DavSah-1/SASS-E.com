@@ -1565,3 +1565,25 @@
 - [ ] Add serving size adjustment
 - [ ] Show daily macro/micro totals with progress bars
 - [ ] Add nutritional goals setting
+
+
+## Barcode Scanner Integration & Macro Tracking Dashboard
+- [x] Integrate BarcodeScanner component into Nutrition tab
+  - [x] Add "Scan Barcode" button to food logging card
+  - [x] Open BarcodeScanner modal on button click
+  - [x] Auto-populate food details from scanned barcode
+  - [x] Added handleBarcodeScanned function with OpenFoodFacts API lookup
+- [x] Integrate FoodSearch component into Nutrition tab
+  - [x] Add "Search Food" button to food logging card
+  - [x] Add food search interface with modal
+  - [x] Display nutritional breakdown for selected foods
+  - [x] Added macro input fields (protein, carbs, fat) to food logging
+- [x] Create macro/micro tracking dashboard
+  - [x] Add daily macro goals (protein, carbs, fat, calories)
+  - [x] Create progress bars for macro intake vs. goals
+  - [x] Add micronutrient tracking (fiber, vitamins, minerals)
+  - [x] Display RDA percentages for micronutrients
+  - [x] Add visual indicators for meeting/exceeding goals
+  - [x] Color-coded status (green/yellow/red) based on goal achievement
+  - [x] Badge indicators for RDA percentages
+  - [x] Special handling for sodium (lower is better)
