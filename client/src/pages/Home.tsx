@@ -20,7 +20,13 @@ import {
   ArrowRight,
   Languages,
   MessageSquare,
-  Zap
+  Zap,
+  Heart,
+  Activity,
+  Dumbbell,
+  Apple,
+  Brain,
+  Smile
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "wouter";
@@ -365,6 +371,128 @@ export default function Home() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
+          </div>
+        </div>
+
+        {/* Wellbeing Feature Highlight */}
+        <div className="mt-16 sm:mt-24">
+          <div className="max-w-6xl mx-auto">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-900/40 via-cyan-900/40 to-teal-900/40 border-2 border-cyan-500/50 p-8 sm:p-12">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Badge className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 py-1 text-sm font-semibold">
+                    <Heart className="h-4 w-4 mr-1 inline" />
+                    WELLBEING
+                  </Badge>
+                </div>
+                
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">
+                  💪 Wellbeing Hub
+                </h2>
+                <p className="text-lg sm:text-xl text-center text-slate-300 mb-8 max-w-3xl mx-auto">
+                  Transform your health with comprehensive fitness tracking, nutrition tools, and mental wellness support
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+                  <Card className="border-cyan-500/30 bg-slate-800/60 backdrop-blur hover:border-cyan-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-cyan-400">
+                        <Dumbbell className="h-5 w-5" />
+                        Fitness Tracking
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        30+ guided workouts (yoga, HIIT, strength, pilates), workout library with filtering, and automatic activity logging
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-cyan-500/30 bg-slate-800/60 backdrop-blur hover:border-cyan-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-cyan-400">
+                        <Apple className="h-5 w-5" />
+                        Smart Nutrition
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        Barcode scanner for instant food lookup, macro/micro tracking, meal logging, and hydration monitoring
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-cyan-500/30 bg-slate-800/60 backdrop-blur hover:border-cyan-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-cyan-400">
+                        <Brain className="h-5 w-5" />
+                        Mental Wellness
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        Mood tracking, meditation timer, journaling, and stress management tools for emotional wellbeing
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-cyan-500/30 bg-slate-800/60 backdrop-blur hover:border-cyan-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-cyan-400">
+                        <Activity className="h-5 w-5" />
+                        Wearable Sync
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        Connect Apple Health, Google Fit, Fitbit, Garmin, or Samsung Health to auto-sync steps, heart rate, and sleep data
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-cyan-500/30 bg-slate-800/60 backdrop-blur hover:border-cyan-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-cyan-400">
+                        <Smile className="h-5 w-5" />
+                        Sleep & Recovery
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        Track sleep quality, duration, and patterns to optimize rest and recovery for peak performance
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-cyan-500/30 bg-slate-800/60 backdrop-blur hover:border-cyan-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-cyan-400">
+                        <Heart className="h-5 w-5" />
+                        Health Metrics
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        Monitor weight, heart rate, blood pressure, and other vital signs with visual progress charts
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="text-center">
+                  <Button asChild size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold px-8 py-6 text-lg">
+                    <Link href="/wellbeing">
+                      Explore Wellbeing Hub
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

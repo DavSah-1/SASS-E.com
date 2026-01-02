@@ -1607,3 +1607,12 @@
 - [x] Build device connection UI in Health Metrics tab
 - [x] Add sync status indicators and manual sync button
 - [x] Handle OAuth flows for device authorization
+
+
+## Home Page Updates
+- [x] Add Wellbeing featured section to home page
+- [x] Highlight fitness tracking with workout library
+- [x] Showcase barcode scanning nutrition tools
+- [x] Feature mental wellness tools (mood tracking, meditation, journaling)
+- [x] Update layout to balance Money Hub, Learning, and Wellbeing sections
+- [x] Add navigation links to Wellbeing page
