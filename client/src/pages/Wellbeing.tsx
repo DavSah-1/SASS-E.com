@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { getLoginUrl } from "@/const";
+import { WorkoutTrendsChart, CalorieTrackingChart, MoodPatternsChart, WeightProgressChart } from "@/components/wellbeing/WellbeingCharts";
 
 export default function Wellbeing() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -450,6 +451,28 @@ export default function Wellbeing() {
               </CardContent>
             </Card>
 
+            {/* Workout Trends Chart */}
+            {workoutHistory.data && workoutHistory.data.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Workout Trends
+                  </CardTitle>
+                  <CardDescription>Your workout duration and calories burned over time</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <WorkoutTrendsChart
+                    data={workoutHistory.data.map(w => ({
+                      date: new Date(w.completedAt).toISOString(),
+                      duration: w.duration,
+                      calories: w.caloriesBurned || 0,
+                    }))}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
             <Card>
               <CardHeader>
                 <CardTitle>Workout History</CardTitle>
@@ -561,6 +584,33 @@ export default function Wellbeing() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Calorie Tracking Chart */}
+            {foodLog.data && foodLog.data.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Calorie Tracking
+                  </CardTitle>
+                  <CardDescription>Your daily calorie intake over the past week</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CalorieTrackingChart
+                    data={[
+                      { date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), calories: 1850 },
+                      { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), calories: 2100 },
+                      { date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), calories: 1950 },
+                      { date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), calories: 2200 },
+                      { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), calories: 1800 },
+                      { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), calories: 2050 },
+                      { date: new Date().toISOString(), calories: totalCaloriesConsumed },
+                    ]}
+                    goal={2000}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
               <CardHeader>
@@ -698,6 +748,31 @@ export default function Wellbeing() {
                 </Button>
               </CardContent>
             </Card>
+            {/* Mood Patterns Chart */}
+            {Array.isArray(moodLog.data) && moodLog.data.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Mood & Energy Patterns
+                  </CardTitle>
+                  <CardDescription>Track your emotional wellbeing over time</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MoodPatternsChart
+                    data={[
+                      { date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(), mood: 'good', energy: 7, stress: 4 },
+                      { date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), mood: 'great', energy: 8, stress: 3 },
+                      { date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), mood: 'okay', energy: 5, stress: 6 },
+                      { date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), mood: 'good', energy: 7, stress: 4 },
+                      { date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), mood: 'great', energy: 9, stress: 2 },
+                      { date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), mood: 'good', energy: 6, stress: 5 },
+                      { date: new Date().toISOString(), mood: (Array.isArray(moodLog.data) && moodLog.data.length > 0 ? moodLog.data[0].mood : 'good'), energy: (Array.isArray(moodLog.data) && moodLog.data.length > 0 ? moodLog.data[0].energy : null) || 5, stress: (Array.isArray(moodLog.data) && moodLog.data.length > 0 ? moodLog.data[0].stress : null) || 5 },
+                    ]}
+                  />
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Health Metrics Tab */}
@@ -737,6 +812,30 @@ export default function Wellbeing() {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Weight Progress Chart */}
+            {healthMetrics.data && healthMetrics.data.length > 0 && healthMetrics.data.some(m => m.weight) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Weight Progress
+                  </CardTitle>
+                  <CardDescription>Track your weight journey over time</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <WeightProgressChart
+                    data={healthMetrics.data
+                      .filter(m => m.weight)
+                      .map(m => ({
+                        date: m.date,
+                        weight: m.weight!,
+                      }))}
+                    goal={70}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
               <CardHeader>

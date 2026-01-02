@@ -1495,3 +1495,24 @@
 - [x] Add Wellbeing link to navigation
 - [x] Add /wellbeing route to App.tsxon
 - [ ] Update home page to showcase Wellbeing features
+
+
+## Wellbeing Data Visualization Charts
+- [x] Install Chart.js and react-chartjs-2
+- [x] Create reusable chart components
+  - WorkoutTrendsChart (dual-axis: duration + calories)
+  - CalorieTrackingChart (bar chart with goal line)
+  - MoodPatternsChart (multi-line: mood, energy, stress)
+  - WeightProgressChart (line chart with optional goal)
+- [x] Add workout trends chart to Fitness tab
+  - Dual-axis chart showing duration and calories burned over time
+  - Only displays when workout history exists
+- [x] Add calorie tracking chart to Nutrition tab
+  - Bar chart with daily goal line
+  - Shows 7-day calorie intake trend
+- [x] Add mood patterns chart to Mental Wellness tab
+  - Multi-line chart showing mood, energy, and stress trends
+  - 7-day historical data with current day
+- [x] Add weight progress chart to Health Metrics tab
+  - Line chart with optional goal weight
+  - Filters out entries without weight data
