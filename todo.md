@@ -1660,3 +1660,7 @@
 - [x] Create coaching dashboard widget in Wellness Overview
 - [x] Implement feedback mechanism for coaching suggestions
 - [x] Add progress-based plan adjustments
+
+
+## Bug Fixes
+- [x] Fix wellness profile creation database insert error (id and lastUpdated fields)

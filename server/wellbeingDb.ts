@@ -327,9 +327,12 @@ export async function createWellnessProfile(userId: number, data: Omit<InsertWel
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const profile: InsertWellnessProfile = {
+  // Don't include id (auto-increment) or lastUpdated (has default) in insert
+  const { id, lastUpdated, ...profileData } = data as any;
+  
+  const profile = {
     userId,
-    ...data,
+    ...profileData,
     completedOnboarding: 1,
     onboardingCompletedAt: new Date(),
   };
