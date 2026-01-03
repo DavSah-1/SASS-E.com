@@ -42,6 +42,7 @@ import { WorkoutLibrary } from "@/components/WorkoutLibrary";
 import { WearableDevices } from "@/components/WearableDevices";
 import { WellnessOnboarding } from "@/components/WellnessOnboarding";
 import { CoachingDashboard } from "@/components/CoachingDashboard";
+import { IncompleteProfileBanner } from "@/components/IncompleteProfileBanner";
 
 export default function Wellness() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -170,6 +171,10 @@ export default function Wellness() {
         onComplete={() => {
           setShowOnboarding(false);
           wellnessProfile.refetch();
+        }}
+        onSkip={() => {
+          setShowOnboarding(false);
+          // User skipped onboarding, they can complete it later from dashboard
         }}
       />
     );
@@ -363,8 +368,13 @@ export default function Wellness() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            {/* Show banner if profile incomplete */}
+            {!wellnessProfile.data?.completedOnboarding && (
+              <IncompleteProfileBanner onComplete={() => setShowOnboarding(true)} />
+            )}
+            
             {/* AI Coaching Dashboard */}
-            <CoachingDashboard />
+            <CoachingDashboard hasProfile={wellnessProfile.data?.completedOnboarding === 1} />
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">

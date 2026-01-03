@@ -84,9 +84,10 @@ const WORKOUT_TYPE_OPTIONS = [
 
 interface WellnessOnboardingProps {
   onComplete: () => void;
+  onSkip: () => void;
 }
 
-export function WellnessOnboarding({ onComplete }: WellnessOnboardingProps) {
+export function WellnessOnboarding({ onComplete, onSkip }: WellnessOnboardingProps) {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
     fitnessLevel: "",
@@ -177,6 +178,16 @@ export function WellnessOnboarding({ onComplete }: WellnessOnboardingProps) {
       <Card className="w-full max-w-2xl border-cyan-500/20 bg-slate-800/50 backdrop-blur">
         <CardHeader>
           <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onSkip}
+                className="text-slate-400 hover:text-slate-300 absolute top-4 right-4"
+              >
+                Skip for Now
+              </Button>
+            </div>
             <div className="flex items-center gap-2">
               <Heart className="h-6 w-6 text-cyan-400" />
               <CardTitle className="text-2xl text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">

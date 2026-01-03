@@ -1664,3 +1664,13 @@
 
 ## Bug Fixes
 - [x] Fix wellness profile creation database insert error (id and lastUpdated fields)
+
+
+## Skip Onboarding Feature
+- [x] Add "Skip for Now" button to onboarding component
+- [x] Update wellness profile schema to track skipped status
+- [x] Create incomplete profile banner for Wellness dashboard
+- [x] Add "Complete Your Profile" prompt in Overview tab
+- [x] Allow users to restart onboarding from dashboard
+- [x] Show limited functionality message when profile incomplete
+- [x] Test skip flow and profile completion
