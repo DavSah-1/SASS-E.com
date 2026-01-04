@@ -1670,3 +1670,9 @@
 - [x] Investigate Create Goal feature issue
 - [x] Fix Create Goal functionality
 - [x] Test goal creation and display
+
+
+## Sign Out Feature
+- [x] Add sign out button to navigation
+- [x] Implement logout functionality
+- [x] Test sign out and sign in flow

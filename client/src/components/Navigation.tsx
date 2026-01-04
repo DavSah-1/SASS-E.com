@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export function Navigation() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { isInstallable, isInstalled, installApp } = usePWA();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const { t } = useLanguage();
@@ -73,6 +73,10 @@ export function Navigation() {
               <Button asChild variant="default" size="sm">
                 <a href="/assistant">{t.nav.launchAssistant}</a>
               </Button>
+              <Button onClick={logout} variant="ghost" size="sm" className="gap-2">
+                <LogOut className="h-4 w-4" />
+                <span className="hidden lg:inline">Sign Out</span>
+              </Button>
             </>
           ) : (
             <Button asChild variant="default" size="sm">
@@ -124,9 +128,15 @@ export function Navigation() {
               </a>
             )}
             {isAuthenticated ? (
-              <Button asChild variant="default" className="w-full">
-                <a href="/assistant">{t.nav.launchAssistant}</a>
-              </Button>
+              <>
+                <Button asChild variant="default" className="w-full">
+                  <a href="/assistant">{t.nav.launchAssistant}</a>
+                </Button>
+                <Button onClick={() => { logout(); setMobileMenuOpen(false); }} variant="outline" className="w-full gap-2">
+                  <LogOut className="h-5 w-5" />
+                  <span>Sign Out</span>
+                </Button>
+              </>
             ) : (
               <Button asChild variant="default" className="w-full">
                 <a href={getLoginUrl()}>{t.nav.getStarted}</a>
