@@ -39,11 +39,7 @@ const PRIORITY_COLORS = {
   low: "bg-slate-500/10 text-slate-400 border-slate-500/20",
 };
 
-interface CoachingDashboardProps {
-  hasProfile?: boolean;
-}
-
-export function CoachingDashboard({ hasProfile = true }: CoachingDashboardProps = {}) {
+export function CoachingDashboard() {
   const [feedbackId, setFeedbackId] = useState<number | null>(null);
   const [feedbackComment, setFeedbackComment] = useState("");
 
@@ -115,25 +111,6 @@ export function CoachingDashboard({ hasProfile = true }: CoachingDashboardProps 
             <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
           </div>
         </CardContent>
-      </Card>
-    );
-  }
-
-  // Show message if profile incomplete
-  if (!hasProfile) {
-    return (
-      <Card className="border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 to-blue-500/5">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-cyan-400" />
-            <CardTitle className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
-              Your AI Coach
-            </CardTitle>
-          </div>
-          <CardDescription>
-            Complete your wellness profile to unlock personalized AI coaching
-          </CardDescription>
-        </CardHeader>
       </Card>
     );
   }

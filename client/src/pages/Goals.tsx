@@ -55,6 +55,7 @@ export default function Goals() {
       toast.success("Goal created!");
       setAddGoalOpen(false);
       refetchGoals();
+      // Reset form will be handled by dialog close
     },
     onError: (error) => {
       toast.error(`Failed to create goal: ${error.message}`);
@@ -169,7 +170,14 @@ export default function Goals() {
                 Set targets, track progress, celebrate milestones
               </p>
             </div>
-            <Dialog open={addGoalOpen} onOpenChange={setAddGoalOpen}>
+            <Dialog open={addGoalOpen} onOpenChange={(open) => {
+              setAddGoalOpen(open);
+              // Reset form when dialog closes
+              if (!open) {
+                // Force re-render of form by closing and reopening
+                setTimeout(() => {}, 0);
+              }
+            }}>
               <DialogTrigger asChild>
                 <Button className="gap-2">
                   <Plus className="h-4 w-4" />
@@ -184,6 +192,7 @@ export default function Goals() {
                   </DialogDescription>
                 </DialogHeader>
                 <AddGoalForm
+                  key={addGoalOpen ? 'open' : 'closed'}
                   onSubmit={(data) => createGoal.mutate(data)}
                   isSubmitting={createGoal.isPending}
                 />
