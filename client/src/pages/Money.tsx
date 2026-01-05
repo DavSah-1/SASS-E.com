@@ -190,14 +190,260 @@ export default function Money() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <Navigation />
-        <div className="container mx-auto py-16 px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4 text-white">💰 Money Hub</h1>
-          <p className="text-xl text-slate-300 mb-8">
-            Your complete financial command center - budget, debts, and insights in one place
-          </p>
-          <Button asChild size="lg">
-            <a href={getLoginUrl()}>Get Started</a>
-          </Button>
+        
+        {/* Hero Section */}
+        <div className="container mx-auto py-16 px-4">
+          <div className="text-center mb-16">
+            <div className="inline-block mb-4 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full">
+              <span className="text-green-400 font-semibold text-sm">AI-POWERED FINANCIAL MANAGEMENT</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-green-400 via-emerald-500 to-purple-400 bg-clip-text text-transparent">
+              💰 Money Hub
+            </h1>
+            <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
+              Take control of your financial future with intelligent budgeting, debt management, and goal tracking—all powered by AI
+            </p>
+            <Button asChild size="lg" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-6 text-lg">
+              <a href={getLoginUrl()}>Start Managing Your Money</a>
+            </Button>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {/* Smart Budgeting */}
+            <Card className="bg-slate-800/50 border-green-500/30 hover:border-green-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center mb-4">
+                  <Wallet className="h-6 w-6 text-green-400" />
+                </div>
+                <CardTitle className="text-white">Smart Budgeting</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Create and track monthly budgets with intelligent category suggestions and spending limits
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Automatic expense categorization</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Real-time spending tracking</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Budget vs actual comparisons</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Overspending alerts</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Expense Tracking */}
+            <Card className="bg-slate-800/50 border-green-500/30 hover:border-green-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center mb-4">
+                  <CreditCard className="h-6 w-6 text-emerald-400" />
+                </div>
+                <CardTitle className="text-white">Expense Tracking</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Log and categorize every expense with detailed insights into your spending patterns
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Quick expense entry</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Custom categories & tags</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Recurring expense management</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Spending trend analysis</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Financial Goals */}
+            <Card className="bg-slate-800/50 border-green-500/30 hover:border-green-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
+                  <Target className="h-6 w-6 text-purple-400" />
+                </div>
+                <CardTitle className="text-white">Financial Goals</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Set and achieve savings goals with progress tracking and milestone celebrations
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Multiple goal types (savings, debt, purchase)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Visual progress tracking</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Target date projections</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Milestone celebrations</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Debt Management */}
+            <Card className="bg-slate-800/50 border-green-500/30 hover:border-green-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center mb-4">
+                  <DebtIcon className="h-6 w-6 text-red-400" />
+                </div>
+                <CardTitle className="text-white">Debt Coach</CardTitle>
+                <CardDescription className="text-slate-300">
+                  AI-powered debt payoff strategies with snowball and avalanche method recommendations
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Multiple debt tracking</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Optimized payoff plans</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Interest savings calculator</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Payment reminders</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* AI Insights */}
+            <Card className="bg-slate-800/50 border-green-500/30 hover:border-green-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center mb-4">
+                  <Sparkles className="h-6 w-6 text-yellow-400" />
+                </div>
+                <CardTitle className="text-white">AI Financial Insights</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Get personalized recommendations and spending insights powered by artificial intelligence
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Spending pattern analysis</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Savings opportunities</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Budget optimization tips</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Predictive cash flow</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Reports & Analytics */}
+            <Card className="bg-slate-800/50 border-green-500/30 hover:border-green-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-4">
+                  <TrendingUp className="h-6 w-6 text-blue-400" />
+                </div>
+                <CardTitle className="text-white">Reports & Analytics</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Comprehensive financial reports with charts, trends, and actionable insights
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Monthly spending summaries</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Category breakdowns</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Year-over-year comparisons</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <span>Export to CSV/PDF</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Why Choose Money Hub */}
+          <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-2xl p-8 md:p-12 mb-16">
+            <h2 className="text-3xl font-bold text-white mb-6 text-center">Why Choose Money Hub?</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="h-8 w-8 text-green-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">AI-Powered Intelligence</h3>
+                <p className="text-slate-300">
+                  Advanced algorithms analyze your spending patterns and provide personalized recommendations to help you save more
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Target className="h-8 w-8 text-emerald-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Goal-Oriented Approach</h3>
+                <p className="text-slate-300">
+                  Set financial goals and let Money Hub guide you with actionable steps, progress tracking, and motivational milestones
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+                  <PiggyBank className="h-8 w-8 text-purple-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Complete Financial Picture</h3>
+                <p className="text-slate-300">
+                  Manage budgets, track expenses, eliminate debt, and build savings—all in one integrated platform
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Finances?</h2>
+            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+              Join thousands of users who have taken control of their financial future with Money Hub
+            </p>
+            <Button asChild size="lg" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-6 text-lg">
+              <a href={getLoginUrl()} className="flex items-center gap-2">
+                Get Started Free
+                <ArrowRight className="h-5 w-5" />
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
     );
