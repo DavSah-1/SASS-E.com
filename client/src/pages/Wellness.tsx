@@ -89,11 +89,14 @@ export default function Wellness() {
   const meditationSessions = trpc.wellbeing.getMeditationSessions.useQuery({ limit: 10 });
   const healthMetrics = trpc.wellbeing.getHealthMetrics.useQuery({ limit: 10 });
 
+  const utils = trpc.useUtils();
+
   // Mutations
   const logWorkoutMutation = trpc.wellbeing.logWorkout.useMutation({
     onSuccess: () => {
       toast.success("Workout logged successfully!");
-      workoutHistory.refetch();
+      utils.wellbeing.getWorkoutHistory.invalidate();
+      utils.wellbeing.getDailyActivity.invalidate();
       setWorkoutTitle("");
       setWorkoutDuration("");
       setWorkoutCalories("");
@@ -103,7 +106,8 @@ export default function Wellness() {
   const addFoodLogMutation = trpc.wellbeing.addFoodLog.useMutation({
     onSuccess: () => {
       toast.success("Food logged successfully!");
-      foodLog.refetch();
+      utils.wellbeing.getFoodLog.invalidate();
+      utils.wellbeing.getDailyActivity.invalidate();
       setFoodName("");
       setCalories("");
     },
@@ -112,21 +116,23 @@ export default function Wellness() {
   const addHydrationMutation = trpc.wellbeing.addHydrationLog.useMutation({
     onSuccess: () => {
       toast.success("Water intake logged!");
-      hydrationLog.refetch();
+      utils.wellbeing.getHydrationLog.invalidate();
+      utils.wellbeing.getDailyActivity.invalidate();
     },
   });
 
   const updateMoodMutation = trpc.wellbeing.updateMoodLog.useMutation({
     onSuccess: () => {
       toast.success("Mood updated!");
-      moodLog.refetch();
+      utils.wellbeing.getMoodLog.invalidate();
+      utils.wellbeing.getDailyActivity.invalidate();
     },
   });
 
   const addJournalMutation = trpc.wellbeing.addJournalEntry.useMutation({
     onSuccess: () => {
       toast.success("Journal entry saved!");
-      journalEntries.refetch();
+      utils.wellbeing.getJournalEntries.invalidate();
       setJournalContent("");
     },
   });
@@ -134,7 +140,7 @@ export default function Wellness() {
   const logMeditationMutation = trpc.wellbeing.logMeditationSession.useMutation({
     onSuccess: () => {
       toast.success("Meditation session logged!");
-      meditationSessions.refetch();
+      utils.wellbeing.getMeditationSessions.invalidate();
       setMeditationDuration("");
     },
   });
@@ -142,7 +148,7 @@ export default function Wellness() {
   const addHealthMetricMutation = trpc.wellbeing.addHealthMetric.useMutation({
     onSuccess: () => {
       toast.success("Health metrics updated!");
-      healthMetrics.refetch();
+      utils.wellbeing.getHealthMetrics.invalidate();
       setWeight("");
       setRestingHeartRate("");
     },

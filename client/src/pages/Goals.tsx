@@ -35,8 +35,10 @@ export default function Goals() {
   const [updateProgressOpen, setUpdateProgressOpen] = useState(false);
   const [selectedGoalId, setSelectedGoalId] = useState<number | null>(null);
 
+  const utils = trpc.useUtils();
+
   // Fetch data
-  const { data: goals, refetch: refetchGoals } = trpc.goals.getGoals.useQuery(
+  const { data: goals } = trpc.goals.getGoals.useQuery(
     { includeCompleted: false },
     { enabled: isAuthenticated }
   );
@@ -51,14 +53,49 @@ export default function Goals() {
 
   // Mutations
   const createGoal = trpc.goals.createGoal.useMutation({
+    onMutate: async (newGoal) => {
+      // Cancel outgoing refetches
+      await utils.goals.getGoals.cancel();
+      
+      // Snapshot previous value
+      const previousGoals = utils.goals.getGoals.getData({ includeCompleted: false });
+      
+      // Optimistically update to the new value
+      utils.goals.getGoals.setData({ includeCompleted: false }, (old) => {
+        if (!old) return old;
+        return [
+          ...old,
+          {
+            id: Date.now(), // Temporary ID
+            userId: 0, // Will be set by server
+            ...newGoal,
+            currentAmount: 0,
+            progress: 0,
+            status: 'in_progress' as const,
+            completedAt: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as any, // Type assertion for optimistic update
+        ];
+      });
+      
+      return { previousGoals };
+    },
+    onError: (error, _newGoal, context) => {
+      // Rollback on error
+      if (context?.previousGoals) {
+        utils.goals.getGoals.setData({ includeCompleted: false }, context.previousGoals);
+      }
+      toast.error(`Failed to create goal: ${error.message}`);
+    },
     onSuccess: () => {
       toast.success("Goal created!");
       setAddGoalOpen(false);
-      refetchGoals();
-      // Reset form will be handled by dialog close
     },
-    onError: (error) => {
-      toast.error(`Failed to create goal: ${error.message}`);
+    onSettled: () => {
+      // Always refetch after error or success
+      utils.goals.getGoals.invalidate();
+      utils.goals.getSummary.invalidate();
     },
   });
 
@@ -67,7 +104,9 @@ export default function Goals() {
       toast.success("Progress updated!");
       setUpdateProgressOpen(false);
       setSelectedGoalId(null);
-      refetchGoals();
+      utils.goals.getGoals.invalidate();
+      utils.goals.getSummary.invalidate();
+      utils.goals.getUnshownCelebrations.invalidate();
     },
     onError: (error) => {
       toast.error(`Failed to update progress: ${error.message}`);
@@ -77,14 +116,16 @@ export default function Goals() {
   const deleteGoal = trpc.goals.deleteGoal.useMutation({
     onSuccess: () => {
       toast.success("Goal deleted");
-      refetchGoals();
+      utils.goals.getGoals.invalidate();
+      utils.goals.getSummary.invalidate();
     },
   });
 
   const updateGoal = trpc.goals.updateGoal.useMutation({
     onSuccess: () => {
       toast.success("Goal updated");
-      refetchGoals();
+      utils.goals.getGoals.invalidate();
+      utils.goals.getSummary.invalidate();
     },
   });
 
