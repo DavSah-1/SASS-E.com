@@ -162,18 +162,263 @@ export default function Learning() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to use the Verified Learning Assistant</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild className="w-full">
-              <a href={getLoginUrl()}>Log In</a>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <Navigation />
+        
+        {/* Hero Section */}
+        <div className="container mx-auto py-16 px-4">
+          <div className="text-center mb-16">
+            <div className="inline-block mb-4 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full">
+              <span className="text-purple-400 font-semibold text-sm">AI-POWERED VERIFIED LEARNING</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent">
+              📚 Learning Hub
+            </h1>
+            <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
+              Master any subject with AI-powered explanations, fact-checked content, personalized study guides, and interactive quizzes
+            </p>
+            <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-6 text-lg">
+              <a href={getLoginUrl()}>Start Learning Today</a>
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {/* AI Explanations */}
+            <Card className="bg-slate-800/50 border-purple-500/30 hover:border-purple-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
+                  <BookOpen className="h-6 w-6 text-purple-400" />
+                </div>
+                <CardTitle className="text-white">AI-Powered Explanations</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Get clear, detailed explanations for any topic with automatic fact-checking and source verification
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Natural language question input</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Comprehensive topic coverage</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Step-by-step breakdowns</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Multiple difficulty levels</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Fact Checking */}
+            <Card className="bg-slate-800/50 border-purple-500/30 hover:border-purple-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center mb-4">
+                  <CheckCircle2 className="h-6 w-6 text-green-400" />
+                </div>
+                <CardTitle className="text-white">Automatic Fact-Checking</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Every explanation is verified against reliable sources to ensure accuracy and credibility
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Real-time source verification</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Credible reference links</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Accuracy confidence scores</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Citation transparency</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Study Guides */}
+            <Card className="bg-slate-800/50 border-purple-500/30 hover:border-purple-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-pink-500/20 flex items-center justify-center mb-4">
+                  <BookOpen className="h-6 w-6 text-pink-400" />
+                </div>
+                <CardTitle className="text-white">Personalized Study Guides</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Generate custom study guides tailored to your learning style and knowledge gaps
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Key concepts summary</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Important terms & definitions</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Practice questions</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Study tips & strategies</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Interactive Quizzes */}
+            <Card className="bg-slate-800/50 border-purple-500/30 hover:border-purple-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-4">
+                  <HelpCircle className="h-6 w-6 text-blue-400" />
+                </div>
+                <CardTitle className="text-white">Interactive Quizzes</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Test your knowledge with AI-generated quizzes that adapt to your understanding level
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Multiple choice questions</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Instant feedback & scoring</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Detailed answer explanations</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Progress tracking</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Learning History */}
+            <Card className="bg-slate-800/50 border-purple-500/30 hover:border-purple-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center mb-4">
+                  <BookOpen className="h-6 w-6 text-yellow-400" />
+                </div>
+                <CardTitle className="text-white">Learning History</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Track your learning journey with complete session history and progress analytics
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Session replay & review</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Topics mastered tracking</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Quiz performance analytics</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Learning streaks & milestones</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Multi-Subject Support */}
+            <Card className="bg-slate-800/50 border-purple-500/30 hover:border-purple-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-indigo-500/20 flex items-center justify-center mb-4">
+                  <BookOpen className="h-6 w-6 text-indigo-400" />
+                </div>
+                <CardTitle className="text-white">Multi-Subject Support</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Learn anything from mathematics and science to history, languages, and professional skills
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>STEM subjects (Math, Physics, Chemistry)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Humanities (History, Literature, Philosophy)</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Languages & linguistics</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
+                  <span>Professional & technical skills</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Why Choose Learning Hub */}
+          <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/30 rounded-2xl p-8 md:p-12 mb-16">
+            <h2 className="text-3xl font-bold text-white mb-6 text-center">Why Choose Learning Hub?</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="h-8 w-8 text-purple-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Verified Accuracy</h3>
+                <p className="text-slate-300">
+                  Every explanation is fact-checked against reliable sources, ensuring you learn correct information with proper citations
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-pink-500/20 flex items-center justify-center mx-auto mb-4">
+                  <BookOpen className="h-8 w-8 text-pink-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Personalized Learning</h3>
+                <p className="text-slate-300">
+                  AI adapts to your knowledge level and learning style, providing customized study materials and quizzes that match your needs
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
+                  <HelpCircle className="h-8 w-8 text-indigo-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Complete Learning System</h3>
+                <p className="text-slate-300">
+                  From initial explanation to mastery testing—get explanations, study guides, quizzes, and progress tracking all in one place
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to Accelerate Your Learning?</h2>
+            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+              Join students and professionals using Learning Hub to master new subjects faster with AI-powered, fact-checked education
+            </p>
+            <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-6 text-lg">
+              <a href={getLoginUrl()} className="flex items-center gap-2">
+                Get Started Free
+                <ExternalLink className="h-5 w-5" />
+              </a>
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
