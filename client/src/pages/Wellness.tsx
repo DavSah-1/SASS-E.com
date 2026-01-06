@@ -31,6 +31,10 @@ import {
   TrendingUp,
   Calendar,
   Clock,
+  CheckCircle2,
+  ExternalLink,
+  Watch,
+  Utensils,
 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { getLoginUrl } from "@/const";
@@ -183,22 +187,262 @@ export default function Wellness() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-900 to-slate-900">
         <Navigation />
-        <div className="flex-1 flex items-center justify-center">
-          <Card className="w-full max-w-md mx-4">
-            <CardHeader>
-              <CardTitle>Sign In Required</CardTitle>
-              <CardDescription>
-                Please sign in to access your Wellness dashboard
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full">
-                <a href={getLoginUrl()}>Sign In</a>
-              </Button>
-            </CardContent>
-          </Card>
+        
+        {/* Hero Section */}
+        <div className="container mx-auto py-16 px-4">
+          <div className="text-center mb-16">
+            <div className="inline-block mb-4 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full">
+              <span className="text-cyan-400 font-semibold text-sm">HOLISTIC HEALTH & FITNESS</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent">
+              💪 Wellness Hub
+            </h1>
+            <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
+              Transform your health with comprehensive fitness tracking, smart nutrition tools, mental wellness support, and AI-powered coaching
+            </p>
+            <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-6 text-lg">
+              <a href={getLoginUrl()}>Start Your Wellness Journey</a>
+            </Button>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            {/* Fitness Tracking */}
+            <Card className="bg-slate-800/50 border-cyan-500/30 hover:border-cyan-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-cyan-500/20 flex items-center justify-center mb-4">
+                  <Dumbbell className="h-6 w-6 text-cyan-400" />
+                </div>
+                <CardTitle className="text-white">Fitness Tracking</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Track workouts, log exercises, and monitor your fitness progress with detailed analytics
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>30+ guided workout programs</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Exercise logging with sets & reps</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Workout history & trends</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Calorie burn tracking</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Workout Library */}
+            <Card className="bg-slate-800/50 border-cyan-500/30 hover:border-cyan-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-4">
+                  <BookOpen className="h-6 w-6 text-blue-400" />
+                </div>
+                <CardTitle className="text-white">Workout Library</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Access 30+ professionally designed workouts across multiple categories and difficulty levels
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Yoga, HIIT, strength, cardio</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Beginner to advanced levels</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Equipment & no-equipment options</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Detailed exercise instructions</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Smart Nutrition */}
+            <Card className="bg-slate-800/50 border-cyan-500/30 hover:border-cyan-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center mb-4">
+                  <Utensils className="h-6 w-6 text-green-400" />
+                </div>
+                <CardTitle className="text-white">Smart Nutrition</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Track meals, scan barcodes, and monitor macros with comprehensive nutrition database
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Barcode scanning for instant logging</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Macro & micronutrient tracking</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Calorie goals & daily summaries</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Food search with 500k+ items</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Wearable Integration */}
+            <Card className="bg-slate-800/50 border-cyan-500/30 hover:border-cyan-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
+                  <Watch className="h-6 w-6 text-purple-400" />
+                </div>
+                <CardTitle className="text-white">Wearable Devices</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Sync with Apple Health, Google Fit, Fitbit, and more for automatic health data tracking
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Automatic steps & activity sync</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Heart rate monitoring</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Sleep tracking & analysis</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Weight & body metrics sync</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Mental Wellness */}
+            <Card className="bg-slate-800/50 border-cyan-500/30 hover:border-cyan-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-pink-500/20 flex items-center justify-center mb-4">
+                  <Brain className="h-6 w-6 text-pink-400" />
+                </div>
+                <CardTitle className="text-white">Mental Wellness</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Support your mental health with mood tracking, meditation, and journaling tools
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Daily mood tracking & patterns</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Guided meditation sessions</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Private journaling space</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Stress & anxiety management</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* AI Coaching */}
+            <Card className="bg-slate-800/50 border-cyan-500/30 hover:border-cyan-500/60 transition-all hover:scale-105">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center mb-4">
+                  <Activity className="h-6 w-6 text-yellow-400" />
+                </div>
+                <CardTitle className="text-white">AI-Powered Coaching</CardTitle>
+                <CardDescription className="text-slate-300">
+                  Get personalized recommendations and adaptive plans based on your progress and goals
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-slate-400 text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Personalized workout suggestions</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Nutrition optimization tips</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Progress-based plan adjustments</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <span>Mental wellness insights</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Why Choose Wellness Hub */}
+          <div className="bg-gradient-to-r from-cyan-900/30 to-blue-900/30 border border-cyan-500/30 rounded-2xl p-8 md:p-12 mb-16">
+            <h2 className="text-3xl font-bold text-white mb-6 text-center">Why Choose Wellness Hub?</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-cyan-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Activity className="h-8 w-8 text-cyan-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">All-in-One Platform</h3>
+                <p className="text-slate-300">
+                  Track fitness, nutrition, mental wellness, and health metrics in one unified dashboard—no need for multiple apps
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Brain className="h-8 w-8 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">AI-Powered Insights</h3>
+                <p className="text-slate-300">
+                  Get personalized coaching recommendations that adapt to your progress, goals, and lifestyle for optimal results
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+                  <Watch className="h-8 w-8 text-purple-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Seamless Integration</h3>
+                <p className="text-slate-300">
+                  Connect your wearable devices for automatic data sync and barcode scanning for effortless meal logging
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Section */}
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Health?</h2>
+            <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+              Join thousands using Wellness Hub to achieve their fitness goals, improve nutrition, and enhance mental well-being
+            </p>
+            <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-6 text-lg">
+              <a href={getLoginUrl()} className="flex items-center gap-2">
+                Get Started Free
+                <ExternalLink className="h-5 w-5" />
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
     );

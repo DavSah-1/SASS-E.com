@@ -1703,3 +1703,12 @@
 - [x] Promote interactive lessons and progress monitoring
 - [x] Describe certification and achievement features
 - [x] Add visual appeal with icons and layout
+
+
+## Wellness Page Promotional Content
+- [x] Add detailed feature descriptions to Wellness page
+- [x] Highlight fitness tracking and workout library
+- [x] Showcase nutrition tools and barcode scanning
+- [x] Promote mental wellness and mood tracking
+- [x] Describe wearable device integration
+- [x] Add visual appeal with icons and layout
