@@ -80,18 +80,20 @@ export default function Wellness() {
   const [restingHeartRate, setRestingHeartRate] = useState("");
 
   // Check if user has completed onboarding
-  const wellnessProfile = trpc.wellbeing.getWellnessProfile.useQuery();
+  const wellnessProfile = trpc.wellbeing.getWellnessProfile.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Queries
-  const workoutHistory = trpc.wellbeing.getWorkoutHistory.useQuery({ limit: 10 });
-  const dailyActivity = trpc.wellbeing.getDailyActivity.useQuery({ date: selectedDate });
-  const foodLog = trpc.wellbeing.getFoodLog.useQuery({ date: selectedDate });
-  const hydrationLog = trpc.wellbeing.getHydrationLog.useQuery({ date: selectedDate });
-  const moodLog = trpc.wellbeing.getMoodLog.useQuery({ date: selectedDate });
-  const journalEntries = trpc.wellbeing.getJournalEntries.useQuery({ limit: 10 });
-  const meditationSessions = trpc.wellbeing.getMeditationSessions.useQuery({ limit: 10 });
-  const healthMetrics = trpc.wellbeing.getHealthMetrics.useQuery({ limit: 10 });
+  const workoutHistory = trpc.wellbeing.getWorkoutHistory.useQuery({ limit: 10 }, { enabled: isAuthenticated });
+  const dailyActivity = trpc.wellbeing.getDailyActivity.useQuery({ date: selectedDate }, { enabled: isAuthenticated });
+  const foodLog = trpc.wellbeing.getFoodLog.useQuery({ date: selectedDate }, { enabled: isAuthenticated });
+  const hydrationLog = trpc.wellbeing.getHydrationLog.useQuery({ date: selectedDate }, { enabled: isAuthenticated });
+  const moodLog = trpc.wellbeing.getMoodLog.useQuery({ date: selectedDate }, { enabled: isAuthenticated });
+  const journalEntries = trpc.wellbeing.getJournalEntries.useQuery({ limit: 10 }, { enabled: isAuthenticated });
+  const meditationSessions = trpc.wellbeing.getMeditationSessions.useQuery({ limit: 10 }, { enabled: isAuthenticated });
+  const healthMetrics = trpc.wellbeing.getHealthMetrics.useQuery({ limit: 10 }, { enabled: isAuthenticated });
 
   const utils = trpc.useUtils();
 

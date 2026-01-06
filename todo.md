@@ -1712,3 +1712,9 @@
 - [x] Promote mental wellness and mood tracking
 - [x] Describe wearable device integration
 - [x] Add visual appeal with icons and layout
+
+
+## Wellness Page Routing Bug
+- [x] Investigate why Wellness link redirects to sign-in
+- [x] Fix routing to show promotional page for non-authenticated users
+- [x] Test Wellness page access without authentication
