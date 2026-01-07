@@ -3,15 +3,17 @@ import { Button } from "@/components/ui/button";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 export function Navigation() {
   const { user, isAuthenticated, logout } = useAuth();
   const { isInstallable, isInstalled, installApp } = usePWA();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const { t } = useLanguage();
+  const isOnline = useOnlineStatus();
 
   return (
     <nav className="sticky top-0 z-50 border-b border-purple-500/20 bg-slate-900/50 backdrop-blur">
@@ -42,6 +44,14 @@ export function Navigation() {
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
+          {/* Offline Indicator */}
+          {!isOnline && (
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30">
+              <WifiOff className="h-4 w-4 text-yellow-500" />
+              <span className="text-xs font-medium text-yellow-500 hidden sm:inline">Offline</span>
+            </div>
+          )}
+          
           {/* Language Selector */}
           <LanguageSelector />
           

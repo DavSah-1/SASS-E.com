@@ -1,7 +1,7 @@
 {
   "name": "SASS-E - Synthetic Adaptive Synaptic System",
   "short_name": "SASS-E",
-  "description": "Your intelligent voice-activated AI assistant",
+  "description": "Your intelligent AI assistant for wellness, finance, and learning",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e1b4b",
@@ -21,7 +21,7 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "utilities"],
+  "categories": ["productivity", "utilities", "health", "finance", "education"],
   "screenshots": [
     {
       "src": "/screenshot-mobile.png",
@@ -39,7 +39,7 @@
   "shortcuts": [
     {
       "name": "Voice Assistant",
-      "short_name": "Talk to SASS-E",
+      "short_name": "Assistant",
       "description": "Start a voice conversation with SASS-E",
       "url": "/assistant",
       "icons": [
@@ -50,10 +50,34 @@
       ]
     },
     {
-      "name": "IoT Devices",
-      "short_name": "Smart Home",
-      "description": "Control your smart home devices",
-      "url": "/iot-devices",
+      "name": "Wellness Hub",
+      "short_name": "Wellness",
+      "description": "Track fitness, nutrition, and mental health",
+      "url": "/wellness",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Money Hub",
+      "short_name": "Money",
+      "description": "Manage finances, budgets, and goals",
+      "url": "/money",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Learning Hub",
+      "short_name": "Learning",
+      "description": "Get AI-powered explanations and tutoring",
+      "url": "/learning",
       "icons": [
         {
           "src": "/icon-192.png",
