@@ -1718,3 +1718,8 @@
 - [x] Investigate why Wellness link redirects to sign-in
 - [x] Fix routing to show promotional page for non-authenticated users
 - [x] Test Wellness page access without authentication
+
+
+## Mobile Navigation Bug
+- [x] Add Wellness link to mobile menu
+- [x] Test mobile menu navigation

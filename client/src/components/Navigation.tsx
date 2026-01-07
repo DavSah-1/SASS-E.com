@@ -117,6 +117,14 @@ export function Navigation() {
               <Wallet className="h-5 w-5" />
               <span>Money</span>
             </a>
+            <a
+              href="/wellness"
+              className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Heart className="h-5 w-5" />
+              <span>Wellness</span>
+            </a>
             {isAuthenticated && (
               <a
                 href="/profile"
