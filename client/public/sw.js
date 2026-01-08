@@ -111,15 +111,89 @@ self.addEventListener('activate', (event) => {
 
 // Background sync for offline actions
 self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-conversations') {
-    event.waitUntil(syncConversations());
+  if (event.tag === 'sass-e-sync') {
+    event.waitUntil(syncQueuedActions());
   }
 });
 
-async function syncConversations() {
-  // Sync any pending conversations when back online
-  console.log('Syncing conversations...');
-  // Implementation would sync with backend
+async function syncQueuedActions() {
+  console.log('Background sync: Syncing queued actions...');
+  
+  try {
+    // Get queued actions from localStorage
+    const queue = JSON.parse(localStorage.getItem('sass-e-sync-queue') || '[]');
+    
+    if (queue.length === 0) {
+      console.log('No actions to sync');
+      return;
+    }
+    
+    console.log(`Syncing ${queue.length} queued actions`);
+    
+    const failedActions = [];
+    let syncedCount = 0;
+    
+    for (const action of queue) {
+      try {
+        const endpoint = getEndpointForActionType(action.type);
+        
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(action.data),
+        });
+        
+        if (response.ok) {
+          syncedCount++;
+        } else {
+          action.retries = (action.retries || 0) + 1;
+          if (action.retries < 3) {
+            failedActions.push(action);
+          }
+        }
+      } catch (error) {
+        console.error(`Failed to sync action ${action.id}:`, error);
+        action.retries = (action.retries || 0) + 1;
+        if (action.retries < 3) {
+          failedActions.push(action);
+        }
+      }
+    }
+    
+    // Update queue with only failed actions
+    localStorage.setItem('sass-e-sync-queue', JSON.stringify(failedActions));
+    
+    console.log(`Background sync complete: ${syncedCount} actions synced, ${failedActions.length} failed`);
+    
+    // Notify clients
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'SYNC_COMPLETE',
+        count: syncedCount
+      });
+    });
+  } catch (error) {
+    console.error('Background sync failed:', error);
+  }
+}
+
+function getEndpointForActionType(type) {
+  const baseUrl = '/api/trpc';
+  
+  const endpoints = {
+    expense: `${baseUrl}/budget.createTransaction`,
+    workout: `${baseUrl}/wellness.logWorkout`,
+    journal: `${baseUrl}/wellness.addJournalEntry`,
+    mood: `${baseUrl}/wellness.logMood`,
+    meal: `${baseUrl}/wellness.logMeal`,
+    water: `${baseUrl}/wellness.logHydration`,
+  };
+  
+  return endpoints[type] || baseUrl;
 }
 
 // Listen for messages from the client

@@ -6,6 +6,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
 import { InstallPrompt } from "./components/InstallPrompt";
+import { InstallBanner } from "./components/InstallBanner";
+import { SyncStatus } from "./components/SyncStatus";
 import Home from "./pages/Home";
 import VoiceAssistant from "./pages/VoiceAssistant";
 import IoTDevices from "./pages/IoTDevices";
@@ -65,6 +67,8 @@ function App() {
           <CurrencyProvider>
             <Toaster />
             <InstallPrompt />
+            <InstallBanner />
+            <SyncStatus />
             <Router />
           </CurrencyProvider>
         </TooltipProvider>

@@ -7,6 +7,7 @@ import superjson from "superjson";
 import App from "./App";
 import { getLoginUrl } from "./const";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { initBackgroundSync } from "./lib/backgroundSync";
 import "./index.css";
 
 const queryClient = new QueryClient({
@@ -65,6 +66,9 @@ const trpcClient = trpc.createClient({
     }),
   ],
 });
+
+// Initialize background sync for offline actions
+initBackgroundSync();
 
 createRoot(document.getElementById("root")!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>

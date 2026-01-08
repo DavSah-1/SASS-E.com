@@ -1736,3 +1736,27 @@
 - [x] Add app shortcuts for quick actions
 - [x] Test offline functionality
 - [x] Test install flow on different devices
+
+
+## PWA Enhancements Phase 2
+
+### Push Notifications System
+- [ ] Add push notification subscription management
+- [ ] Create notification preferences UI in Profile page
+- [ ] Implement notification types (wellness reminders, financial alerts, learning streaks)
+- [ ] Add notification scheduling system
+- [ ] Test push notifications on mobile devices
+
+### Background Sync
+- [x] Implement background sync for offline expense logs
+- [x] Add background sync for workout entries
+- [x] Add background sync for journal entries
+- [x] Create sync queue management
+- [x] Add sync status indicators in UI
+
+### Install Promotion Banner
+- [x] Create dismissible install banner for desktop
+- [x] Add smart timing logic (show after 2 page views)
+- [x] Implement persistent dismissal tracking
+- [x] Design banner to match SASS-E branding
+- [ ] Test banner on different browsers
