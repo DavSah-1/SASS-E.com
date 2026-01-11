@@ -204,9 +204,14 @@ export default function Wellness() {
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
               Transform your health with comprehensive fitness tracking, smart nutrition tools, mental wellness support, and AI-powered coaching
             </p>
-            <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-6 text-lg">
-              <a href={getLoginUrl()}>Start Your Wellness Journey</a>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button asChild size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-6 text-lg">
+                <a href={getLoginUrl()}>Start Your Wellness Journey</a>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-8 py-6 text-lg">
+                <a href="/wellness-demo">View Demo</a>
+              </Button>
+            </div>
           </div>
 
           {/* Features Grid */}

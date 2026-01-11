@@ -1749,3 +1749,13 @@
 - [x] Update App.tsx to import InstallBanner instead of InstallPrompt
 - [x] Test banner appears after 2 page views
 - [x] Verify banner functionality (install/dismiss)
+
+
+## Wellness Demo Page
+- [x] Create WellnessDemo.tsx page component
+- [x] Add sample workout data
+- [x] Add sample nutrition tracking data
+- [x] Add sample mood/mental wellness data
+- [x] Add route in App.tsx
+- [x] Add demo link on Wellness page
+- [x] Test demo page functionality

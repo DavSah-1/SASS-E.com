@@ -20,6 +20,7 @@ import Goals from "./pages/Goals";
 import MathTutor from "./pages/MathTutor";
 import ScienceLab from "./pages/ScienceLab";
 import Wellness from "./pages/Wellness";
+import WellnessDemo from "./pages/WellnessDemo";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -33,6 +34,7 @@ function Router() {
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/science-lab"} component={ScienceLab} />
       <Route path={"/wellness"} component={Wellness} />
+      <Route path={"/wellness-demo"} component={WellnessDemo} />
       {/* Redirect old wellbeing route to wellness */}
       <Route path={"/wellbeing"}>{() => { window.location.href = "/wellness"; return null; }}</Route>
       <Route path={"/profile"} component={Profile} />
