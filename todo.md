@@ -1743,3 +1743,9 @@
 - [x] Fix unclosed JSX tags in Learning.tsx
 - [x] Verify TypeScript compilation passes
 - [x] Test Learning page functionality
+
+
+## Replace InstallPrompt with InstallBanner
+- [x] Update App.tsx to import InstallBanner instead of InstallPrompt
+- [x] Test banner appears after 2 page views
+- [x] Verify banner functionality (install/dismiss)
