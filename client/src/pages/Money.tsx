@@ -203,9 +203,14 @@ export default function Money() {
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
               Take control of your financial future with intelligent budgeting, debt management, and goal tracking—all powered by AI
             </p>
-            <Button asChild size="lg" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-6 text-lg">
-              <a href={getLoginUrl()}>Start Managing Your Money</a>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button asChild size="lg" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-6 text-lg">
+                <a href={getLoginUrl()}>Start Managing Your Money</a>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-green-500/50 text-green-400 hover:bg-green-500/10 px-8 py-6 text-lg">
+                <a href="/money-demo">View Demo</a>
+              </Button>
+            </div>
           </div>
 
           {/* Features Grid */}

@@ -1759,3 +1759,7 @@
 - [x] Add route in App.tsx
 - [x] Add demo link on Wellness page
 - [x] Test demo page functionality
+
+
+## Money Demo Link
+- [x] Add "View Demo" button to Money page hero section
