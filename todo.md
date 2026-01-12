@@ -1770,3 +1770,10 @@
 - [x] Create Terms.tsx page component
 - [x] Add Terms link to footer navigation
 - [x] Add route in App.tsx
+
+
+## Privacy Policy
+- [x] Draft comprehensive Privacy Policy document with GDPR/CCPA compliance
+- [x] Create Privacy.tsx page component
+- [x] Update Footer component with active Privacy Policy link
+- [x] Add route in App.tsx

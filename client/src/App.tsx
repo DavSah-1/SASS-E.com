@@ -22,6 +22,7 @@ import ScienceLab from "./pages/ScienceLab";
 import Wellness from "./pages/Wellness";
 import WellnessDemo from "./pages/WellnessDemo";
 import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -37,6 +38,7 @@ function Router() {
       <Route path={"/wellness"} component={Wellness} />
       <Route path={"/wellness-demo"} component={WellnessDemo} />
       <Route path={"/terms"} component={Terms} />
+      <Route path={"/privacy"} component={Privacy} />
       {/* Redirect old wellbeing route to wellness */}
       <Route path={"/wellbeing"}>{() => { window.location.href = "/wellness"; return null; }}</Route>
       <Route path={"/profile"} component={Profile} />
