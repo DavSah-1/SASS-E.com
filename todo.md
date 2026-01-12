@@ -1763,3 +1763,10 @@
 
 ## Money Demo Link
 - [x] Add "View Demo" button to Money page hero section
+
+
+## Terms and Conditions
+- [x] Draft comprehensive Terms and Conditions document
+- [x] Create Terms.tsx page component
+- [x] Add Terms link to footer navigation
+- [x] Add route in App.tsx

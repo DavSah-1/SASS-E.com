@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { getLoginUrl } from "@/const";
 import { useIncognitoDetection } from "@/hooks/useIncognitoDetection";
 import { 
@@ -576,11 +577,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-purple-500/20 bg-slate-900/50 backdrop-blur mt-20">
-        <div className="container mx-auto px-6 py-8 text-center text-slate-400">
-          <p>Built with a Human and A.I. © 2025 SASS-E</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
