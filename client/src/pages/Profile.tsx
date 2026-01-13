@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrency, CURRENCY_LIST, CurrencyCode } from "@/contexts/CurrencyContext";
 import { Language, getLanguageName, getLanguageFlag } from "@/lib/i18n";
@@ -315,6 +316,7 @@ export default function Profile() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

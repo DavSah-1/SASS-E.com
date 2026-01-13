@@ -11,6 +11,7 @@ import { Calculator, CheckCircle2, Lightbulb, TrendingUp, XCircle } from "lucide
 import { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 
 interface Step {
   stepNumber: number;
@@ -557,6 +558,7 @@ export default function MathTutor() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

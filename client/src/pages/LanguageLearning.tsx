@@ -30,6 +30,7 @@ import { getLoginUrl } from "@/const";
 import { initializeSpeechSynthesis, speakInLanguage, stopSpeech, isTTSAvailableForLanguage, isSpeechSynthesisSupported, reloadVoices } from "@/lib/languageTTS";
 import { PronunciationPractice } from "@/components/PronunciationPractice";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 
 export default function LanguageLearning() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -978,6 +979,7 @@ export default function LanguageLearning() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

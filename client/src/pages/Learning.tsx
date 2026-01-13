@@ -10,6 +10,7 @@ import { BookOpen, CheckCircle2, XCircle, AlertCircle, HelpCircle, ExternalLink,
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 
 export default function Learning() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -886,6 +887,7 @@ export default function Learning() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

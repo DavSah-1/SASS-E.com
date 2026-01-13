@@ -1777,3 +1777,19 @@
 - [x] Create Privacy.tsx page component
 - [x] Update Footer component with active Privacy Policy link
 - [x] Add route in App.tsx
+
+
+## Footer on All Pages
+- [x] Add Footer to Money.tsx
+- [x] Add Footer to MoneyDemo.tsx
+- [x] Add Footer to Wellness.tsx
+- [x] Add Footer to WellnessDemo.tsx
+- [x] Add Footer to Learning.tsx
+- [x] Add Footer to LanguageLearning.tsx
+- [x] Add Footer to MathTutor.tsx
+- [x] Add Footer to ScienceLab.tsx
+- [x] Add Footer to VoiceAssistant.tsx
+- [x] Add Footer to Profile.tsx
+- [x] Add Footer to Goals.tsx
+- [x] Add Footer to Terms.tsx
+- [x] Add Footer to Privacy.tsx

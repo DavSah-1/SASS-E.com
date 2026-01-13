@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { PricingModal } from "@/components/PricingModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1136,6 +1137,7 @@ export default function MoneyDemo() {
 
       {/* Pricing Modal */}
       <PricingModal open={pricingModalOpen} onOpenChange={setPricingModalOpen} />
+      <Footer />
     </div>
   );
 }

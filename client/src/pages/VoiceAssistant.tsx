@@ -6,6 +6,7 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Mic, MicOff, Volume2, ArrowLeftRight, Languages } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SUPPORTED_LANGUAGES, getSpeechRecognitionLanguage, getSpeechSynthesisLanguage } from "@/lib/languages";
@@ -592,6 +593,7 @@ export default function VoiceAssistant() {
         </Card>
       </div>
       </div>
+      <Footer />
     </div>
   );
 }

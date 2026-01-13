@@ -47,6 +47,7 @@ export default function NotFound() {
           </div>
         </CardContent>
       </Card>
+      <Footer />
     </div>
   );
 }

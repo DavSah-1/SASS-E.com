@@ -10,6 +10,7 @@ import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { Beaker, FlaskConical, Microscope, AlertTriangle, CheckCircle2, Clock, Target, BookOpen } from "lucide-react";
 import { LabNotebook } from "@/components/LabNotebook";
 import { PreLabQuiz } from "@/components/PreLabQuiz";
@@ -547,6 +548,7 @@ export default function ScienceLab() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Calendar, Mail } from "lucide-react";
 
@@ -258,6 +259,7 @@ export default function Terms() {
           </CardContent>
         </Card>
       </main>
+      <Footer />
     </div>
   );
 }

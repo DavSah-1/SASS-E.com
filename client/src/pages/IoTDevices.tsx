@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { Lightbulb, Thermometer, Plug, Power, Trash2, Plus } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 
 export default function IoTDevices() {
   const { isAuthenticated } = useAuth();
@@ -367,6 +368,7 @@ export default function IoTDevices() {
         )}
       </div>
       </div>
+      <Footer />
     </div>
   );
 }

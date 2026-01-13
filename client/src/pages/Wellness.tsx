@@ -37,6 +37,7 @@ import {
   Utensils,
 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { getLoginUrl } from "@/const";
 import { WorkoutTrendsChart, CalorieTrackingChart, MoodPatternsChart, WeightProgressChart } from "@/components/wellbeing/WellbeingCharts";
 import { BarcodeScanner } from "@/components/wellbeing/BarcodeScanner";
@@ -1308,6 +1309,7 @@ export default function Wellness() {
           onSelectFood={handleFoodSelected}
         />
       )}
+      <Footer />
     </div>
   );
 }

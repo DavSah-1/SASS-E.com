@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield, Calendar, Mail } from "lucide-react";
 
@@ -292,6 +293,7 @@ export default function Privacy() {
           </CardContent>
         </Card>
       </main>
+      <Footer />
     </div>
   );
 }
