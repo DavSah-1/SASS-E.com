@@ -7,6 +7,7 @@ import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Lan
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { NotificationBell } from "./NotificationBell";
 
 export function Navigation() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -74,6 +75,7 @@ export function Navigation() {
           )}
           {isAuthenticated ? (
             <>
+              <NotificationBell />
               <Button asChild variant="ghost" size="sm" className="gap-2">
                 <a href="/profile">
                   <User className="h-4 w-4" />

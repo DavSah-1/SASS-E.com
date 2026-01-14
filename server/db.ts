@@ -79,7 +79,11 @@ import {
   InsertLabQuizAttempt,
   verifiedFacts,
   InsertVerifiedFact,
-  VerifiedFact
+  VerifiedFact,
+  factAccessLog,
+  InsertFactAccessLog,
+  factUpdateNotifications,
+  InsertFactUpdateNotification
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -2212,13 +2216,57 @@ export async function hasPassedLabQuiz(userId: number, experimentId: number): Pr
 
 /**
  * Save a verified fact to the knowledge base
+ * If fact already exists, update it and notify users who accessed the old version
  */
 export async function saveVerifiedFact(fact: InsertVerifiedFact) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(verifiedFacts).values(fact);
-  return result;
+  // Check if a fact with this normalized question already exists
+  const existingFact = await db
+    .select()
+    .from(verifiedFacts)
+    .where(eq(verifiedFacts.normalizedQuestion, fact.normalizedQuestion))
+    .limit(1);
+  
+  if (existingFact.length > 0) {
+    // Fact exists - update it and create notifications
+    const oldFact = existingFact[0];
+    
+    // Update the existing fact
+    await db
+      .update(verifiedFacts)
+      .set({
+        question: fact.question,
+        answer: fact.answer,
+        verificationStatus: fact.verificationStatus,
+        confidenceScore: fact.confidenceScore,
+        sources: fact.sources,
+        verifiedAt: fact.verifiedAt || new Date(),
+        expiresAt: fact.expiresAt,
+        verifiedByUserId: fact.verifiedByUserId,
+        updatedAt: new Date()
+      })
+      .where(eq(verifiedFacts.id, oldFact.id));
+    
+    // Get the updated fact
+    const updatedFact = await db
+      .select()
+      .from(verifiedFacts)
+      .where(eq(verifiedFacts.id, oldFact.id))
+      .limit(1);
+    
+    // Create notifications for users who accessed the old version
+    if (updatedFact.length > 0) {
+      await createFactUpdateNotifications(oldFact, updatedFact[0]);
+    }
+    
+    return [{ insertId: oldFact.id }];
+  } else {
+    // New fact - insert it
+    const result = await db.insert(verifiedFacts).values(fact);
+    return result;
+  }
 }
 
 /**
@@ -2311,4 +2359,172 @@ export function normalizeQuestion(question: string): string {
     .replace(/[^\w\s]/g, '') // Remove punctuation
     .replace(/\s+/g, ' ') // Normalize whitespace
     .trim();
+}
+
+
+// ============================================================================
+// Fact Access Tracking & Notification Functions
+// ============================================================================
+
+/**
+ * Log when a user accesses a verified fact
+ */
+export async function logFactAccess(userId: number, verifiedFactId: number, fact: VerifiedFact, source: 'voice_assistant' | 'learning_hub') {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Create a snapshot of the fact for version tracking
+  const factVersion = JSON.stringify({
+    answer: fact.answer,
+    confidenceScore: fact.confidenceScore,
+    sources: fact.sources,
+    verifiedAt: fact.verifiedAt
+  });
+  
+  await db.insert(factAccessLog).values({
+    userId,
+    verifiedFactId,
+    factVersion,
+    accessSource: source,
+  });
+}
+
+/**
+ * Create notifications for users who accessed an old version of a fact
+ */
+export async function createFactUpdateNotifications(oldFact: VerifiedFact, newFact: VerifiedFact) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Find all users who accessed the old version
+  const accessLogs = await db
+    .select()
+    .from(factAccessLog)
+    .where(eq(factAccessLog.verifiedFactId, oldFact.id));
+  
+  // Get unique user IDs
+  const userIds = [...new Set(accessLogs.map(log => log.userId))];
+  
+  const oldVersion = JSON.stringify({
+    answer: oldFact.answer,
+    confidenceScore: oldFact.confidenceScore,
+    sources: oldFact.sources,
+    verifiedAt: oldFact.verifiedAt
+  });
+  
+  const newVersion = JSON.stringify({
+    answer: newFact.answer,
+    confidenceScore: newFact.confidenceScore,
+    sources: newFact.sources,
+    verifiedAt: newFact.verifiedAt
+  });
+  
+  // Create notifications for each user
+  const notifications: InsertFactUpdateNotification[] = userIds.map(userId => ({
+    userId,
+    verifiedFactId: oldFact.id,
+    oldVersion,
+    newVersion,
+    title: 'Fact Update Available',
+    message: `The answer to "${oldFact.question}" has been updated with new information.`,
+  }));
+  
+  if (notifications.length > 0) {
+    await db.insert(factUpdateNotifications).values(notifications);
+  }
+  
+  return notifications.length;
+}
+
+/**
+ * Get unread notifications for a user
+ */
+export async function getUserNotifications(userId: number, includeRead: boolean = false) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const conditions = [
+    eq(factUpdateNotifications.userId, userId),
+    eq(factUpdateNotifications.isDismissed, 0)
+  ];
+  
+  if (!includeRead) {
+    conditions.push(eq(factUpdateNotifications.isRead, 0));
+  }
+  
+  const notifications = await db
+    .select()
+    .from(factUpdateNotifications)
+    .where(and(...conditions))
+    .orderBy(desc(factUpdateNotifications.createdAt))
+    .limit(50);
+  
+  return notifications;
+}
+
+/**
+ * Mark notification as read
+ */
+export async function markNotificationAsRead(notificationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  await db
+    .update(factUpdateNotifications)
+    .set({
+      isRead: 1,
+      readAt: new Date()
+    })
+    .where(
+      and(
+        eq(factUpdateNotifications.id, notificationId),
+        eq(factUpdateNotifications.userId, userId)
+      )
+    );
+  
+  return true;
+}
+
+/**
+ * Dismiss notification
+ */
+export async function dismissNotification(notificationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  await db
+    .update(factUpdateNotifications)
+    .set({
+      isDismissed: 1,
+      dismissedAt: new Date()
+    })
+    .where(
+      and(
+        eq(factUpdateNotifications.id, notificationId),
+        eq(factUpdateNotifications.userId, userId)
+      )
+    );
+  
+  return true;
+}
+
+/**
+ * Get unread notification count for a user
+ */
+export async function getUnreadNotificationCount(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  
+  const notifications = await db
+    .select()
+    .from(factUpdateNotifications)
+    .where(
+      and(
+        eq(factUpdateNotifications.userId, userId),
+        eq(factUpdateNotifications.isRead, 0),
+        eq(factUpdateNotifications.isDismissed, 0)
+      )
+    );
+  
+  return notifications.length;
 }

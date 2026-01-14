@@ -1881,3 +1881,16 @@
 - [x] Implement fact freshness check (auto re-verify facts older than 30 days) - facts expire after 30 days
 - [x] Test: Verify fact in Learning Hub, then ask same question in Voice Assistant - All 7 tests passed
 - [x] Test: Multiple users asking similar questions get consistent up-to-date answers - Knowledge base shared across users
+
+
+## Fact Update Notification System
+- [x] Create factAccessLog table to track which users accessed which facts
+- [x] Create factUpdateNotifications table for storing notifications
+- [x] Add tracking when users access verified facts (Voice Assistant, Learning Hub)
+- [x] Implement notification creation when facts are re-verified with changes
+- [x] Add notification API endpoints (getNotifications, markAsRead, dismissNotification)
+- [x] Build notification bell icon in header with unread count badge
+- [x] Create notification dropdown panel with update details
+- [x] Add "What Changed" comparison view for fact updates - shows old vs new versions
+- [x] Test: User accesses fact → fact gets updated → user receives notification - All 8 tests passed
+- [x] Test: Notification shows old vs new information clearly - Old/new versions parsed correctly

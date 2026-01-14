@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession, saveStudyGuide, saveQuiz, getUserQuizzes, saveQuizAttempt, getQuizAttempts, saveVerifiedFact, getVerifiedFact, searchVerifiedFacts, normalizeQuestion } from "./db";
+import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession, saveStudyGuide, saveQuiz, getUserQuizzes, saveQuizAttempt, getQuizAttempts, saveVerifiedFact, getVerifiedFact, searchVerifiedFacts, normalizeQuestion, logFactAccess, createFactUpdateNotifications, getUserNotifications, markNotificationAsRead, dismissNotification, getUnreadNotificationCount } from "./db";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
 import { languageLearningRouter } from "./languageLearningRouter";
@@ -116,6 +116,9 @@ export const appRouter = router({
         if (verifiedFact) {
           // We have a verified fact for this question!
           knowledgeBaseContext = `\n\nVerified Knowledge Base (Last verified: ${verifiedFact.verifiedAt.toLocaleDateString()}):\n${verifiedFact.answer}\n\nSources: ${JSON.parse(verifiedFact.sources).map((s: any) => s.title).join(', ')}`;
+          
+          // Log fact access for notification purposes
+          await logFactAccess(ctx.user.id, verifiedFact.id, verifiedFact, 'voice_assistant');
         }
 
         const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}${weatherContext}${knowledgeBaseContext}
@@ -1146,6 +1149,44 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           totalQuestions: questions.length,
           passed: score >= 70,
         };
+      }),
+  }),
+
+  notifications: router({
+    // Get user's notifications
+    getNotifications: protectedProcedure
+      .input(z.object({ includeRead: z.boolean().default(false) }).optional())
+      .query(async ({ ctx, input }) => {
+        const notifications = await getUserNotifications(ctx.user.id, input?.includeRead || false);
+        
+        // Parse JSON fields for each notification
+        return notifications.map(notif => ({
+          ...notif,
+          oldVersion: JSON.parse(notif.oldVersion),
+          newVersion: JSON.parse(notif.newVersion),
+        }));
+      }),
+    
+    // Get unread notification count
+    getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
+      const count = await getUnreadNotificationCount(ctx.user.id);
+      return { count };
+    }),
+    
+    // Mark notification as read
+    markAsRead: protectedProcedure
+      .input(z.object({ notificationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await markNotificationAsRead(input.notificationId, ctx.user.id);
+        return { success: true };
+      }),
+    
+    // Dismiss notification
+    dismiss: protectedProcedure
+      .input(z.object({ notificationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await dismissNotification(input.notificationId, ctx.user.id);
+        return { success: true };
       }),
   }),
 

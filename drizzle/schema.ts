@@ -1494,3 +1494,45 @@ export const verifiedFacts = mysqlTable("verified_facts", {
 
 export type VerifiedFact = typeof verifiedFacts.$inferSelect;
 export type InsertVerifiedFact = typeof verifiedFacts.$inferInsert;
+
+/**
+ * Fact Access Log - Track which users accessed which verified facts
+ * Used to send notifications when facts are updated
+ */
+export const factAccessLog = mysqlTable("fact_access_log", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  verifiedFactId: int("verifiedFactId").notNull(),
+  // Store the fact version at time of access for comparison
+  factVersion: text("factVersion").notNull(), // JSON snapshot of the fact
+  accessedAt: timestamp("accessedAt").defaultNow().notNull(),
+  // Track access source (voice_assistant, learning_hub)
+  accessSource: mysqlEnum("accessSource", ["voice_assistant", "learning_hub"]).notNull(),
+});
+
+export type FactAccessLog = typeof factAccessLog.$inferSelect;
+export type InsertFactAccessLog = typeof factAccessLog.$inferInsert;
+
+/**
+ * Fact Update Notifications - Notify users when facts they've accessed are updated
+ */
+export const factUpdateNotifications = mysqlTable("fact_update_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  verifiedFactId: int("verifiedFactId").notNull(),
+  // The old and new versions for comparison
+  oldVersion: text("oldVersion").notNull(), // JSON snapshot
+  newVersion: text("newVersion").notNull(), // JSON snapshot
+  // Notification metadata
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  // User interaction
+  isRead: int("isRead").default(0).notNull(),
+  readAt: timestamp("readAt"),
+  isDismissed: int("isDismissed").default(0).notNull(),
+  dismissedAt: timestamp("dismissedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type FactUpdateNotification = typeof factUpdateNotifications.$inferSelect;
+export type InsertFactUpdateNotification = typeof factUpdateNotifications.$inferInsert;
