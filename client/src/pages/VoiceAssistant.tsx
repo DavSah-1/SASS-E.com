@@ -43,6 +43,9 @@ export default function VoiceAssistant() {
   });
 
   const [lastConversationId, setLastConversationId] = useState<number | null>(null);
+  
+  // Conversation memory for context (last 10 exchanges)
+  const [conversationMemory, setConversationMemory] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([]);
 
   // Stop speech synthesis when component unmounts
   useEffect(() => {
@@ -125,10 +128,39 @@ export default function VoiceAssistant() {
               timezone: timezone
             };
             
+            // Get location for weather data (if user grants permission)
+            let locationInfo = undefined;
+            try {
+              const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+              });
+              locationInfo = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+              };
+            } catch (error) {
+              // Location permission denied or unavailable - continue without weather
+              console.log('Location access denied or unavailable');
+            }
+            
             const response = await chatMutation.mutateAsync({ 
               message: transcription.text,
-              dateTimeInfo 
+              dateTimeInfo,
+              locationInfo,
+              conversationHistory: conversationMemory
             });
+            
+            // Update conversation memory (keep last 10 exchanges)
+            setConversationMemory(prev => {
+              const updated = [
+                ...prev,
+                { role: 'user' as const, content: transcription.text },
+                { role: 'assistant' as const, content: response.response }
+              ];
+              // Keep only last 10 exchanges (20 messages)
+              return updated.slice(-20);
+            });
+            
             setCurrentResponse(response.response);
             speakText(response.response);
           }

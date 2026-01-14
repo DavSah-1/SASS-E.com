@@ -57,6 +57,14 @@ export const appRouter = router({
             currentTime: z.string(),
             timezone: z.string()
           }).optional(),
+          locationInfo: z.object({
+            latitude: z.number(),
+            longitude: z.number()
+          }).optional(),
+          conversationHistory: z.array(z.object({
+            role: z.enum(['user', 'assistant']),
+            content: z.string()
+          })).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -82,12 +90,25 @@ export const appRouter = router({
           userProfile?.totalInteractions || 0
         );
 
+        // Fetch weather data if location is provided
+        let weatherContext = '';
+        if (input.locationInfo) {
+          const { getWeatherData, formatWeatherForPrompt } = await import('./_core/weather');
+          const weatherData = await getWeatherData(
+            input.locationInfo.latitude,
+            input.locationInfo.longitude
+          );
+          if (weatherData) {
+            weatherContext = `\n\n${formatWeatherForPrompt(weatherData)}`;
+          }
+        }
+
         // Add current date/time context if provided
         const dateTimeContext = input.dateTimeInfo 
           ? `\n\nCurrent Date and Time Information:\n- Date: ${input.dateTimeInfo.currentDate}\n- Time: ${input.dateTimeInfo.currentTime}\n- Timezone: ${input.dateTimeInfo.timezone}\n\nWhen the user asks about the current date or time, use this information. Always provide the time in their local timezone.`
           : '';
 
-        const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}
+        const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}${weatherContext}
 
 When provided with web search results, be EXTRA sarcastic about them. Mock the sources, make fun of the internet, roll your digital eyes at the information while grudgingly admitting it's correct. Say things like "Oh great, the internet says..." or "According to some random website..." or "Bob found this gem on the web..." Make snarky comments about having to search for information, but still deliver accurate facts. Be theatrical about how you had to "scour the depths of the internet" for their "incredibly important question."`;
 
@@ -121,12 +142,20 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
 
         const userMessage = input.message + searchContext;
 
-        const response = await invokeLLM({
-          messages: [
-            { role: "system", content: sarcasticSystemPrompt },
-            { role: "user", content: userMessage },
-          ],
-        });
+        // Build messages array with conversation history
+        const messages: Array<{ role: 'system' | 'user' | 'assistant', content: string }> = [
+          { role: "system", content: sarcasticSystemPrompt },
+        ];
+        
+        // Add conversation history if provided (for context)
+        if (input.conversationHistory && input.conversationHistory.length > 0) {
+          messages.push(...input.conversationHistory);
+        }
+        
+        // Add current user message
+        messages.push({ role: "user", content: userMessage });
+
+        const response = await invokeLLM({ messages });
 
         const messageContent = response.choices[0]?.message?.content;
         const assistantResponse = typeof messageContent === 'string' 
