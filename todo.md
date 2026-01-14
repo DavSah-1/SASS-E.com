@@ -1793,3 +1793,10 @@
 - [x] Add Footer to Goals.tsx
 - [x] Add Footer to Terms.tsx
 - [x] Add Footer to Privacy.tsx
+
+
+## Footer Not Showing Bug
+- [x] Investigate why footer is not displaying on pages - Footer only shows when signed in
+- [x] Fix Footer to show in signed-out views of Money, Wellness, and Learning pages
+- [x] Verify Footer placement in page components
+- [x] Test footer visibility in browser

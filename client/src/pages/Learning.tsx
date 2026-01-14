@@ -420,6 +420,7 @@ export default function Learning() {
             </Button>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }

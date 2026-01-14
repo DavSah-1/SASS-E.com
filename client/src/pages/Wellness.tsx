@@ -452,6 +452,7 @@ export default function Wellness() {
             </Button>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }

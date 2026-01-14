@@ -451,6 +451,7 @@ export default function Money() {
             </Button>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
