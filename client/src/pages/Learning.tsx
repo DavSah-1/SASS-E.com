@@ -623,7 +623,7 @@ export default function Learning() {
                             <p className="text-slate-200 font-medium">{fact.claim}</p>
                             <div className="flex items-center gap-2 mt-2">
                               <span className={`px-2 py-1 rounded text-xs font-semibold border ${getConfidenceBadge(fact.confidence)}`}>
-                                {fact.verificationStatus.toUpperCase()}
+                                {fact.verificationStatus?.toUpperCase() || 'UNKNOWN'}
                               </span>
                               <span className="text-sm text-slate-400">
                                 Confidence: {fact.confidence}%

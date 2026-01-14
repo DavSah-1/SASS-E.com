@@ -1849,3 +1849,9 @@
 ## Fix Missing assistant.history Procedure
 - [x] Add history procedure alias to assistant router pointing to getConversations
 - [x] Test that voice assistant loads without errors
+
+
+## Fix Learning Page toUpperCase Error
+- [x] Find line 1461 in Learning.tsx where toUpperCase is called on undefined
+- [x] Add null/undefined check before calling toUpperCase
+- [x] Test Learning page loads without errors
