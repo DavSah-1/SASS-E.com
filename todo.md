@@ -1821,3 +1821,10 @@
 - [x] Pass conversation context to system prompt
 - [x] Clear memory on page refresh or explicit user request
 - [x] Test follow-up question handling
+
+
+## Clear Memory Button
+- [x] Add "Clear Memory" button to voice assistant UI
+- [x] Implement clear memory handler function
+- [x] Show confirmation toast when memory is cleared
+- [x] Test memory clearing functionality

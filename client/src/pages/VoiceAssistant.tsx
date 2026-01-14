@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { Mic, MicOff, Volume2, ArrowLeftRight, Languages } from "lucide-react";
+import { Mic, MicOff, Volume2, ArrowLeftRight, Languages, Trash2 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import React, { useEffect, useRef, useState } from "react";
@@ -419,6 +419,26 @@ export default function VoiceAssistant() {
               <div className="flex justify-center">
                 <Button variant="outline" onClick={stopSpeaking}>
                   Stop Speaking
+                </Button>
+              </div>
+            )}
+
+            {/* Clear Memory Button */}
+            {conversationMemory.length > 0 && (
+              <div className="flex justify-center">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    setConversationMemory([]);
+                    toast.success('Conversation memory cleared', {
+                      description: 'Starting fresh! Previous context has been forgotten.'
+                    });
+                  }}
+                  className="gap-2 text-slate-400 hover:text-slate-200"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Clear Memory ({Math.floor(conversationMemory.length / 2)} exchanges)
                 </Button>
               </div>
             )}
