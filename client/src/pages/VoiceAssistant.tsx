@@ -116,7 +116,19 @@ export default function VoiceAssistant() {
             // Speak the translated response in target language
             speakText(translationResponse.response);
           } else {
-            const response = await chatMutation.mutateAsync({ message: transcription.text });
+            // Get current date/time with timezone
+            const now = new Date();
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const dateTimeInfo = {
+              currentDate: now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: timezone }),
+              currentTime: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: timezone }),
+              timezone: timezone
+            };
+            
+            const response = await chatMutation.mutateAsync({ 
+              message: transcription.text,
+              dateTimeInfo 
+            });
             setCurrentResponse(response.response);
             speakText(response.response);
           }

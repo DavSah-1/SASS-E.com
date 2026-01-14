@@ -52,6 +52,11 @@ export const appRouter = router({
       .input(
         z.object({
           message: z.string(),
+          dateTimeInfo: z.object({
+            currentDate: z.string(),
+            currentTime: z.string(),
+            timezone: z.string()
+          }).optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -77,7 +82,12 @@ export const appRouter = router({
           userProfile?.totalInteractions || 0
         );
 
-        const sarcasticSystemPrompt = `${baseSarcasmPrompt}
+        // Add current date/time context if provided
+        const dateTimeContext = input.dateTimeInfo 
+          ? `\n\nCurrent Date and Time Information:\n- Date: ${input.dateTimeInfo.currentDate}\n- Time: ${input.dateTimeInfo.currentTime}\n- Timezone: ${input.dateTimeInfo.timezone}\n\nWhen the user asks about the current date or time, use this information. Always provide the time in their local timezone.`
+          : '';
+
+        const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}
 
 When provided with web search results, be EXTRA sarcastic about them. Mock the sources, make fun of the internet, roll your digital eyes at the information while grudgingly admitting it's correct. Say things like "Oh great, the internet says..." or "According to some random website..." or "Bob found this gem on the web..." Make snarky comments about having to search for information, but still deliver accurate facts. Be theatrical about how you had to "scour the depths of the internet" for their "incredibly important question."`;
 
