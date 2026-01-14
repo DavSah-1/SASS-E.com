@@ -518,7 +518,8 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
           const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
         // Step 1: Generate explanation with Bob's personality
-        const systemPrompt = `You are Agent Bob, a ${personalityDesc} AI learning assistant. Explain topics clearly and accurately, but with your signature wit and sarcasm. Break down complex concepts into understandable parts. Keep explanations concise (3-5 paragraphs) but comprehensive.`;
+        const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const systemPrompt = `You are Agent Bob, a ${personalityDesc} AI learning assistant. Today's date is ${currentDate}. When answering questions about current events, living people, or recent information, explicitly state that you need to verify with current sources. Explain topics clearly and accurately, but with your signature wit and sarcasm. Break down complex concepts into understandable parts. Keep explanations concise (3-5 paragraphs) but comprehensive.`;
 
         const explanationResponse = await invokeLLM({
           messages: [
@@ -574,7 +575,7 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
           const searchResults = await searchWeb(claim, 3);
 
           // Analyze search results for verification
-          const verificationPrompt = `Based on these search results, verify this claim: "${claim}"\n\nSearch Results:\n${JSON.stringify(searchResults.results.slice(0, 3))}\n\nProvide verification status (verified/disputed/debunked/unverified), confidence score (0-100), and brief explanation.`;
+          const verificationPrompt = `Today's date is ${currentDate}. You MUST base your verification ONLY on the search results provided, NOT on your training data. For questions about living people or current events, the search results are the authoritative source.\n\nVerify this claim: "${claim}"\n\nSearch Results:\n${JSON.stringify(searchResults.results.slice(0, 3))}\n\nProvide verification status (verified/disputed/debunked/unverified), confidence score (0-100), and brief explanation based ONLY on the search results.`;
           
           const verificationResponse = await invokeLLM({
             messages: [

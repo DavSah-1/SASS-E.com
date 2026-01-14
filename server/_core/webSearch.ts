@@ -37,9 +37,10 @@ export async function searchWeb(
         api_key: process.env.TAVILY_API_KEY,
         query: query,
         max_results: maxResults,
-        search_depth: "basic",
-        include_answer: false,
+        search_depth: "advanced",
+        include_answer: true,
         include_raw_content: false,
+        days: 30, // Prioritize recent results from last 30 days
       }),
     });
 

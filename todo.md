@@ -1855,3 +1855,11 @@
 - [x] Find line 1461 in Learning.tsx where toUpperCase is called on undefined
 - [x] Add null/undefined check before calling toUpperCase
 - [x] Test Learning page loads without errors
+
+
+## Fix Fact Verification Accuracy
+- [x] Investigate current fact verification implementation in Learning page
+- [x] Identify why verification gives incorrect results for current events - LLM was relying on training data instead of search results
+- [x] Add web search integration to fact verification for up-to-date information - Enhanced to use advanced search with 30-day recency
+- [x] Update system prompt to use search results for verification - Added explicit instructions to prioritize search over training data
+- [x] Test with current events questions (e.g., "Is Ozzy Osbourne still alive?")
