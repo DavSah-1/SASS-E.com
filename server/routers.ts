@@ -517,21 +517,27 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
           const sarcasmLevel = userProfile?.sarcasmLevel || 5;
           const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
-        // Step 1: Generate explanation with Bob's personality
+        // Step 1: Search for current information FIRST
         const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        const systemPrompt = `You are Agent Bob, a ${personalityDesc} AI learning assistant. Today's date is ${currentDate}. When answering questions about current events, living people, or recent information, explicitly state that you need to verify with current sources. Explain topics clearly and accurately, but with your signature wit and sarcasm. Break down complex concepts into understandable parts. Keep explanations concise (3-5 paragraphs) but comprehensive.`;
+        const searchResults = await searchWeb(input.question, 5);
+        const searchContext = searchResults.results.map((r: any, i: number) => 
+          `[${i+1}] ${r.title}\n${r.content}\nSource: ${r.url}`
+        ).join('\n\n');
+
+        // Step 2: Generate explanation based on search results
+        const systemPrompt = `You are Agent Bob, a ${personalityDesc} AI learning assistant. Today's date is ${currentDate}. You MUST base your answer on the search results provided below, NOT on your training data. For questions about current events or living people, the search results are the authoritative source. Explain topics clearly and accurately, but with your signature wit and sarcasm. Break down complex concepts into understandable parts. Keep explanations concise (3-5 paragraphs) but comprehensive.`;
 
         const explanationResponse = await invokeLLM({
           messages: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: `Explain: ${input.question}` },
+            { role: "user", content: `Question: ${input.question}\n\nCurrent Web Search Results:\n${searchContext}\n\nBased on these search results, explain the answer to the question.` },
           ],
         });
 
         const explanationContent = explanationResponse.choices[0].message.content;
         const explanation = typeof explanationContent === 'string' ? explanationContent : JSON.stringify(explanationContent);
 
-        // Step 2: Extract key claims for fact-checking
+        // Step 3: Extract key claims for fact-checking
         const claimsPrompt = `Extract 3-5 key factual claims from this explanation that should be verified. Return as a JSON array of strings.\n\nExplanation: ${explanation}`;
         
         const claimsResponse = await invokeLLM({
@@ -565,7 +571,7 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
         const claimsData = JSON.parse(claimsText);
         const claims = claimsData.claims || [];
 
-        // Step 3: Fact-check each claim using web search
+        // Step 4: Fact-check each claim using web search
         const factCheckResults = [];
         let totalConfidence = 0;
         let sourcesCount = 0;
@@ -629,7 +635,7 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
 
         const overallConfidence = claims.length > 0 ? Math.round(totalConfidence / claims.length) : 0;
 
-        // Step 4: Save to database
+        // Step 5: Save to database
         const sessionResult = await saveLearningSession({
           userId: ctx.user.id,
           topic: input.topic,
