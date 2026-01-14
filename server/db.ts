@@ -1,4 +1,4 @@
-import { eq, and, desc } from "drizzle-orm";
+import { and, desc, eq, gt, like, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   conversations, 
@@ -76,7 +76,10 @@ import {
   labQuizQuestions,
   InsertLabQuizQuestion,
   labQuizAttempts,
-  InsertLabQuizAttempt
+  InsertLabQuizAttempt,
+  verifiedFacts,
+  InsertVerifiedFact,
+  VerifiedFact
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -2200,4 +2203,112 @@ export async function hasPassedLabQuiz(userId: number, experimentId: number): Pr
     .limit(1);
 
   return passed.length > 0;
+}
+
+
+// ============================================================================
+// Verified Facts Functions (Cross-User Knowledge Base)
+// ============================================================================
+
+/**
+ * Save a verified fact to the knowledge base
+ */
+export async function saveVerifiedFact(fact: InsertVerifiedFact) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(verifiedFacts).values(fact);
+  return result;
+}
+
+/**
+ * Get a verified fact by normalized question (exact match)
+ */
+export async function getVerifiedFact(normalizedQuestion: string): Promise<VerifiedFact | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const now = new Date();
+  const result = await db
+    .select()
+    .from(verifiedFacts)
+    .where(
+      and(
+        eq(verifiedFacts.normalizedQuestion, normalizedQuestion),
+        gt(verifiedFacts.expiresAt, now) // Only return facts that haven't expired
+      )
+    )
+    .orderBy(desc(verifiedFacts.verifiedAt))
+    .limit(1);
+  
+  if (result.length > 0) {
+    // Update access count and last accessed timestamp
+    await db
+      .update(verifiedFacts)
+      .set({
+        accessCount: result[0].accessCount + 1,
+        lastAccessedAt: now
+      })
+      .where(eq(verifiedFacts.id, result[0].id));
+    
+    return result[0];
+  }
+  
+  return undefined;
+}
+
+/**
+ * Search for verified facts by keyword matching
+ */
+export async function searchVerifiedFacts(searchTerm: string, limit: number = 5): Promise<VerifiedFact[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const now = new Date();
+  const result = await db
+    .select()
+    .from(verifiedFacts)
+    .where(
+      and(
+        or(
+          like(verifiedFacts.normalizedQuestion, `%${searchTerm}%`),
+          like(verifiedFacts.question, `%${searchTerm}%`),
+          like(verifiedFacts.answer, `%${searchTerm}%`)
+        ),
+        gt(verifiedFacts.expiresAt, now) // Only return facts that haven't expired
+      )
+    )
+    .orderBy(desc(verifiedFacts.confidenceScore), desc(verifiedFacts.verifiedAt))
+    .limit(limit);
+  
+  return result;
+}
+
+/**
+ * Get recently verified facts (for Voice Assistant context)
+ */
+export async function getRecentVerifiedFacts(limit: number = 10): Promise<VerifiedFact[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const now = new Date();
+  const result = await db
+    .select()
+    .from(verifiedFacts)
+    .where(gt(verifiedFacts.expiresAt, now))
+    .orderBy(desc(verifiedFacts.verifiedAt))
+    .limit(limit);
+  
+  return result;
+}
+
+/**
+ * Normalize a question for matching (lowercase, remove punctuation, trim)
+ */
+export function normalizeQuestion(question: string): string {
+  return question
+    .toLowerCase()
+    .replace(/[^\w\s]/g, '') // Remove punctuation
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim();
 }

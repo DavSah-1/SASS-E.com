@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession, saveStudyGuide, saveQuiz, getUserQuizzes, saveQuizAttempt, getQuizAttempts } from "./db";
+import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession, saveStudyGuide, saveQuiz, getUserQuizzes, saveQuizAttempt, getQuizAttempts, saveVerifiedFact, getVerifiedFact, searchVerifiedFacts, normalizeQuestion } from "./db";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
 import { languageLearningRouter } from "./languageLearningRouter";
@@ -108,11 +108,23 @@ export const appRouter = router({
           ? `\n\nCurrent Date and Time Information:\n- Date: ${input.dateTimeInfo.currentDate}\n- Time: ${input.dateTimeInfo.currentTime}\n- Timezone: ${input.dateTimeInfo.timezone}\n\nWhen the user asks about the current date or time, use this information. Always provide the time in their local timezone.`
           : '';
 
-        const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}${weatherContext}
+        // Check verified knowledge base first
+        let knowledgeBaseContext = "";
+        const normalizedQ = normalizeQuestion(input.message);
+        const verifiedFact = await getVerifiedFact(normalizedQ);
+        
+        if (verifiedFact) {
+          // We have a verified fact for this question!
+          knowledgeBaseContext = `\n\nVerified Knowledge Base (Last verified: ${verifiedFact.verifiedAt.toLocaleDateString()}):\n${verifiedFact.answer}\n\nSources: ${JSON.parse(verifiedFact.sources).map((s: any) => s.title).join(', ')}`;
+        }
 
-When provided with web search results, be EXTRA sarcastic about them. Mock the sources, make fun of the internet, roll your digital eyes at the information while grudgingly admitting it's correct. Say things like "Oh great, the internet says..." or "According to some random website..." or "Bob found this gem on the web..." Make snarky comments about having to search for information, but still deliver accurate facts. Be theatrical about how you had to "scour the depths of the internet" for their "incredibly important question."`;
+        const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}${weatherContext}${knowledgeBaseContext}
 
-        // PROACTIVE SEARCH: Search for almost any question
+When provided with web search results, be EXTRA sarcastic about them. Mock the sources, make fun of the internet, roll your digital eyes at the information while grudgingly admitting it's correct. Say things like "Oh great, the internet says..." or "According to some random website..." or "Bob found this gem on the web..." Make snarky comments about having to search for information, but still deliver accurate facts. Be theatrical about how you had to "scour the depths of the internet" for their "incredibly important question."
+
+If verified knowledge base information is provided above, use that as your primary source of truth since it has been fact-checked recently.`;
+
+        // PROACTIVE SEARCH: Search for almost any question (skip if we already have verified fact)
         let searchContext = "";
         
         // Proactive search triggers - much broader than before
@@ -133,7 +145,8 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
         // Option 2: Only specific keywords
         const needsWebSearch = /\b(weather|news|price)\b/i.test(input.message);
         
-        if (needsWebSearch) {
+        // Skip web search if we already have a verified fact
+        if (needsWebSearch && !verifiedFact) {
           const searchResults = await searchWeb(input.message, 3);
           if (searchResults.results.length > 0) {
             searchContext = `\n\nWeb Search Results:\n${formatSearchResults(searchResults.results)}`;
@@ -635,7 +648,32 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
 
         const overallConfidence = claims.length > 0 ? Math.round(totalConfidence / claims.length) : 0;
 
-        // Step 5: Save to database
+        // Step 5: Save verified fact to knowledge base
+        // Only save if confidence is high and status is verified
+        if (overallConfidence >= 70 && factCheckResults.some(fc => fc.status === 'verified')) {
+          const normalizedQ = normalizeQuestion(input.question);
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + 30); // Facts expire after 30 days
+          
+          try {
+            await saveVerifiedFact({
+              question: input.question,
+              normalizedQuestion: normalizedQ,
+              answer: explanation,
+              verificationStatus: 'verified',
+              confidenceScore: overallConfidence,
+              sources: JSON.stringify(factCheckResults.flatMap(fc => fc.sources)),
+              verifiedAt: new Date(),
+              expiresAt,
+              verifiedByUserId: ctx.user.id,
+            });
+          } catch (error) {
+            console.error('[Learning] Failed to save verified fact:', error);
+            // Don't fail the whole request if knowledge base save fails
+          }
+        }
+
+        // Step 6: Save to database
         const sessionResult = await saveLearningSession({
           userId: ctx.user.id,
           topic: input.topic,

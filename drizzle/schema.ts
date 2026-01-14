@@ -1458,3 +1458,39 @@ export const coachingFeedback = mysqlTable("coaching_feedback", {
 
 export type CoachingFeedback = typeof coachingFeedback.$inferSelect;
 export type InsertCoachingFeedback = typeof coachingFeedback.$inferInsert;
+
+/**
+ * Verified Facts - Cross-user knowledge base for fact-checked information
+ * This table stores verified facts from the Learning Hub that can be shared
+ * across all users in the Voice Assistant for up-to-date responses
+ */
+export const verifiedFacts = mysqlTable("verified_facts", {
+  id: int("id").autoincrement().primaryKey(),
+  // The original question that was fact-checked
+  question: text("question").notNull(),
+  // Normalized version for matching similar questions
+  normalizedQuestion: varchar("normalizedQuestion", { length: 512 }).notNull(),
+  // The verified answer based on web search results
+  answer: text("answer").notNull(),
+  // Verification status from fact-checking
+  verificationStatus: mysqlEnum("verificationStatus", ["verified", "disputed", "debunked", "unverified"]).notNull(),
+  // Confidence score 0-100
+  confidenceScore: int("confidenceScore").notNull(),
+  // JSON array of source objects with title, url, credibilityScore
+  sources: text("sources").notNull(),
+  // When this fact was verified
+  verifiedAt: timestamp("verifiedAt").defaultNow().notNull(),
+  // When this fact should be considered stale and re-verified (default 30 days)
+  expiresAt: timestamp("expiresAt").notNull(),
+  // Number of times this fact has been accessed
+  accessCount: int("accessCount").default(0).notNull(),
+  // Last time this fact was accessed
+  lastAccessedAt: timestamp("lastAccessedAt"),
+  // User who first verified this fact (optional, for attribution)
+  verifiedByUserId: int("verifiedByUserId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type VerifiedFact = typeof verifiedFacts.$inferSelect;
+export type InsertVerifiedFact = typeof verifiedFacts.$inferInsert;
