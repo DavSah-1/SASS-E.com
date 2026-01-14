@@ -1835,3 +1835,12 @@
 - [x] Verify button conditional rendering logic
 - [x] Test button appears after voice interaction
 - [x] Fix visibility issue - Button now always visible, disabled when no memory
+
+
+## Clear All Conversation History Button
+- [x] Create backend tRPC procedure to delete all conversation history for user
+- [x] Add "Clear All History" button to voice assistant UI
+- [x] Implement confirmation dialog before deletion
+- [x] Show success toast after deletion
+- [x] Refresh conversation display after clearing
+- [x] Test deletion functionality

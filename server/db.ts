@@ -204,6 +204,18 @@ export async function getUserConversations(userId: number, limit: number = 50) {
   return result;
 }
 
+export async function deleteAllUserConversations(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete conversations: database not available");
+    return;
+  }
+
+  await db
+    .delete(conversations)
+    .where(eq(conversations.userId, userId));
+}
+
 
 // IoT Device Management Functions
 

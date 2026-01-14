@@ -230,9 +230,14 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
         };
       }),
 
-    history: protectedProcedure.query(async ({ ctx }) => {
-      const conversations = await getUserConversations(ctx.user.id, 50);
+    getConversations: protectedProcedure.query(async ({ ctx }) => {
+      const conversations = await getUserConversations(ctx.user.id);
       return conversations;
+    }),
+    clearAllConversations: protectedProcedure.mutation(async ({ ctx }) => {
+      const { deleteAllUserConversations } = await import('./db');
+      await deleteAllUserConversations(ctx.user.id);
+      return { success: true };
     }),
 
     // Get user's learning profile

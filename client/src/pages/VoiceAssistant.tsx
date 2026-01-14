@@ -35,6 +35,7 @@ export default function VoiceAssistant() {
   const transcribeMutation = trpc.assistant.transcribe.useMutation();
   const feedbackMutation = trpc.assistant.submitFeedback.useMutation();
   const chatWithTranslationMutation = trpc.translation.chatWithTranslation.useMutation();
+  const clearAllHistoryMutation = trpc.assistant.clearAllConversations.useMutation();
   const { data: history, refetch: refetchHistory } = trpc.assistant.history.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -424,7 +425,7 @@ export default function VoiceAssistant() {
             )}
 
             {/* Clear Memory Button */}
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-2">
               <Button 
                 variant="outline" 
                 size="sm"
@@ -442,6 +443,33 @@ export default function VoiceAssistant() {
                   ? `Clear Memory (${Math.floor(conversationMemory.length / 2)} exchanges)`
                   : 'No Memory to Clear'
                 }
+              </Button>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => {
+                  if (confirm('Are you sure you want to delete ALL conversation history? This cannot be undone.')) {
+                    clearAllHistoryMutation.mutate(undefined, {
+                      onSuccess: () => {
+                        setConversationMemory([]);
+                        refetchHistory();
+                        toast.success('All conversation history deleted', {
+                          description: 'Your entire conversation history has been permanently deleted.'
+                        });
+                      },
+                      onError: (error) => {
+                        toast.error('Failed to delete history', {
+                          description: error.message
+                        });
+                      }
+                    });
+                  }
+                }}
+                disabled={!history || history.length === 0}
+                className="gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Clear All History
               </Button>
             </div>
 
