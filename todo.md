@@ -1844,3 +1844,8 @@
 - [x] Show success toast after deletion
 - [x] Refresh conversation display after clearing
 - [x] Test deletion functionality
+
+
+## Fix Missing assistant.history Procedure
+- [x] Add history procedure alias to assistant router pointing to getConversations
+- [x] Test that voice assistant loads without errors

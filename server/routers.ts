@@ -239,6 +239,10 @@ When provided with web search results, be EXTRA sarcastic about them. Mock the s
       await deleteAllUserConversations(ctx.user.id);
       return { success: true };
     }),
+    history: protectedProcedure.query(async ({ ctx }) => {
+      const conversations = await getUserConversations(ctx.user.id);
+      return conversations;
+    }),
 
     // Get user's learning profile
     getProfile: protectedProcedure.query(async ({ ctx }) => {
