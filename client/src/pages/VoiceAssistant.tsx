@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { Mic, MicOff, Volume2, ArrowLeftRight, Languages, Trash2 } from "lucide-react";
+import { Mic, MicOff, Volume2, ArrowLeftRight, Languages, Trash2, Copy, Check } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import React, { useEffect, useRef, useState } from "react";
@@ -35,6 +35,8 @@ export default function VoiceAssistant() {
     translatedText: string;
     targetLanguage: string;
   } | null>(null);
+  const [copiedExtracted, setCopiedExtracted] = useState(false);
+  const [copiedTranslated, setCopiedTranslated] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -655,12 +657,58 @@ export default function VoiceAssistant() {
                               <p className="text-sm text-purple-300 font-medium">{imageTranslationResult.detectedLanguage}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-400">Extracted Text:</p>
+                              <div className="flex items-center justify-between mb-1">
+                                <p className="text-xs text-slate-400">Extracted Text:</p>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2"
+                                  onClick={async () => {
+                                    try {
+                                      await navigator.clipboard.writeText(imageTranslationResult.extractedText);
+                                      setCopiedExtracted(true);
+                                      toast.success("Extracted text copied!");
+                                      setTimeout(() => setCopiedExtracted(false), 2000);
+                                    } catch (error) {
+                                      toast.error("Failed to copy text");
+                                    }
+                                  }}
+                                >
+                                  {copiedExtracted ? (
+                                    <Check className="h-3 w-3 text-green-400" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </div>
                               <p className="text-sm text-slate-200">{imageTranslationResult.extractedText}</p>
                             </div>
                             {imageTranslationResult.detectedLanguage.toLowerCase() !== imageTranslationResult.targetLanguage.toLowerCase() && (
                               <div>
-                                <p className="text-xs text-slate-400">Translation ({imageTranslationResult.targetLanguage}):</p>
+                                <div className="flex items-center justify-between mb-1">
+                                  <p className="text-xs text-slate-400">Translation ({imageTranslationResult.targetLanguage}):</p>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 px-2"
+                                    onClick={async () => {
+                                      try {
+                                        await navigator.clipboard.writeText(imageTranslationResult.translatedText);
+                                        setCopiedTranslated(true);
+                                        toast.success("Translation copied!");
+                                        setTimeout(() => setCopiedTranslated(false), 2000);
+                                      } catch (error) {
+                                        toast.error("Failed to copy text");
+                                      }
+                                    }}
+                                  >
+                                    {copiedTranslated ? (
+                                      <Check className="h-3 w-3 text-green-400" />
+                                    ) : (
+                                      <Copy className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                </div>
                                 <p className="text-sm text-green-300 font-medium">{imageTranslationResult.translatedText}</p>
                               </div>
                             )}

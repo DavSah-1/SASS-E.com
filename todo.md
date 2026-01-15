@@ -1914,3 +1914,8 @@
 - [x] Add image preview before translation
 - [x] Display extracted text and translation results
 - [x] Test with various image types (signs, documents, handwritten text) - Server running successfully, UI integrated
+
+## Copy-to-Clipboard Feature
+- [x] Add copy button for translated text in image translation results
+- [x] Show toast notification on successful copy
+- [x] Handle copy errors gracefully
