@@ -1904,3 +1904,13 @@
 - [x] Remove sarcastic personality from translation mode
 - [x] Update translation router to do direct translation only
 - [x] Test translation feature works as simple translator - Server running successfully
+
+## Image-to-Text Translation Feature
+- [x] Create backend endpoint for image translation (translateImage)
+- [x] Use LLM vision API to extract text from uploaded images (OCR)
+- [x] Auto-detect source language from extracted text
+- [x] Translate extracted text to user's target language
+- [x] Add camera/photo upload UI in Voice Assistant translation mode
+- [x] Add image preview before translation
+- [x] Display extracted text and translation results
+- [x] Test with various image types (signs, documents, handwritten text) - Server running successfully, UI integrated

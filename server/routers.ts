@@ -1258,6 +1258,85 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           outputLanguage: input.outputLanguage,
         };
       }),
+
+    // Translate text from image (OCR + translation)
+    translateImage: protectedProcedure
+      .input(
+        z.object({
+          imageUrl: z.string(),
+          targetLanguage: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Step 1: Extract text from image using LLM vision
+        const extractResponse = await invokeLLM({
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "Extract all visible text from this image. Identify the language of the text. Return your response in this exact JSON format: {\"text\": \"extracted text here\", \"detectedLanguage\": \"language name\"}",
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: input.imageUrl,
+                  },
+                },
+              ],
+            },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "text_extraction",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  text: {
+                    type: "string",
+                    description: "The extracted text from the image",
+                  },
+                  detectedLanguage: {
+                    type: "string",
+                    description: "The detected language of the text",
+                  },
+                },
+                required: ["text", "detectedLanguage"],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+
+        const extractContent = extractResponse.choices[0].message.content;
+        const extracted = JSON.parse(typeof extractContent === 'string' ? extractContent : JSON.stringify(extractContent));
+
+        // Step 2: Translate the extracted text if needed
+        let translatedText = extracted.text;
+        if (extracted.detectedLanguage.toLowerCase() !== input.targetLanguage.toLowerCase()) {
+          const translatePrompt = `Translate the following text from ${extracted.detectedLanguage} to ${input.targetLanguage}. Provide only the direct translation.\n\nText: "${extracted.text}"`;
+          
+          const translateResponse = await invokeLLM({
+            messages: [
+              { role: "system", content: "You are a professional translation assistant." },
+              { role: "user", content: translatePrompt },
+            ],
+          });
+          
+          const translatedContent = translateResponse.choices[0].message.content;
+          translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
+        }
+
+        return {
+          extractedText: extracted.text,
+          detectedLanguage: extracted.detectedLanguage,
+          translatedText,
+          targetLanguage: input.targetLanguage,
+        };
+      }),
   }),
 });
 

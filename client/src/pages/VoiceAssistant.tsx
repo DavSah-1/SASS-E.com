@@ -27,6 +27,15 @@ export default function VoiceAssistant() {
   const [outputLanguage, setOutputLanguage] = useState("English");
   const [showBilingual, setShowBilingual] = useState(true);
   
+  // Image translation state
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageTranslationResult, setImageTranslationResult] = useState<{
+    extractedText: string;
+    detectedLanguage: string;
+    translatedText: string;
+    targetLanguage: string;
+  } | null>(null);
+  
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -35,6 +44,7 @@ export default function VoiceAssistant() {
   const transcribeMutation = trpc.assistant.transcribe.useMutation();
   const feedbackMutation = trpc.assistant.submitFeedback.useMutation();
   const chatWithTranslationMutation = trpc.translation.chatWithTranslation.useMutation();
+  const translateImageMutation = trpc.translation.translateImage.useMutation();
   const clearAllHistoryMutation = trpc.assistant.clearAllConversations.useMutation();
   const { data: history, refetch: refetchHistory } = trpc.assistant.history.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -56,6 +66,54 @@ export default function VoiceAssistant() {
       }
     };
   }, []);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check if it's an image
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    // Check file size (10MB limit for images)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image too large. Please keep it under 10MB.");
+      return;
+    }
+
+    try {
+      // Upload image to get URL
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadResponse = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const { url } = await uploadResponse.json();
+      setSelectedImage(url);
+
+      // Translate the image
+      toast.info("Extracting and translating text from image...");
+      const result = await translateImageMutation.mutateAsync({
+        imageUrl: url,
+        targetLanguage: outputLanguage,
+      });
+
+      setImageTranslationResult(result);
+      toast.success("Translation complete!");
+    } catch (error) {
+      console.error("Image translation error:", error);
+      toast.error("Failed to translate image. Please try again.");
+    }
+  };
 
   const startRecording = async () => {
     try {
@@ -557,8 +615,71 @@ export default function VoiceAssistant() {
                   </div>
 
                   <p className="text-xs text-slate-400 text-center">
-                    SASS-E will translate your speech and respond in your chosen language with intelligent responses.
+                    SASS-E will translate your speech and respond in your chosen language.
                   </p>
+
+                  {/* Image Translation */}
+                  <div className="border-t border-purple-500/10 pt-4 mt-4">
+                    <Label className="text-sm text-slate-300 mb-2 block">
+                      Or translate text from an image:
+                    </Label>
+                    <div className="flex flex-col gap-4">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="image-upload"
+                      />
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                        disabled={translateImageMutation.isPending}
+                      >
+                        {translateImageMutation.isPending ? "Processing..." : "📷 Take/Upload Photo"}
+                      </Button>
+
+                      {/* Image Preview and Results */}
+                      {selectedImage && imageTranslationResult && (
+                        <div className="space-y-3 p-3 bg-slate-800/50 rounded-lg">
+                          <img
+                            src={selectedImage}
+                            alt="Uploaded"
+                            className="w-full max-h-48 object-contain rounded"
+                          />
+                          <div className="space-y-2">
+                            <div>
+                              <p className="text-xs text-slate-400">Detected Language:</p>
+                              <p className="text-sm text-purple-300 font-medium">{imageTranslationResult.detectedLanguage}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-400">Extracted Text:</p>
+                              <p className="text-sm text-slate-200">{imageTranslationResult.extractedText}</p>
+                            </div>
+                            {imageTranslationResult.detectedLanguage.toLowerCase() !== imageTranslationResult.targetLanguage.toLowerCase() && (
+                              <div>
+                                <p className="text-xs text-slate-400">Translation ({imageTranslationResult.targetLanguage}):</p>
+                                <p className="text-sm text-green-300 font-medium">{imageTranslationResult.translatedText}</p>
+                              </div>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedImage(null);
+                                setImageTranslationResult(null);
+                              }}
+                              className="w-full text-xs"
+                            >
+                              Clear
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
