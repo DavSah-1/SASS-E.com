@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Navigation } from "@/components/Navigation";
-import { Footer } from "@/components/Footer";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -535,7 +534,6 @@ export default function Budget() {
           )}
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

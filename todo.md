@@ -1894,3 +1894,7 @@
 - [x] Add "What Changed" comparison view for fact updates - shows old vs new versions
 - [x] Test: User accesses fact → fact gets updated → user receives notification - All 8 tests passed
 - [x] Test: Notification shows old vs new information clearly - Old/new versions parsed correctly
+
+
+## Bug Fixes
+- [x] Remove extra footer in Budget, Debt Coach, and Goals tabs of Money Hub
