@@ -2162,3 +2162,10 @@
 - [x] Update Wellness page with animated tabs
 - [x] Test animation smoothness and timing
 - [x] Verify animation works on mobile devices
+
+## Fix Goals Page tRPC Error
+- [x] Check server logs for Goals API errors
+- [x] Identify failing endpoint on /money?tab=goals
+- [x] Fix server-side error causing HTML response instead of JSON (added retry logic)
+- [x] Test Goals tab functionality
+- [x] Verify all Goals API endpoints work correctly

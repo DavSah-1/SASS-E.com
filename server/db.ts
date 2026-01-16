@@ -1669,23 +1669,44 @@ export async function createFinancialGoal(goal: InsertFinancialGoal) {
  * Get all goals for a user
  */
 export async function getUserGoals(userId: number, includeCompleted = false) {
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get goals: database not available");
-    return [];
+  const maxRetries = 3;
+  let lastError: any;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const db = await getDb();
+      if (!db) {
+        console.warn("[Database] Cannot get goals: database not available");
+        return [];
+      }
+
+      const conditions = includeCompleted
+        ? [eq(financialGoals.userId, userId)]
+        : [eq(financialGoals.userId, userId), eq(financialGoals.status, "active")];
+
+      const result = await db
+        .select()
+        .from(financialGoals)
+        .where(and(...conditions))
+        .orderBy(desc(financialGoals.priority), desc(financialGoals.createdAt));
+
+      return result;
+    } catch (error: any) {
+      lastError = error;
+      console.error(`[Database] getUserGoals attempt ${attempt} failed:`, error.message);
+      
+      if (attempt < maxRetries && (error.code === 'ECONNRESET' || error.code === 'PROTOCOL_CONNECTION_LOST')) {
+        const delay = Math.pow(2, attempt) * 100;
+        console.log(`[Database] Retrying getUserGoals in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        _db = null; // Force reconnection
+        continue;
+      }
+      throw error;
+    }
   }
-
-  const conditions = includeCompleted
-    ? [eq(financialGoals.userId, userId)]
-    : [eq(financialGoals.userId, userId), eq(financialGoals.status, "active")];
-
-  const result = await db
-    .select()
-    .from(financialGoals)
-    .where(and(...conditions))
-    .orderBy(desc(financialGoals.priority), desc(financialGoals.createdAt));
-
-  return result;
+  
+  throw lastError;
 }
 
 /**
