@@ -1919,3 +1919,13 @@
 - [x] Add copy button for translated text in image translation results
 - [x] Show toast notification on successful copy
 - [x] Handle copy errors gracefully
+
+## Standalone Translation Page
+- [x] Create dedicated Translation.tsx page component
+- [x] Add text input translation section with source/target language selection
+- [x] Add image translation section with camera/upload functionality
+- [x] Display translation results with copy buttons
+- [x] Add Translation link to navigation
+- [x] Add /translate route to App.tsx
+- [x] Remove translation mode from Voice Assistant page
+- [x] Test standalone translation page functionality - Server running, Translation link visible in navigation

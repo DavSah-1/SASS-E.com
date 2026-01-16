@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { Mic, MicOff, Volume2, ArrowLeftRight, Languages, Trash2, Copy, Check } from "lucide-react";
+import { Mic, MicOff, Volume2, Trash2 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import React, { useEffect, useRef, useState } from "react";
@@ -21,22 +21,7 @@ export default function VoiceAssistant() {
   const [currentTranscript, setCurrentTranscript] = useState("");
   const [currentResponse, setCurrentResponse] = useState("");
   
-  // Translation state
-  const [translationEnabled, setTranslationEnabled] = useState(false);
-  const [inputLanguage, setInputLanguage] = useState("English");
-  const [outputLanguage, setOutputLanguage] = useState("English");
-  const [showBilingual, setShowBilingual] = useState(true);
-  
-  // Image translation state
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [imageTranslationResult, setImageTranslationResult] = useState<{
-    extractedText: string;
-    detectedLanguage: string;
-    translatedText: string;
-    targetLanguage: string;
-  } | null>(null);
-  const [copiedExtracted, setCopiedExtracted] = useState(false);
-  const [copiedTranslated, setCopiedTranslated] = useState(false);
+
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -45,8 +30,7 @@ export default function VoiceAssistant() {
   const chatMutation = trpc.assistant.chat.useMutation();
   const transcribeMutation = trpc.assistant.transcribe.useMutation();
   const feedbackMutation = trpc.assistant.submitFeedback.useMutation();
-  const chatWithTranslationMutation = trpc.translation.chatWithTranslation.useMutation();
-  const translateImageMutation = trpc.translation.translateImage.useMutation();
+
   const clearAllHistoryMutation = trpc.assistant.clearAllConversations.useMutation();
   const { data: history, refetch: refetchHistory } = trpc.assistant.history.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -69,53 +53,7 @@ export default function VoiceAssistant() {
     };
   }, []);
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
 
-    // Check if it's an image
-    if (!file.type.startsWith('image/')) {
-      toast.error("Please select an image file");
-      return;
-    }
-
-    // Check file size (10MB limit for images)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Image too large. Please keep it under 10MB.");
-      return;
-    }
-
-    try {
-      // Upload image to get URL
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const uploadResponse = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const { url } = await uploadResponse.json();
-      setSelectedImage(url);
-
-      // Translate the image
-      toast.info("Extracting and translating text from image...");
-      const result = await translateImageMutation.mutateAsync({
-        imageUrl: url,
-        targetLanguage: outputLanguage,
-      });
-
-      setImageTranslationResult(result);
-      toast.success("Translation complete!");
-    } catch (error) {
-      console.error("Image translation error:", error);
-      toast.error("Failed to translate image. Please try again.");
-    }
-  };
 
   const startRecording = async () => {
     try {
@@ -155,76 +93,55 @@ export default function VoiceAssistant() {
 
           const { url } = await uploadResponse.json();
 
-          // Transcribe audio with language hint if translation is enabled
-          const transcribeParams: any = { audioUrl: url };
-          if (translationEnabled && inputLanguage !== 'English') {
-            const langCode = getSpeechRecognitionLanguage(inputLanguage);
-            transcribeParams.language = langCode;
-          }
-          const transcription = await transcribeMutation.mutateAsync(transcribeParams);
+          // Transcribe audio
+          const transcription = await transcribeMutation.mutateAsync({ audioUrl: url });
           setCurrentTranscript(transcription.text);
 
-          // Get response (with or without translation)
-          if (translationEnabled && (inputLanguage !== 'English' || outputLanguage !== 'English')) {
-            const translationResponse = await chatWithTranslationMutation.mutateAsync({
-              message: transcription.text,
-              inputLanguage: inputLanguage,
-              outputLanguage: outputLanguage,
+          // Get response
+          // Get current date/time with timezone
+          const now = new Date();
+          const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const dateTimeInfo = {
+            currentDate: now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: timezone }),
+            currentTime: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: timezone }),
+            timezone: timezone
+          };
+          
+          // Get location for weather data (if user grants permission)
+          let locationInfo = undefined;
+          try {
+            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
             });
-            
-            // Handle translated response
-            setCurrentResponse(showBilingual ? 
-              `Original: ${translationResponse.response}\n\nTranslated: ${translationResponse.response}` : 
-              translationResponse.response
-            );
-            // Speak the translated response in target language
-            speakText(translationResponse.response);
-          } else {
-            // Get current date/time with timezone
-            const now = new Date();
-            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const dateTimeInfo = {
-              currentDate: now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: timezone }),
-              currentTime: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: timezone }),
-              timezone: timezone
+            locationInfo = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
             };
-            
-            // Get location for weather data (if user grants permission)
-            let locationInfo = undefined;
-            try {
-              const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
-              });
-              locationInfo = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-              };
-            } catch (error) {
-              // Location permission denied or unavailable - continue without weather
-              console.log('Location access denied or unavailable');
-            }
-            
-            const response = await chatMutation.mutateAsync({ 
-              message: transcription.text,
-              dateTimeInfo,
-              locationInfo,
-              conversationHistory: conversationMemory
-            });
-            
-            // Update conversation memory (keep last 10 exchanges)
-            setConversationMemory(prev => {
-              const updated = [
-                ...prev,
-                { role: 'user' as const, content: transcription.text },
-                { role: 'assistant' as const, content: response.response }
-              ];
-              // Keep only last 10 exchanges (20 messages)
-              return updated.slice(-20);
-            });
-            
-            setCurrentResponse(response.response);
-            speakText(response.response);
+          } catch (error) {
+            // Location permission denied or unavailable - continue without weather
+            console.log('Location access denied or unavailable');
           }
+          
+          const response = await chatMutation.mutateAsync({ 
+            message: transcription.text,
+            dateTimeInfo,
+            locationInfo,
+            conversationHistory: conversationMemory
+          });
+          
+          // Update conversation memory (keep last 10 exchanges)
+          setConversationMemory(prev => {
+            const updated = [
+              ...prev,
+              { role: 'user' as const, content: transcription.text },
+              { role: 'assistant' as const, content: response.response }
+            ];
+            // Keep only last 10 exchanges (20 messages)
+            return updated.slice(-20);
+          });
+          
+          setCurrentResponse(response.response);
+          speakText(response.response);
 
           // Refresh history and profile
           await refetchHistory();
@@ -293,36 +210,19 @@ export default function VoiceAssistant() {
       const utterance = new SpeechSynthesisUtterance(sentence);
       speechSynthesisRef.current = utterance;
 
-      // Get available voices and select based on output language
+      // Get available voices and select English voice for sarcastic tone
       const voices = window.speechSynthesis.getVoices();
-      const targetLang = getSpeechSynthesisLanguage(outputLanguage);
+      utterance.lang = 'en-US';
       
-      // Set the language code on the utterance (critical for proper pronunciation)
-      utterance.lang = targetLang;
-      
-      // Find voice matching the output language
-      let preferredVoice;
-      if (outputLanguage === 'English') {
-        // Prefer male voices with English accent for sarcastic tone
-        preferredVoice = voices.find(voice => 
-          (voice.name.includes('Male') || voice.name.includes('Daniel') || voice.name.includes('Alex')) &&
-          voice.lang.startsWith('en')
-        ) || voices.find(voice => voice.lang.startsWith('en-US'));
-      } else {
-        // For other languages, find matching voice by checking language code prefix
-        // Try exact match first (e.g., 'es-ES'), then language prefix (e.g., 'es')
-        const langPrefix = targetLang.split('-')[0];
-        preferredVoice = voices.find(voice => voice.lang === targetLang) ||
-                        voices.find(voice => voice.lang.startsWith(langPrefix + '-')) ||
-                        voices.find(voice => voice.lang.startsWith(langPrefix));
-      }
-      
-      // Fallback to any available voice if no match found
-      preferredVoice = preferredVoice || voices[0];
+      // Prefer male voices with English accent for sarcastic tone
+      const preferredVoice = voices.find(voice => 
+        (voice.name.includes('Male') || voice.name.includes('Daniel') || voice.name.includes('Alex')) &&
+        voice.lang.startsWith('en')
+      ) || voices.find(voice => voice.lang.startsWith('en-US')) || voices[0];
       
       if (preferredVoice) {
         utterance.voice = preferredVoice;
-        console.log(`Using voice: ${preferredVoice.name} (${preferredVoice.lang}) for language: ${outputLanguage}`);
+        console.log(`Using voice: ${preferredVoice.name} (${preferredVoice.lang})`);
       }
 
       // Dynamic speech rate based on personality level and sentence length
@@ -534,203 +434,7 @@ export default function VoiceAssistant() {
             </div>
 
             {/* Translation Controls */}
-            <div className="border-t border-purple-500/20 pt-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Languages className="h-5 w-5 text-purple-400" />
-                  <Label htmlFor="translation-toggle" className="text-base font-semibold text-slate-200">
-                    Translation Mode
-                  </Label>
-                </div>
-                <Switch
-                  id="translation-toggle"
-                  checked={translationEnabled}
-                  onCheckedChange={setTranslationEnabled}
-                />
-              </div>
 
-              {translationEnabled && (
-                <div className="space-y-4 p-4 bg-slate-900/50 rounded-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="input-language" className="text-sm text-slate-300">
-                        You speak in:
-                      </Label>
-                      <Select value={inputLanguage} onValueChange={setInputLanguage}>
-                        <SelectTrigger id="input-language" className="bg-slate-800 border-purple-500/20">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {SUPPORTED_LANGUAGES.map((lang) => (
-                            <SelectItem key={lang.code} value={lang.name}>
-                              {lang.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="output-language" className="text-sm text-slate-300">
-                        SASS-E responds in:
-                      </Label>
-                      <Select value={outputLanguage} onValueChange={setOutputLanguage}>
-                        <SelectTrigger id="output-language" className="bg-slate-800 border-purple-500/20">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {SUPPORTED_LANGUAGES.map((lang) => (
-                            <SelectItem key={lang.code} value={lang.name}>
-                              {lang.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        const temp = inputLanguage;
-                        setInputLanguage(outputLanguage);
-                        setOutputLanguage(temp);
-                      }}
-                      className="text-purple-400 hover:text-purple-300"
-                    >
-                      <ArrowLeftRight className="h-4 w-4 mr-2" />
-                      Swap Languages
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="bilingual-toggle"
-                      checked={showBilingual}
-                      onCheckedChange={setShowBilingual}
-                    />
-                    <Label htmlFor="bilingual-toggle" className="text-sm text-slate-300">
-                      Show both languages
-                    </Label>
-                  </div>
-
-                  <p className="text-xs text-slate-400 text-center">
-                    SASS-E will translate your speech and respond in your chosen language.
-                  </p>
-
-                  {/* Image Translation */}
-                  <div className="border-t border-purple-500/10 pt-4 mt-4">
-                    <Label className="text-sm text-slate-300 mb-2 block">
-                      Or translate text from an image:
-                    </Label>
-                    <div className="flex flex-col gap-4">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        id="image-upload"
-                      />
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => document.getElementById('image-upload')?.click()}
-                        disabled={translateImageMutation.isPending}
-                      >
-                        {translateImageMutation.isPending ? "Processing..." : "📷 Take/Upload Photo"}
-                      </Button>
-
-                      {/* Image Preview and Results */}
-                      {selectedImage && imageTranslationResult && (
-                        <div className="space-y-3 p-3 bg-slate-800/50 rounded-lg">
-                          <img
-                            src={selectedImage}
-                            alt="Uploaded"
-                            className="w-full max-h-48 object-contain rounded"
-                          />
-                          <div className="space-y-2">
-                            <div>
-                              <p className="text-xs text-slate-400">Detected Language:</p>
-                              <p className="text-sm text-purple-300 font-medium">{imageTranslationResult.detectedLanguage}</p>
-                            </div>
-                            <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <p className="text-xs text-slate-400">Extracted Text:</p>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 px-2"
-                                  onClick={async () => {
-                                    try {
-                                      await navigator.clipboard.writeText(imageTranslationResult.extractedText);
-                                      setCopiedExtracted(true);
-                                      toast.success("Extracted text copied!");
-                                      setTimeout(() => setCopiedExtracted(false), 2000);
-                                    } catch (error) {
-                                      toast.error("Failed to copy text");
-                                    }
-                                  }}
-                                >
-                                  {copiedExtracted ? (
-                                    <Check className="h-3 w-3 text-green-400" />
-                                  ) : (
-                                    <Copy className="h-3 w-3" />
-                                  )}
-                                </Button>
-                              </div>
-                              <p className="text-sm text-slate-200">{imageTranslationResult.extractedText}</p>
-                            </div>
-                            {imageTranslationResult.detectedLanguage.toLowerCase() !== imageTranslationResult.targetLanguage.toLowerCase() && (
-                              <div>
-                                <div className="flex items-center justify-between mb-1">
-                                  <p className="text-xs text-slate-400">Translation ({imageTranslationResult.targetLanguage}):</p>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 px-2"
-                                    onClick={async () => {
-                                      try {
-                                        await navigator.clipboard.writeText(imageTranslationResult.translatedText);
-                                        setCopiedTranslated(true);
-                                        toast.success("Translation copied!");
-                                        setTimeout(() => setCopiedTranslated(false), 2000);
-                                      } catch (error) {
-                                        toast.error("Failed to copy text");
-                                      }
-                                    }}
-                                  >
-                                    {copiedTranslated ? (
-                                      <Check className="h-3 w-3 text-green-400" />
-                                    ) : (
-                                      <Copy className="h-3 w-3" />
-                                    )}
-                                  </Button>
-                                </div>
-                                <p className="text-sm text-green-300 font-medium">{imageTranslationResult.translatedText}</p>
-                              </div>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedImage(null);
-                                setImageTranslationResult(null);
-                              }}
-                              className="w-full text-xs"
-                            >
-                              Clear
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
 
             {/* Current Conversation */}
             {(currentTranscript || currentResponse) && (
