@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CurrencyProvider } from "./contexts/CurrencyContext";
 import { InstallBanner } from "./components/InstallBanner";
+import { TwoFactorGuard } from "./components/TwoFactorGuard";
 import Home from "./pages/Home";
 import VoiceAssistant from "./pages/VoiceAssistant";
 import IoTDevices from "./pages/IoTDevices";
@@ -77,7 +78,9 @@ function App() {
           <CurrencyProvider>
             <Toaster />
             <InstallBanner />
-            <Router />
+            <TwoFactorGuard>
+              <Router />
+            </TwoFactorGuard>
           </CurrencyProvider>
         </TooltipProvider>
       </ThemeProvider>

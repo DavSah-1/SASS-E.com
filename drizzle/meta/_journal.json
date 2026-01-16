@@ -218,6 +218,13 @@
       "when": 1768572823578,
       "tag": "0030_dark_caretaker",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1768573514550,
+      "tag": "0031_bright_wendell_rand",
+      "breakpoints": true
     }
   ]
 }

@@ -200,6 +200,99 @@ export async function updateUserStaySignedIn(userId: number, staySignedIn: boole
   await db.update(users).set({ staySignedIn }).where(eq(users.id, userId));
 }
 
+export function generateBackupCodes(): string[] {
+  const codes: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+    codes.push(code);
+  }
+  return codes;
+}
+
+export async function enable2FA(userId: number, secret: string, backupCodes: string[]) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot enable 2FA: database not available");
+    return;
+  }
+
+  await db.update(users).set({
+    twoFactorEnabled: true,
+    twoFactorSecret: secret,
+    backupCodes: JSON.stringify(backupCodes),
+  }).where(eq(users.id, userId));
+}
+
+export async function disable2FA(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot disable 2FA: database not available");
+    return;
+  }
+
+  await db.update(users).set({
+    twoFactorEnabled: false,
+    twoFactorSecret: null,
+    backupCodes: null,
+  }).where(eq(users.id, userId));
+}
+
+export async function updateBackupCodes(userId: number, backupCodes: string[]) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update backup codes: database not available");
+    return;
+  }
+
+  await db.update(users).set({
+    backupCodes: JSON.stringify(backupCodes),
+  }).where(eq(users.id, userId));
+}
+
+export async function getUserById(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function useBackupCode(userId: number, code: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot use backup code: database not available");
+    return false;
+  }
+
+  const user = await getUserById(userId);
+  if (!user?.backupCodes) {
+    return false;
+  }
+
+  try {
+    const backupCodes: string[] = JSON.parse(user.backupCodes);
+    const codeIndex = backupCodes.findIndex(c => c === code.toUpperCase());
+    
+    if (codeIndex === -1) {
+      return false;
+    }
+
+    // Remove used backup code
+    backupCodes.splice(codeIndex, 1);
+    await db.update(users).set({
+      backupCodes: JSON.stringify(backupCodes),
+    }).where(eq(users.id, userId));
+
+    return true;
+  } catch (error) {
+    console.error('[Database] Failed to parse backup codes:', error);
+    return false;
+  }
+}
+
 export async function saveConversation(conversation: InsertConversation) {
   const db = await getDb();
   if (!db) {

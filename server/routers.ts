@@ -52,6 +52,126 @@ export const appRouter = router({
         await updateUserStaySignedIn(ctx.user.id, input.staySignedIn);
         return { success: true, staySignedIn: input.staySignedIn };
       }),
+    generate2FASecret: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const speakeasy = await import("speakeasy");
+        const QRCode = await import("qrcode");
+        
+        const secret = speakeasy.default.generateSecret({
+          name: `SASS-E (${ctx.user.email || ctx.user.name || 'User'})`,
+          issuer: 'SASS-E',
+        });
+        
+        const qrCodeUrl = await QRCode.default.toDataURL(secret.otpauth_url!);
+        
+        return {
+          secret: secret.base32,
+          qrCode: qrCodeUrl,
+        };
+      }),
+    enable2FA: protectedProcedure
+      .input(z.object({ secret: z.string(), token: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const speakeasy = await import("speakeasy");
+        const { enable2FA, generateBackupCodes } = await import("./db");
+        
+        const verified = speakeasy.default.totp.verify({
+          secret: input.secret,
+          encoding: 'base32',
+          token: input.token,
+        });
+        
+        if (!verified) {
+          throw new Error('Invalid verification code');
+        }
+        
+        const backupCodes = generateBackupCodes();
+        await enable2FA(ctx.user.id, input.secret, backupCodes);
+        
+        return { success: true, backupCodes };
+      }),
+    disable2FA: protectedProcedure
+      .input(z.object({ token: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const speakeasy = await import("speakeasy");
+        const { getUserById, disable2FA } = await import("./db");
+        
+        const user = await getUserById(ctx.user.id);
+        if (!user?.twoFactorSecret) {
+          throw new Error('2FA is not enabled');
+        }
+        
+        const verified = speakeasy.default.totp.verify({
+          secret: user.twoFactorSecret,
+          encoding: 'base32',
+          token: input.token,
+        });
+        
+        if (!verified) {
+          throw new Error('Invalid verification code');
+        }
+        
+        await disable2FA(ctx.user.id);
+        return { success: true };
+      }),
+    regenerateBackupCodes: protectedProcedure
+      .input(z.object({ token: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const speakeasy = await import("speakeasy");
+        const { getUserById, updateBackupCodes, generateBackupCodes } = await import("./db");
+        
+        const user = await getUserById(ctx.user.id);
+        if (!user?.twoFactorSecret) {
+          throw new Error('2FA is not enabled');
+        }
+        
+        const verified = speakeasy.default.totp.verify({
+          secret: user.twoFactorSecret,
+          encoding: 'base32',
+          token: input.token,
+        });
+        
+        if (!verified) {
+          throw new Error('Invalid verification code');
+        }
+        
+        const backupCodes = generateBackupCodes();
+        await updateBackupCodes(ctx.user.id, backupCodes);
+        
+        return { success: true, backupCodes };
+      }),
+    verify2FACode: protectedProcedure
+      .input(z.object({ token: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        const speakeasy = await import("speakeasy");
+        const { getUserById, useBackupCode } = await import("./db");
+        
+        const user = await getUserById(ctx.user.id);
+        if (!user?.twoFactorSecret) {
+          throw new Error('2FA is not enabled');
+        }
+        
+        // Try TOTP verification first
+        const verified = speakeasy.default.totp.verify({
+          secret: user.twoFactorSecret,
+          encoding: 'base32',
+          token: input.token,
+        });
+        
+        if (verified) {
+          return { success: true };
+        }
+        
+        // Try backup code if TOTP failed
+        if (user.backupCodes) {
+          const backupCodeUsed = await useBackupCode(ctx.user.id, input.token);
+          if (backupCodeUsed) {
+            return { success: true, usedBackupCode: true };
+          }
+        }
+        
+        throw new Error('Invalid verification code');
+      }),
   }),
 
   assistant: router({

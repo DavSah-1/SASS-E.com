@@ -2060,3 +2060,19 @@
 - [x] Update OAuth callback to apply user's session preference
 - [x] Test 1-day session duration (default)
 - [x] Test 30-day session duration (when enabled)
+
+## Two-Factor Authentication (2FA) Feature
+- [x] Add 2FA fields to users table (twoFactorEnabled, twoFactorSecret, backupCodes)
+- [x] Push database migration for 2FA fields
+- [x] Install speakeasy library for TOTP generation
+- [x] Install qrcode library for QR code generation
+- [x] Create backend endpoint to generate 2FA secret and QR code
+- [x] Create backend endpoint to verify and enable 2FA
+- [x] Create backend endpoint to disable 2FA
+- [x] Create backend endpoint to generate backup codes
+- [x] Add 2FA setup UI in Profile page with QR code display
+- [x] Add 2FA verification step during login flow
+- [x] Add 2FA management UI (disable, regenerate backup codes)
+- [x] Test 2FA setup with authenticator app
+- [x] Test 2FA login verification
+- [x] Test backup codes functionality
