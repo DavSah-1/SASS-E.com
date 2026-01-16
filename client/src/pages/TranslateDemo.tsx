@@ -435,7 +435,7 @@ export default function TranslateDemo() {
 
             <Button asChild size="lg" className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg py-6">
               <a href={getLoginUrl()}>
-                Start Translating Free - No Credit Card Required
+                Start Translating Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
             </Button>
