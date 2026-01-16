@@ -2015,3 +2015,10 @@
 - [x] Rewrite TranslateLanding to match their layout pattern
 - [x] Keep blue/indigo color theme
 - [x] Ensure responsive design for mobile and tablet
+
+## Translation Demo Page
+- [x] Create TranslateDemo.tsx page component
+- [x] Add text translation demo (limited to 3 translations)
+- [x] Show demo limitations and prompt to sign up
+- [x] Add /translate-demo route to App.tsx
+- [x] Add "View Demo" button to Translation landing page

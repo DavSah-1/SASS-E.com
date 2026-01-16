@@ -13,6 +13,7 @@ import Learning from "./pages/Learning";
 import LanguageLearning from "./pages/LanguageLearning";
 import Translation from "./pages/Translation";
 import TranslateLanding from "./pages/TranslateLanding";
+import TranslateDemo from "./pages/TranslateDemo";
 import Profile from "./pages/Profile";
 import DebtCoach from "./pages/DebtCoach";
 import Budget from "./pages/Budget";
@@ -37,6 +38,7 @@ function Router() {
       <Route path={"/language-learning"} component={LanguageLearning} />
       <Route path={"/translate"} component={TranslateLanding} />
       <Route path={"/translate-app"} component={Translation} />
+      <Route path={"/translate-demo"} component={TranslateDemo} />
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/science-lab"} component={ScienceLab} />
       <Route path={"/wellness"} component={Wellness} />

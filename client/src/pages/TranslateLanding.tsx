@@ -57,12 +57,17 @@ export default function TranslateLanding() {
                 </Link>
               </Button>
             ) : (
-              <Button asChild size="lg" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-6 text-lg">
-                <a href={getLoginUrl()}>
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
+              <>
+                <Button asChild size="lg" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-6 text-lg">
+                  <a href={getLoginUrl()}>
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </a>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 px-8 py-6 text-lg">
+                  <Link href="/translate-demo">View Demo</Link>
+                </Button>
+              </>
             )}
           </div>
         </div>
