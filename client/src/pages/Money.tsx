@@ -473,7 +473,7 @@ export default function Money() {
 
         {/* Tabbed Interface */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8 bg-slate-800/50">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8 bg-slate-800/50 border border-purple-500/30">
             <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600">
               <Sparkles className="h-4 w-4 mr-2" />
               Overview

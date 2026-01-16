@@ -358,7 +358,7 @@ export default function Translation() {
           
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "image_ocr" | "conversation" | "phrasebook")} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-slate-800/50">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-slate-800/50 border border-purple-500/30">
               <TabsTrigger value="translate" className="data-[state=active]:bg-purple-600">
                 <Languages className="h-4 w-4 mr-2" />
                 Translate

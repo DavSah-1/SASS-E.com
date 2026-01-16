@@ -612,7 +612,7 @@ export default function Wellness() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-cyan-500/30">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-slate-800/50 border border-cyan-500/30">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="fitness">Fitness</TabsTrigger>
             <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
