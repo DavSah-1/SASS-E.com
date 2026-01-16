@@ -2033,3 +2033,7 @@
 ## Navbar UI Update
 - [x] Remove "Profile" and "Sign Out" text labels from navbar
 - [x] Keep icons/logo visible
+
+## Conditional Translate Navigation
+- [x] Update Translate link to go to /translate-app when user is signed in
+- [x] Keep /translate (landing page) for non-authenticated users
