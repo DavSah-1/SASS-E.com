@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AnimatedTabs as Tabs, AnimatedTabsContent as TabsContent, AnimatedTabsList as TabsList, AnimatedTabsTrigger as TabsTrigger } from "@/components/AnimatedTabs";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeftRight, BookMarked, Camera, Check, Copy, Languages, Mic, MicOff, Volume2 } from "lucide-react";
 import { useState, useRef } from "react";
@@ -358,7 +358,7 @@ export default function Translation() {
           
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "image_ocr" | "conversation" | "phrasebook")} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-slate-800/50 border border-purple-500/30">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-slate-800/50 border border-purple-500/30 rounded-lg p-1">
               <TabsTrigger value="translate" className="data-[state=active]:bg-purple-600">
                 <Languages className="h-4 w-4 mr-2" />
                 Translate
