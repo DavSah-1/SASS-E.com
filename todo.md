@@ -2009,3 +2009,9 @@
 - [x] Change full translation tool route from /translate to /translate-app
 - [x] Update navigation links to point to /translate
 - [x] Update CTA button on landing page to link to /translate-app
+
+## Translation Landing Page Restructure (Match Learning/Money/Wellness)
+- [x] Review Learning, Money, Wellness landing page structures
+- [x] Rewrite TranslateLanding to match their layout pattern
+- [x] Keep blue/indigo color theme
+- [x] Ensure responsive design for mobile and tablet
