@@ -6,8 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeftRight, Camera, Check, Copy, Languages } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeftRight, Camera, Check, Copy, Languages, Mic, MicOff, Volume2 } from "lucide-react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { Navigation } from "@/components/Navigation";
@@ -41,8 +41,18 @@ export default function Translation() {
   const [copiedExtracted, setCopiedExtracted] = useState(false);
   const [copiedImageTranslation, setCopiedImageTranslation] = useState(false);
   
+  // STT state
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  
+  // TTS state
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  
   const translateTextMutation = trpc.translation.translate.useMutation();
   const translateImageMutation = trpc.translation.translateImage.useMutation();
+  const transcribeMutation = trpc.assistant.transcribe.useMutation();
   
   const handleTextTranslation = async () => {
     if (!textInput.trim()) {
@@ -118,6 +128,140 @@ export default function Translation() {
     } catch (error) {
       toast.error("Failed to copy text");
     }
+  };
+  
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        
+        try {
+          // Upload audio
+          const formData = new FormData();
+          formData.append("file", audioBlob, "recording.webm");
+
+          const uploadResponse = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!uploadResponse.ok) {
+            throw new Error("Upload failed");
+          }
+
+          const { url } = await uploadResponse.json();
+
+          // Transcribe audio
+          const transcription = await transcribeMutation.mutateAsync({ audioUrl: url });
+          setTextInput(transcription.text);
+          toast.success("Speech recognized!");
+        } catch (error) {
+          console.error("Error processing audio:", error);
+          toast.error("Failed to process your voice input. Please try again.");
+        }
+
+        // Stop all tracks
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      toast.success("Recording started. Speak now!");
+    } catch (error) {
+      console.error("Error accessing microphone:", error);
+      toast.error("Could not access microphone. Please check permissions.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      toast.info("Processing your speech...");
+    }
+  };
+  
+  const speakText = (text: string, language: string) => {
+    // Stop any ongoing speech
+    if (speechSynthesisRef.current) {
+      window.speechSynthesis.cancel();
+    }
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    speechSynthesisRef.current = utterance;
+    
+    // Get available voices
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Map language names to language codes
+    const languageMap: Record<string, string> = {
+      'English': 'en-US',
+      'Spanish': 'es-ES',
+      'French': 'fr-FR',
+      'German': 'de-DE',
+      'Italian': 'it-IT',
+      'Portuguese': 'pt-PT',
+      'Russian': 'ru-RU',
+      'Japanese': 'ja-JP',
+      'Korean': 'ko-KR',
+      'Chinese': 'zh-CN',
+      'Arabic': 'ar-SA',
+      'Hindi': 'hi-IN',
+      'Dutch': 'nl-NL',
+      'Polish': 'pl-PL',
+      'Turkish': 'tr-TR',
+      'Swedish': 'sv-SE',
+      'Danish': 'da-DK',
+      'Norwegian': 'no-NO',
+      'Finnish': 'fi-FI',
+      'Greek': 'el-GR',
+      'Czech': 'cs-CZ',
+      'Hungarian': 'hu-HU',
+      'Romanian': 'ro-RO',
+      'Thai': 'th-TH',
+      'Vietnamese': 'vi-VN',
+      'Indonesian': 'id-ID',
+      'Malay': 'ms-MY',
+      'Hebrew': 'he-IL',
+      'Ukrainian': 'uk-UA',
+    };
+    
+    const langCode = languageMap[language] || 'en-US';
+    utterance.lang = langCode;
+    
+    // Find matching voice
+    const langPrefix = langCode.split('-')[0];
+    const preferredVoice = voices.find(voice => voice.lang === langCode) ||
+                          voices.find(voice => voice.lang.startsWith(langPrefix + '-')) ||
+                          voices.find(voice => voice.lang.startsWith(langPrefix)) ||
+                          voices[0];
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+    
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      toast.error("Failed to speak text");
+    };
+    
+    window.speechSynthesis.speak(utterance);
   };
   
   if (loading) {
@@ -232,12 +376,32 @@ export default function Translation() {
               
               {/* Text Input */}
               <div className="space-y-2">
-                <Label htmlFor="text-input" className="text-slate-300">Text to translate:</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="text-input" className="text-slate-300">Text to translate:</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={isRecording ? stopRecording : startRecording}
+                    className={isRecording ? "text-red-400 hover:text-red-300" : "text-purple-400 hover:text-purple-300"}
+                  >
+                    {isRecording ? (
+                      <>
+                        <MicOff className="h-4 w-4 mr-2" />
+                        Stop Recording
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="h-4 w-4 mr-2" />
+                        Speak
+                      </>
+                    )}
+                  </Button>
+                </div>
                 <Textarea
                   id="text-input"
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Enter text here..."
+                  placeholder="Enter text here or click 'Speak' to use voice input..."
                   className="min-h-32 bg-slate-900/50 border-purple-500/20 text-slate-100"
                 />
               </div>
@@ -255,18 +419,29 @@ export default function Translation() {
                 <div className="p-4 bg-slate-900/50 rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-slate-300">Translation:</Label>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2"
-                      onClick={() => copyToClipboard(textTranslationResult.translatedText, setCopiedText, "Translation copied!")}
-                    >
-                      {copiedText ? (
-                        <Check className="h-4 w-4 text-green-400" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={() => speakText(textTranslationResult.translatedText, textTranslationResult.targetLanguage)}
+                        disabled={isSpeaking}
+                      >
+                        <Volume2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={() => copyToClipboard(textTranslationResult.translatedText, setCopiedText, "Translation copied!")}
+                      >
+                        {copiedText ? (
+                          <Check className="h-4 w-4 text-green-400" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   <p className="text-lg text-green-300 font-medium">{textTranslationResult.translatedText}</p>
                 </div>
@@ -335,18 +510,29 @@ export default function Translation() {
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-xs text-slate-400">Extracted Text:</p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 px-2"
-                          onClick={() => copyToClipboard(imageTranslationResult.extractedText, setCopiedExtracted, "Extracted text copied!")}
-                        >
-                          {copiedExtracted ? (
-                            <Check className="h-3 w-3 text-green-400" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2"
+                            onClick={() => speakText(imageTranslationResult.extractedText, imageTranslationResult.detectedLanguage)}
+                            disabled={isSpeaking}
+                          >
+                            <Volume2 className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2"
+                            onClick={() => copyToClipboard(imageTranslationResult.extractedText, setCopiedExtracted, "Extracted text copied!")}
+                          >
+                            {copiedExtracted ? (
+                              <Check className="h-3 w-3 text-green-400" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-sm text-slate-200">{imageTranslationResult.extractedText}</p>
                     </div>
@@ -354,18 +540,29 @@ export default function Translation() {
                       <div>
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-xs text-slate-400">Translation ({imageTranslationResult.targetLanguage}):</p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 px-2"
-                            onClick={() => copyToClipboard(imageTranslationResult.translatedText, setCopiedImageTranslation, "Translation copied!")}
-                          >
-                            {copiedImageTranslation ? (
-                              <Check className="h-3 w-3 text-green-400" />
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2"
+                              onClick={() => speakText(imageTranslationResult.translatedText, imageTranslationResult.targetLanguage)}
+                              disabled={isSpeaking}
+                            >
+                              <Volume2 className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2"
+                              onClick={() => copyToClipboard(imageTranslationResult.translatedText, setCopiedImageTranslation, "Translation copied!")}
+                            >
+                              {copiedImageTranslation ? (
+                                <Check className="h-3 w-3 text-green-400" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
                         <p className="text-sm text-green-300 font-medium">{imageTranslationResult.translatedText}</p>
                       </div>

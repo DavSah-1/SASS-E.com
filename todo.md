@@ -1929,3 +1929,13 @@
 - [x] Add /translate route to App.tsx
 - [x] Remove translation mode from Voice Assistant page
 - [x] Test standalone translation page functionality - Server running, Translation link visible in navigation
+
+## Translation Page STT and TTS Features
+- [x] Add microphone button to text translation input for Speech-to-Text
+- [x] Implement audio recording and transcription for text input
+- [x] Add speaker button next to original text for pronunciation
+- [x] Add speaker button next to translated text for pronunciation
+- [x] Configure TTS to use appropriate language voices for each text
+- [x] Add visual feedback for recording and speaking states
+- [x] Test STT with multiple languages - Server running successfully, features integrated
+- [x] Test TTS pronunciation accuracy - Speaker buttons added with language-specific voices
