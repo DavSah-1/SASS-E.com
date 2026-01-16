@@ -3,23 +3,43 @@ import { Button } from "@/components/ui/button";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff, AlertCircle } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { NotificationBell } from "./NotificationBell";
 import { useLocation } from "wouter";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 export function Navigation() {
   const { user, isAuthenticated, logout } = useAuth();
   const { isInstallable, isInstalled, installApp } = usePWA();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
   const { t } = useLanguage();
   const isOnline = useOnlineStatus();
   const [, setLocation] = useLocation();
 
-  const handleLogout = async () => {
+  const handleLogoutClick = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    setShowLogoutDialog(false);
     await logout();
+    toast.success("Successfully signed out", {
+      description: "You have been logged out of your account.",
+    });
     setLocation("/");
   };
 
@@ -94,7 +114,7 @@ export function Navigation() {
               <Button asChild variant="default" size="sm">
                 <a href="/assistant">{t.nav.launchAssistant}</a>
               </Button>
-              <Button onClick={handleLogout} variant="ghost" size="sm">
+              <Button onClick={handleLogoutClick} variant="ghost" size="sm">
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
@@ -167,7 +187,7 @@ export function Navigation() {
                 <Button asChild variant="default" className="w-full">
                   <a href="/assistant">{t.nav.launchAssistant}</a>
                 </Button>
-                <Button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} variant="outline" className="w-full gap-2">
+                <Button onClick={() => { handleLogoutClick(); setMobileMenuOpen(false); }} variant="outline" className="w-full gap-2">
                   <LogOut className="h-5 w-5" />
                   <span>Sign Out</span>
                 </Button>
@@ -180,6 +200,32 @@ export function Navigation() {
           </div>
         </div>
       )}
+
+      {/* Sign Out Confirmation Dialog */}
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent className="bg-slate-800 border-purple-500/20">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-slate-100 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-yellow-500" />
+              Confirm Sign Out
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-300">
+              Are you sure you want to sign out? You'll need to log in again to access your personalized features.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-700 text-slate-100 hover:bg-slate-600 border-slate-600">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleLogoutConfirm}
+              className="bg-purple-600 text-white hover:bg-purple-700"
+            >
+              Sign Out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </nav>
   );
 }

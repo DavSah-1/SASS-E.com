@@ -2045,3 +2045,9 @@
 ## Sign-Out Redirect to Home Page
 - [x] Update Navigation component to redirect to home page (/) after sign-out
 - [x] Test sign-out from various pages (Voice Assistant, Translation, Money Hub, Learning Hub, Wellness)
+
+## Sign-Out UX Improvements
+- [x] Add confirmation dialog before sign-out to prevent accidental logouts
+- [x] Display success toast notification after sign-out completes
+- [x] Test confirmation dialog on desktop and mobile
+- [x] Test toast notification appears after redirect to home page
