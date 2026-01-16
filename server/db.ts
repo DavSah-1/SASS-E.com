@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, like, or } from "drizzle-orm";
+import { and, desc, eq, gt, gte, isNull, like, lt, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   conversations, 
@@ -109,7 +109,7 @@ export async function getDb() {
   return _db;
 }
 
-export async function upsertUser(user: InsertUser): Promise<void> {
+export async function upsertUser(user: InsertUser, retryCount = 0): Promise<void> {
   if (!user.openId) {
     throw new Error("User openId is required for upsert");
   }
@@ -162,7 +162,16 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     await db.insert(users).values(values).onDuplicateKeyUpdate({
       set: updateSet,
     });
-  } catch (error) {
+  } catch (error: any) {
+    // Handle connection reset errors with retry
+    if (error?.cause?.code === 'ECONNRESET' && retryCount < 3) {
+      console.warn(`[Database] Connection reset, retrying (${retryCount + 1}/3)...`);
+      // Reset the connection
+      _db = null;
+      // Wait a bit before retrying
+      await new Promise(resolve => setTimeout(resolve, 100 * (retryCount + 1)));
+      return upsertUser(user, retryCount + 1);
+    }
     console.error("[Database] Failed to upsert user:", error);
     throw error;
   }
