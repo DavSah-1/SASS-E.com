@@ -2029,3 +2029,7 @@
 - [x] Add interactive feature cards for text translation, image OCR, conversation mode, phrasebook
 - [x] Include sample data demonstrating each feature
 - [x] Add CTA to sign up at the end
+
+## Navbar UI Update
+- [x] Remove "Profile" and "Sign Out" text labels from navbar
+- [x] Keep icons/logo visible

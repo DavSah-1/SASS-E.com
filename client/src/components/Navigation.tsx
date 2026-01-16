@@ -79,18 +79,16 @@ export function Navigation() {
           {isAuthenticated ? (
             <>
               <NotificationBell />
-              <Button asChild variant="ghost" size="sm" className="gap-2">
+              <Button asChild variant="ghost" size="sm">
                 <a href="/profile">
                   <User className="h-4 w-4" />
-                  <span className="hidden lg:inline">Profile</span>
                 </a>
               </Button>
               <Button asChild variant="default" size="sm">
                 <a href="/assistant">{t.nav.launchAssistant}</a>
               </Button>
-              <Button onClick={logout} variant="ghost" size="sm" className="gap-2">
+              <Button onClick={logout} variant="ghost" size="sm">
                 <LogOut className="h-4 w-4" />
-                <span className="hidden lg:inline">Sign Out</span>
               </Button>
             </>
           ) : (
