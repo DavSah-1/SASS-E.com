@@ -210,7 +210,7 @@ export default function TranslateLanding() {
               <div className="text-center">
                 {isAuthenticated ? (
                   <Button asChild size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-8 py-6 text-lg">
-                    <Link href="/translate">
+                    <Link href="/translate-app">
                       Start Translating
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>

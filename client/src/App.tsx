@@ -35,8 +35,8 @@ function Router() {
       <Route path={"/devices"} component={IoTDevices} />
       <Route path={"/learning"} component={Learning} />
       <Route path={"/language-learning"} component={LanguageLearning} />
-      <Route path={"/translate-landing"} component={TranslateLanding} />
-      <Route path={"/translate"} component={Translation} />
+      <Route path={"/translate"} component={TranslateLanding} />
+      <Route path={"/translate-app"} component={Translation} />
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/science-lab"} component={ScienceLab} />
       <Route path={"/wellness"} component={Wellness} />

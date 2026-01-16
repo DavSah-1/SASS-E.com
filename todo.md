@@ -2003,3 +2003,9 @@
 
 ## Translation Landing Page Restructure
 - [x] Move content directly into main element instead of nested div
+
+## Translation Route Swap
+- [x] Change landing page route from /translate-landing to /translate
+- [x] Change full translation tool route from /translate to /translate-app
+- [x] Update navigation links to point to /translate
+- [x] Update CTA button on landing page to link to /translate-app
