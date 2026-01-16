@@ -2125,3 +2125,12 @@
 - [x] Add background texture matching feature description
 - [x] Add multi-line optimization feature description
 - [x] Update examples and use cases
+
+## Debug Image OCR Overlay Translation Failures
+- [x] Check server logs for error messages
+- [x] Test image upload and OCR extraction
+- [x] Verify LLM response format matches expected schema
+- [x] Check if all required fields are being returned
+- [x] Test overlay rendering with sample data
+- [x] Fix any schema mismatches or missing fields
+- [x] Add error handling and fallbacks
