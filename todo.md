@@ -1993,3 +1993,10 @@
 - [x] Delete conversations
 - [x] Conversation templates (ordering food, asking directions, etc.)ion export (text format)
 - [x] Test conversation mode end-to-end - Server running, UI integrated
+
+## Translation Landing Page
+- [x] Create TranslateLanding.tsx page component matching style of other landing pages
+- [x] Add feature highlights (text translation, image OCR, conversation mode, phrasebook)
+- [x] Add call-to-action button to access full Translation page
+- [x] Add route for /translate-landing
+- [x] Update navigation to link to landing page instead of direct Translation page
