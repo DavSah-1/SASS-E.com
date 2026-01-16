@@ -47,6 +47,10 @@ export default function Translation() {
       y: number;
       width: number;
       height: number;
+      fontWeight?: string;
+      fontStyle?: string;
+      fontFamily?: string;
+      textDirection?: string;
     }>;
   } | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);

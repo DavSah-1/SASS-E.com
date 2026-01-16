@@ -1402,7 +1402,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           properties: {
             textBlocks: {
               type: "array",
-              description: "Array of text blocks with their positions",
+              description: "Array of text blocks with their positions and styles",
               items: {
                 type: "object",
                 properties: {
@@ -1411,8 +1411,12 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
                   y: { type: "number", description: "Y coordinate (0-1, relative to image height)" },
                   width: { type: "number", description: "Width (0-1, relative to image width)" },
                   height: { type: "number", description: "Height (0-1, relative to image height)" },
+                  fontWeight: { type: "string", enum: ["normal", "bold"], description: "Font weight (normal or bold)" },
+                  fontStyle: { type: "string", enum: ["normal", "italic"], description: "Font style (normal or italic)" },
+                  fontFamily: { type: "string", enum: ["serif", "sans-serif", "monospace"], description: "Font family type" },
+                  textDirection: { type: "string", enum: ["ltr", "rtl", "vertical"], description: "Text direction: left-to-right, right-to-left, or vertical" },
                 },
-                required: ["text", "x", "y", "width", "height"],
+                required: ["text", "x", "y", "width", "height", "fontWeight", "fontStyle", "fontFamily", "textDirection"],
                 additionalProperties: false,
               },
             },
@@ -1440,7 +1444,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         };
 
         const extractPrompt = input.includePositions
-          ? "Analyze this image and extract all visible text with their approximate positions. For each text block, provide: the text content, and its position as relative coordinates (0-1 range) where x,y is the top-left corner, and width,height are the dimensions relative to the image size. Also identify the language."
+          ? "Analyze this image and extract all visible text with their positions and visual characteristics. For each text block, provide:\n1. Text content\n2. Position as relative coordinates (0-1 range) where x,y is top-left corner, width,height are dimensions\n3. Font weight: 'normal' or 'bold' (analyze if text appears bold/heavy)\n4. Font style: 'normal' or 'italic' (check if text is slanted/italicized)\n5. Font family: 'serif' (with decorative strokes), 'sans-serif' (clean/modern), or 'monospace' (fixed-width)\n6. Text direction: 'ltr' (left-to-right like English), 'rtl' (right-to-left like Arabic/Hebrew), or 'vertical' (top-to-bottom like traditional Japanese/Chinese)\nAlso identify the language of the text."
           : "Extract all visible text from this image. Identify the language of the text. Return your response in this exact JSON format: {\"text\": \"extracted text here\", \"detectedLanguage\": \"language name\"}";
 
         const extractResponse = await invokeLLM({
@@ -1501,6 +1505,10 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
               y: block.y,
               width: block.width,
               height: block.height,
+              fontWeight: block.fontWeight,
+              fontStyle: block.fontStyle,
+              fontFamily: block.fontFamily,
+              textDirection: block.textDirection,
             });
           }
 

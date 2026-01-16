@@ -10,6 +10,10 @@ export async function renderImageOverlay(
     y: number;
     width: number;
     height: number;
+    fontWeight?: string;
+    fontStyle?: string;
+    fontFamily?: string;
+    textDirection?: string;
   }>
 ): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -41,47 +45,88 @@ export async function renderImageOverlay(
         ctx.fillStyle = 'white';
         ctx.fillRect(x, y, width, height);
         
-        // Calculate font size based on block height
+        // Build font string with detected styles
         const fontSize = Math.max(12, height * 0.7);
-        ctx.font = `${fontSize}px Arial, sans-serif`;
+        const fontWeight = block.fontWeight === 'bold' ? 'bold' : 'normal';
+        const fontStyle = block.fontStyle === 'italic' ? 'italic' : 'normal';
+        const fontFamily = block.fontFamily === 'serif' ? 'serif' : 
+                          block.fontFamily === 'monospace' ? 'monospace' : 'sans-serif';
+        
+        ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
         ctx.fillStyle = 'black';
         ctx.textBaseline = 'top';
         
-        // Word wrap the translated text to fit within the block width
-        const words = block.translatedText.split(' ');
-        const lines: string[] = [];
-        let currentLine = '';
+        const textDirection = block.textDirection || 'ltr';
         
-        words.forEach((word) => {
-          const testLine = currentLine ? `${currentLine} ${word}` : word;
-          const metrics = ctx.measureText(testLine);
+        if (textDirection === 'vertical') {
+          // Vertical text rendering (Japanese, Chinese)
+          ctx.save();
+          ctx.translate(x + width / 2, y + 2);
+          ctx.rotate(Math.PI / 2);
           
-          if (metrics.width > width - 4) {
-            if (currentLine) {
-              lines.push(currentLine);
-              currentLine = word;
-            } else {
-              // Single word is too long, just use it
-              lines.push(word);
-              currentLine = '';
+          const chars = block.translatedText.split('');
+          const charHeight = fontSize * 1.2;
+          let currentY = 0;
+          
+          chars.forEach((char) => {
+            if (currentY + charHeight <= height) {
+              ctx.fillText(char, 0, currentY, width - 4);
+              currentY += charHeight;
             }
+          });
+          
+          ctx.restore();
+        } else {
+          // Horizontal text rendering (LTR or RTL)
+          if (textDirection === 'rtl') {
+            ctx.direction = 'rtl';
+            ctx.textAlign = 'right';
           } else {
-            currentLine = testLine;
+            ctx.direction = 'ltr';
+            ctx.textAlign = 'left';
           }
-        });
-        
-        if (currentLine) {
-          lines.push(currentLine);
+          
+          // Word wrap the translated text to fit within the block width
+          const words = block.translatedText.split(' ');
+          const lines: string[] = [];
+          let currentLine = '';
+          
+          words.forEach((word) => {
+            const testLine = currentLine ? `${currentLine} ${word}` : word;
+            const metrics = ctx.measureText(testLine);
+            
+            if (metrics.width > width - 4) {
+              if (currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+              } else {
+                // Single word is too long, just use it
+                lines.push(word);
+                currentLine = '';
+              }
+            } else {
+              currentLine = testLine;
+            }
+          });
+          
+          if (currentLine) {
+            lines.push(currentLine);
+          }
+          
+          // Draw each line of text
+          const lineHeight = fontSize * 1.2;
+          lines.forEach((line, index) => {
+            const lineY = y + 2 + (index * lineHeight);
+            if (lineY + lineHeight <= y + height) {
+              const textX = textDirection === 'rtl' ? x + width - 2 : x + 2;
+              ctx.fillText(line, textX, lineY, width - 4);
+            }
+          });
+          
+          // Reset text direction
+          ctx.direction = 'ltr';
+          ctx.textAlign = 'left';
         }
-        
-        // Draw each line of text
-        const lineHeight = fontSize * 1.2;
-        lines.forEach((line, index) => {
-          const lineY = y + 2 + (index * lineHeight);
-          if (lineY + lineHeight <= y + height) {
-            ctx.fillText(line, x + 2, lineY, width - 4);
-          }
-        });
       });
       
       // Convert canvas to data URL

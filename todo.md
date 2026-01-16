@@ -2088,3 +2088,15 @@
 - [x] Add download button for translated image
 - [x] Test with images containing various text layouts
 - [x] Test with different languages and character sets
+
+## Font Style Matching and Text Direction Support
+- [x] Update backend to detect font styles (bold, italic, serif/sans-serif) for each text block
+- [x] Update backend to detect text direction (LTR, RTL, vertical) for each text block
+- [x] Enhance LLM prompt to analyze font characteristics from images
+- [x] Update imageOverlay utility to apply detected font styles
+- [x] Implement RTL text rendering in canvas (Arabic, Hebrew)
+- [x] Implement vertical text rendering in canvas (Japanese, Chinese)
+- [x] Add font weight and style properties to text block data structure
+- [x] Test with images containing bold and italic text
+- [x] Test with Arabic/Hebrew text (RTL)
+- [x] Test with Japanese/Chinese vertical text
