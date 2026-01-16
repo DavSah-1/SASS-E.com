@@ -2022,3 +2022,10 @@
 - [x] Show demo limitations and prompt to sign up
 - [x] Add /translate-demo route to App.tsx
 - [x] Add "View Demo" button to Translation landing page
+
+## Translation Demo Page Redesign
+- [x] Review Money/Learning/Wellness demo pages for structure
+- [x] Redesign TranslateDemo to showcase all features visually (not limit functionality)
+- [x] Add interactive feature cards for text translation, image OCR, conversation mode, phrasebook
+- [x] Include sample data demonstrating each feature
+- [x] Add CTA to sign up at the end
