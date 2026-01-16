@@ -14,6 +14,10 @@ export async function renderImageOverlay(
     fontStyle?: string;
     fontFamily?: string;
     textDirection?: string;
+    textColor?: string;
+    backgroundColor?: string;
+    backgroundType?: string;
+    lineSpacing?: number;
   }>
 ): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -41,9 +45,58 @@ export async function renderImageOverlay(
         const width = block.width * img.width;
         const height = block.height * img.height;
         
-        // Mask original text with white rectangle
-        ctx.fillStyle = 'white';
-        ctx.fillRect(x, y, width, height);
+        // Recreate background based on detected type
+        const backgroundType = block.backgroundType || 'solid';
+        const backgroundColor = block.backgroundColor || 'white';
+        
+        if (backgroundType === 'solid') {
+          // Simple solid color fill
+          ctx.fillStyle = backgroundColor;
+          ctx.fillRect(x, y, width, height);
+        } else if (backgroundType === 'gradient') {
+          // Create gradient (parse CSS gradient or use solid as fallback)
+          try {
+            // Try to create a linear gradient from top to bottom
+            const gradient = ctx.createLinearGradient(x, y, x, y + height);
+            gradient.addColorStop(0, backgroundColor);
+            gradient.addColorStop(1, backgroundColor);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x, y, width, height);
+          } catch (e) {
+            // Fallback to solid
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(x, y, width, height);
+          }
+        } else if (backgroundType === 'texture') {
+          // Sample background pixels from original image
+          try {
+            // Create a temporary canvas to sample the background
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            if (tempCtx) {
+              // Draw the background region from original image
+              tempCtx.drawImage(img, x, y, width, height, 0, 0, width, height);
+              
+              // Apply slight blur to remove text artifacts
+              tempCtx.filter = 'blur(2px)';
+              tempCtx.drawImage(tempCanvas, 0, 0);
+              
+              // Draw the sampled background onto main canvas
+              ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
+            } else {
+              // Fallback to solid color
+              ctx.fillStyle = backgroundColor;
+              ctx.fillRect(x, y, width, height);
+            }
+          } catch (e) {
+            // Fallback to solid color
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(x, y, width, height);
+          }
+        }
         
         // Build font string with detected styles
         const fontSize = Math.max(12, height * 0.7);
@@ -53,7 +106,9 @@ export async function renderImageOverlay(
                           block.fontFamily === 'monospace' ? 'monospace' : 'sans-serif';
         
         ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
-        ctx.fillStyle = 'black';
+        
+        // Use detected text color or default to black
+        ctx.fillStyle = block.textColor || 'black';
         ctx.textBaseline = 'top';
         
         const textDirection = block.textDirection || 'ltr';
@@ -113,8 +168,9 @@ export async function renderImageOverlay(
             lines.push(currentLine);
           }
           
-          // Draw each line of text
-          const lineHeight = fontSize * 1.2;
+          // Draw each line of text with detected line spacing
+          const lineSpacingMultiplier = block.lineSpacing || 1.2;
+          const lineHeight = fontSize * lineSpacingMultiplier;
           lines.forEach((line, index) => {
             const lineY = y + 2 + (index * lineHeight);
             if (lineY + lineHeight <= y + height) {

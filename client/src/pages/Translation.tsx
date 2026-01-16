@@ -51,6 +51,10 @@ export default function Translation() {
       fontStyle?: string;
       fontFamily?: string;
       textDirection?: string;
+      textColor?: string;
+      backgroundColor?: string;
+      backgroundType?: string;
+      lineSpacing?: number;
     }>;
   } | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);

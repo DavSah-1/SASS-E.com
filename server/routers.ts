@@ -1415,8 +1415,12 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
                   fontStyle: { type: "string", enum: ["normal", "italic"], description: "Font style (normal or italic)" },
                   fontFamily: { type: "string", enum: ["serif", "sans-serif", "monospace"], description: "Font family type" },
                   textDirection: { type: "string", enum: ["ltr", "rtl", "vertical"], description: "Text direction: left-to-right, right-to-left, or vertical" },
+                  textColor: { type: "string", description: "Text color in CSS format (e.g., 'rgb(255, 0, 0)' or '#ff0000')" },
+                  backgroundColor: { type: "string", description: "Background color/pattern behind text in CSS format" },
+                  backgroundType: { type: "string", enum: ["solid", "gradient", "texture"], description: "Type of background" },
+                  lineSpacing: { type: "number", description: "Relative line spacing multiplier (1.0 = normal, 1.5 = 1.5x spacing)" },
                 },
-                required: ["text", "x", "y", "width", "height", "fontWeight", "fontStyle", "fontFamily", "textDirection"],
+                required: ["text", "x", "y", "width", "height", "fontWeight", "fontStyle", "fontFamily", "textDirection", "textColor", "backgroundColor", "backgroundType", "lineSpacing"],
                 additionalProperties: false,
               },
             },
@@ -1444,7 +1448,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         };
 
         const extractPrompt = input.includePositions
-          ? "Analyze this image and extract all visible text with their positions and visual characteristics. For each text block, provide:\n1. Text content\n2. Position as relative coordinates (0-1 range) where x,y is top-left corner, width,height are dimensions\n3. Font weight: 'normal' or 'bold' (analyze if text appears bold/heavy)\n4. Font style: 'normal' or 'italic' (check if text is slanted/italicized)\n5. Font family: 'serif' (with decorative strokes), 'sans-serif' (clean/modern), or 'monospace' (fixed-width)\n6. Text direction: 'ltr' (left-to-right like English), 'rtl' (right-to-left like Arabic/Hebrew), or 'vertical' (top-to-bottom like traditional Japanese/Chinese)\nAlso identify the language of the text."
+          ? "Analyze this image and extract all visible text with their positions and visual characteristics. For each text block, provide:\n1. Text content\n2. Position as relative coordinates (0-1 range) where x,y is top-left corner, width,height are dimensions\n3. Font weight: 'normal' or 'bold'\n4. Font style: 'normal' or 'italic'\n5. Font family: 'serif', 'sans-serif', or 'monospace'\n6. Text direction: 'ltr', 'rtl', or 'vertical'\n7. Text color: analyze the color of the text itself in CSS format (e.g., 'rgb(255, 0, 0)' for red, 'rgb(255, 255, 255)' for white)\n8. Background color: analyze the background color/pattern directly behind the text in CSS format\n9. Background type: 'solid' (uniform color), 'gradient' (color transition), or 'texture' (pattern/image)\n10. Line spacing: for multi-line text, estimate the spacing multiplier (1.0 = normal, 1.5 = 1.5x spacing, 2.0 = double spacing)\nAlso identify the language of the text."
           : "Extract all visible text from this image. Identify the language of the text. Return your response in this exact JSON format: {\"text\": \"extracted text here\", \"detectedLanguage\": \"language name\"}";
 
         const extractResponse = await invokeLLM({
@@ -1509,6 +1513,10 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
               fontStyle: block.fontStyle,
               fontFamily: block.fontFamily,
               textDirection: block.textDirection,
+              textColor: block.textColor,
+              backgroundColor: block.backgroundColor,
+              backgroundType: block.backgroundType,
+              lineSpacing: block.lineSpacing,
             });
           }
 

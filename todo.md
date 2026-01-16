@@ -2100,3 +2100,18 @@
 - [x] Test with images containing bold and italic text
 - [x] Test with Arabic/Hebrew text (RTL)
 - [x] Test with Japanese/Chinese vertical text
+
+## Advanced Image Overlay Enhancements
+- [x] Update backend to detect text color (RGB values) for each text block
+- [x] Update backend to analyze background pattern/texture behind text
+- [x] Update backend to detect line spacing and alignment in multi-line blocks
+- [x] Enhance LLM prompt to extract color information from text regions
+- [x] Enhance LLM prompt to describe background characteristics (solid/gradient/texture)
+- [x] Implement text color preservation in canvas renderer
+- [x] Implement background texture matching (solid colors, gradients, patterns)
+- [x] Sample and recreate background pixels from original image
+- [x] Optimize multi-line text rendering with detected line spacing
+- [x] Test with colored text (red, blue, white on dark backgrounds)
+- [x] Test with gradient backgrounds
+- [x] Test with textured/patterned backgrounds
+- [x] Test with multi-paragraph text blocks
