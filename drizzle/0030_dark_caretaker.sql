@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `staySignedIn` boolean DEFAULT false NOT NULL;

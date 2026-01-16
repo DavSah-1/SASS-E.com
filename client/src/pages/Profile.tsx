@@ -9,8 +9,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrency, CURRENCY_LIST, CurrencyCode } from "@/contexts/CurrencyContext";
 import { Language, getLanguageName, getLanguageFlag } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
-import { User, Globe, Activity, TrendingUp, MessageSquare, DollarSign } from "lucide-react";
+import { User, Globe, Activity, TrendingUp, MessageSquare, DollarSign, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 const SUPPORTED_LANGUAGES: Language[] = ['en', 'es', 'fr', 'de'];
@@ -23,6 +24,10 @@ export default function Profile() {
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>(currency);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingCurrency, setIsSavingCurrency] = useState(false);
+  const [staySignedIn, setStaySignedIn] = useState(user?.staySignedIn || false);
+  const [isSavingSession, setIsSavingSession] = useState(false);
+
+  const setStaySignedInMutation = trpc.auth.setStaySignedIn.useMutation();
 
   const profileQuery = trpc.assistant.getProfile.useQuery(undefined, {
     enabled: !!user,
@@ -35,6 +40,12 @@ export default function Profile() {
   useEffect(() => {
     setSelectedCurrency(currency);
   }, [currency]);
+
+  useEffect(() => {
+    if (user) {
+      setStaySignedIn(user.staySignedIn || false);
+    }
+  }, [user]);
 
   const handleCurrencyChange = async (newCurrency: CurrencyCode) => {
     setSelectedCurrency(newCurrency);
@@ -72,6 +83,28 @@ export default function Profile() {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleStaySignedInChange = async (checked: boolean) => {
+    setStaySignedIn(checked);
+    setIsSavingSession(true);
+    
+    try {
+      await setStaySignedInMutation.mutateAsync({ staySignedIn: checked });
+      toast.success("Session Preference Updated", {
+        description: checked 
+          ? "You'll stay signed in for 30 days"
+          : "You'll stay signed in for 1 day",
+      });
+    } catch (error) {
+      console.error('Failed to save session preference:', error);
+      setStaySignedIn(!checked); // Revert on error
+      toast.error("Error", {
+        description: 'Failed to save session preference',
+      });
+    } finally {
+      setIsSavingSession(false);
     }
   };
 
@@ -233,6 +266,43 @@ export default function Profile() {
                   This currency will be used throughout Money Hub for displaying amounts
                 </p>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Session Preference */}
+          <Card className="bg-slate-800/50 border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Shield className="h-5 w-5" />
+                Session Preference
+              </CardTitle>
+              <CardDescription className="text-slate-400">
+                Control how long you stay signed in
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1 flex-1">
+                  <Label htmlFor="stay-signed-in" className="text-slate-300 font-medium">
+                    Stay Signed In
+                  </Label>
+                  <p className="text-sm text-slate-400">
+                    {staySignedIn 
+                      ? "You'll stay signed in for 30 days" 
+                      : "You'll stay signed in for 1 day"}
+                  </p>
+                </div>
+                <Switch
+                  id="stay-signed-in"
+                  checked={staySignedIn}
+                  onCheckedChange={handleStaySignedInChange}
+                  disabled={isSavingSession}
+                  className="data-[state=checked]:bg-purple-600"
+                />
+              </div>
+              <p className="text-xs text-slate-400">
+                When enabled, you won't need to log in again for 30 days. Disable this on shared devices for better security.
+              </p>
             </CardContent>
           </Card>
 

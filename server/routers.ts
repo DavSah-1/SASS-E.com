@@ -45,6 +45,13 @@ export const appRouter = router({
         await updateUserLanguage(ctx.user.id, input.language);
         return { success: true, language: input.language };
       }),
+    setStaySignedIn: protectedProcedure
+      .input(z.object({ staySignedIn: z.boolean() }))
+      .mutation(async ({ ctx, input }) => {
+        const { updateUserStaySignedIn } = await import("./db");
+        await updateUserStaySignedIn(ctx.user.id, input.staySignedIn);
+        return { success: true, staySignedIn: input.staySignedIn };
+      }),
   }),
 
   assistant: router({

@@ -211,6 +211,13 @@
       "when": 1768558447699,
       "tag": "0029_special_cardiac",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "5",
+      "when": 1768572823578,
+      "tag": "0030_dark_caretaker",
+      "breakpoints": true
     }
   ]
 }

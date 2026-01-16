@@ -2051,3 +2051,12 @@
 - [x] Display success toast notification after sign-out completes
 - [x] Test confirmation dialog on desktop and mobile
 - [x] Test toast notification appears after redirect to home page
+
+## Stay Signed In Feature (Profile Settings)
+- [x] Add staySignedIn boolean field to users table schema
+- [x] Push database migration for new field
+- [x] Create backend API endpoint to update session preference
+- [x] Add Stay Signed In toggle to Profile page UI
+- [x] Update OAuth callback to apply user's session preference
+- [x] Test 1-day session duration (default)
+- [x] Test 30-day session duration (when enabled)

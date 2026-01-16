@@ -36,13 +36,19 @@ export function registerOAuthRoutes(app: Express) {
         lastSignedIn: new Date(),
       });
 
+      // Get user's session preference
+      const user = await db.getUserByOpenId(userInfo.openId);
+      const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+      const THIRTY_DAYS_MS = 30 * ONE_DAY_MS;
+      const sessionDuration = user?.staySignedIn ? THIRTY_DAYS_MS : ONE_DAY_MS;
+
       const sessionToken = await sdk.createSessionToken(userInfo.openId, {
         name: userInfo.name || "",
-        expiresInMs: ONE_YEAR_MS,
+        expiresInMs: sessionDuration,
       });
 
       const cookieOptions = getSessionCookieOptions(req);
-      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: sessionDuration });
 
       res.redirect(302, "/");
     } catch (error) {
