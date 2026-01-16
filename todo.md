@@ -2037,3 +2037,7 @@
 ## Conditional Translate Navigation
 - [x] Update Translate link to go to /translate-app when user is signed in
 - [x] Keep /translate (landing page) for non-authenticated users
+
+## Translation Page - Missing Image OCR Tab
+- [x] Add Image OCR tab to Translation page tabs list
+- [x] Add Image OCR TabsContent with image upload and translation functionality

@@ -52,7 +52,7 @@ export default function Translation() {
   
   // TTS state
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [activeTab, setActiveTab] = useState<"translate" | "conversation" | "phrasebook">("translate");
+  const [activeTab, setActiveTab] = useState<"translate" | "image_ocr" | "conversation" | "phrasebook">("translate");
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   
   const translateTextMutation = trpc.translation.translate.useMutation();
@@ -323,11 +323,15 @@ export default function Translation() {
           </div>
           
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "conversation" | "phrasebook")} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-slate-800/50">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "image_ocr" | "conversation" | "phrasebook")} className="w-full">
+            <TabsList className="grid w-full grid-cols-4 bg-slate-800/50">
               <TabsTrigger value="translate" className="data-[state=active]:bg-purple-600">
                 <Languages className="h-4 w-4 mr-2" />
                 Translate
+              </TabsTrigger>
+              <TabsTrigger value="image_ocr" className="data-[state=active]:bg-purple-600">
+                <Camera className="h-4 w-4 mr-2" />
+                Image OCR
               </TabsTrigger>
               <TabsTrigger value="conversation" className="data-[state=active]:bg-purple-600">
                 <Languages className="h-4 w-4 mr-2" />
@@ -493,7 +497,9 @@ export default function Translation() {
               )}
             </CardContent>
           </Card>
-          
+            </TabsContent>
+            
+            <TabsContent value="image_ocr" className="space-y-6 mt-6">
           {/* Image Translation */}
           <Card className="bg-slate-800/50 border-purple-500/20">
             <CardHeader>
