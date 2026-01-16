@@ -178,10 +178,10 @@ export default function TranslateDemo() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-white">
                   <Camera className="h-5 w-5 text-blue-400" />
-                  Image-to-Text Translation
+                  Image Overlay Translation
                 </CardTitle>
                 <CardDescription className="text-slate-300">
-                  Take photos of signs, menus, or documents and translate instantly
+                  Extract text from images and overlay translations directly on the original image with preserved styling
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -207,19 +207,35 @@ export default function TranslateDemo() {
                   </div>
                 ))}
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-900/50 border border-slate-700">
-                    <Zap className="h-5 w-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-white mb-1">Instant OCR</h4>
-                      <p className="text-sm text-slate-400">AI-powered text extraction from any image</p>
-                    </div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 p-4 rounded-lg bg-purple-900/20 border border-purple-500/30">
+                    <Sparkles className="h-5 w-5 text-purple-400" />
+                    <p className="text-sm text-slate-300">
+                      <strong className="text-purple-400">Advanced Feature:</strong> Overlay translated text directly on images with preserved visual styling
+                    </p>
                   </div>
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-900/50 border border-slate-700">
-                    <Globe className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-white mb-1">Auto-Detect</h4>
-                      <p className="text-sm text-slate-400">Automatically detects source language</p>
+                  
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-900/50 border border-slate-700">
+                      <Zap className="h-5 w-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Font Matching</h4>
+                        <p className="text-sm text-slate-400">Detects and preserves bold, italic, serif/sans-serif styles</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-900/50 border border-slate-700">
+                      <Globe className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Text Direction</h4>
+                        <p className="text-sm text-slate-400">Supports LTR, RTL (Arabic/Hebrew), and vertical text (Japanese/Chinese)</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-900/50 border border-slate-700">
+                      <Sparkles className="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-white mb-1">Color & Background</h4>
+                        <p className="text-sm text-slate-400">Preserves text colors and recreates backgrounds (solid/gradient/texture)</p>
+                      </div>
                     </div>
                   </div>
                 </div>

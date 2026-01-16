@@ -2115,3 +2115,13 @@
 - [x] Test with gradient backgrounds
 - [x] Test with textured/patterned backgrounds
 - [x] Test with multi-paragraph text blocks
+
+## Update Translate Demo Page
+- [x] Read current translate-demo page content
+- [x] Add Image OCR overlay translation feature showcase
+- [x] Add font style matching feature description
+- [x] Add text direction support (RTL, vertical) description
+- [x] Add color preservation feature description
+- [x] Add background texture matching feature description
+- [x] Add multi-line optimization feature description
+- [x] Update examples and use cases
