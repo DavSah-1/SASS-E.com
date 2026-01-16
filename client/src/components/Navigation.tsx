@@ -8,6 +8,7 @@ import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { NotificationBell } from "./NotificationBell";
+import { useLocation } from "wouter";
 
 export function Navigation() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -15,6 +16,12 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const { t } = useLanguage();
   const isOnline = useOnlineStatus();
+  const [, setLocation] = useLocation();
+
+  const handleLogout = async () => {
+    await logout();
+    setLocation("/");
+  };
 
   return (
     <nav className="sticky top-0 z-50 border-b border-purple-500/20 bg-slate-900/50 backdrop-blur">
@@ -87,7 +94,7 @@ export function Navigation() {
               <Button asChild variant="default" size="sm">
                 <a href="/assistant">{t.nav.launchAssistant}</a>
               </Button>
-              <Button onClick={logout} variant="ghost" size="sm">
+              <Button onClick={handleLogout} variant="ghost" size="sm">
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
@@ -160,7 +167,7 @@ export function Navigation() {
                 <Button asChild variant="default" className="w-full">
                   <a href="/assistant">{t.nav.launchAssistant}</a>
                 </Button>
-                <Button onClick={() => { logout(); setMobileMenuOpen(false); }} variant="outline" className="w-full gap-2">
+                <Button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} variant="outline" className="w-full gap-2">
                   <LogOut className="h-5 w-5" />
                   <span>Sign Out</span>
                 </Button>

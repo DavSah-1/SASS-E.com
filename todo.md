@@ -2041,3 +2041,7 @@
 ## Translation Page - Missing Image OCR Tab
 - [x] Add Image OCR tab to Translation page tabs list
 - [x] Add Image OCR TabsContent with image upload and translation functionality
+
+## Sign-Out Redirect to Home Page
+- [x] Update Navigation component to redirect to home page (/) after sign-out
+- [x] Test sign-out from various pages (Voice Assistant, Translation, Money Hub, Learning Hub, Wellness)
