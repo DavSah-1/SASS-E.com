@@ -1960,3 +1960,36 @@
 - [x] Add default categories (Greetings, Dining, Travel, Emergency, Shopping)
 - [x] Test offline translation with cached phrases - Caching infrastructure ready
 - [x] Test phrasebook save/retrieve functionality - Server running, UI functional
+
+## Conversation Mode for Language Practice
+### Database Schema
+- [x] Create conversationSessions table (userId, title, language1, language2, createdAt, lastMessageAt)
+- [x] Create conversationMessages table (sessionId, messageText, translatedText, language, sender, timestamp)
+
+### Backend API
+- [x] Add createConversation endpoint
+- [x] Add getConversations endpoint (list user's conversation sessions)
+- [x] Add getConversationMessages endpoint
+- [x] Add sendMessage endpoint (with auto-translation)
+- [x] Add deleteConversation endpoint
+- [x] Add saveConversationToPhrasebook endpoint
+
+### Frontend UI
+- [x] Add Conversation tab to Translation page
+- [x] Build dual-pane chat interface (original | translated)
+- [x] Add language pair selector for conversation
+- [x] Implement message input with STT support
+- [x] Display message history with timestamps
+- [x] Add TTS pronunciation for each message
+- [x] Create new conversation dialog
+- [x] Add conversation list sidebar
+- [x] Implement conversation templates (restaurant, directions, hotel, shopping, emergency)
+
+#### Features
+- [x] Real-time message translation
+- [x] Speech-to-text input in both languages
+- [x] Text-to-speech pronunciation for practice
+- [x] Save entire conversations to phrasebook
+- [x] Delete conversations
+- [x] Conversation templates (ordering food, asking directions, etc.)ion export (text format)
+- [x] Test conversation mode end-to-end - Server running, UI integrated

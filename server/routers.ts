@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession, saveStudyGuide, saveQuiz, getUserQuizzes, saveQuizAttempt, getQuizAttempts, saveVerifiedFact, getVerifiedFact, searchVerifiedFacts, normalizeQuestion, logFactAccess, createFactUpdateNotifications, getUserNotifications, markNotificationAsRead, dismissNotification, getUnreadNotificationCount } from "./db";
+import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession, saveStudyGuide, saveQuiz, getUserQuizzes, saveQuizAttempt, getQuizAttempts, saveVerifiedFact, getVerifiedFact, searchVerifiedFacts, normalizeQuestion, logFactAccess, createFactUpdateNotifications, getUserNotifications, markNotificationAsRead, dismissNotification, getUnreadNotificationCount, createConversationSession, getUserConversationSessions, getConversationSession, getConversationMessages, addConversationMessage, deleteConversationSession, saveConversationSessionToPhrasebook } from "./db";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
 import { languageLearningRouter } from "./languageLearningRouter";
@@ -1430,6 +1430,107 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       const { getFrequentTranslations } = await import("./db");
       return await getFrequentTranslations(ctx.user.id);
     }),
+
+    // Conversation mode endpoints
+    createConversation: protectedProcedure
+      .input(
+        z.object({
+          title: z.string(),
+          language1: z.string(),
+          language2: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const sessionId = await createConversationSession(
+          ctx.user.id,
+          input.title,
+          input.language1,
+          input.language2
+        );
+        return { sessionId };
+      }),
+
+    getConversations: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserConversationSessions(ctx.user.id);
+    }),
+
+    getConversation: protectedProcedure
+      .input(z.object({ sessionId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const session = await getConversationSession(input.sessionId, ctx.user.id);
+        if (!session) throw new Error("Conversation not found");
+        const messages = await getConversationMessages(input.sessionId);
+        return { session, messages };
+      }),
+
+    sendMessage: protectedProcedure
+      .input(
+        z.object({
+          sessionId: z.number(),
+          messageText: z.string(),
+          language: z.string(),
+          sender: z.enum(["user", "practice"]),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        // Get the conversation session to determine target language
+        const session = await getConversationSession(input.sessionId, ctx.user.id);
+        if (!session) throw new Error("Conversation not found");
+
+        // Determine target language (translate to the other language)
+        const targetLanguage = input.language === session.language1 ? session.language2 : session.language1;
+
+        // Translate the message
+        const translationPrompt = `Translate the following text from ${input.language} to ${targetLanguage}. Provide only the direct translation without any additional commentary.\n\nText: "${input.messageText}"`;
+        
+        const response = await invokeLLM({
+          messages: [
+            { role: "system", content: "You are a professional translation assistant. Provide accurate, direct translations without adding any commentary." },
+            { role: "user", content: translationPrompt },
+          ],
+        });
+
+        const translatedContent = response.choices[0].message.content;
+        const translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
+
+        // Save the message
+        const messageId = await addConversationMessage(
+          input.sessionId,
+          input.messageText,
+          translatedText,
+          input.language,
+          input.sender
+        );
+
+        return {
+          messageId,
+          originalText: input.messageText,
+          translatedText,
+          language: input.language,
+          targetLanguage,
+        };
+      }),
+
+    deleteConversation: protectedProcedure
+      .input(z.object({ sessionId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await deleteConversationSession(input.sessionId, ctx.user.id);
+      }),
+
+    saveConversationToPhrasebook: protectedProcedure
+      .input(
+        z.object({
+          sessionId: z.number(),
+          categoryId: z.number().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        return await saveConversationSessionToPhrasebook(
+          input.sessionId,
+          ctx.user.id,
+          input.categoryId
+        );
+      }),
   }),
 });
 

@@ -5,6 +5,10 @@ import {
   InsertConversation, 
   InsertUser, 
   users,
+  conversationSessions,
+  InsertConversationSession,
+  conversationMessages,
+  InsertConversationMessage,
   learningSessions,
   InsertLearningSession,
   factCheckResults,
@@ -2802,6 +2806,165 @@ export async function updateTranslationCategory(
         eq(savedTranslations.userId, userId)
       )
     );
+  
+  return true;
+}
+
+
+/**
+ * Create a new conversation session
+ */
+export async function createConversationSession(
+  userId: number,
+  title: string,
+  language1: string,
+  language2: string
+) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.insert(conversationSessions).values({
+    userId,
+    title,
+    language1,
+    language2,
+  });
+  
+  return Number(result[0].insertId);
+}
+
+/**
+ * Get all conversation sessions for a user
+ */
+export async function getUserConversationSessions(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db
+    .select()
+    .from(conversationSessions)
+    .where(eq(conversationSessions.userId, userId))
+    .orderBy(desc(conversationSessions.lastMessageAt));
+}
+
+/**
+ * Get a specific conversation session
+ */
+export async function getConversationSession(sessionId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db
+    .select()
+    .from(conversationSessions)
+    .where(
+      and(
+        eq(conversationSessions.id, sessionId),
+        eq(conversationSessions.userId, userId)
+      )
+    )
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : null;
+}
+
+/**
+ * Get messages for a conversation session
+ */
+export async function getConversationMessages(sessionId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db
+    .select()
+    .from(conversationMessages)
+    .where(eq(conversationMessages.sessionId, sessionId))
+    .orderBy(conversationMessages.timestamp);
+}
+
+/**
+ * Add a message to a conversation
+ */
+export async function addConversationMessage(
+  sessionId: number,
+  messageText: string,
+  translatedText: string,
+  language: string,
+  sender: "user" | "practice"
+) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Insert the message
+  const result = await db.insert(conversationMessages).values({
+    sessionId,
+    messageText,
+    translatedText,
+    language,
+    sender,
+  });
+  
+  // Update the session's lastMessageAt timestamp
+  await db
+    .update(conversationSessions)
+    .set({ lastMessageAt: new Date() })
+    .where(eq(conversationSessions.id, sessionId));
+  
+  return Number(result[0].insertId);
+}
+
+/**
+ * Delete a conversation session and all its messages
+ */
+export async function deleteConversationSession(sessionId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  // First delete all messages
+  await db
+    .delete(conversationMessages)
+    .where(eq(conversationMessages.sessionId, sessionId));
+  
+  // Then delete the session
+  await db
+    .delete(conversationSessions)
+    .where(
+      and(
+        eq(conversationSessions.id, sessionId),
+        eq(conversationSessions.userId, userId)
+      )
+    );
+  
+  return true;
+}
+
+/**
+ * Save conversation session to phrasebook
+ */
+export async function saveConversationSessionToPhrasebook(
+  sessionId: number,
+  userId: number,
+  categoryId?: number
+) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  // Get all messages from the conversation
+  const messages = await getConversationMessages(sessionId);
+  
+  // Save each message as a translation
+  for (const message of messages) {
+    await db.insert(savedTranslations).values({
+      userId,
+      originalText: message.messageText,
+      translatedText: message.translatedText,
+      sourceLanguage: message.language,
+      targetLanguage: message.language === "en" ? "es" : "en", // Simple logic, can be improved
+      categoryId: categoryId || null,
+      isFavorite: 0,
+      usageCount: 1,
+    });
+  }
   
   return true;
 }

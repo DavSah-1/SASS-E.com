@@ -15,6 +15,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { getLoginUrl } from "@/const";
 import { Phrasebook } from "@/components/Phrasebook";
+import ConversationMode from "@/components/ConversationMode";
 
 export default function Translation() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -51,7 +52,7 @@ export default function Translation() {
   
   // TTS state
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [activeTab, setActiveTab] = useState<"translate" | "phrasebook">("translate");
+  const [activeTab, setActiveTab] = useState<"translate" | "conversation" | "phrasebook">("translate");
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   
   const translateTextMutation = trpc.translation.translate.useMutation();
@@ -322,11 +323,15 @@ export default function Translation() {
           </div>
           
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "phrasebook")} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-slate-800/50">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "conversation" | "phrasebook")} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-slate-800/50">
               <TabsTrigger value="translate" className="data-[state=active]:bg-purple-600">
                 <Languages className="h-4 w-4 mr-2" />
                 Translate
+              </TabsTrigger>
+              <TabsTrigger value="conversation" className="data-[state=active]:bg-purple-600">
+                <Languages className="h-4 w-4 mr-2" />
+                Conversation
               </TabsTrigger>
               <TabsTrigger value="phrasebook" className="data-[state=active]:bg-purple-600">
                 Phrasebook
@@ -640,6 +645,10 @@ export default function Translation() {
               )}
             </CardContent>
           </Card>
+            </TabsContent>
+            
+            <TabsContent value="conversation" className="space-y-6 mt-6">
+              <ConversationMode />
             </TabsContent>
             
             <TabsContent value="phrasebook" className="space-y-6 mt-6">

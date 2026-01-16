@@ -1570,3 +1570,35 @@ export const savedTranslations = mysqlTable("saved_translations", {
 
 export type SavedTranslation = typeof savedTranslations.$inferSelect;
 export type InsertSavedTranslation = typeof savedTranslations.$inferInsert;
+
+/**
+ * Conversation Sessions - Practice conversations for language learning
+ */
+export const conversationSessions = mysqlTable("conversation_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  language1: varchar("language1", { length: 50 }).notNull(),
+  language2: varchar("language2", { length: 50 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  lastMessageAt: timestamp("lastMessageAt").defaultNow().notNull(),
+});
+
+export type ConversationSession = typeof conversationSessions.$inferSelect;
+export type InsertConversationSession = typeof conversationSessions.$inferInsert;
+
+/**
+ * Conversation Messages - Individual messages within practice conversations
+ */
+export const conversationMessages = mysqlTable("conversation_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: int("sessionId").notNull(),
+  messageText: text("messageText").notNull(),
+  translatedText: text("translatedText").notNull(),
+  language: varchar("language", { length: 50 }).notNull(),
+  sender: mysqlEnum("sender", ["user", "practice"]).notNull(), // user or practice partner
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type ConversationMessage = typeof conversationMessages.$inferSelect;
+export type InsertConversationMessage = typeof conversationMessages.$inferInsert;
