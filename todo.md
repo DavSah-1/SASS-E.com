@@ -2000,3 +2000,6 @@
 - [x] Add call-to-action button to access full Translation page
 - [x] Add route for /translate-landing
 - [x] Update navigation to link to landing page instead of direct Translation page
+
+## Translation Landing Page Restructure
+- [x] Move content directly into main element instead of nested div

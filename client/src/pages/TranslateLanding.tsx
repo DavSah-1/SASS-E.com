@@ -37,8 +37,7 @@ export default function TranslateLanding() {
 
       {/* Hero Section */}
       <main className="container mx-auto px-6 py-12 sm:py-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-900/40 via-indigo-900/40 to-purple-900/40 border-2 border-blue-500/50 p-8 sm:p-12">
+        <div className="max-w-6xl mx-auto relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-900/40 via-indigo-900/40 to-purple-900/40 border-2 border-blue-500/50 p-8 sm:p-12">
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
@@ -226,7 +225,6 @@ export default function TranslateLanding() {
                 )}
               </div>
             </div>
-          </div>
         </div>
       </main>
 
