@@ -16,6 +16,8 @@ import { Footer } from "@/components/Footer";
 import { getLoginUrl } from "@/const";
 import { Phrasebook } from "@/components/Phrasebook";
 import ConversationMode from "@/components/ConversationMode";
+import { renderImageOverlay, downloadImage } from "@/lib/imageOverlay";
+import { useEffect } from "react";
 
 export default function Translation() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -34,11 +36,34 @@ export default function Translation() {
   // Image translation state
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageTranslationResult, setImageTranslationResult] = useState<{
-    extractedText: string;
+    extractedText?: string;
     detectedLanguage: string;
-    translatedText: string;
+    translatedText?: string;
     targetLanguage: string;
+    textBlocks?: Array<{
+      originalText: string;
+      translatedText: string;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }>;
   } | null>(null);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [overlayImageUrl, setOverlayImageUrl] = useState<string | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  
+  // Generate overlay when textBlocks are available
+  useEffect(() => {
+    if (selectedImage && imageTranslationResult?.textBlocks && showOverlay) {
+      renderImageOverlay(selectedImage, imageTranslationResult.textBlocks)
+        .then(setOverlayImageUrl)
+        .catch((error) => {
+          console.error('Failed to render overlay:', error);
+          toast.error('Failed to generate translated image overlay');
+        });
+    }
+  }, [selectedImage, imageTranslationResult, showOverlay]);
   
   // Copy state
   const [copiedText, setCopiedText] = useState(false);
@@ -120,6 +145,7 @@ export default function Translation() {
       const result = await translateImageMutation.mutateAsync({
         imageUrl: url,
         targetLanguage,
+        includePositions: true, // Request position data for overlay
       });
       
       setImageTranslationResult(result);
@@ -548,17 +574,59 @@ export default function Translation() {
               {/* Image Preview and Results */}
               {selectedImage && imageTranslationResult && (
                 <div className="space-y-3 p-4 bg-slate-900/50 rounded-lg">
-                  <img
-                    src={selectedImage}
-                    alt="Uploaded"
-                    className="w-full max-h-64 object-contain rounded"
-                  />
+                  {/* Image display with overlay toggle */}
+                  <div className="relative">
+                    <img
+                      src={showOverlay && overlayImageUrl ? overlayImageUrl : selectedImage}
+                      alt={showOverlay ? "Translated" : "Original"}
+                      className="w-full max-h-64 object-contain rounded"
+                    />
+                    {imageTranslationResult.textBlocks && imageTranslationResult.textBlocks.length > 0 && (
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-slate-900/90 border-purple-500/30 hover:bg-purple-600/20"
+                          onClick={() => setShowOverlay(!showOverlay)}
+                        >
+                          {showOverlay ? "Show Original" : "Show Translation"}
+                        </Button>
+                        {showOverlay && overlayImageUrl && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-slate-900/90 border-purple-500/30 hover:bg-purple-600/20"
+                            onClick={() => downloadImage(overlayImageUrl, 'translated-image.png')}
+                          >
+                            Download
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   <div className="space-y-3">
                     <div>
                       <p className="text-xs text-slate-400">Detected Language:</p>
                       <p className="text-sm text-purple-300 font-medium">{imageTranslationResult.detectedLanguage}</p>
                     </div>
-                    <div>
+                    {/* Show text blocks summary or simple extracted text */}
+                    {imageTranslationResult.textBlocks && imageTranslationResult.textBlocks.length > 0 ? (
+                      <div>
+                        <p className="text-xs text-slate-400 mb-2">
+                          Found {imageTranslationResult.textBlocks.length} text {imageTranslationResult.textBlocks.length === 1 ? 'block' : 'blocks'}. Toggle "Show Translation" above to see the translated image.
+                        </p>
+                        <div className="max-h-32 overflow-y-auto space-y-1">
+                          {imageTranslationResult.textBlocks.map((block, index) => (
+                            <div key={index} className="text-xs bg-slate-800/50 p-2 rounded">
+                              <span className="text-slate-400">{block.originalText}</span>
+                              <span className="text-purple-400 mx-2">→</span>
+                              <span className="text-green-300">{block.translatedText}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : imageTranslationResult.extractedText ? (
+                      <div>
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-xs text-slate-400">Extracted Text:</p>
                         <div className="flex gap-1">
@@ -566,8 +634,8 @@ export default function Translation() {
                             variant="ghost"
                             size="sm"
                             className="h-6 px-2"
-                            onClick={() => speakText(imageTranslationResult.extractedText, imageTranslationResult.detectedLanguage)}
-                            disabled={isSpeaking}
+                            onClick={() => speakText(imageTranslationResult.extractedText || '', imageTranslationResult.detectedLanguage)}
+                            disabled={isSpeaking || !imageTranslationResult.extractedText}
                           >
                             <Volume2 className="h-3 w-3" />
                           </Button>
@@ -575,7 +643,8 @@ export default function Translation() {
                             variant="ghost"
                             size="sm"
                             className="h-6 px-2"
-                            onClick={() => copyToClipboard(imageTranslationResult.extractedText, setCopiedExtracted, "Extracted text copied!")}
+                            onClick={() => copyToClipboard(imageTranslationResult.extractedText || '', setCopiedExtracted, "Extracted text copied!")}
+                            disabled={!imageTranslationResult.extractedText}
                           >
                             {copiedExtracted ? (
                               <Check className="h-3 w-3 text-green-400" />
@@ -586,8 +655,7 @@ export default function Translation() {
                         </div>
                       </div>
                       <p className="text-sm text-slate-200">{imageTranslationResult.extractedText}</p>
-                    </div>
-                    {imageTranslationResult.detectedLanguage.toLowerCase() !== imageTranslationResult.targetLanguage.toLowerCase() && (
+                    {imageTranslationResult.extractedText && imageTranslationResult.detectedLanguage.toLowerCase() !== imageTranslationResult.targetLanguage.toLowerCase() && (
                       <div>
                         <div className="flex items-center justify-between mb-1">
                           <p className="text-xs text-slate-400">Translation ({imageTranslationResult.targetLanguage}):</p>
@@ -596,8 +664,8 @@ export default function Translation() {
                               variant="ghost"
                               size="sm"
                               className="h-6 px-2"
-                              onClick={() => speakText(imageTranslationResult.translatedText, imageTranslationResult.targetLanguage)}
-                              disabled={isSpeaking}
+                              onClick={() => speakText(imageTranslationResult.translatedText || '', imageTranslationResult.targetLanguage)}
+                              disabled={isSpeaking || !imageTranslationResult.translatedText}
                             >
                               <Volume2 className="h-3 w-3" />
                             </Button>
@@ -605,7 +673,8 @@ export default function Translation() {
                               variant="ghost"
                               size="sm"
                               className="h-6 px-2"
-                              onClick={() => copyToClipboard(imageTranslationResult.translatedText, setCopiedImageTranslation, "Translation copied!")}
+                              onClick={() => copyToClipboard(imageTranslationResult.translatedText || '', setCopiedImageTranslation, "Translation copied!")}
+                              disabled={!imageTranslationResult.translatedText}
                             >
                               {copiedImageTranslation ? (
                                 <Check className="h-3 w-3 text-green-400" />
@@ -621,26 +690,32 @@ export default function Translation() {
                           size="sm"
                           className="w-full mt-2 border-purple-500/20 hover:bg-purple-600/20 text-xs"
                           onClick={() => {
-                            saveTranslationMutation.mutate({
-                              originalText: imageTranslationResult.extractedText,
-                              translatedText: imageTranslationResult.translatedText,
-                              sourceLanguage: imageTranslationResult.detectedLanguage,
-                              targetLanguage: imageTranslationResult.targetLanguage,
-                            });
+                            if (imageTranslationResult.extractedText && imageTranslationResult.translatedText) {
+                              saveTranslationMutation.mutate({
+                                originalText: imageTranslationResult.extractedText,
+                                translatedText: imageTranslationResult.translatedText,
+                                sourceLanguage: imageTranslationResult.detectedLanguage,
+                                targetLanguage: imageTranslationResult.targetLanguage,
+                              });
+                            }
                           }}
-                          disabled={saveTranslationMutation.isPending}
+                          disabled={saveTranslationMutation.isPending || !imageTranslationResult.extractedText || !imageTranslationResult.translatedText}
                         >
                           <BookMarked className="h-3 w-3 mr-2" />
                           Save to Phrasebook
                         </Button>
                       </div>
                     )}
+                    </div>
+                    ) : null}
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => {
                         setSelectedImage(null);
                         setImageTranslationResult(null);
+                        setShowOverlay(false);
+                        setOverlayImageUrl(null);
                       }}
                       className="w-full text-xs"
                     >

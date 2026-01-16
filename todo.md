@@ -2076,3 +2076,15 @@
 - [x] Test 2FA setup with authenticator app
 - [x] Test 2FA login verification
 - [x] Test backup codes functionality
+
+## Image OCR Translation Overlay Feature
+- [x] Research OCR API that provides bounding box coordinates for detected text
+- [x] Update backend OCR endpoint to return text with position data (x, y, width, height)
+- [x] Implement canvas-based image rendering in frontend
+- [x] Draw translated text overlay at detected positions
+- [x] Estimate font size based on bounding box dimensions
+- [x] Add background masking to hide original text
+- [x] Add toggle button to switch between original and translated image
+- [x] Add download button for translated image
+- [x] Test with images containing various text layouts
+- [x] Test with different languages and character sets

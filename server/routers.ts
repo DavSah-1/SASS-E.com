@@ -1392,10 +1392,57 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         z.object({
           imageUrl: z.string(),
           targetLanguage: z.string(),
+          includePositions: z.boolean().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
         // Step 1: Extract text from image using LLM vision
+        const extractionSchema = input.includePositions ? {
+          type: "object",
+          properties: {
+            textBlocks: {
+              type: "array",
+              description: "Array of text blocks with their positions",
+              items: {
+                type: "object",
+                properties: {
+                  text: { type: "string", description: "The text content" },
+                  x: { type: "number", description: "X coordinate (0-1, relative to image width)" },
+                  y: { type: "number", description: "Y coordinate (0-1, relative to image height)" },
+                  width: { type: "number", description: "Width (0-1, relative to image width)" },
+                  height: { type: "number", description: "Height (0-1, relative to image height)" },
+                },
+                required: ["text", "x", "y", "width", "height"],
+                additionalProperties: false,
+              },
+            },
+            detectedLanguage: {
+              type: "string",
+              description: "The detected language of the text",
+            },
+          },
+          required: ["textBlocks", "detectedLanguage"],
+          additionalProperties: false,
+        } : {
+          type: "object",
+          properties: {
+            text: {
+              type: "string",
+              description: "The extracted text from the image",
+            },
+            detectedLanguage: {
+              type: "string",
+              description: "The detected language of the text",
+            },
+          },
+          required: ["text", "detectedLanguage"],
+          additionalProperties: false,
+        };
+
+        const extractPrompt = input.includePositions
+          ? "Analyze this image and extract all visible text with their approximate positions. For each text block, provide: the text content, and its position as relative coordinates (0-1 range) where x,y is the top-left corner, and width,height are the dimensions relative to the image size. Also identify the language."
+          : "Extract all visible text from this image. Identify the language of the text. Return your response in this exact JSON format: {\"text\": \"extracted text here\", \"detectedLanguage\": \"language name\"}";
+
         const extractResponse = await invokeLLM({
           messages: [
             {
@@ -1403,7 +1450,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
               content: [
                 {
                   type: "text",
-                  text: "Extract all visible text from this image. Identify the language of the text. Return your response in this exact JSON format: {\"text\": \"extracted text here\", \"detectedLanguage\": \"language name\"}",
+                  text: extractPrompt,
                 },
                 {
                   type: "image_url",
@@ -1419,21 +1466,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
             json_schema: {
               name: "text_extraction",
               strict: true,
-              schema: {
-                type: "object",
-                properties: {
-                  text: {
-                    type: "string",
-                    description: "The extracted text from the image",
-                  },
-                  detectedLanguage: {
-                    type: "string",
-                    description: "The detected language of the text",
-                  },
-                },
-                required: ["text", "detectedLanguage"],
-                additionalProperties: false,
-              },
+              schema: extractionSchema,
             },
           },
         });
@@ -1442,27 +1475,64 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         const extracted = JSON.parse(typeof extractContent === 'string' ? extractContent : JSON.stringify(extractContent));
 
         // Step 2: Translate the extracted text if needed
-        let translatedText = extracted.text;
-        if (extracted.detectedLanguage.toLowerCase() !== input.targetLanguage.toLowerCase()) {
-          const translatePrompt = `Translate the following text from ${extracted.detectedLanguage} to ${input.targetLanguage}. Provide only the direct translation.\n\nText: "${extracted.text}"`;
-          
-          const translateResponse = await invokeLLM({
-            messages: [
-              { role: "system", content: "You are a professional translation assistant." },
-              { role: "user", content: translatePrompt },
-            ],
-          });
-          
-          const translatedContent = translateResponse.choices[0].message.content;
-          translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
-        }
+        if (input.includePositions && extracted.textBlocks) {
+          // Translate each text block
+          const translatedBlocks = [];
+          for (const block of extracted.textBlocks) {
+            let translatedText = block.text;
+            if (extracted.detectedLanguage.toLowerCase() !== input.targetLanguage.toLowerCase()) {
+              const translatePrompt = `Translate the following text from ${extracted.detectedLanguage} to ${input.targetLanguage}. Provide only the direct translation.\n\nText: "${block.text}"`;
+              
+              const translateResponse = await invokeLLM({
+                messages: [
+                  { role: "system", content: "You are a professional translation assistant." },
+                  { role: "user", content: translatePrompt },
+                ],
+              });
+              
+              const translatedContent = translateResponse.choices[0].message.content;
+              translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
+            }
+            
+            translatedBlocks.push({
+              originalText: block.text,
+              translatedText,
+              x: block.x,
+              y: block.y,
+              width: block.width,
+              height: block.height,
+            });
+          }
 
-        return {
-          extractedText: extracted.text,
-          detectedLanguage: extracted.detectedLanguage,
-          translatedText,
-          targetLanguage: input.targetLanguage,
-        };
+          return {
+            detectedLanguage: extracted.detectedLanguage,
+            targetLanguage: input.targetLanguage,
+            textBlocks: translatedBlocks,
+          };
+        } else {
+          // Original behavior for simple text extraction
+          let translatedText = extracted.text;
+          if (extracted.detectedLanguage.toLowerCase() !== input.targetLanguage.toLowerCase()) {
+            const translatePrompt = `Translate the following text from ${extracted.detectedLanguage} to ${input.targetLanguage}. Provide only the direct translation.\n\nText: "${extracted.text}"`;
+            
+            const translateResponse = await invokeLLM({
+              messages: [
+                { role: "system", content: "You are a professional translation assistant." },
+                { role: "user", content: translatePrompt },
+              ],
+            });
+            
+            const translatedContent = translateResponse.choices[0].message.content;
+            translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
+          }
+
+          return {
+            extractedText: extracted.text,
+            detectedLanguage: extracted.detectedLanguage,
+            translatedText,
+            targetLanguage: input.targetLanguage,
+          };
+        }
       }),
 
     // Phrasebook endpoints
