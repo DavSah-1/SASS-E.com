@@ -1,17 +1,20 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { getLoginUrl } from "@/const";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeftRight, Camera, Check, Copy, Languages, Mic, MicOff, Volume2 } from "lucide-react";
+import { ArrowLeftRight, BookMarked, Camera, Check, Copy, Languages, Mic, MicOff, Volume2 } from "lucide-react";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { getLoginUrl } from "@/const";
+import { Phrasebook } from "@/components/Phrasebook";
 
 export default function Translation() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -48,9 +51,16 @@ export default function Translation() {
   
   // TTS state
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [activeTab, setActiveTab] = useState<"translate" | "phrasebook">("translate");
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   
   const translateTextMutation = trpc.translation.translate.useMutation();
+  const saveTranslationMutation = trpc.translation.saveTranslation.useMutation({
+    onSuccess: () => {
+      toast.success("Saved to phrasebook!");
+    },
+    onError: () => toast.error("Failed to save translation"),
+  });
   const translateImageMutation = trpc.translation.translateImage.useMutation();
   const transcribeMutation = trpc.assistant.transcribe.useMutation();
   
@@ -311,6 +321,19 @@ export default function Translation() {
             <p className="text-slate-300">Translate text or images between languages</p>
           </div>
           
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "phrasebook")} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-800/50">
+              <TabsTrigger value="translate" className="data-[state=active]:bg-purple-600">
+                <Languages className="h-4 w-4 mr-2" />
+                Translate
+              </TabsTrigger>
+              <TabsTrigger value="phrasebook" className="data-[state=active]:bg-purple-600">
+                Phrasebook
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="translate" className="space-y-6 mt-6">
           {/* Text Translation */}
           <Card className="bg-slate-800/50 border-purple-500/20">
             <CardHeader>
@@ -444,6 +467,23 @@ export default function Translation() {
                     </div>
                   </div>
                   <p className="text-lg text-green-300 font-medium">{textTranslationResult.translatedText}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-purple-500/20 hover:bg-purple-600/20"
+                    onClick={() => {
+                      saveTranslationMutation.mutate({
+                        originalText: textTranslationResult.originalText,
+                        translatedText: textTranslationResult.translatedText,
+                        sourceLanguage: textTranslationResult.sourceLanguage,
+                        targetLanguage: textTranslationResult.targetLanguage,
+                      });
+                    }}
+                    disabled={saveTranslationMutation.isPending}
+                  >
+                    <BookMarked className="h-4 w-4 mr-2" />
+                    Save to Phrasebook
+                  </Button>
                 </div>
               )}
             </CardContent>
@@ -565,6 +605,23 @@ export default function Translation() {
                           </div>
                         </div>
                         <p className="text-sm text-green-300 font-medium">{imageTranslationResult.translatedText}</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-2 border-purple-500/20 hover:bg-purple-600/20 text-xs"
+                          onClick={() => {
+                            saveTranslationMutation.mutate({
+                              originalText: imageTranslationResult.extractedText,
+                              translatedText: imageTranslationResult.translatedText,
+                              sourceLanguage: imageTranslationResult.detectedLanguage,
+                              targetLanguage: imageTranslationResult.targetLanguage,
+                            });
+                          }}
+                          disabled={saveTranslationMutation.isPending}
+                        >
+                          <BookMarked className="h-3 w-3 mr-2" />
+                          Save to Phrasebook
+                        </Button>
                       </div>
                     )}
                     <Button
@@ -583,6 +640,12 @@ export default function Translation() {
               )}
             </CardContent>
           </Card>
+            </TabsContent>
+            
+            <TabsContent value="phrasebook" className="space-y-6 mt-6">
+              <Phrasebook onSpeak={speakText} isSpeaking={isSpeaking} />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
       

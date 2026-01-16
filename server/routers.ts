@@ -1337,6 +1337,99 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           targetLanguage: input.targetLanguage,
         };
       }),
+
+    // Phrasebook endpoints
+    saveTranslation: protectedProcedure
+      .input(
+        z.object({
+          originalText: z.string(),
+          translatedText: z.string(),
+          sourceLanguage: z.string(),
+          targetLanguage: z.string(),
+          categoryId: z.number().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { saveTranslation } = await import("./db");
+        return await saveTranslation({
+          userId: ctx.user.id,
+          ...input,
+        });
+      }),
+
+    getSavedTranslations: protectedProcedure
+      .input(
+        z.object({
+          categoryId: z.number().optional(),
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const { getSavedTranslations } = await import("./db");
+        return await getSavedTranslations(ctx.user.id, input.categoryId);
+      }),
+
+    deleteSavedTranslation: protectedProcedure
+      .input(z.object({ translationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { deleteSavedTranslation } = await import("./db");
+        return await deleteSavedTranslation(input.translationId, ctx.user.id);
+      }),
+
+    toggleFavorite: protectedProcedure
+      .input(z.object({ translationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { toggleTranslationFavorite } = await import("./db");
+        return await toggleTranslationFavorite(input.translationId, ctx.user.id);
+      }),
+
+    updateCategory: protectedProcedure
+      .input(
+        z.object({
+          translationId: z.number(),
+          categoryId: z.number().nullable(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { updateTranslationCategory } = await import("./db");
+        return await updateTranslationCategory(
+          input.translationId,
+          ctx.user.id,
+          input.categoryId
+        );
+      }),
+
+    // Category management
+    createCategory: protectedProcedure
+      .input(
+        z.object({
+          name: z.string(),
+          icon: z.string().optional(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { createTranslationCategory } = await import("./db");
+        return await createTranslationCategory({
+          userId: ctx.user.id,
+          ...input,
+        });
+      }),
+
+    getCategories: protectedProcedure.query(async ({ ctx }) => {
+      const { getTranslationCategories } = await import("./db");
+      return await getTranslationCategories(ctx.user.id);
+    }),
+
+    deleteCategory: protectedProcedure
+      .input(z.object({ categoryId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { deleteTranslationCategory } = await import("./db");
+        return await deleteTranslationCategory(input.categoryId, ctx.user.id);
+      }),
+
+    getFrequentTranslations: protectedProcedure.query(async ({ ctx }) => {
+      const { getFrequentTranslations } = await import("./db");
+      return await getFrequentTranslations(ctx.user.id);
+    }),
   }),
 });
 

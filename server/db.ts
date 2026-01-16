@@ -81,9 +81,12 @@ import {
   InsertVerifiedFact,
   VerifiedFact,
   factAccessLog,
-  InsertFactAccessLog,
-  factUpdateNotifications,
-  InsertFactUpdateNotification
+  InsertFactAccessLog,  factUpdateNotifications,
+  InsertFactUpdateNotification,
+  savedTranslations,
+  InsertSavedTranslation,
+  translationCategories,
+  InsertTranslationCategory,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -2403,7 +2406,7 @@ export async function createFactUpdateNotifications(oldFact: VerifiedFact, newFa
     .where(eq(factAccessLog.verifiedFactId, oldFact.id));
   
   // Get unique user IDs
-  const userIds = [...new Set(accessLogs.map(log => log.userId))];
+  const userIds = Array.from(new Set(accessLogs.map(log => log.userId)));
   
   const oldVersion = JSON.stringify({
     answer: oldFact.answer,
@@ -2527,4 +2530,278 @@ export async function getUnreadNotificationCount(userId: number): Promise<number
     );
   
   return notifications.length;
+}
+
+
+// ============================================================================
+// Translation Phrasebook Functions
+// ============================================================================
+
+/**
+ * Save a translation to user's phrasebook
+ */
+export async function saveTranslation(translation: InsertSavedTranslation) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Check if translation already exists
+  const existing = await db
+    .select()
+    .from(savedTranslations)
+    .where(
+      and(
+        eq(savedTranslations.userId, translation.userId),
+        eq(savedTranslations.originalText, translation.originalText),
+        eq(savedTranslations.sourceLanguage, translation.sourceLanguage),
+        eq(savedTranslations.targetLanguage, translation.targetLanguage)
+      )
+    )
+    .limit(1);
+  
+  if (existing.length > 0) {
+    // Update usage count and last used time
+    await db
+      .update(savedTranslations)
+      .set({
+        usageCount: existing[0].usageCount + 1,
+        lastUsedAt: new Date()
+      })
+      .where(eq(savedTranslations.id, existing[0].id));
+    
+    return existing[0];
+  }
+  
+  // Insert new translation
+  const result = await db.insert(savedTranslations).values(translation);
+  const insertedId = Number(result[0].insertId);
+  
+  const newTranslation = await db
+    .select()
+    .from(savedTranslations)
+    .where(eq(savedTranslations.id, insertedId))
+    .limit(1);
+  
+  return newTranslation[0];
+}
+
+/**
+ * Get saved translations for a user
+ */
+export async function getSavedTranslations(userId: number, categoryId?: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const conditions = [eq(savedTranslations.userId, userId)];
+  if (categoryId !== undefined) {
+    conditions.push(eq(savedTranslations.categoryId, categoryId));
+  }
+  
+  const translations = await db
+    .select()
+    .from(savedTranslations)
+    .where(and(...conditions))
+    .orderBy(desc(savedTranslations.lastUsedAt));
+  
+  return translations;
+}
+
+/**
+ * Get frequently used translations for caching (top 100)
+ */
+export async function getFrequentTranslations(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const translations = await db
+    .select()
+    .from(savedTranslations)
+    .where(eq(savedTranslations.userId, userId))
+    .orderBy(desc(savedTranslations.usageCount))
+    .limit(100);
+  
+  return translations;
+}
+
+/**
+ * Find cached translation
+ */
+export async function findCachedTranslation(
+  userId: number,
+  originalText: string,
+  sourceLanguage: string,
+  targetLanguage: string
+) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db
+    .select()
+    .from(savedTranslations)
+    .where(
+      and(
+        eq(savedTranslations.userId, userId),
+        eq(savedTranslations.originalText, originalText),
+        eq(savedTranslations.sourceLanguage, sourceLanguage),
+        eq(savedTranslations.targetLanguage, targetLanguage)
+      )
+    )
+    .limit(1);
+  
+  if (result.length > 0) {
+    // Update usage count
+    await db
+      .update(savedTranslations)
+      .set({
+        usageCount: result[0].usageCount + 1,
+        lastUsedAt: new Date()
+      })
+      .where(eq(savedTranslations.id, result[0].id));
+    
+    return result[0];
+  }
+  
+  return null;
+}
+
+/**
+ * Delete saved translation
+ */
+export async function deleteSavedTranslation(translationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  await db
+    .delete(savedTranslations)
+    .where(
+      and(
+        eq(savedTranslations.id, translationId),
+        eq(savedTranslations.userId, userId)
+      )
+    );
+  
+  return true;
+}
+
+/**
+ * Toggle favorite status
+ */
+export async function toggleTranslationFavorite(translationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const translation = await db
+    .select()
+    .from(savedTranslations)
+    .where(
+      and(
+        eq(savedTranslations.id, translationId),
+        eq(savedTranslations.userId, userId)
+      )
+    )
+    .limit(1);
+  
+  if (translation.length === 0) return null;
+  
+  const newFavoriteStatus = translation[0].isFavorite === 1 ? 0 : 1;
+  
+  await db
+    .update(savedTranslations)
+    .set({ isFavorite: newFavoriteStatus })
+    .where(eq(savedTranslations.id, translationId));
+  
+  return { ...translation[0], isFavorite: newFavoriteStatus };
+}
+
+// ============================================================================
+// Translation Categories Functions
+// ============================================================================
+
+/**
+ * Create translation category
+ */
+export async function createTranslationCategory(category: InsertTranslationCategory) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.insert(translationCategories).values(category);
+  const insertedId = Number(result[0].insertId);
+  
+  const newCategory = await db
+    .select()
+    .from(translationCategories)
+    .where(eq(translationCategories.id, insertedId))
+    .limit(1);
+  
+  return newCategory[0];
+}
+
+/**
+ * Get user's translation categories
+ */
+export async function getTranslationCategories(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const categories = await db
+    .select()
+    .from(translationCategories)
+    .where(eq(translationCategories.userId, userId))
+    .orderBy(translationCategories.name);
+  
+  return categories;
+}
+
+/**
+ * Delete translation category
+ */
+export async function deleteTranslationCategory(categoryId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  // First, remove category from all translations
+  await db
+    .update(savedTranslations)
+    .set({ categoryId: null })
+    .where(
+      and(
+        eq(savedTranslations.categoryId, categoryId),
+        eq(savedTranslations.userId, userId)
+      )
+    );
+  
+  // Then delete the category
+  await db
+    .delete(translationCategories)
+    .where(
+      and(
+        eq(translationCategories.id, categoryId),
+        eq(translationCategories.userId, userId)
+      )
+    );
+  
+  return true;
+}
+
+/**
+ * Update translation category assignment
+ */
+export async function updateTranslationCategory(
+  translationId: number,
+  userId: number,
+  categoryId: number | null
+) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  await db
+    .update(savedTranslations)
+    .set({ categoryId })
+    .where(
+      and(
+        eq(savedTranslations.id, translationId),
+        eq(savedTranslations.userId, userId)
+      )
+    );
+  
+  return true;
 }

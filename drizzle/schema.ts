@@ -1536,3 +1536,37 @@ export const factUpdateNotifications = mysqlTable("fact_update_notifications", {
 
 export type FactUpdateNotification = typeof factUpdateNotifications.$inferSelect;
 export type InsertFactUpdateNotification = typeof factUpdateNotifications.$inferInsert;
+
+/**
+ * Translation Categories - User-defined categories for organizing saved translations
+ */
+export const translationCategories = mysqlTable("translation_categories", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  icon: varchar("icon", { length: 50 }), // Optional emoji or icon identifier
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TranslationCategory = typeof translationCategories.$inferSelect;
+export type InsertTranslationCategory = typeof translationCategories.$inferInsert;
+
+/**
+ * Saved Translations - User's phrasebook of saved translations
+ */
+export const savedTranslations = mysqlTable("saved_translations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  originalText: text("originalText").notNull(),
+  translatedText: text("translatedText").notNull(),
+  sourceLanguage: varchar("sourceLanguage", { length: 50 }).notNull(),
+  targetLanguage: varchar("targetLanguage", { length: 50 }).notNull(),
+  categoryId: int("categoryId"), // Optional category
+  isFavorite: int("isFavorite").default(0).notNull(),
+  usageCount: int("usageCount").default(1).notNull(), // Track frequency for caching
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  lastUsedAt: timestamp("lastUsedAt").defaultNow().notNull(),
+});
+
+export type SavedTranslation = typeof savedTranslations.$inferSelect;
+export type InsertSavedTranslation = typeof savedTranslations.$inferInsert;

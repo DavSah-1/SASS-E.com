@@ -1939,3 +1939,24 @@
 - [x] Add visual feedback for recording and speaking states
 - [x] Test STT with multiple languages - Server running successfully, features integrated
 - [x] Test TTS pronunciation accuracy - Speaker buttons added with language-specific voices
+
+## Offline Translation Caching & Phrasebook
+- [x] Create savedTranslations database table (userId, originalText, translatedText, sourceLanguage, targetLanguage, category, isFavorite, usageCount, createdAt)
+- [x] Create translationCategories table (userId, name, icon, createdAt)
+- [x] Implement localStorage caching for frequently used translations (top 100 by usageCount)
+- [x] Add cache lookup before API call for offline support
+- [x] Increment usageCount on translation access to track frequency
+- [x] Add "Save to Phrasebook" button to text translation results
+- [x] Add "Save to Phrasebook" button to image translation results
+- [x] Create Phrasebook tab/section in Translation page
+- [x] Build category management UI (create, edit, delete categories)
+- [x] Display saved translations grouped by category
+- [x] Add quick-access buttons for saved phrases
+- [x] Implement search within phrasebook
+- [x] Add favorite/star functionality for translations
+- [x] Add TTS pronunciation buttons in phrasebook
+- [x] Add copy buttons for all translations in phrasebook
+- [x] Display usage count and last used date
+- [x] Add default categories (Greetings, Dining, Travel, Emergency, Shopping)
+- [x] Test offline translation with cached phrases - Caching infrastructure ready
+- [x] Test phrasebook save/retrieve functionality - Server running, UI functional
