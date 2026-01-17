@@ -2186,3 +2186,8 @@
 - [x] Find "Start Learning Today" button gradient from /learning page (purple-500 to pink-600)
 - [x] Update Learning Hub section background gradient to match (purple-900 via purple-700 to pink-900)
 - [x] Test visual consistency
+
+## Update Learning Hub to OKLCH Color Theme
+- [x] Replace gradient with OKLCH color oklch(0.69 0.2 325.48)
+- [x] Update all Learning Hub color references (background, border, badge, heading, cards, button)
+- [x] Test visual appearance

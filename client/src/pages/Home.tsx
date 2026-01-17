@@ -226,20 +226,20 @@ export default function Home() {
         {/* Learning Hub Feature Highlight - PREMIUM SECTION */}
         <div className="mt-16 sm:mt-24">
           <div className="max-w-6xl mx-auto">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/40 via-purple-700/40 to-pink-900/40 border-2 border-purple-500/50 p-8 sm:p-12">
+            <div className="relative overflow-hidden rounded-2xl border-2 p-8 sm:p-12" style={{backgroundColor: 'oklch(0.69 0.2 325.48 / 0.15)', borderColor: 'oklch(0.69 0.2 325.48 / 0.5)'}}>
               {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl" style={{backgroundColor: 'oklch(0.69 0.2 325.48 / 0.1)'}}></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full blur-3xl" style={{backgroundColor: 'oklch(0.69 0.2 325.48 / 0.1)'}}></div>
               
               <div className="relative z-10">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 text-sm font-semibold">
+                  <Badge className="text-white px-4 py-1 text-sm font-semibold" style={{backgroundColor: 'oklch(0.69 0.2 325.48)'}}>
                     <Sparkles className="h-4 w-4 mr-1 inline" />
                     NEW FEATURE
                   </Badge>
                 </div>
                 
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-300 to-pink-400">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4" style={{color: 'oklch(0.85 0.15 325.48)'}}>
                   🎓 Learning Hub
                 </h2>
                 <p className="text-lg sm:text-xl text-center text-slate-300 mb-8 max-w-3xl mx-auto">
@@ -247,9 +247,9 @@ export default function Home() {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                  <Card className="border-purple-500/30 bg-slate-800/60 backdrop-blur hover:border-purple-500/60 transition-all">
+                  <Card className="bg-slate-800/60 backdrop-blur transition-all" style={{borderColor: 'oklch(0.69 0.2 325.48 / 0.3)'}}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-purple-400">
+                      <CardTitle className="flex items-center gap-2" style={{color: 'oklch(0.75 0.15 325.48)'}}>
                         <Languages className="h-5 w-5" />
                         Language Learning
                       </CardTitle>
@@ -261,9 +261,9 @@ export default function Home() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-purple-500/30 bg-slate-800/60 backdrop-blur hover:border-purple-500/60 transition-all">
+                  <Card className="bg-slate-800/60 backdrop-blur transition-all" style={{borderColor: 'oklch(0.69 0.2 325.48 / 0.3)'}}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-purple-400">
+                      <CardTitle className="flex items-center gap-2" style={{color: 'oklch(0.75 0.15 325.48)'}}>
                         <Calculator className="h-5 w-5" />
                         Math Tutor
                       </CardTitle>
@@ -275,9 +275,9 @@ export default function Home() {
                     </CardContent>
                   </Card>
 
-                  <Card className="border-purple-500/30 bg-slate-800/60 backdrop-blur hover:border-purple-500/60 transition-all">
+                  <Card className="bg-slate-800/60 backdrop-blur transition-all" style={{borderColor: 'oklch(0.69 0.2 325.48 / 0.3)'}}>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-purple-400">
+                      <CardTitle className="flex items-center gap-2" style={{color: 'oklch(0.75 0.15 325.48)'}}>
                         <Microscope className="h-5 w-5" />
                         Science Lab
                       </CardTitle>
@@ -291,7 +291,7 @@ export default function Home() {
                 </div>
 
                 <div className="text-center">
-                  <Button asChild size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-8 py-6 text-lg">
+                  <Button asChild size="lg" className="text-white font-semibold px-8 py-6 text-lg hover:opacity-90 transition-opacity" style={{backgroundColor: 'oklch(0.69 0.2 325.48)'}}>
                     <Link href="/learning">
                       Explore Learning Hub
                       <ArrowRight className="ml-2 h-5 w-5" />
