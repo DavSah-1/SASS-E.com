@@ -226,10 +226,10 @@ export default function Home() {
         {/* Learning Hub Feature Highlight - PREMIUM SECTION */}
         <div className="mt-16 sm:mt-24">
           <div className="max-w-6xl mx-auto">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/40 via-indigo-900/40 to-blue-900/40 border-2 border-purple-500/50 p-8 sm:p-12">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/40 via-purple-700/40 to-pink-900/40 border-2 border-purple-500/50 p-8 sm:p-12">
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl"></div>
               
               <div className="relative z-10">
                 <div className="flex items-center justify-center gap-3 mb-4">
@@ -239,7 +239,7 @@ export default function Home() {
                   </Badge>
                 </div>
                 
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-purple-300 to-pink-400">
                   🎓 Learning Hub
                 </h2>
                 <p className="text-lg sm:text-xl text-center text-slate-300 mb-8 max-w-3xl mx-auto">

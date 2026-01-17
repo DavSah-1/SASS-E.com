@@ -2181,3 +2181,8 @@
 - [x] Add Science Lab card to Learning Hub section
 - [x] Update grid to display 3 cards (Language Learning, Math Tutor, Science Lab)
 - [x] Test responsive layout with 3 cards
+
+## Update Learning Hub Gradient Background
+- [x] Find "Start Learning Today" button gradient from /learning page (purple-500 to pink-600)
+- [x] Update Learning Hub section background gradient to match (purple-900 via purple-700 to pink-900)
+- [x] Test visual consistency
