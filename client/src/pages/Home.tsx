@@ -246,7 +246,7 @@ export default function Home() {
                   Master new skills with AI-powered learning tools tailored to your pace
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
                   <Card className="border-purple-500/30 bg-slate-800/60 backdrop-blur hover:border-purple-500/60 transition-all">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-purple-400">
@@ -271,6 +271,20 @@ export default function Home() {
                     <CardContent>
                       <p className="text-slate-300 text-sm">
                         Step-by-step problem solving for algebra, geometry, calculus, and statistics with detailed explanations and adaptive difficulty
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-purple-500/30 bg-slate-800/60 backdrop-blur hover:border-purple-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-purple-400">
+                        <Microscope className="h-5 w-5" />
+                        Science Lab
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        Interactive experiments and simulations for physics, chemistry, and biology with virtual lab environments and detailed explanations
                       </p>
                     </CardContent>
                   </Card>
