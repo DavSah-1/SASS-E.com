@@ -223,157 +223,72 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Learning Features Section */}
-        <div className="mt-16 sm:mt-24 max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-100 mb-4">
-              🎓 Comprehensive Learning Platform
-            </h2>
-            <p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto">
-              Master new skills with AI-powered learning tools tailored to your pace
-            </p>
-          </div>
+        {/* Learning Hub Feature Highlight - PREMIUM SECTION */}
+        <div className="mt-16 sm:mt-24">
+          <div className="max-w-6xl mx-auto">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/40 via-indigo-900/40 to-blue-900/40 border-2 border-purple-500/50 p-8 sm:p-12">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Badge className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1 text-sm font-semibold">
+                    <Sparkles className="h-4 w-4 mr-1 inline" />
+                    NEW FEATURE
+                  </Badge>
+                </div>
+                
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400">
+                  🎓 Learning Hub
+                </h2>
+                <p className="text-lg sm:text-xl text-center text-slate-300 mb-8 max-w-3xl mx-auto">
+                  Master new skills with AI-powered learning tools tailored to your pace
+                </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card className="border-purple-500/30 bg-slate-800/50 backdrop-blur hover:border-purple-500/60 transition-all">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-400 text-xl">
-                  <Languages className="h-6 w-6" />
-                  Language Learning
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Master languages with interactive tools
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Vocabulary flashcards with spaced repetition</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Pronunciation practice with AI feedback</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">High-quality TTS with adjustable speed</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Support for Spanish, French, German, Italian, Japanese</p>
-                </div>
-              </CardContent>
-            </Card>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+                  <Card className="border-purple-500/30 bg-slate-800/60 backdrop-blur hover:border-purple-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-purple-400">
+                        <Languages className="h-5 w-5" />
+                        Language Learning
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        Master languages with interactive vocabulary flashcards, pronunciation practice, and support for Spanish, French, German, Italian, and Japanese
+                      </p>
+                    </CardContent>
+                  </Card>
 
-            <Card className="border-purple-500/30 bg-slate-800/50 backdrop-blur hover:border-purple-500/60 transition-all">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-400 text-xl">
-                  <Calculator className="h-6 w-6" />
-                  Math Tutor
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Step-by-step problem solving
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Algebra, geometry, calculus, and statistics</p>
+                  <Card className="border-purple-500/30 bg-slate-800/60 backdrop-blur hover:border-purple-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-purple-400">
+                        <Calculator className="h-5 w-5" />
+                        Math Tutor
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        Step-by-step problem solving for algebra, geometry, calculus, and statistics with detailed explanations and adaptive difficulty
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Detailed explanations with visual aids</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Practice problems with instant feedback</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Adaptive difficulty based on performance</p>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card className="border-purple-500/30 bg-slate-800/50 backdrop-blur hover:border-purple-500/60 transition-all">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-400 text-xl">
-                  <Microscope className="h-6 w-6" />
-                  Science Lab
-                </CardTitle>
-                <CardDescription className="text-slate-400">
-                  Interactive experiments and simulations
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Physics, chemistry, and biology experiments</p>
+                <div className="text-center">
+                  <Button asChild size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-8 py-6 text-lg">
+                    <Link href="/learning">
+                      Explore Learning Hub
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
                 </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Virtual lab simulations with real-world scenarios</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Safety-first environment for exploration</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-purple-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-300 text-sm">Detailed explanations of scientific concepts</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Specialized Learning Paths - HIGHLIGHTED */}
-            <Card className="border-2 border-pink-500/60 bg-gradient-to-br from-pink-900/30 to-purple-900/30 backdrop-blur hover:border-pink-500/80 transition-all relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-2xl"></div>
-              <div className="absolute -top-2 -right-2">
-                <Badge className="bg-gradient-to-r from-pink-600 to-purple-600 text-white">
-                  <Sparkles className="h-3 w-3 mr-1" />
-                  Featured
-                </Badge>
               </div>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-pink-400 text-xl">
-                  <GraduationCap className="h-6 w-6" />
-                  Specialized Learning Paths
-                </CardTitle>
-                <CardDescription className="text-slate-300 font-medium">
-                  Curated journeys for focused skill development
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-pink-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-200 text-sm font-medium">Structured curriculum from beginner to advanced</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-pink-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-200 text-sm font-medium">Progress tracking with achievement milestones</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-pink-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-200 text-sm font-medium">Personalized recommendations based on your goals</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Zap className="h-4 w-4 text-pink-400 mt-1 flex-shrink-0" />
-                  <p className="text-slate-200 text-sm font-medium">Certificates upon completion</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="text-center">
-            <Button asChild size="lg" variant="outline" className="border-purple-500 text-purple-300 hover:bg-purple-900/50 px-8 py-6 text-lg">
-              <Link href="/learning">
-                <BookOpen className="mr-2 h-5 w-5" />
-                Start Learning
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+            </div>
           </div>
         </div>
+
 
         {/* Wellbeing Feature Highlight */}
         <div className="mt-16 sm:mt-24">
