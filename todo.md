@@ -2356,3 +2356,9 @@
 - [x] Add topics dropdown showing all available topic names
 - [x] Update filter logic to filter by selected topic
 - [x] Update results counter
+
+## Replace Topics Dropdown with Subject Areas
+- [x] Define subject areas (Numeracy, Geometry, Trigonometry, Calculus, Statistics & Probability, Algebra, etc.)
+- [x] Tag each topic with its subject area
+- [x] Replace topics dropdown with subject areas dropdown
+- [x] Update filter logic to filter by subject area

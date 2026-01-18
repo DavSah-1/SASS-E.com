@@ -21,7 +21,7 @@ export default function MathCurriculum() {
   const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedTopicFilter, setSelectedTopicFilter] = useState("all");
+  const [selectedSubject, setSelectedSubject] = useState("all");
   const [selectedTopic, setSelectedTopic] = useState<{ name: string; category: string; mode: 'learn' | 'practice' | 'quiz' } | null>(null);
 
   // Get progress for Early Math category
@@ -292,12 +292,32 @@ export default function MathCurriculum() {
     return [];
   });
 
+  // Define subject areas mapping
+  const getSubjectArea = (topicName: string): string => {
+    const topic = topicName.toLowerCase();
+    if (topic.includes('counting') || topic.includes('number') || topic.includes('addition') || topic.includes('subtraction') || topic.includes('multiplication') || topic.includes('division') || topic.includes('arithmetic') || topic.includes('digit')) return 'Numeracy';
+    if (topic.includes('geometry') || topic.includes('shape') || topic.includes('angle') || topic.includes('area') || topic.includes('perimeter') || topic.includes('volume') || topic.includes('surface') || topic.includes('circle') || topic.includes('triangle') || topic.includes('polygon') || topic.includes('congruent') || topic.includes('similar') || topic.includes('proof')) return 'Geometry';
+    if (topic.includes('trigonometry') || topic.includes('sine') || topic.includes('cosine') || topic.includes('tangent') || topic.includes('trig')) return 'Trigonometry';
+    if (topic.includes('calculus') || topic.includes('derivative') || topic.includes('integral') || topic.includes('limit') || topic.includes('differential')) return 'Calculus';
+    if (topic.includes('statistics') || topic.includes('probability') || topic.includes('data') || topic.includes('mean') || topic.includes('median') || topic.includes('mode') || topic.includes('graph') || topic.includes('distribution') || topic.includes('regression') || topic.includes('scatter')) return 'Statistics & Probability';
+    if (topic.includes('algebra') || topic.includes('equation') || topic.includes('variable') || topic.includes('expression') || topic.includes('function') || topic.includes('polynomial') || topic.includes('quadratic') || topic.includes('linear') || topic.includes('exponential') || topic.includes('logarithm') || topic.includes('system') || topic.includes('inequality') || topic.includes('rational') || topic.includes('complex') || topic.includes('sequence') || topic.includes('series') || topic.includes('conic') || topic.includes('matrix') || topic.includes('vector')) return 'Algebra';
+    if (topic.includes('measurement') || topic.includes('time') || topic.includes('money') || topic.includes('length') || topic.includes('weight') || topic.includes('volume')) return 'Measurement';
+    if (topic.includes('pattern') || topic.includes('sorting')) return 'Patterns & Logic';
+    if (topic.includes('fraction') || topic.includes('decimal') || topic.includes('percent') || topic.includes('ratio') || topic.includes('proportion')) return 'Fractions & Decimals';
+    if (topic.includes('discrete') || topic.includes('logic') || topic.includes('set') || topic.includes('combinatorics') || topic.includes('number theory') || topic.includes('game theory')) return 'Discrete Math';
+    if (topic.includes('financial') || topic.includes('interest') || topic.includes('loan') || topic.includes('investment')) return 'Financial Math';
+    return 'Other';
+  };
+
+  // Get unique subject areas
+  const subjectAreas = Array.from(new Set(allTopics.map(t => getSubjectArea(t.name)))).sort();
+
   // Filter topics
   const filteredTopics = allTopics.filter(topic => {
     const matchesSearch = topic.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || topic.category === selectedCategory;
-    const matchesTopic = selectedTopicFilter === 'all' || topic.name === selectedTopicFilter;
-    return matchesSearch && matchesCategory && matchesTopic;
+    const matchesSubject = selectedSubject === 'all' || getSubjectArea(topic.name) === selectedSubject;
+    return matchesSearch && matchesCategory && matchesSubject;
   });
 
   const handleTopicAction = (topicName: string, category: string, mode: 'learn' | 'practice' | 'quiz') => {
@@ -375,16 +395,16 @@ export default function MathCurriculum() {
                 </SelectContent>
               </Select>
 
-              {/* Topic Filter */}
-              <Select value={selectedTopicFilter} onValueChange={setSelectedTopicFilter}>
+              {/* Subject Area Filter */}
+              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
                 <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
-                  <SelectValue placeholder="All Topics" />
+                  <SelectValue placeholder="All Subjects" />
                 </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
-                  <SelectItem value="all">All Topics</SelectItem>
-                  {allTopics.map((topic, idx) => (
-                    <SelectItem key={idx} value={topic.name}>
-                      {topic.name}
+                <SelectContent>
+                  <SelectItem value="all">All Subjects</SelectItem>
+                  {subjectAreas.map((subject) => (
+                    <SelectItem key={subject} value={subject}>
+                      {subject}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -466,7 +486,7 @@ export default function MathCurriculum() {
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('all');
-                setSelectedTopicFilter('all');
+                setSelectedSubject('all');
               }}
               variant="outline"
               className="mt-4 border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
