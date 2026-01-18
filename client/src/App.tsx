@@ -23,6 +23,7 @@ import MoneyDemo from "./pages/MoneyDemo";
 import Goals from "./pages/Goals";
 import MathTutor from "./pages/MathTutor";
 import ScienceLab from "./pages/ScienceLab";
+import SpecializedLearning from "./pages/SpecializedLearning";
 import Wellness from "./pages/Wellness";
 import WellnessDemo from "./pages/WellnessDemo";
 import Terms from "./pages/Terms";
@@ -42,6 +43,7 @@ function Router() {
       <Route path={"/translate-demo"} component={TranslateDemo} />
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/science-lab"} component={ScienceLab} />
+      <Route path={"/specialized-learning"} component={SpecializedLearning} />
       <Route path={"/wellness"} component={Wellness} />
       <Route path={"/wellness-demo"} component={WellnessDemo} />
       <Route path={"/terms"} component={Terms} />

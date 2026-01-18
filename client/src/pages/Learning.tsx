@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { BookOpen, CheckCircle2, XCircle, AlertCircle, HelpCircle, ExternalLink, Loader2 } from "lucide-react";
+import { BookOpen, CheckCircle2, XCircle, AlertCircle, HelpCircle, ExternalLink, Loader2, ArrowRight } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
@@ -542,6 +542,16 @@ export default function Learning() {
                   <span className="ml-2 group-hover:ml-3 transition-all">→</span>
                 </div>
               </a>
+            </div>
+            
+            {/* View All Button */}
+            <div className="mt-6 text-center">
+              <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">
+                <a href="/specialized-learning">
+                  View All Learning Paths
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
+              </Button>
             </div>
           </div>
 
