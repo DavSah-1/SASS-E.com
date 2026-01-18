@@ -688,6 +688,9 @@ function PracticeModal({ topicName, category, onClose }: { topicName: string; ca
     return (
       <Dialog open onOpenChange={onClose}>
         <DialogContent className="max-w-2xl bg-slate-800 border-purple-500/30">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-purple-400">✏️ Practice: {topicName}</DialogTitle>
+          </DialogHeader>
           <div className="flex flex-col items-center justify-center py-12">
             <Loader2 className="h-12 w-12 animate-spin text-purple-400 mb-4" />
             <p className="text-gray-300">Generating practice problems...</p>

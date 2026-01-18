@@ -2329,3 +2329,9 @@
 - [x] Save practice session to database on completion
 - [x] Update topic progress and mastery level
 - [x] Add loading states and error handling
+
+## Fix Dialog Accessibility Error
+- [x] Ensure all Dialog components in MathTutor.tsx have DialogTitle elements
+- [x] Check PracticeModal loading state Dialog
+- [x] Check session complete Dialog
+- [x] Verify all other Dialog components have proper titles
