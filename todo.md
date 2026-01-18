@@ -2197,3 +2197,15 @@
 - [x] Update prompt to enforce concise responses (2-3 sentences max)
 - [x] Test voice assistant with various queries
 - [x] Verify responses are shorter while maintaining personality
+
+## Update Hub Icons to Match Learning Hub Style
+- [ ] Review current hub icons (Learning Hub uses 🎓 emoji)
+- [ ] Replace Money Hub icon with emoji (💰 or 💵)
+- [ ] Replace Wellness Hub icon with emoji (💚 or 🧘)
+- [ ] Test visual consistency across all hub sections
+
+## Fix Hub Icon Visibility
+- [x] Separate Money Hub emoji from gradient text styling
+- [x] Separate Wellness Hub emoji from gradient text styling
+- [x] Ensure emojis display with default colors and stand out
+- [x] Test visual consistency with Learning Hub icon

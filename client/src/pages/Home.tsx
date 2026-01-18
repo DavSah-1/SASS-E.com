@@ -117,8 +117,9 @@ export default function Home() {
                   </Badge>
                 </div>
                 
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400">
-                  💰 Money Hub
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4">
+                  <span className="text-5xl sm:text-6xl">💰</span>{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400">Money Hub</span>
                 </h2>
                 <p className="text-lg sm:text-xl text-center text-slate-300 mb-8 max-w-3xl mx-auto">
                   Take control of your financial future with AI-powered money management tools
@@ -320,8 +321,9 @@ export default function Home() {
                   </Badge>
                 </div>
                 
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">
-                  💪 Wellness Hub
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4">
+                  <span className="text-5xl sm:text-6xl">💪</span>{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">Wellness Hub</span>
                 </h2>
                 <p className="text-lg sm:text-xl text-center text-slate-300 mb-8 max-w-3xl mx-auto">
                   Transform your health with comprehensive fitness tracking, nutrition tools, and mental wellness support
