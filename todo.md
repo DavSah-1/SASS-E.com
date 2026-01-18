@@ -2191,3 +2191,9 @@
 - [x] Replace gradient with OKLCH color oklch(0.69 0.2 325.48)
 - [x] Update all Learning Hub color references (background, border, badge, heading, cards, button)
 - [x] Test visual appearance
+
+## Reduce Voice Assistant Response Length
+- [x] Locate voice assistant system prompt configuration
+- [x] Update prompt to enforce concise responses (2-3 sentences max)
+- [x] Test voice assistant with various queries
+- [x] Verify responses are shorter while maintaining personality
