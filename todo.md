@@ -2417,3 +2417,11 @@
 - [x] Fix addConversationParticipant function - conversationId not being passed correctly (type casting didn't work)
 - [x] Investigate createTranslateConversation function - check if conversationId is being returned correctly
 - [x] Fix root cause (Drizzle insertId extraction) and test conversation creation
+
+## Consolidate Translate Chat into Multilingual Chat Tab
+- [x] Merge TranslateChatRoom functionality into the Multilingual Chat tab
+- [x] Add conversation selection/switching within the tab
+- [x] Show conversation list and active chat side-by-side or with toggle
+- [x] Remove standalone /translate-chat/:code routes
+- [x] Update shareable links to open the translation app with chat tab active
+- [x] Test conversation creation, joining, and messaging within the tab

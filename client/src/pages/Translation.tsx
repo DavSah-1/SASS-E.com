@@ -16,7 +16,7 @@ import { Footer } from "@/components/Footer";
 import { getLoginUrl } from "@/const";
 import { Phrasebook } from "@/components/Phrasebook";
 import ConversationMode from "@/components/ConversationMode";
-import TranslateChat from "@/pages/TranslateChat";
+import MultilingualChatTab from "@/components/MultilingualChatTab";
 import { renderImageOverlay, downloadImage } from "@/lib/imageOverlay";
 import { useEffect } from "react";
 
@@ -751,7 +751,7 @@ export default function Translation() {
             </TabsContent>
             
             <TabsContent value="chat" className="space-y-6 mt-6">
-              <TranslateChat />
+              <MultilingualChatTab />
             </TabsContent>
           </Tabs>
         </div>

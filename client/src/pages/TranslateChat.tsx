@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation, Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
@@ -17,6 +17,15 @@ export default function TranslateChat() {
   const { code } = useParams();
 
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedConversationCode, setSelectedConversationCode] = useState<string | null>(code || null);
+  const [messageText, setMessageText] = useState("");
+  const [showOriginal, setShowOriginal] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [selectedConversationCode]);
 
   const { data: conversations, isLoading: loadingConversations } = trpc.translateChat.getMyConversations.useQuery(
     undefined,

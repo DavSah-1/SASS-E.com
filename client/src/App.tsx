@@ -29,8 +29,7 @@ import Wellness from "./pages/Wellness";
 import WellnessDemo from "./pages/WellnessDemo";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
-import TranslateChat from "./pages/TranslateChat";
-import TranslateChatRoom from "./pages/TranslateChatRoom";
+
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -44,8 +43,7 @@ function Router() {
       <Route path={"/translate"} component={TranslateLanding} />
       <Route path={"/translate-app"} component={Translation} />
       <Route path={"/translate-demo"} component={TranslateDemo} />
-      <Route path={"/translate-chat"} component={TranslateChat} />
-      <Route path={"/translate-chat/:code"} component={TranslateChatRoom} />
+
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/math-curriculum"} component={MathCurriculum} />
       <Route path={"/science-lab"} component={ScienceLab} />
