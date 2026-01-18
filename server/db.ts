@@ -3380,7 +3380,8 @@ export async function createTranslateConversation(creatorId: number, title?: str
     expiresAt: null,
   });
 
-  const conversationId = (insertResult as any).insertId as number;
+  // Drizzle returns [ResultSetHeader] for MySQL, extract insertId
+  const conversationId = Number((insertResult as any)[0]?.insertId || (insertResult as any).insertId);
   
   return { conversationId, shareableCode };
 }

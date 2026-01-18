@@ -2414,5 +2414,6 @@
 - [x] Test tab switching and chat functionality
 
 ## Fix Database Insert Error in Multilingual Chat
-- [x] Fix addConversationParticipant function - conversationId not being passed correctly
-- [x] Test conversation creation and participant addition
+- [x] Fix addConversationParticipant function - conversationId not being passed correctly (type casting didn't work)
+- [x] Investigate createTranslateConversation function - check if conversationId is being returned correctly
+- [x] Fix root cause (Drizzle insertId extraction) and test conversation creation
