@@ -2223,3 +2223,9 @@
 - [x] Add route in App.tsx
 - [x] Add navigation links from Learning Hub
 - [x] Test page functionality
+
+## Add Featured Learning Cards to Specialized Learning Page
+- [x] Add Math Tutor, Language Learning, and Science Lab cards at top
+- [x] Position above STEM category
+- [x] Match styling from Learning page
+- [x] Test responsive layout

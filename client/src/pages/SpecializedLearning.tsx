@@ -141,6 +141,65 @@ export default function SpecializedLearning() {
           )}
         </div>
 
+        {/* Featured Learning Paths */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-purple-400 mb-6 text-center">🎯 Featured Learning Experiences</h2>
+          <p className="text-slate-300 mb-8 text-center max-w-2xl mx-auto">Interactive learning with structured lessons and hands-on practice</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Math Tutor Card */}
+            <a
+              href="/math-tutor"
+              className="block p-6 bg-gradient-to-br from-blue-900/40 to-cyan-900/40 hover:from-blue-800/50 hover:to-cyan-800/50 border-2 border-blue-500/30 hover:border-blue-400/60 rounded-xl transition-all group"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-5xl">🧮</div>
+                <ArrowRight className="h-6 w-6 text-blue-400 group-hover:text-blue-300 transition-colors" />
+              </div>
+              <h3 className="text-2xl font-bold text-blue-200 mb-3 group-hover:text-blue-100">Math Tutor</h3>
+              <p className="text-sm text-slate-300 mb-4">Step-by-step problem solving with detailed explanations across all math topics</p>
+              <div className="flex items-center text-sm text-blue-400 font-semibold">
+                <span>Start Solving</span>
+                <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+              </div>
+            </a>
+
+            {/* Language Learning Card */}
+            <a
+              href="/language-learning"
+              className="block p-6 bg-gradient-to-br from-purple-900/40 to-pink-900/40 hover:from-purple-800/50 hover:to-pink-800/50 border-2 border-purple-500/30 hover:border-purple-400/60 rounded-xl transition-all group"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-5xl">🌍</div>
+                <ArrowRight className="h-6 w-6 text-purple-400 group-hover:text-purple-300 transition-colors" />
+              </div>
+              <h3 className="text-2xl font-bold text-purple-200 mb-3 group-hover:text-purple-100">Language Learning</h3>
+              <p className="text-sm text-slate-300 mb-4">Master new languages with interactive conversations, vocabulary practice, and cultural insights</p>
+              <div className="flex items-center text-sm text-purple-400 font-semibold">
+                <span>Start Learning</span>
+                <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+              </div>
+            </a>
+
+            {/* Science Lab Card */}
+            <a
+              href="/science-lab"
+              className="block p-6 bg-gradient-to-br from-green-900/40 to-emerald-900/40 hover:from-green-800/50 hover:to-emerald-800/50 border-2 border-green-500/30 hover:border-green-400/60 rounded-xl transition-all group"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-5xl">🧪</div>
+                <ArrowRight className="h-6 w-6 text-green-400 group-hover:text-green-300 transition-colors" />
+              </div>
+              <h3 className="text-2xl font-bold text-green-200 mb-3 group-hover:text-green-100">Science Lab</h3>
+              <p className="text-sm text-slate-300 mb-4">Virtual experiments in physics, chemistry, and biology with step-by-step procedures and AI feedback</p>
+              <div className="flex items-center text-sm text-green-400 font-semibold">
+                <span>Start Experimenting</span>
+                <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
         {/* Learning Path Categories */}
         <div className="space-y-16">
           {learningPaths.map((category, idx) => (
