@@ -2403,3 +2403,12 @@
 - [x] Test multi-user scenarios with different languages
 - [ ] Fix function name conflicts in db.ts (duplicate function names with language learning)
 - [ ] Run all tests and ensure they pass (pending conflict resolution)
+
+## Integrate Multilingual Messaging into Translation App
+- [x] Read current Translation.tsx to understand tab structure
+- [x] Add "Multilingual Chat" tab to Translation page
+- [x] Integrate conversation list view into the new tab
+- [x] Integrate chat room interface into the new tab
+- [x] Update routing to handle chat within translation app context
+- [x] Ensure responsive design for mobile and tablet
+- [x] Test tab switching and chat functionality

@@ -16,6 +16,7 @@ import { Footer } from "@/components/Footer";
 import { getLoginUrl } from "@/const";
 import { Phrasebook } from "@/components/Phrasebook";
 import ConversationMode from "@/components/ConversationMode";
+import TranslateChat from "@/pages/TranslateChat";
 import { renderImageOverlay, downloadImage } from "@/lib/imageOverlay";
 import { useEffect } from "react";
 
@@ -85,7 +86,7 @@ export default function Translation() {
   
   // TTS state
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [activeTab, setActiveTab] = useState<"translate" | "image_ocr" | "conversation" | "phrasebook">("translate");
+  const [activeTab, setActiveTab] = useState<"translate" | "image_ocr" | "conversation" | "phrasebook" | "chat">("translate");
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   
   const translateTextMutation = trpc.translation.translate.useMutation();
@@ -357,8 +358,8 @@ export default function Translation() {
           </div>
           
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "image_ocr" | "conversation" | "phrasebook")} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-slate-800/50 border border-purple-500/30 rounded-lg p-1">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "image_ocr" | "conversation" | "phrasebook" | "chat")} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-slate-800/50 border border-purple-500/30 rounded-lg p-1">
               <TabsTrigger value="translate" className="data-[state=active]:bg-purple-600">
                 <Languages className="h-4 w-4 mr-2" />
                 Translate
@@ -372,7 +373,12 @@ export default function Translation() {
                 Conversation
               </TabsTrigger>
               <TabsTrigger value="phrasebook" className="data-[state=active]:bg-purple-600">
+                <BookMarked className="h-4 w-4 mr-2" />
                 Phrasebook
+              </TabsTrigger>
+              <TabsTrigger value="chat" className="data-[state=active]:bg-purple-600">
+                <Languages className="h-4 w-4 mr-2" />
+                Multilingual Chat
               </TabsTrigger>
             </TabsList>
             
@@ -742,6 +748,10 @@ export default function Translation() {
             
             <TabsContent value="phrasebook" className="space-y-6 mt-6">
               <Phrasebook onSpeak={speakText} isSpeaking={isSpeaking} />
+            </TabsContent>
+            
+            <TabsContent value="chat" className="space-y-6 mt-6">
+              <TranslateChat />
             </TabsContent>
           </Tabs>
         </div>
