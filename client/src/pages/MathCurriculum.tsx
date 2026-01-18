@@ -21,7 +21,7 @@ export default function MathCurriculum() {
   const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedGradeLevel, setSelectedGradeLevel] = useState("all");
+  const [selectedTopicFilter, setSelectedTopicFilter] = useState("all");
   const [selectedTopic, setSelectedTopic] = useState<{ name: string; category: string; mode: 'learn' | 'practice' | 'quiz' } | null>(null);
 
   // Get progress for Early Math category
@@ -296,8 +296,8 @@ export default function MathCurriculum() {
   const filteredTopics = allTopics.filter(topic => {
     const matchesSearch = topic.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || topic.category === selectedCategory;
-    const matchesGradeLevel = selectedGradeLevel === 'all' || topic.gradeLevel === selectedGradeLevel;
-    return matchesSearch && matchesCategory && matchesGradeLevel;
+    const matchesTopic = selectedTopicFilter === 'all' || topic.name === selectedTopicFilter;
+    return matchesSearch && matchesCategory && matchesTopic;
   });
 
   const handleTopicAction = (topicName: string, category: string, mode: 'learn' | 'practice' | 'quiz') => {
@@ -375,19 +375,18 @@ export default function MathCurriculum() {
                 </SelectContent>
               </Select>
 
-              {/* Grade Level Filter */}
-              <Select value={selectedGradeLevel} onValueChange={setSelectedGradeLevel}>
+              {/* Topic Filter */}
+              <Select value={selectedTopicFilter} onValueChange={setSelectedTopicFilter}>
                 <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
-                  <SelectValue placeholder="All Grade Levels" />
+                  <SelectValue placeholder="All Topics" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Grade Levels</SelectItem>
-                  <SelectItem value="Pre-K to Grade 2">Pre-K to Grade 2</SelectItem>
-                  <SelectItem value="Grades 3-5">Grades 3-5</SelectItem>
-                  <SelectItem value="Grades 6-8">Grades 6-8</SelectItem>
-                  <SelectItem value="Grades 9-12">Grades 9-12</SelectItem>
-                  <SelectItem value="College">College</SelectItem>
-                  <SelectItem value="All Levels">All Levels</SelectItem>
+                <SelectContent className="max-h-[300px]">
+                  <SelectItem value="all">All Topics</SelectItem>
+                  {allTopics.map((topic, idx) => (
+                    <SelectItem key={idx} value={topic.name}>
+                      {topic.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -467,7 +466,7 @@ export default function MathCurriculum() {
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('all');
-                setSelectedGradeLevel('all');
+                setSelectedTopicFilter('all');
               }}
               variant="outline"
               className="mt-4 border-purple-500/50 text-purple-300 hover:bg-purple-500/20"

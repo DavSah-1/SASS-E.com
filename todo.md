@@ -2350,3 +2350,9 @@
 - [x] Add "Browse Curriculum" button on Math Tutor page
 - [x] Remove curriculum section from MathTutor.tsx
 - [ ] Update Navigation component to include curriculum link (optional - accessible via Math Tutor page)
+
+## Replace Grade Level Dropdown with Topics Dropdown
+- [x] Remove grade level filter state and dropdown
+- [x] Add topics dropdown showing all available topic names
+- [x] Update filter logic to filter by selected topic
+- [x] Update results counter
