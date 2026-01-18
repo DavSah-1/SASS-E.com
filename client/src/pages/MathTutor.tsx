@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { Calculator, CheckCircle2, Lightbulb, TrendingUp, XCircle, ChevronDown, ChevronRight, BookOpen, Brain, Sparkles, Trophy } from "lucide-react";
+import { Calculator, CheckCircle2, Lightbulb, TrendingUp, XCircle, ChevronDown, ChevronRight, BookOpen, Brain, Sparkles, Trophy, Loader2, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
@@ -31,6 +32,40 @@ interface Solution {
 
 function MathCurriculumSection() {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<{name: string, category: string} | null>(null);
+  const [modalMode, setModalMode] = useState<'lesson' | 'practice' | 'quiz' | null>(null);
+  const { isAuthenticated } = useAuth();
+  const trpcUtils = trpc.useUtils();
+
+  // Topic progress query
+  const { data: categoryProgress } = trpc.topic.getCategoryProgress.useQuery(
+    { category: 'early-math' },
+    { enabled: isAuthenticated && expandedCategory === 'early-math' }
+  );
+
+  const getTopicStatus = (topicName: string) => {
+    if (!categoryProgress) return 'not_started';
+    const progress = categoryProgress.find(p => p.topicName === topicName);
+    return progress?.status || 'not_started';
+  };
+
+  const handleTopicAction = (topicName: string, category: string, mode: 'lesson' | 'practice' | 'quiz') => {
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl();
+      return;
+    }
+    setSelectedTopic({ name: topicName, category });
+    setModalMode(mode);
+  };
+
+  const closeModal = () => {
+    setSelectedTopic(null);
+    setModalMode(null);
+    // Refresh progress
+    if (isAuthenticated) {
+      trpcUtils.topic.getCategoryProgress.invalidate();
+    }
+  };
 
   const mathCategories = [
     {
@@ -303,7 +338,70 @@ function MathCurriculumSection() {
 
             {isExpanded && (
               <CardContent className="pt-0">
-                {"sections" in category && category.sections ? (
+                {category.id === 'early-math' && 'topics' in category ? (
+                  <ul className="grid grid-cols-1 gap-3">
+                    {category.topics?.map((topic, idx) => {
+                      const status = getTopicStatus(topic);
+                      return (
+                        <li
+                          key={idx}
+                          className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700 hover:border-pink-500/50 transition-colors"
+                        >
+                          <div className="flex items-start gap-3 flex-1">
+                            <CheckCircle2 className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
+                              status === 'mastered' ? 'text-green-400' :
+                              status === 'practicing' ? 'text-yellow-400' :
+                              status === 'learning' ? 'text-blue-400' :
+                              'text-gray-600'
+                            }`} />
+                            <div className="flex-1">
+                              <span className="text-white font-medium">{topic}</span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className={`text-xs px-2 py-0.5 rounded ${
+                                  status === 'mastered' ? 'bg-green-500/20 text-green-400' :
+                                  status === 'practicing' ? 'bg-yellow-500/20 text-yellow-400' :
+                                  status === 'learning' ? 'bg-blue-500/20 text-blue-400' :
+                                  'bg-gray-500/20 text-gray-400'
+                                }`}>
+                                  {status === 'not_started' ? 'Not Started' :
+                                   status === 'learning' ? 'Learning' :
+                                   status === 'practicing' ? 'Practicing' :
+                                   'Mastered'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 ml-4">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-blue-500/50 text-blue-400 hover:bg-blue-500/20"
+                              onClick={() => handleTopicAction(topic, 'early-math', 'lesson')}
+                            >
+                              📖 Learn
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-purple-500/50 text-purple-400 hover:bg-purple-500/20"
+                              onClick={() => handleTopicAction(topic, 'early-math', 'practice')}
+                            >
+                              ✏️ Practice
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-green-500/50 text-green-400 hover:bg-green-500/20"
+                              onClick={() => handleTopicAction(topic, 'early-math', 'quiz')}
+                            >
+                              ✅ Quiz
+                            </Button>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : "sections" in category && category.sections ? (
                   <div className="space-y-6">
                     {category.sections.map((section, idx) => (
                       <div key={idx} className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
@@ -343,7 +441,197 @@ function MathCurriculumSection() {
           </Card>
         );
       })}
+
+      {/* Modals for Learn/Practice/Quiz */}
+      {selectedTopic && modalMode && (
+        <TopicModal
+          topicName={selectedTopic.name}
+          category={selectedTopic.category}
+          mode={modalMode}
+          onClose={closeModal}
+        />
+      )}
     </div>
+  );
+}
+
+// Topic Modal Component
+function TopicModal({
+  topicName,
+  category,
+  mode,
+  onClose,
+}: {
+  topicName: string;
+  category: string;
+  mode: 'lesson' | 'practice' | 'quiz';
+  onClose: () => void;
+}) {
+  if (mode === 'lesson') {
+    return <LessonModal topicName={topicName} category={category} onClose={onClose} />;
+  } else if (mode === 'practice') {
+    return <PracticeModal topicName={topicName} category={category} onClose={onClose} />;
+  } else {
+    return <QuizModal topicName={topicName} category={category} onClose={onClose} />;
+  }
+}
+
+// Lesson Modal
+function LessonModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
+  const { data: lessonData, isLoading } = trpc.topic.getLessonContent.useQuery({ topicName, category });
+  const completeLessonMutation = trpc.topic.completeLesson.useMutation({
+    onSuccess: () => {
+      toast.success('Lesson completed! Ready for practice! 🎉');
+      onClose();
+    },
+  });
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-slate-800 border-blue-500/30">
+        <DialogHeader>
+          <DialogTitle className="text-2xl text-blue-400 flex items-center gap-2">
+            📖 {topicName}
+          </DialogTitle>
+        </DialogHeader>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+          </div>
+        ) : lessonData ? (
+          <div className="space-y-6 text-white">
+            <div>
+              <h3 className="text-xl font-bold text-blue-400 mb-2">{lessonData.title}</h3>
+              <p className="text-gray-300">{lessonData.introduction}</p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-lg mb-2">📚 Explanation</h4>
+              <p className="text-gray-300">{lessonData.explanation}</p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-lg mb-3">💡 Examples</h4>
+              <div className="space-y-3">
+                {lessonData.examples.map((ex: any, idx: number) => (
+                  <div key={idx} className="p-3 bg-slate-900/50 rounded-lg border border-slate-700">
+                    <h5 className="font-medium text-blue-400 mb-1">{ex.title}</h5>
+                    <p className="text-sm text-gray-300 mb-2">{ex.description}</p>
+                    <p className="text-xs text-gray-400 italic">{ex.visual}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-lg mb-2">🌍 Real-World Uses</h4>
+              <ul className="list-disc list-inside space-y-1 text-gray-300">
+                {lessonData.realWorldApplications.map((app: string, idx: number) => (
+                  <li key={idx}>{app}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-lg mb-2">🎉 Fun Facts</h4>
+              <ul className="list-disc list-inside space-y-1 text-gray-300">
+                {lessonData.funFacts.map((fact: string, idx: number) => (
+                  <li key={idx}>{fact}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-lg mb-2">⚠️ Common Mistakes</h4>
+              <ul className="list-disc list-inside space-y-1 text-orange-300">
+                {lessonData.commonMistakes.map((mistake: string, idx: number) => (
+                  <li key={idx}>{mistake}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+              <h4 className="font-semibold text-lg text-green-400 mb-2">✅ Key Takeaways</h4>
+              <ul className="list-disc list-inside space-y-1 text-gray-300">
+                {lessonData.keyTakeaways.map((takeaway: string, idx: number) => (
+                  <li key={idx}>{takeaway}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={() => completeLessonMutation.mutate({ topicName, category })}
+                disabled={completeLessonMutation.isPending}
+                className="flex-1 bg-green-500 hover:bg-green-600"
+              >
+                {completeLessonMutation.isPending ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Completing...</>
+                ) : (
+                  '✅ Mark as Complete'
+                )}
+              </Button>
+              <Button onClick={onClose} variant="outline" className="border-slate-600">
+                Close
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-400">Failed to load lesson content.</p>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Practice Modal (Simplified)
+function PracticeModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl bg-slate-800 border-purple-500/30">
+        <DialogHeader>
+          <DialogTitle className="text-2xl text-purple-400">✏️ Practice: {topicName}</DialogTitle>
+        </DialogHeader>
+        <div className="text-center py-12">
+          <p className="text-gray-300 mb-4">Practice mode coming soon! This will include:</p>
+          <ul className="text-left max-w-md mx-auto space-y-2 text-gray-400">
+            <li>• 10 interactive practice problems</li>
+            <li>• Instant feedback on answers</li>
+            <li>• Progressive hints system</li>
+            <li>• Timer and accuracy tracking</li>
+          </ul>
+          <Button onClick={onClose} className="mt-6 bg-purple-500 hover:bg-purple-600">
+            Got it!
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Quiz Modal (Simplified)
+function QuizModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl bg-slate-800 border-green-500/30">
+        <DialogHeader>
+          <DialogTitle className="text-2xl text-green-400">✅ Quiz: {topicName}</DialogTitle>
+        </DialogHeader>
+        <div className="text-center py-12">
+          <p className="text-gray-300 mb-4">Quiz mode coming soon! This will include:</p>
+          <ul className="text-left max-w-md mx-auto space-y-2 text-gray-400">
+            <li>• 10 multiple-choice questions</li>
+            <li>• Timed assessment</li>
+            <li>• Detailed score breakdown</li>
+            <li>• Mastery level calculation</li>
+          </ul>
+          <Button onClick={onClose} className="mt-6 bg-green-500 hover:bg-green-600">
+            Got it!
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

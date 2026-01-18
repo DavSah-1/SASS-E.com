@@ -1606,3 +1606,65 @@ export const conversationMessages = mysqlTable("conversation_messages", {
 
 export type ConversationMessage = typeof conversationMessages.$inferSelect;
 export type InsertConversationMessage = typeof conversationMessages.$inferInsert;
+
+/**
+ * Topic Progress - Track user progress through learning topics
+ */
+export const topicProgress = mysqlTable("topic_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  topicName: varchar("topicName", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(), // e.g., "early-math", "elementary", etc.
+  status: mysqlEnum("status", ["not_started", "learning", "practicing", "mastered"]).default("not_started").notNull(),
+  lessonCompleted: int("lessonCompleted").default(0).notNull(), // 1 if lesson finished
+  practiceCount: int("practiceCount").default(0).notNull(), // Number of practice problems attempted
+  quizzesTaken: int("quizzesTaken").default(0).notNull(),
+  bestQuizScore: int("bestQuizScore").default(0).notNull(), // Best score 0-100
+  masteryLevel: int("masteryLevel").default(0).notNull(), // Overall mastery 0-100
+  lastStudied: timestamp("lastStudied").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TopicProgress = typeof topicProgress.$inferSelect;
+export type InsertTopicProgress = typeof topicProgress.$inferInsert;
+
+/**
+ * Topic Quiz Results - Store quiz attempts and detailed results
+ */
+export const topicQuizResults = mysqlTable("topic_quiz_results", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  topicName: varchar("topicName", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  quizType: mysqlEnum("quizType", ["quick_check", "topic_quiz", "mixed_review"]).default("topic_quiz").notNull(),
+  score: int("score").notNull(), // Score 0-100
+  totalQuestions: int("totalQuestions").notNull(),
+  correctAnswers: int("correctAnswers").notNull(),
+  timeSpent: int("timeSpent"), // Time in seconds
+  weakAreas: text("weakAreas"), // JSON array of subtopics needing review
+  answers: text("answers"), // JSON array of question/answer pairs
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TopicQuizResult = typeof topicQuizResults.$inferSelect;
+export type InsertTopicQuizResult = typeof topicQuizResults.$inferInsert;
+
+/**
+ * Practice Sessions - Track individual practice sessions
+ */
+export const practiceSessions = mysqlTable("practice_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  topicName: varchar("topicName", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  problemsSolved: int("problemsSolved").default(0).notNull(),
+  problemsCorrect: int("problemsCorrect").default(0).notNull(),
+  accuracy: int("accuracy").default(0).notNull(), // Percentage 0-100
+  hintsUsed: int("hintsUsed").default(0).notNull(),
+  duration: int("duration"), // Time in seconds
+  completedAt: timestamp("completedAt").defaultNow().notNull(),
+});
+
+export type PracticeSession = typeof practiceSessions.$inferSelect;
+export type InsertPracticeSession = typeof practiceSessions.$inferInsert;

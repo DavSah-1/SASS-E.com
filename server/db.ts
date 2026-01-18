@@ -91,6 +91,9 @@ import {
   InsertSavedTranslation,
   translationCategories,
   InsertTranslationCategory,
+  topicProgress,
+  topicQuizResults,
+  practiceSessions,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -3100,4 +3103,235 @@ export async function saveConversationSessionToPhrasebook(
   }
   
   return true;
+}
+
+
+// ============================================
+// Topic Progress Functions (Learn-Practice-Quiz System)
+// ============================================
+
+/**
+ * Get or create topic progress for a user
+ */
+export async function getTopicProgress(userId: number, topicName: string, category: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(topicProgress)
+    .where(
+      and(
+        eq(topicProgress.userId, userId),
+        eq(topicProgress.topicName, topicName),
+        eq(topicProgress.category, category)
+      )
+    )
+    .limit(1);
+
+  if (result.length > 0) {
+    return result[0];
+  }
+
+  // Create initial progress record
+  await db.insert(topicProgress).values({
+    userId,
+    topicName,
+    category,
+    status: "not_started",
+    lessonCompleted: 0,
+    practiceCount: 0,
+    quizzesTaken: 0,
+    bestQuizScore: 0,
+    masteryLevel: 0,
+  });
+
+  const newResult = await db
+    .select()
+    .from(topicProgress)
+    .where(
+      and(
+        eq(topicProgress.userId, userId),
+        eq(topicProgress.topicName, topicName),
+        eq(topicProgress.category, category)
+      )
+    )
+    .limit(1);
+
+  return newResult[0] || null;
+}
+
+/**
+ * Update topic progress
+ */
+export async function updateTopicProgress(
+  userId: number,
+  topicName: string,
+  category: string,
+  updates: {
+    status?: "not_started" | "learning" | "practicing" | "mastered";
+    lessonCompleted?: number;
+    practiceCount?: number;
+    quizzesTaken?: number;
+    bestQuizScore?: number;
+    masteryLevel?: number;
+  }
+) {
+  const db = await getDb();
+  if (!db) return false;
+
+  const updateData: any = {};
+
+  if (updates.status !== undefined) updateData.status = updates.status;
+  if (updates.lessonCompleted !== undefined) updateData.lessonCompleted = updates.lessonCompleted;
+  if (updates.practiceCount !== undefined) updateData.practiceCount = updates.practiceCount;
+  if (updates.quizzesTaken !== undefined) updateData.quizzesTaken = updates.quizzesTaken;
+  if (updates.bestQuizScore !== undefined) updateData.bestQuizScore = updates.bestQuizScore;
+  if (updates.masteryLevel !== undefined) updateData.masteryLevel = updates.masteryLevel;
+
+  updateData.lastStudied = new Date();
+
+  await db
+    .update(topicProgress)
+    .set(updateData)
+    .where(
+      and(
+        eq(topicProgress.userId, userId),
+        eq(topicProgress.topicName, topicName),
+        eq(topicProgress.category, category)
+      )
+    );
+
+  return true;
+}
+
+/**
+ * Get all topic progress for a category
+ */
+export async function getCategoryProgress(userId: number, category: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .select()
+    .from(topicProgress)
+    .where(
+      and(
+        eq(topicProgress.userId, userId),
+        eq(topicProgress.category, category)
+      )
+    );
+
+  return results;
+}
+
+/**
+ * Save quiz result
+ */
+export async function saveQuizResult(result: {
+  userId: number;
+  topicName: string;
+  category: string;
+  quizType: "quick_check" | "topic_quiz" | "mixed_review";
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  timeSpent?: number;
+  weakAreas?: string[];
+  answers?: any[];
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const insertData: any = {
+    userId: result.userId,
+    topicName: result.topicName,
+    category: result.category,
+    quizType: result.quizType,
+    score: result.score,
+    totalQuestions: result.totalQuestions,
+    correctAnswers: result.correctAnswers,
+    timeSpent: result.timeSpent || null,
+    weakAreas: result.weakAreas ? JSON.stringify(result.weakAreas) : null,
+    answers: result.answers ? JSON.stringify(result.answers) : null,
+  };
+
+  const insertResult = await db.insert(topicQuizResults).values(insertData);
+  return (insertResult as any).insertId as number;
+}
+
+/**
+ * Get quiz results for a topic
+ */
+export async function getQuizResults(userId: number, topicName: string, category: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .select()
+    .from(topicQuizResults)
+    .where(
+      and(
+        eq(topicQuizResults.userId, userId),
+        eq(topicQuizResults.topicName, topicName),
+        eq(topicQuizResults.category, category)
+      )
+    )
+    .orderBy(desc(topicQuizResults.createdAt))
+    .limit(10);
+
+  return results;
+}
+
+/**
+ * Save practice session
+ */
+export async function savePracticeSession(session: {
+  userId: number;
+  topicName: string;
+  category: string;
+  problemsSolved: number;
+  problemsCorrect: number;
+  accuracy: number;
+  hintsUsed: number;
+  duration?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const insertResult = await db.insert(practiceSessions).values({
+    userId: session.userId,
+    topicName: session.topicName,
+    category: session.category,
+    problemsSolved: session.problemsSolved,
+    problemsCorrect: session.problemsCorrect,
+    accuracy: session.accuracy,
+    hintsUsed: session.hintsUsed,
+    duration: session.duration || null,
+  });
+
+  return (insertResult as any).insertId as number;
+}
+
+/**
+ * Get practice sessions for a topic
+ */
+export async function getPracticeSessions(userId: number, topicName: string, category: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .select()
+    .from(practiceSessions)
+    .where(
+      and(
+        eq(practiceSessions.userId, userId),
+        eq(practiceSessions.topicName, topicName),
+        eq(practiceSessions.category, category)
+      )
+    )
+    .orderBy(desc(practiceSessions.completedAt))
+    .limit(10);
+
+  return results;
 }
