@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
+import { eq } from "drizzle-orm";
+import { getDb } from "./db";
+import { translateConversations } from "../drizzle/schema";
 import {
   createTranslateConversation,
   getConversationByCode,
@@ -299,6 +302,36 @@ export const translateChatRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await removeConversationParticipant(input.conversationId, ctx.user.id);
+      return { success: true };
+    }),
+
+  /**
+   * Delete a conversation (creator only)
+   */
+  deleteConversation: protectedProcedure
+    .input(
+      z.object({
+        conversationId: z.number(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Get conversation to check creator
+      const conversation = await getConversationById(input.conversationId);
+      if (!conversation) {
+        throw new Error("Conversation not found");
+      }
+
+      // Only creator can delete
+      if (conversation.creatorId !== ctx.user.id) {
+        throw new Error("Only the conversation creator can delete it");
+      }
+
+      // Delete conversation (cascade will handle participants, messages, translations)
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.delete(translateConversations).where(eq(translateConversations.id, input.conversationId));
+      
       return { success: true };
     }),
 });

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Copy, MessageSquare, Plus, Users, Send, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Copy, MessageSquare, Plus, Users, Send, ArrowLeft, Eye, EyeOff, LogOut, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { getLoginUrl } from "@/const";
 
 export default function MultilingualChatTab() {
@@ -57,6 +58,28 @@ export default function MultilingualChatTab() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to send message");
+    },
+  });
+
+  const leaveConversation = trpc.translateChat.leaveConversation.useMutation({
+    onSuccess: () => {
+      toast.success("Left conversation");
+      setSelectedConversationCode(null);
+      refetchConversations();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to leave conversation");
+    },
+  });
+
+  const deleteConversation = trpc.translateChat.deleteConversation.useMutation({
+    onSuccess: () => {
+      toast.success("Conversation deleted");
+      setSelectedConversationCode(null);
+      refetchConversations();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete conversation");
     },
   });
 
@@ -149,6 +172,59 @@ export default function MultilingualChatTab() {
                   <Copy className="h-4 w-4 mr-2" />
                   Copy Link
                 </Button>
+                
+                {/* Leave Conversation */}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Leave
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Leave Conversation?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        You will no longer receive messages from this conversation. You can rejoin using the shareable link.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => conversationId && leaveConversation.mutate({ conversationId })}>
+                        Leave
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                {/* Delete Conversation (Creator Only) */}
+                {conversationData.conversation?.creatorId === user?.id && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Conversation?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete the conversation and all messages for all participants. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={() => conversationId && deleteConversation.mutate({ conversationId })}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete Permanently
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
               </div>
             </div>
           </CardHeader>

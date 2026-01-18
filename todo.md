@@ -2425,3 +2425,17 @@
 - [x] Remove standalone /translate-chat/:code routes
 - [x] Update shareable links to open the translation app with chat tab active
 - [x] Test conversation creation, joining, and messaging within the tab
+
+## Add Leave and Delete Conversation Features
+### Backend API
+- [x] Add deleteConversation endpoint (creator only, deletes conversation and all messages)
+- [x] Update leaveConversation endpoint to handle last participant cleanup
+- [x] Add database helper to check if user is conversation creator
+
+### Frontend UI
+- [x] Add "Leave Conversation" button in chat header
+- [x] Add "Delete Conversation" button in chat header (creator only)
+- [ ] Add delete button to conversation cards in list view (optional enhancement)
+- [x] Add confirmation dialogs for both actions
+- [x] Update conversation list after leave/delete
+- [x] Show appropriate error messages for unauthorized actions
