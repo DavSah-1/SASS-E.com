@@ -10,6 +10,7 @@ import { trpc } from "@/lib/trpc";
 import { Calculator, CheckCircle2, Lightbulb, TrendingUp, XCircle, ChevronDown, ChevronRight, BookOpen, Brain, Sparkles, Trophy, Loader2, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState, useEffect } from "react";
+import { Link } from "wouter";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
@@ -477,7 +478,7 @@ function TopicModal({
 }
 
 // Lesson Modal
-function LessonModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
+export function LessonModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
   const { data: lessonData, isLoading } = trpc.topic.getLessonContent.useQuery({ topicName, category });
   const completeLessonMutation = trpc.topic.completeLesson.useMutation({
     onSuccess: () => {
@@ -586,7 +587,7 @@ function LessonModal({ topicName, category, onClose }: { topicName: string; cate
 }
 
 // Practice Modal (Full Implementation)
-function PracticeModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
+export function PracticeModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
   const [problems, setProblems] = useState<any[]>([]);
   const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
@@ -886,7 +887,7 @@ function PracticeModal({ topicName, category, onClose }: { topicName: string; ca
 }
 
 // Quiz Modal (Simplified)
-function QuizModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
+export function QuizModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-slate-800 border-green-500/30">
@@ -1439,18 +1440,26 @@ export default function MathTutor() {
           </div>
         </div>
 
-        {/* Comprehensive Math Curriculum */}
-        <div className="mt-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4">
-            <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent">
-              Comprehensive Math Curriculum
-            </span>
-          </h2>
-          <p className="text-center text-gray-400 mb-8 max-w-2xl mx-auto">
-            Explore our complete math curriculum from Pre-K to College level, covering all essential topics
-          </p>
-
-          <MathCurriculumSection />
+        {/* Browse Curriculum CTA */}
+        <div className="mt-16 text-center">
+          <Card className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 border-purple-500/30 max-w-2xl mx-auto">
+            <CardContent className="pt-8 pb-8">
+              <h2 className="text-3xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent">
+                  Explore Full Math Curriculum
+                </span>
+              </h2>
+              <p className="text-gray-300 mb-6">
+                Browse 75+ topics from Pre-K through College level. Track your progress across all categories.
+              </p>
+              <Link href="/math-curriculum">
+                <Button size="lg" className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white">
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  Browse Complete Curriculum
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <Footer />

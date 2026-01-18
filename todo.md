@@ -2335,3 +2335,18 @@
 - [x] Check PracticeModal loading state Dialog
 - [x] Check session complete Dialog
 - [x] Verify all other Dialog components have proper titles
+
+## Create Dedicated Math Curriculum Page
+- [x] Create new MathCurriculum.tsx page component
+- [x] Move all 6 curriculum categories from MathTutor to new page
+- [x] Add search bar to filter topics by name
+- [x] Add category filter dropdown (All, Early Math, Elementary, etc.)
+- [x] Add grade level filter (Pre-K, K-2, 3-5, 6-8, 9-12, College)
+- [x] Display topic cards with progress indicators
+- [x] Add Learn/Practice/Quiz buttons to each topic card
+- [x] Integrate with topic progress API
+- [x] Add breadcrumb navigation
+- [x] Create route /math-curriculum in App.tsx
+- [x] Add "Browse Curriculum" button on Math Tutor page
+- [x] Remove curriculum section from MathTutor.tsx
+- [ ] Update Navigation component to include curriculum link (optional - accessible via Math Tutor page)

@@ -22,6 +22,7 @@ import Money from "./pages/Money";
 import MoneyDemo from "./pages/MoneyDemo";
 import Goals from "./pages/Goals";
 import MathTutor from "./pages/MathTutor";
+import MathCurriculum from "./pages/MathCurriculum";
 import ScienceLab from "./pages/ScienceLab";
 import SpecializedLearning from "./pages/SpecializedLearning";
 import Wellness from "./pages/Wellness";
@@ -42,6 +43,7 @@ function Router() {
       <Route path={"/translate-app"} component={Translation} />
       <Route path={"/translate-demo"} component={TranslateDemo} />
       <Route path={"/math-tutor"} component={MathTutor} />
+      <Route path={"/math-curriculum"} component={MathCurriculum} />
       <Route path={"/science-lab"} component={ScienceLab} />
       <Route path={"/specialized-learning"} component={SpecializedLearning} />
       <Route path={"/wellness"} component={Wellness} />
