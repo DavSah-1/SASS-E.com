@@ -9,7 +9,7 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Calculator, CheckCircle2, Lightbulb, TrendingUp, XCircle, ChevronDown, ChevronRight, BookOpen, Brain, Sparkles, Trophy, Loader2, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
@@ -585,25 +585,297 @@ function LessonModal({ topicName, category, onClose }: { topicName: string; cate
   );
 }
 
-// Practice Modal (Simplified)
+// Practice Modal (Full Implementation)
 function PracticeModal({ topicName, category, onClose }: { topicName: string; category: string; onClose: () => void }) {
+  const [problems, setProblems] = useState<any[]>([]);
+  const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [showHint, setShowHint] = useState(false);
+  const [feedback, setFeedback] = useState<{ isCorrect: boolean; message: string } | null>(null);
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [startTime] = useState(Date.now());
+  const [sessionComplete, setSessionComplete] = useState(false);
+
+  const generateProblemsMutation = trpc.topic.generatePracticeProblems.useMutation();
+  const submitAnswerMutation = trpc.topic.submitPracticeAnswer.useMutation();
+  const completeSessionMutation = trpc.topic.completePracticeSession.useMutation();
+
+  // Generate problems on mount
+  useEffect(() => {
+    generateProblemsMutation.mutate(
+      { topicName, category, count: 10 },
+      {
+        onSuccess: (data) => {
+          setProblems(data.problems);
+        },
+        onError: () => {
+          toast.error('Failed to generate practice problems');
+          onClose();
+        },
+      }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const currentProblem = problems[currentProblemIndex];
+  const isLastProblem = currentProblemIndex === problems.length - 1;
+
+  const handleSubmitAnswer = () => {
+    if (!userAnswer.trim()) {
+      toast.error('Please enter an answer');
+      return;
+    }
+
+    submitAnswerMutation.mutate(
+      {
+        topicName,
+        category,
+        question: currentProblem.question,
+        userAnswer: userAnswer.trim(),
+        correctAnswer: currentProblem.answer,
+        usedHint: showHint,
+      },
+      {
+        onSuccess: (data) => {
+          setFeedback({
+            isCorrect: data.isCorrect,
+            message: data.feedback,
+          });
+          if (data.isCorrect) {
+            setCorrectCount(correctCount + 1);
+          }
+        },
+      }
+    );
+  };
+
+  const handleNextProblem = () => {
+    if (isLastProblem) {
+      // Complete session
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+      completeSessionMutation.mutate(
+        {
+          topicName,
+          category,
+          problemsSolved: problems.length,
+          problemsCorrect: correctCount,
+          hintsUsed,
+          duration,
+        },
+        {
+          onSuccess: (data) => {
+            setSessionComplete(true);
+          },
+        }
+      );
+    } else {
+      setCurrentProblemIndex(currentProblemIndex + 1);
+      setUserAnswer('');
+      setShowHint(false);
+      setFeedback(null);
+    }
+  };
+
+  const handleShowHint = () => {
+    if (!showHint) {
+      setHintsUsed(hintsUsed + 1);
+    }
+    setShowHint(true);
+  };
+
+  if (generateProblemsMutation.isPending) {
+    return (
+      <Dialog open onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl bg-slate-800 border-purple-500/30">
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-12 w-12 animate-spin text-purple-400 mb-4" />
+            <p className="text-gray-300">Generating practice problems...</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (sessionComplete) {
+    const accuracy = Math.round((correctCount / problems.length) * 100);
+    const duration = Math.floor((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+
+    return (
+      <Dialog open onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl bg-slate-800 border-purple-500/30">
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-purple-400">🎉 Practice Complete!</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6 py-6">
+            <div className="text-center">
+              <div className="text-6xl font-bold text-purple-400 mb-2">{accuracy}%</div>
+              <p className="text-gray-300">Accuracy</p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="p-4 bg-slate-900/50 rounded-lg">
+                <div className="text-2xl font-bold text-green-400">{correctCount}</div>
+                <p className="text-sm text-gray-400">Correct</p>
+              </div>
+              <div className="p-4 bg-slate-900/50 rounded-lg">
+                <div className="text-2xl font-bold text-orange-400">{problems.length - correctCount}</div>
+                <p className="text-sm text-gray-400">Incorrect</p>
+              </div>
+              <div className="p-4 bg-slate-900/50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-400">{hintsUsed}</div>
+                <p className="text-sm text-gray-400">Hints Used</p>
+              </div>
+            </div>
+
+            <div className="text-center text-gray-300">
+              <p>Time: {minutes}m {seconds}s</p>
+            </div>
+
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+              <p className="text-purple-300 text-center">
+                {completeSessionMutation.data?.message || 'Great practice session!'}
+              </p>
+            </div>
+
+            <Button onClick={onClose} className="w-full bg-purple-500 hover:bg-purple-600">
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!currentProblem) {
+    return null;
+  }
+
   return (
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-slate-800 border-purple-500/30">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-purple-400">✏️ Practice: {topicName}</DialogTitle>
+          <DialogTitle className="text-2xl text-purple-400 flex items-center justify-between">
+            <span>✏️ Practice: {topicName}</span>
+            <span className="text-sm text-gray-400">
+              Problem {currentProblemIndex + 1} of {problems.length}
+            </span>
+          </DialogTitle>
         </DialogHeader>
-        <div className="text-center py-12">
-          <p className="text-gray-300 mb-4">Practice mode coming soon! This will include:</p>
-          <ul className="text-left max-w-md mx-auto space-y-2 text-gray-400">
-            <li>• 10 interactive practice problems</li>
-            <li>• Instant feedback on answers</li>
-            <li>• Progressive hints system</li>
-            <li>• Timer and accuracy tracking</li>
-          </ul>
-          <Button onClick={onClose} className="mt-6 bg-purple-500 hover:bg-purple-600">
-            Got it!
-          </Button>
+
+        <div className="space-y-6 py-4">
+          {/* Progress Bar */}
+          <div className="w-full bg-slate-700 rounded-full h-2">
+            <div
+              className="bg-purple-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${((currentProblemIndex + 1) / problems.length) * 100}%` }}
+            />
+          </div>
+
+          {/* Question */}
+          <div className="bg-slate-900/50 rounded-lg p-6 border border-slate-700">
+            <p className="text-lg text-white leading-relaxed">{currentProblem.question}</p>
+          </div>
+
+          {/* Answer Input */}
+          {!feedback && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Your Answer:</label>
+                <input
+                  type="text"
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSubmitAnswer()}
+                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  placeholder="Type your answer here..."
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleSubmitAnswer}
+                  disabled={submitAnswerMutation.isPending}
+                  className="flex-1 bg-purple-500 hover:bg-purple-600"
+                >
+                  {submitAnswerMutation.isPending ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking...</>
+                  ) : (
+                    'Submit Answer'
+                  )}
+                </Button>
+                <Button
+                  onClick={handleShowHint}
+                  variant="outline"
+                  className="border-blue-500/50 text-blue-400 hover:bg-blue-500/20"
+                >
+                  💡 {showHint ? 'Hint' : 'Show Hint'}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Hint */}
+          {showHint && !feedback && (
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+              <p className="text-sm font-semibold text-blue-400 mb-1">💡 Hint:</p>
+              <p className="text-blue-300">{currentProblem.hint}</p>
+            </div>
+          )}
+
+          {/* Feedback */}
+          {feedback && (
+            <div className="space-y-4">
+              <div
+                className={`rounded-lg p-4 border ${
+                  feedback.isCorrect
+                    ? 'bg-green-500/10 border-green-500/30'
+                    : 'bg-orange-500/10 border-orange-500/30'
+                }`}
+              >
+                <p
+                  className={`font-semibold mb-2 ${
+                    feedback.isCorrect ? 'text-green-400' : 'text-orange-400'
+                  }`}
+                >
+                  {feedback.isCorrect ? '✅ Correct!' : '❌ Not Quite'}
+                </p>
+                <p className="text-gray-300">{feedback.message}</p>
+              </div>
+
+              {/* Explanation */}
+              <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-4">
+                <p className="text-sm font-semibold text-purple-400 mb-1">📚 Explanation:</p>
+                <p className="text-gray-300">{currentProblem.explanation}</p>
+                {!feedback.isCorrect && (
+                  <p className="text-green-400 mt-2">Correct answer: {currentProblem.answer}</p>
+                )}
+              </div>
+
+              <Button
+                onClick={handleNextProblem}
+                disabled={completeSessionMutation.isPending}
+                className="w-full bg-purple-500 hover:bg-purple-600"
+              >
+                {completeSessionMutation.isPending ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Completing...</>
+                ) : isLastProblem ? (
+                  'Complete Practice Session'
+                ) : (
+                  'Next Problem →'
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Stats */}
+          <div className="flex justify-between text-sm text-gray-400 pt-2 border-t border-slate-700">
+            <span>Correct: {correctCount}/{currentProblemIndex + (feedback ? 1 : 0)}</span>
+            <span>Hints Used: {hintsUsed}</span>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
