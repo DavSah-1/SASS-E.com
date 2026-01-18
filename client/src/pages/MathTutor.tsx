@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { Calculator, CheckCircle2, Lightbulb, TrendingUp, XCircle } from "lucide-react";
+import { Calculator, CheckCircle2, Lightbulb, TrendingUp, XCircle, ChevronDown, ChevronRight, BookOpen, Brain, Sparkles, Trophy } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
@@ -27,6 +27,324 @@ interface Solution {
   explanation: string;
   commonMistakes: string[];
   relatedConcepts: string[];
+}
+
+function MathCurriculumSection() {
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  const mathCategories = [
+    {
+      id: "early-math",
+      title: "Early Math",
+      subtitle: "Pre-K to Grade 2",
+      icon: Sparkles,
+      color: "from-pink-500 to-rose-500",
+      bgColor: "bg-pink-500/10",
+      borderColor: "border-pink-500/30",
+      topics: [
+        "Counting and number recognition",
+        "Comparing numbers (greater than, less than)",
+        "Basic addition and subtraction (within 20)",
+        "Shapes and basic geometry (2D and 3D shapes)",
+        "Patterns and sorting",
+        "Introduction to measurement (length, weight, volume)",
+        "Telling time (hours, half-hours)",
+        "Introduction to money (coins, bills, simple transactions)",
+      ],
+    },
+    {
+      id: "elementary",
+      title: "Elementary Math",
+      subtitle: "Grades 3-5",
+      icon: Calculator,
+      color: "from-blue-500 to-cyan-500",
+      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-500/30",
+      sections: [
+        {
+          name: "Arithmetic & Number Sense",
+          topics: [
+            "Multiplication and division facts",
+            "Multi-digit arithmetic",
+            "Fractions (concepts, equivalence, addition/subtraction)",
+            "Decimals (basics, addition/subtraction)",
+            "Place value (up to millions)",
+            "Rounding and estimation",
+            "Factors and multiples",
+            "Prime and composite numbers",
+          ],
+        },
+        {
+          name: "Geometry",
+          topics: [
+            "Perimeter and area",
+            "Angles and lines (parallel, perpendicular)",
+            "Symmetry",
+            "Coordinate plane introduction",
+          ],
+        },
+        {
+          name: "Measurement & Data",
+          topics: [
+            "Time (elapsed time, conversions)",
+            "Money (making change, word problems)",
+            "Units of measurement (metric and customary)",
+            "Bar graphs, pictographs, line plots",
+            "Introduction to mean, median, mode (basic)",
+          ],
+        },
+      ],
+    },
+    {
+      id: "middle-school",
+      title: "Middle School",
+      subtitle: "Grades 6-8",
+      icon: Brain,
+      color: "from-purple-500 to-pink-500",
+      bgColor: "bg-purple-500/10",
+      borderColor: "border-purple-500/30",
+      sections: [
+        {
+          name: "Pre-Algebra & Number Systems",
+          topics: [
+            "Negative numbers and integers",
+            "Rational numbers (fractions, decimals, percentages)",
+            "Ratios, rates, and proportions",
+            "Exponents and square roots",
+            "Scientific notation",
+            "Order of operations (PEMDAS)",
+          ],
+        },
+        {
+          name: "Algebra Foundations",
+          topics: [
+            "Variables and expressions",
+            "One-step and two-step equations",
+            "Inequalities",
+            "Graphing linear equations (slope, intercepts)",
+            "Functions (basic concepts)",
+          ],
+        },
+        {
+          name: "Geometry",
+          topics: [
+            "Area and volume of 2D/3D shapes",
+            "Pythagorean theorem",
+            "Transformations (translation, rotation, reflection)",
+            "Congruence and similarity",
+            "Angles in polygons",
+          ],
+        },
+        {
+          name: "Probability & Statistics",
+          topics: [
+            "Probability (basic, compound events)",
+            "Data displays (histograms, box plots, scatter plots)",
+            "Measures of central tendency and spread",
+          ],
+        },
+      ],
+    },
+    {
+      id: "high-school",
+      title: "High School",
+      subtitle: "Algebra, Geometry, Calculus",
+      icon: Trophy,
+      color: "from-orange-500 to-red-500",
+      bgColor: "bg-orange-500/10",
+      borderColor: "border-orange-500/30",
+      sections: [
+        {
+          name: "Algebra 1",
+          topics: [
+            "Linear equations and inequalities",
+            "Systems of equations",
+            "Polynomials (operations, factoring)",
+            "Quadratic equations and functions",
+            "Exponential functions",
+            "Radical expressions and equations",
+          ],
+        },
+        {
+          name: "Geometry",
+          topics: [
+            "Formal proofs",
+            "Triangle theorems",
+            "Circles (arcs, chords, sectors)",
+            "Trigonometry basics (right triangles, sine/cosine/tangent)",
+            "3D geometry (surface area, volume)",
+          ],
+        },
+        {
+          name: "Algebra 2 / Advanced Algebra",
+          topics: [
+            "Complex numbers",
+            "Matrices and determinants",
+            "Logarithms",
+            "Sequences and series (arithmetic, geometric)",
+            "Rational functions",
+            "Conic sections",
+          ],
+        },
+        {
+          name: "Pre-Calculus",
+          topics: [
+            "Trigonometry (unit circle, identities, equations)",
+            "Vectors",
+            "Polar coordinates",
+            "Limits and continuity (introduction)",
+            "Introduction to derivatives (optional, as bridge to calculus)",
+          ],
+        },
+        {
+          name: "Calculus",
+          topics: [
+            "Limits and continuity",
+            "Derivatives (rules, applications)",
+            "Integrals (definite/indefinite, applications)",
+            "Differential equations (basics)",
+          ],
+        },
+        {
+          name: "Statistics & Probability",
+          topics: [
+            "Probability distributions (binomial, normal)",
+            "Sampling and experimental design",
+            "Hypothesis testing",
+            "Regression and correlation",
+          ],
+        },
+      ],
+    },
+    {
+      id: "advanced",
+      title: "Advanced Topics",
+      subtitle: "College & Enrichment",
+      icon: Lightbulb,
+      color: "from-green-500 to-emerald-500",
+      bgColor: "bg-green-500/10",
+      borderColor: "border-green-500/30",
+      sections: [
+        {
+          name: "For Enrichment & Higher Ed Prep",
+          topics: [
+            "Discrete math (logic, sets, combinatorics)",
+            "Linear algebra (vectors, matrices, linear transformations)",
+            "Number theory basics",
+            "Financial math (interest, loans, investments)",
+            "Game theory basics",
+            "Math puzzles and problem-solving strategies",
+          ],
+        },
+        {
+          name: "Applied Math",
+          topics: [
+            "Math for data science (statistics, visualizations)",
+            "Math for programming (algorithms, complexity)",
+            "Math for physics/engineering (vectors, calculus applications)",
+          ],
+        },
+      ],
+    },
+    {
+      id: "supplemental",
+      title: "Supplemental Features",
+      subtitle: "Resources & Exam Prep",
+      icon: BookOpen,
+      color: "from-yellow-500 to-amber-500",
+      bgColor: "bg-yellow-500/10",
+      borderColor: "border-yellow-500/30",
+      topics: [
+        "Math vocabulary / glossary",
+        "Real-world applications (word problems, project-based learning)",
+        "Math history (key mathematicians, discoveries)",
+        "Exam prep (SAT, ACT, AP, GCSE, IB, etc.)",
+        "Mental math & estimation techniques",
+        "Common misconceptions & error analysis",
+      ],
+    },
+  ];
+
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
+  };
+
+  return (
+    <div className="space-y-4">
+      {mathCategories.map((category) => {
+        const IconComponent = category.icon;
+        const isExpanded = expandedCategory === category.id;
+
+        return (
+          <Card key={category.id} className="bg-slate-800/50 border-slate-700 overflow-hidden">
+            <CardHeader
+              className="cursor-pointer hover:bg-slate-700/30 transition-colors"
+              onClick={() => toggleCategory(category.id)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-xl ${category.bgColor} border ${category.borderColor}`}>
+                    <IconComponent className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className={`text-xl sm:text-2xl bg-gradient-to-r ${category.color} bg-clip-text text-transparent`}>
+                      {category.title}
+                    </CardTitle>
+                    <CardDescription className="text-gray-400">{category.subtitle}</CardDescription>
+                  </div>
+                </div>
+                {isExpanded ? (
+                  <ChevronDown className="h-6 w-6 text-gray-400" />
+                ) : (
+                  <ChevronRight className="h-6 w-6 text-gray-400" />
+                )}
+              </div>
+            </CardHeader>
+
+            {isExpanded && (
+              <CardContent className="pt-0">
+                {"sections" in category && category.sections ? (
+                  <div className="space-y-6">
+                    {category.sections.map((section, idx) => (
+                      <div key={idx} className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+                        <h4 className="font-bold text-white mb-3 flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-blue-400" />
+                          {section.name}
+                        </h4>
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {section.topics.map((topic, topicIdx) => (
+                            <li
+                              key={topicIdx}
+                              className="flex items-start gap-2 text-sm text-gray-300 p-2 hover:bg-slate-800/50 rounded transition-colors"
+                            >
+                              <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                              <span>{topic}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {category.topics.map((topic, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-start gap-2 text-sm text-gray-300 p-3 bg-slate-900/50 rounded hover:bg-slate-800/50 transition-colors"
+                      >
+                        <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                        <span>{topic}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function MathTutor() {
@@ -556,6 +874,20 @@ export default function MathTutor() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Comprehensive Math Curriculum */}
+        <div className="mt-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-4">
+            <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 bg-clip-text text-transparent">
+              Comprehensive Math Curriculum
+            </span>
+          </h2>
+          <p className="text-center text-gray-400 mb-8 max-w-2xl mx-auto">
+            Explore our complete math curriculum from Pre-K to College level, covering all essential topics
+          </p>
+
+          <MathCurriculumSection />
         </div>
       </div>
       <Footer />
