@@ -174,8 +174,9 @@ export default function DebtCoach() {
         <div className="mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-                💰 Debt Elimination Coach
+              <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                <span className="text-4xl md:text-5xl">💰</span>{" "}
+                <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">Debt Elimination Coach</span>
               </h1>
               <p className="text-slate-300">
                 Your journey to financial freedom, guided by SASS-E

@@ -199,8 +199,9 @@ export default function Wellness() {
             <div className="inline-block mb-4 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full">
               <span className="text-cyan-400 font-semibold text-sm">HOLISTIC HEALTH & FITNESS</span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent">
-              💪 Wellness Hub
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              <span className="text-6xl md:text-7xl">💪</span>{" "}
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent">Wellness Hub</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
               Transform your health with comprehensive fitness tracking, smart nutrition tools, mental wellness support, and AI-powered coaching
@@ -591,8 +592,9 @@ export default function Wellness() {
               WELLNESS HUB
             </Badge>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">
-            💪 Wellness Dashboard
+          <h1 className="text-4xl sm:text-5xl font-bold mb-3">
+            <span className="text-5xl sm:text-6xl">💪</span>{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">Wellness Dashboard</span>
           </h1>
           <p className="text-lg text-slate-300 max-w-2xl mx-auto">
             Track your fitness, nutrition, mental health, and overall wellness in one comprehensive hub

@@ -198,8 +198,9 @@ export default function Money() {
             <div className="inline-block mb-4 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full">
               <span className="text-green-400 font-semibold text-sm">AI-POWERED FINANCIAL MANAGEMENT</span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-green-400 via-emerald-500 to-purple-400 bg-clip-text text-transparent">
-              💰 Money Hub
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              <span className="text-6xl md:text-7xl">💰</span>{" "}
+              <span className="bg-gradient-to-r from-green-400 via-emerald-500 to-purple-400 bg-clip-text text-transparent">Money Hub</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
               Take control of your financial future with intelligent budgeting, debt management, and goal tracking—all powered by AI
@@ -463,8 +464,9 @@ export default function Money() {
       <div className="container mx-auto py-8 px-4 max-w-7xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-green-400 via-emerald-500 to-purple-400 bg-clip-text text-transparent" style={{height: '50px'}}>
-            💰 Money Hub
+          <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{height: '50px'}}>
+            <span className="text-4xl md:text-5xl">💰</span>{" "}
+            <span className="bg-gradient-to-r from-green-400 via-emerald-500 to-purple-400 bg-clip-text text-transparent">Money Hub</span>
           </h1>
           <p className="text-slate-300">
             Your complete financial command center

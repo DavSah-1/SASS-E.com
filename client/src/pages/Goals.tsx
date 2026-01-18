@@ -204,8 +204,9 @@ export default function Goals() {
         <div className="mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-                🎯 Financial Goals
+              <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                <span className="text-4xl md:text-5xl">🎯</span>{" "}
+                <span className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">Financial Goals</span>
               </h1>
               <p className="text-slate-300">
                 Set targets, track progress, celebrate milestones

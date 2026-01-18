@@ -172,8 +172,9 @@ export default function Learning() {
             <div className="inline-block mb-4 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full">
               <span className="text-purple-400 font-semibold text-sm">AI-POWERED VERIFIED LEARNING</span>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent">
-              📚 Learning Hub
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              <span className="text-6xl md:text-7xl">📚</span>{" "}
+              <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent">Learning Hub</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
               Master any subject with AI-powered explanations, fact-checked content, personalized study guides, and interactive quizzes
