@@ -3445,9 +3445,9 @@ export async function addConversationParticipant(
   }
 
   const insertResult = await db.insert(translateConversationParticipants).values({
-    conversationId,
-    userId,
-    preferredLanguage,
+    conversationId: conversationId as number,
+    userId: userId as number,
+    preferredLanguage: preferredLanguage as string,
   });
 
   return (insertResult as any).insertId as number;
