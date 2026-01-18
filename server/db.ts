@@ -3335,3 +3335,297 @@ export async function getPracticeSessions(userId: number, topicName: string, cat
 
   return results;
 }
+
+// ========================================
+// Translate Conversation Functions
+// ========================================
+
+import {
+  translateConversations,
+  translateConversationParticipants,
+  translateMessages,
+  translateMessageTranslations,
+  type InsertTranslateConversation,
+  type InsertTranslateConversationParticipant,
+  type InsertTranslateMessage,
+  type InsertTranslateMessageTranslation,
+} from "../drizzle/schema";
+
+/**
+ * Generate a unique shareable code for a conversation
+ */
+function generateShareableCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let code = '';
+  for (let i = 0; i < 12; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+/**
+ * Create a new translate conversation
+ */
+export async function createTranslateConversation(creatorId: number, title?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const shareableCode = generateShareableCode();
+  
+  const insertResult = await db.insert(translateConversations).values({
+    shareableCode,
+    creatorId,
+    title: title || null,
+    isActive: 1,
+    expiresAt: null,
+  });
+
+  const conversationId = (insertResult as any).insertId as number;
+  
+  return { conversationId, shareableCode };
+}
+
+/**
+ * Get conversation by shareable code
+ */
+export async function getConversationByCode(shareableCode: string) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const results = await db
+    .select()
+    .from(translateConversations)
+    .where(eq(translateConversations.shareableCode, shareableCode))
+    .limit(1);
+
+  return results.length > 0 ? results[0] : null;
+}
+
+/**
+ * Get conversation by ID
+ */
+export async function getConversationById(conversationId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const results = await db
+    .select()
+    .from(translateConversations)
+    .where(eq(translateConversations.id, conversationId))
+    .limit(1);
+
+  return results.length > 0 ? results[0] : null;
+}
+
+/**
+ * Add participant to conversation
+ */
+export async function addConversationParticipant(
+  conversationId: number,
+  userId: number,
+  preferredLanguage: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if already a participant
+  const existing = await db
+    .select()
+    .from(translateConversationParticipants)
+    .where(
+      and(
+        eq(translateConversationParticipants.conversationId, conversationId),
+        eq(translateConversationParticipants.userId, userId)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    return existing[0].id;
+  }
+
+  const insertResult = await db.insert(translateConversationParticipants).values({
+    conversationId,
+    userId,
+    preferredLanguage,
+  });
+
+  return (insertResult as any).insertId as number;
+}
+
+/**
+ * Get conversation participants
+ */
+export async function getConversationParticipants(conversationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .select()
+    .from(translateConversationParticipants)
+    .where(eq(translateConversationParticipants.conversationId, conversationId))
+    .orderBy(translateConversationParticipants.joinedAt);
+
+  return results;
+}
+
+/**
+ * Check if user is participant
+ */
+export async function isUserParticipant(conversationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  const results = await db
+    .select()
+    .from(translateConversationParticipants)
+    .where(
+      and(
+        eq(translateConversationParticipants.conversationId, conversationId),
+        eq(translateConversationParticipants.userId, userId)
+      )
+    )
+    .limit(1);
+
+  return results.length > 0;
+}
+
+/**
+ * Save a message
+ */
+export async function saveTranslateMessage(
+  conversationId: number,
+  senderId: number,
+  originalText: string,
+  originalLanguage: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const insertResult = await db.insert(translateMessages).values({
+    conversationId,
+    senderId,
+    originalText,
+    originalLanguage,
+  });
+
+  return (insertResult as any).insertId as number;
+}
+
+/**
+ * Get messages for a translate conversation
+ */
+export async function getTranslateConversationMessages(conversationId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .select()
+    .from(translateMessages)
+    .where(eq(translateMessages.conversationId, conversationId))
+    .orderBy(desc(translateMessages.createdAt))
+    .limit(limit);
+
+  return results.reverse(); // Return in chronological order
+}
+
+/**
+ * Save message translation
+ */
+export async function saveMessageTranslation(
+  messageId: number,
+  userId: number,
+  translatedText: string,
+  targetLanguage: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if translation already exists
+  const existing = await db
+    .select()
+    .from(translateMessageTranslations)
+    .where(
+      and(
+        eq(translateMessageTranslations.messageId, messageId),
+        eq(translateMessageTranslations.userId, userId)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    return existing[0].id;
+  }
+
+  const insertResult = await db.insert(translateMessageTranslations).values({
+    messageId,
+    userId,
+    translatedText,
+    targetLanguage,
+  });
+
+  return (insertResult as any).insertId as number;
+}
+
+/**
+ * Get message translation for user
+ */
+export async function getMessageTranslation(messageId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const results = await db
+    .select()
+    .from(translateMessageTranslations)
+    .where(
+      and(
+        eq(translateMessageTranslations.messageId, messageId),
+        eq(translateMessageTranslations.userId, userId)
+      )
+    )
+    .limit(1);
+
+  return results.length > 0 ? results[0] : null;
+}
+
+/**
+ * Get user's translate conversations
+ */
+export async function getUserTranslateConversations(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const results = await db
+    .select({
+      conversation: translateConversations,
+      participant: translateConversationParticipants,
+    })
+    .from(translateConversationParticipants)
+    .innerJoin(
+      translateConversations,
+      eq(translateConversationParticipants.conversationId, translateConversations.id)
+    )
+    .where(eq(translateConversationParticipants.userId, userId))
+    .orderBy(desc(translateConversations.updatedAt));
+
+  return results.map(r => r.conversation);
+}
+
+/**
+ * Remove participant from conversation
+ */
+export async function removeConversationParticipant(conversationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .delete(translateConversationParticipants)
+    .where(
+      and(
+        eq(translateConversationParticipants.conversationId, conversationId),
+        eq(translateConversationParticipants.userId, userId)
+      )
+    );
+
+  return true;
+}

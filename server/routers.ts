@@ -18,6 +18,7 @@ import { scienceRouter } from "./scienceRouter";
 import { wellbeingRouter } from "./wellbeingRouter";
 import { wearableRouter } from "./wearableRouter";
 import { topicRouter } from "./topicRouter";
+import { translateChatRouter } from "./translateChatRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -30,6 +31,7 @@ export const appRouter = router({
   wellbeing: wellbeingRouter,
   wearable: wearableRouter,
   topic: topicRouter,
+  translateChat: translateChatRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

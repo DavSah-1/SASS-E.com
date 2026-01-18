@@ -1668,3 +1668,64 @@ export const practiceSessions = mysqlTable("practice_sessions", {
 
 export type PracticeSession = typeof practiceSessions.$inferSelect;
 export type InsertPracticeSession = typeof practiceSessions.$inferInsert;
+
+/**
+ * Translate Conversations - Shareable multilingual chat rooms
+ */
+export const translateConversations = mysqlTable("translate_conversations", {
+  id: int("id").autoincrement().primaryKey(),
+  shareableCode: varchar("shareableCode", { length: 64 }).notNull().unique(),
+  creatorId: int("creatorId").notNull(),
+  title: varchar("title", { length: 255 }),
+  isActive: int("isActive").default(1).notNull(), // 1=active, 0=disabled
+  expiresAt: timestamp("expiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TranslateConversation = typeof translateConversations.$inferSelect;
+export type InsertTranslateConversation = typeof translateConversations.$inferInsert;
+
+/**
+ * Translate Conversation Participants - Users in each conversation with their language preferences
+ */
+export const translateConversationParticipants = mysqlTable("translate_conversation_participants", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  userId: int("userId").notNull(),
+  preferredLanguage: varchar("preferredLanguage", { length: 10 }).notNull(), // ISO language code
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+});
+
+export type TranslateConversationParticipant = typeof translateConversationParticipants.$inferSelect;
+export type InsertTranslateConversationParticipant = typeof translateConversationParticipants.$inferInsert;
+
+/**
+ * Translate Messages - Original messages sent in translate conversations
+ */
+export const translateMessages = mysqlTable("translate_messages", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  senderId: int("senderId").notNull(),
+  originalText: text("originalText").notNull(),
+  originalLanguage: varchar("originalLanguage", { length: 10 }).notNull(), // ISO language code
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TranslateMessage = typeof translateMessages.$inferSelect;
+export type InsertTranslateMessage = typeof translateMessages.$inferInsert;
+
+/**
+ * Translate Message Translations - Cached translations for each user
+ */
+export const translateMessageTranslations = mysqlTable("translate_message_translations", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId").notNull(),
+  userId: int("userId").notNull(),
+  translatedText: text("translatedText").notNull(),
+  targetLanguage: varchar("targetLanguage", { length: 10 }).notNull(), // ISO language code
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TranslateMessageTranslation = typeof translateMessageTranslations.$inferSelect;
+export type InsertTranslateMessageTranslation = typeof translateMessageTranslations.$inferInsert;

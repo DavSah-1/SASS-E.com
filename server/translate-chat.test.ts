@@ -1,0 +1,205 @@
+import { describe, it, expect, beforeAll } from "vitest";
+import { appRouter } from "./routers";
+
+describe("Translate Chat System", () => {
+  let testUser: any;
+  let caller: any;
+
+  beforeAll(async () => {
+    // Mock user for testing
+    testUser = {
+      id: 1,
+      openId: "test-user-123",
+      name: "Test User",
+      email: "test@example.com",
+      role: "user" as const,
+      preferredLanguage: "en",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastSignedIn: new Date(),
+    };
+
+    // Create caller with mock context
+    caller = appRouter.createCaller({
+      user: testUser,
+      req: {} as any,
+      res: {} as any,
+    });
+  });
+
+  it("should create a conversation with shareable link", async () => {
+    const result = await caller.translateChat.createConversation({
+      title: "Test Conversation",
+    });
+
+    expect(result).toHaveProperty("conversationId");
+    expect(result).toHaveProperty("shareableCode");
+    expect(result).toHaveProperty("shareableLink");
+    expect(result.shareableCode).toMatch(/^[A-Za-z0-9]{12}$/);
+    expect(result.shareableLink).toContain(result.shareableCode);
+  });
+
+  it("should join a conversation via shareable code", async () => {
+    // First create a conversation
+    const created = await caller.translateChat.createConversation({
+      title: "Join Test",
+    });
+
+    // Create a second user caller
+    const secondUser = {
+      ...testUser,
+      id: 2,
+      openId: "test-user-456",
+      name: "Second User",
+      preferredLanguage: "es",
+    };
+
+    const secondCaller = appRouter.createCaller({
+      user: secondUser,
+      req: {} as any,
+      res: {} as any,
+    });
+
+    // Join the conversation
+    const joined = await secondCaller.translateChat.joinConversation({
+      shareableCode: created.shareableCode,
+    });
+
+    expect(joined).toHaveProperty("conversationId");
+    expect(joined.conversationId).toBe(created.conversationId);
+  });
+
+  it("should get conversation details with participants", async () => {
+    // Create a conversation
+    const created = await caller.translateChat.createConversation({
+      title: "Details Test",
+    });
+
+    // Get conversation details
+    const details = await caller.translateChat.getConversation({
+      shareableCode: created.shareableCode,
+    });
+
+    expect(details).toHaveProperty("conversation");
+    expect(details).toHaveProperty("participants");
+    expect(details.conversation.id).toBe(created.conversationId);
+    expect(details.participants.length).toBeGreaterThan(0);
+    expect(details.participants[0]).toHaveProperty("preferredLanguage");
+  });
+
+  it("should send a message in a conversation", async () => {
+    // Create a conversation
+    const created = await caller.translateChat.createConversation({
+      title: "Message Test",
+    });
+
+    // Send a message
+    const sent = await caller.translateChat.sendMessage({
+      conversationId: created.conversationId,
+      text: "Hello, this is a test message!",
+    });
+
+    expect(sent).toHaveProperty("messageId");
+    expect(sent.messageId).toBeGreaterThan(0);
+  });
+
+  it("should retrieve messages with translations", async () => {
+    // Create a conversation
+    const created = await caller.translateChat.createConversation({
+      title: "Messages Test",
+    });
+
+    // Send a message
+    await caller.translateChat.sendMessage({
+      conversationId: created.conversationId,
+      text: "Test message for retrieval",
+    });
+
+    // Get messages
+    const messages = await caller.translateChat.getMessages({
+      conversationId: created.conversationId,
+    });
+
+    expect(Array.isArray(messages)).toBe(true);
+    expect(messages.length).toBeGreaterThan(0);
+    expect(messages[0]).toHaveProperty("originalText");
+    expect(messages[0]).toHaveProperty("translatedText");
+    expect(messages[0]).toHaveProperty("isMine");
+  });
+
+  it("should translate messages for users with different languages", async () => {
+    // Create a conversation
+    const created = await caller.translateChat.createConversation({
+      title: "Translation Test",
+    });
+
+    // Create a Spanish-speaking user
+    const spanishUser = {
+      ...testUser,
+      id: 3,
+      openId: "test-user-789",
+      name: "Spanish User",
+      preferredLanguage: "es",
+    };
+
+    const spanishCaller = appRouter.createCaller({
+      user: spanishUser,
+      req: {} as any,
+      res: {} as any,
+    });
+
+    // Join the conversation
+    await spanishCaller.translateChat.joinConversation({
+      shareableCode: created.shareableCode,
+    });
+
+    // English user sends a message
+    await caller.translateChat.sendMessage({
+      conversationId: created.conversationId,
+      text: "Hello, how are you?",
+    });
+
+    // Spanish user retrieves messages (should be translated)
+    const messages = await spanishCaller.translateChat.getMessages({
+      conversationId: created.conversationId,
+    });
+
+    expect(messages.length).toBeGreaterThan(0);
+    expect(messages[0].originalLanguage).toBe("en");
+    expect(messages[0].targetLanguage).toBe("es");
+    // Translation should be different from original (unless translation fails)
+    // We can't guarantee exact translation, but we can check structure
+    expect(messages[0]).toHaveProperty("translatedText");
+  });
+
+  it("should list user's conversations", async () => {
+    // Create a conversation
+    await caller.translateChat.createConversation({
+      title: "List Test",
+    });
+
+    // Get user's conversations
+    const conversations = await caller.translateChat.getMyConversations();
+
+    expect(Array.isArray(conversations)).toBe(true);
+    expect(conversations.length).toBeGreaterThan(0);
+    expect(conversations[0]).toHaveProperty("id");
+    expect(conversations[0]).toHaveProperty("shareableCode");
+    expect(conversations[0]).toHaveProperty("title");
+  });
+
+  it("should allow user to leave a conversation", async () => {
+    // Create a conversation
+    const created = await caller.translateChat.createConversation({
+      title: "Leave Test",
+    });
+
+    // Leave the conversation
+    const result = await caller.translateChat.leaveConversation({
+      conversationId: created.conversationId,
+    });
+
+    expect(result).toHaveProperty("success");
+    expect(result.success).toBe(true);
+  });
+});

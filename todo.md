@@ -2362,3 +2362,44 @@
 - [x] Tag each topic with its subject area
 - [x] Replace topics dropdown with subject areas dropdown
 - [x] Update filter logic to filter by subject area
+
+## Implement Shareable Link-Based Multilingual Messaging System
+### Database Schema
+- [x] Create conversations table (id, shareableCode, creatorId, title, isActive, expiresAt, createdAt)
+- [x] Create conversationParticipants table (conversationId, userId, joinedAt, preferredLanguage)
+- [x] Create messages table (id, conversationId, senderId, originalText, originalLanguage, createdAt)
+- [x] Create messageTranslations table (messageId, userId, translatedText, targetLanguage)
+- [x] Push schema changes to database
+
+### Backend API
+- [x] Add createConversation endpoint (generate unique shareable code, return link)
+- [x] Add joinConversation endpoint (validate code, add user as participant)
+- [x] Add getConversation endpoint (get conversation details and participants)
+- [x] Add sendMessage endpoint (save original message, trigger translations for all participants)
+- [x] Add getMessages endpoint (retrieve messages with translations for current user)
+- [x] Add translateMessage endpoint (translate message to user's preferred language)
+- [x] Add getConversationsByUser endpoint (list user's active conversations)
+- [x] Add leaveConversation endpoint (remove user from participants)
+- [x] Add database helper functions for conversations and messages
+
+### Frontend Features
+- [x] Create TranslateChat page (/translate-chat)
+- [x] Add "Create Conversation" button that generates shareable link
+- [x] Add link copying functionality with toast notification
+- [x] Create conversation list view showing active chats
+- [x] Build chat interface with message bubbles (sent/received styling)
+- [x] Add message input with send button
+- [x] Display original language indicator on each message
+- [x] Add "View Original" toggle to show untranslated text
+- [x] Implement auto-refresh/polling for new messages (every 3-5 seconds)
+- [x] Add conversation join page (/translate-chat/:code)
+- [x] Show participant list with their languages
+- [x] Add empty state for no conversations
+- [x] Add loading states and error handling
+
+### Testing
+- [x] Write vitest tests for conversation creation and joining
+- [x] Test message sending and translation
+- [x] Test multi-user scenarios with different languages
+- [ ] Fix function name conflicts in db.ts (duplicate function names with language learning)
+- [ ] Run all tests and ensure they pass (pending conflict resolution)
