@@ -2229,3 +2229,9 @@
 - [x] Position above STEM category
 - [x] Match styling from Learning page
 - [x] Test responsive layout
+
+## Remove Redundant Categories from Specialized Learning
+- [x] Remove STEM category (covered by Math Tutor and Science Lab featured cards)
+- [x] Remove Languages category (covered by Language Learning featured card)
+- [x] Keep Business & Finance, Technology, Humanities, and Creative Arts categories
+- [x] Test page layout after removal

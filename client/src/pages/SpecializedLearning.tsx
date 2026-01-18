@@ -27,34 +27,6 @@ export default function SpecializedLearning() {
 
   const learningPaths = [
     {
-      category: "STEM",
-      emoji: "🔬",
-      icon: Microscope,
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "bg-blue-500/10",
-      borderColor: "border-blue-500/30",
-      paths: [
-        { title: "Physics", topics: ["Mechanics", "Thermodynamics", "Quantum Physics"], icon: Atom },
-        { title: "Chemistry", topics: ["Organic Chemistry", "Biochemistry", "Physical Chemistry"], icon: Microscope },
-        { title: "Biology", topics: ["Cell Biology", "Genetics", "Ecology"], icon: Heart },
-        { title: "Mathematics", topics: ["Calculus", "Linear Algebra", "Statistics"], icon: Calculator },
-      ],
-    },
-    {
-      category: "Languages",
-      emoji: "🌍",
-      icon: Languages,
-      color: "from-green-500 to-emerald-500",
-      bgColor: "bg-green-500/10",
-      borderColor: "border-green-500/30",
-      paths: [
-        { title: "Spanish", topics: ["Grammar", "Conversation", "Business Spanish"], icon: Globe },
-        { title: "French", topics: ["Pronunciation", "Writing", "Literature"], icon: Globe },
-        { title: "Mandarin", topics: ["Characters", "Tones", "Culture"], icon: Globe },
-        { title: "Japanese", topics: ["Hiragana/Katakana", "Kanji", "Conversation"], icon: Globe },
-      ],
-    },
-    {
       category: "Business & Finance",
       emoji: "📊",
       icon: TrendingUp,
