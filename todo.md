@@ -2552,3 +2552,9 @@
 - [x] Fix tRPC translation API returning HTML instead of JSON error
 - [x] Added safety check to prevent API calls before tRPC client is ready
 - [x] Verified translation endpoint is accessible and working
+
+
+## URGENT Bug Fixes (Current)
+- [ ] Fix broken navbar links
+- [ ] Fix translation system not working
+- [ ] Test all functionality after fixes
