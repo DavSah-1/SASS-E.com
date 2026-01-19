@@ -553,7 +553,7 @@ export default function Money() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-slate-400">Debts Cleared</p>
+                    <p className="text-slate-400">{t("Debts Cleared")}</p>
                     <p className="font-semibold text-white">
                       {debtSummary?.debtsPaidOff || 0} of {(debtSummary?.totalDebts || 0) + (debtSummary?.debtsPaidOff || 0)}
                     </p>
@@ -568,14 +568,14 @@ export default function Money() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
-                    Income
+                    {t("Income")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-400">
                     {monthlySummary ? formatCurrency(monthlySummary.totalIncome) : "$0.00"}
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">This month</p>
+                  <p className="text-xs text-slate-500 mt-1">{t("This month")}</p>
                 </CardContent>
               </Card>
 
@@ -583,14 +583,14 @@ export default function Money() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
                     <TrendingDown className="h-4 w-4" />
-                    Expenses
+                    {t("Expenses")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-red-400">
                     {monthlySummary ? formatCurrency(monthlySummary.totalExpenses) : "$0.00"}
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">This month</p>
+                  <p className="text-xs text-slate-500 mt-1">{t("This month")}</p>
                 </CardContent>
               </Card>
 
@@ -598,14 +598,14 @@ export default function Money() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
                     <DebtIcon className="h-4 w-4" />
-                    Debt Payments
+                    {t("Debt Payments")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-purple-400">
                     {monthlySummary ? formatCurrency(monthlySummary.totalDebtPayments) : "$0.00"}
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">This month</p>
+                  <p className="text-xs text-slate-500 mt-1">{t("This month")}</p>
                 </CardContent>
               </Card>
 
@@ -613,14 +613,14 @@ export default function Money() {
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
                     <PiggyBank className="h-4 w-4" />
-                    Net Cash Flow
+                    {t("Net Cash Flow")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className={`text-2xl font-bold ${monthlySummary?.netCashFlow && monthlySummary.netCashFlow >= 0 ? "text-green-400" : "text-red-400"}`}>
                     {monthlySummary ? formatCurrency(monthlySummary.netCashFlow) : "$0.00"}
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">Available</p>
+                  <p className="text-xs text-slate-500 mt-1">{t("Available")}</p>
                 </CardContent>
               </Card>
             </div>
@@ -631,43 +631,43 @@ export default function Money() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-white">
                     <ArrowRight className="h-5 w-5" />
-                    Debt Acceleration Opportunity
+                    {t("Debt Acceleration Opportunity")}
                   </CardTitle>
                   <CardDescription className="text-slate-300">
-                    You have extra funds available this month!
+                    {t("You have extra funds available this month!")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <p className="text-sm text-slate-400 mb-1">Available This Month</p>
+                      <p className="text-sm text-slate-400 mb-1">{t("Available This Month")}</p>
                       <p className="text-3xl font-bold text-green-400">
                         {formatCurrency(availableForDebt.availableForExtraPayments)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-400 mb-1">Recommended Extra Payment</p>
+                      <p className="text-sm text-slate-400 mb-1">{t("Recommended Extra Payment")}</p>
                       <p className="text-3xl font-bold text-purple-400">
                         {formatCurrency(availableForDebt.recommendedExtraPayment)}
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">50% of available (save the rest!)</p>
+                      <p className="text-xs text-slate-500 mt-1">{t("50% of available (save the rest!)")}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-400 mb-1">Projected Debt-Free</p>
+                      <p className="text-sm text-slate-400 mb-1">{t("Projected Debt-Free")}</p>
                       <p className="text-3xl font-bold text-blue-400">
                         {availableForDebt.projectedMonthsToDebtFree} months
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">With recommended payments</p>
+                      <p className="text-xs text-slate-500 mt-1">{t("With recommended payments")}</p>
                     </div>
                   </div>
                   <div className="mt-6 flex gap-3">
                     <Button onClick={() => setActiveTab("debts")} className="gap-2">
                       <ArrowRight className="h-4 w-4" />
-                      Log Extra Payment
+                      {t("Log Extra Payment")}
                     </Button>
                     <Button onClick={() => setActiveTab("budget")} variant="outline" className="gap-2">
                       <Wallet className="h-4 w-4" />
-                      Review Budget
+                      {t("Review Budget")}
                     </Button>
                   </div>
                 </CardContent>
@@ -712,7 +712,7 @@ export default function Money() {
                     <div>
                       <CardTitle className="text-white flex items-center gap-2">
                         <Target className="h-5 w-5" />
-                        Financial Goals
+                        {t("Financial Goals")}
                       </CardTitle>
                       <CardDescription>
                         {goals.filter(g => g.status === 'active').length} active goal{goals.filter(g => g.status === 'active').length !== 1 ? 's' : ''} in progress
@@ -741,7 +741,7 @@ export default function Money() {
                           </div>
                           <div className="space-y-2">
                             <div className="flex justify-between text-sm">
-                              <span className="text-slate-400">Progress</span>
+                              <span className="text-slate-400">{t("Progress")}</span>
                               <span className={`font-semibold ${isNearTarget ? 'text-green-400' : 'text-purple-400'}`}>
                                 {progress.toFixed(0)}%
                               </span>
@@ -764,7 +764,7 @@ export default function Money() {
                             {goal.targetDate && (
                               <div className="flex items-center gap-1 text-xs text-slate-400 mt-2">
                                 <Calendar className="h-3 w-3" />
-                                <span>Target: {new Date(goal.targetDate).toLocaleDateString()}</span>
+                                <span>{t("Target")}: {new Date(goal.targetDate).toLocaleDateString()}</span>
                               </div>
                             )}
                           </div>
