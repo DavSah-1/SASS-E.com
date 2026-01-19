@@ -2519,5 +2519,8 @@
 - [x] Revert to original LanguageContext
 - [x] Add translate() function to LanguageContext (returns original text for now)
 - [x] Update all pages to use translate() function
-- [ ] Implement AI translation in translate() function
-- [ ] Test language switching triggers translations
+- [x] Add hardcoded test translations to verify mechanism works
+- [x] Test translation works when language is changed (French & Spanish working!)
+- [x] Verify language selector works in navbar
+- [ ] Add AI translation for all other strings
+- [ ] Test AI translation with real API calls

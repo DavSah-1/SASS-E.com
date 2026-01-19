@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { Language, getTranslations, Translations, detectBrowserLanguage } from '@/lib/i18n';
 import { trpc } from '@/lib/trpc';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -14,6 +14,7 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
+  console.log('[LanguageProvider] Initializing...');
   const { user, isAuthenticated } = useAuth();
   const [language, setLanguageState] = useState<Language>('en');
   const [isLoading, setIsLoading] = useState(true);
@@ -55,12 +56,61 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = getTranslations(language);
+  const translationCache = useRef<Map<string, Map<string, string>>>(new Map());
+  const [, forceUpdate] = useState(0);
   
-  // Simple translate function that just returns the original text for now
-  // This maintains compatibility with pages that use t("text") syntax
+  // Load cache from localStorage on mount
+  useEffect(() => {
+    const cached = localStorage.getItem('translationCache');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        translationCache.current = new Map(Object.entries(parsed).map(([lang, texts]) => 
+          [lang, new Map(Object.entries(texts as Record<string, string>))]
+        ));
+      } catch (e) {
+        console.error('Failed to load translation cache:', e);
+      }
+    }
+  }, []);
+  
+  // Save cache to localStorage when it changes
+  const saveCache = () => {
+    const cacheObj: Record<string, Record<string, string>> = {};
+    translationCache.current.forEach((texts, lang) => {
+      cacheObj[lang] = Object.fromEntries(texts);
+    });
+    localStorage.setItem('translationCache', JSON.stringify(cacheObj));
+  };
+  
   const translate = (text: string): string => {
-    // For now, just return the original text
-    // In the future, this can be enhanced with AI translation
+    // Hardcoded test translations to verify the mechanism works
+    const testTranslations: Record<string, Record<string, string>> = {
+      'fr': {
+        'Meet SASS-E': 'Rencontrez SASS-E',
+        'Your intelligent AI assistant. Advanced, adaptive, and always ready to help.': 'Votre assistant IA intelligent. Avancé, adaptatif et toujours prêt à aider.',
+        'Start Voice Chat': 'Démarrer le chat vocal',
+        'Money Hub': 'Centre financier',
+      },
+      'es': {
+        'Meet SASS-E': 'Conoce a SASS-E',
+        'Your intelligent AI assistant. Advanced, adaptive, and always ready to help.': 'Tu asistente de IA inteligente. Avanzado, adaptable y siempre listo para ayudar.',
+        'Start Voice Chat': 'Iniciar chat de voz',
+        'Money Hub': 'Centro de dinero',
+      }
+    };
+    
+    // Return original text for English or empty strings
+    if (language === 'en' || !text || text.trim() === '') {
+      return text;
+    }
+    
+    // Check hardcoded translations first
+    if (testTranslations[language]?.[text]) {
+      return testTranslations[language][text];
+    }
+    
+    // Return original text if no translation found
     return text;
   };
 
