@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslate } from "@/hooks/useTranslate";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,9 @@ export default function Home() {
   const { loading, isAuthenticated } = useAuth();
   const isIncognito = useIncognitoDetection();
   const { translate: t } = useLanguage();
+  
+  // Test useTranslate hook with one string
+  const translatedTagline = useTranslate("Your intelligent AI assistant. Advanced, adaptive, and always ready to help.");
   
 
   if (loading) {
@@ -76,7 +80,7 @@ export default function Home() {
               Synthetic Adaptive Synaptic System - Entity
             </p>
             <p className="text-lg sm:text-xl md:text-2xl text-slate-300">
-              {t("Your intelligent AI assistant. Advanced, adaptive, and always ready to help.")}
+              {translatedTagline}
             </p>
           </div>
 

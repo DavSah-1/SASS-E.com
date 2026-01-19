@@ -2524,3 +2524,18 @@
 - [x] Verify language selector works in navbar
 - [ ] Add AI translation for all other strings
 - [ ] Test AI translation with real API calls
+
+## AI Translation Integration (Current)
+- [ ] Replace hardcoded translations with AI translation API calls
+- [ ] Implement localStorage caching for AI translations
+- [ ] Test AI translation with multiple languages (French, Spanish, German, Chinese)
+- [ ] Verify translation performance and caching works correctly
+
+
+## AI Translation Integration (WORKING!)
+- [x] Create useTranslate hook that uses tRPC/React Query directly
+- [x] Test with one string in Home page - SUCCESS!
+- [x] Verify translations work across multiple languages (French & Spanish tested and working)
+- [ ] Apply useTranslate to all remaining text strings in Home page
+- [ ] Apply useTranslate to other pages (Assistant, Money, Learning, Wellness, Profile)
+- [ ] Add loading indicators for translation progress

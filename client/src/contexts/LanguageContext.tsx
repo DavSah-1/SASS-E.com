@@ -9,6 +9,7 @@ interface LanguageContextType {
   t: Translations;
   translate: (text: string) => string;
   isLoading: boolean;
+  _v: number; // Internal version counter for forcing re-renders
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -18,6 +19,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useAuth();
   const [language, setLanguageState] = useState<Language>('en');
   const [isLoading, setIsLoading] = useState(true);
+  const [renderCounter, setRenderCounter] = useState(0);
   
   const setLanguageMutation = trpc.auth.setLanguage.useMutation();
 
@@ -84,38 +86,41 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
   
   const translate = (text: string): string => {
-    // Hardcoded test translations to verify the mechanism works
-    const testTranslations: Record<string, Record<string, string>> = {
-      'fr': {
-        'Meet SASS-E': 'Rencontrez SASS-E',
-        'Your intelligent AI assistant. Advanced, adaptive, and always ready to help.': 'Votre assistant IA intelligent. Avancé, adaptatif et toujours prêt à aider.',
-        'Start Voice Chat': 'Démarrer le chat vocal',
-        'Money Hub': 'Centre financier',
-      },
-      'es': {
-        'Meet SASS-E': 'Conoce a SASS-E',
-        'Your intelligent AI assistant. Advanced, adaptive, and always ready to help.': 'Tu asistente de IA inteligente. Avanzado, adaptable y siempre listo para ayudar.',
-        'Start Voice Chat': 'Iniciar chat de voz',
-        'Money Hub': 'Centro de dinero',
-      }
-    };
-    
     // Return original text for English or empty strings
     if (language === 'en' || !text || text.trim() === '') {
       return text;
     }
     
-    // Check hardcoded translations first
-    if (testTranslations[language]?.[text]) {
-      return testTranslations[language][text];
+    // Check cache first
+    const langCache = translationCache.current.get(language);
+    if (langCache?.has(text)) {
+      return langCache.get(text)!;
     }
     
-    // Return original text if no translation found
+    // Fetch translation in background
+    fetch('/api/trpc/i18n.translate?input=' + encodeURIComponent(JSON.stringify({ text, targetLanguage: language })))
+      .then(res => res.json())
+      .then(data => {
+        if (data.result?.data?.translated) {
+          if (!translationCache.current.has(language)) {
+            translationCache.current.set(language, new Map());
+          }
+          translationCache.current.get(language)!.set(text, data.result.data.translated);
+          saveCache();
+          // Force re-render to show translated text
+          setRenderCounter(prev => prev + 1);
+        }
+      })
+      .catch(error => {
+        console.error('Translation failed:', error);
+      });
+    
+    // Return original text while waiting for translation
     return text;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, translate, isLoading }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, translate, isLoading, _v: renderCounter }}>
       {children}
     </LanguageContext.Provider>
   );
