@@ -69,7 +69,10 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
 
     // If not in cache and not already pending, trigger translation
     if (!pendingTranslations.has(`${text}:${language}`)) {
-      setPendingTranslations(prev => new Set(prev).add(`${text}:${language}`));
+      // Defer state update to avoid setState-in-render error
+      queueMicrotask(() => {
+        setPendingTranslations(prev => new Set(prev).add(`${text}:${language}`));
+      });
       
       // Trigger background translation
       fetch(`/api/trpc/i18n.translate?input=${encodeURIComponent(JSON.stringify({ text, targetLanguage: language }))}`)
@@ -77,21 +80,25 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
         .then(data => {
           if (data.result?.data?.translated) {
             langCache.set(text, data.result.data.translated);
+            queueMicrotask(() => {
+              setPendingTranslations(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(`${text}:${language}`);
+                return newSet;
+              });
+              // Force re-render by updating a dummy state
+              setIsTranslating(prev => !prev);
+            });
+          }
+        })
+        .catch(err => {
+          console.error("Translation error:", err);
+          queueMicrotask(() => {
             setPendingTranslations(prev => {
               const newSet = new Set(prev);
               newSet.delete(`${text}:${language}`);
               return newSet;
             });
-            // Force re-render by updating a dummy state
-            setIsTranslating(prev => !prev);
-          }
-        })
-        .catch(err => {
-          console.error("Translation error:", err);
-          setPendingTranslations(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(`${text}:${language}`);
-            return newSet;
           });
         });
     }

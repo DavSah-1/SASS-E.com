@@ -2514,3 +2514,6 @@
 ## Final Translation Phase (Current Work)
 - [x] Translate Wellness Hub pages (Wellness.tsx - toast messages, headers, tabs, overview cards)
 - [x] Translate Profile page (Profile.tsx - complete)
+
+## Bug Fixes (Current)
+- [x] Fix React setState-in-render error in TranslationContext t() function
