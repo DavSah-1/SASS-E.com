@@ -2517,3 +2517,6 @@
 
 ## Bug Fixes (Current)
 - [x] Fix React setState-in-render error in TranslationContext t() function
+
+## Bug Fixes (Current)
+- [x] Fix language selector not triggering translations when language is changed

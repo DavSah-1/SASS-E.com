@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { trpc } from "@/lib/trpc";
 
 interface TranslationContextType {
@@ -6,6 +6,7 @@ interface TranslationContextType {
   setLanguage: (lang: string) => void;
   t: (text: string) => string;
   isTranslating: boolean;
+  translationVersion: number;
 }
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
@@ -19,6 +20,7 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<string>("en");
   const [isTranslating, setIsTranslating] = useState(false);
   const [pendingTranslations, setPendingTranslations] = useState<Set<string>>(new Set());
+  const [translationVersion, setTranslationVersion] = useState(0);
 
   const setPreferredLanguageMutation = trpc.i18n.setPreferredLanguage.useMutation();
 
@@ -38,6 +40,8 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   const setLanguage = (lang: string) => {
     setLanguageState(lang);
     localStorage.setItem("preferredLanguage", lang);
+    // Increment version to force re-render of all components using t()
+    setTranslationVersion(prev => prev + 1);
     
     // Update user preference in database if authenticated
     setPreferredLanguageMutation.mutate({ language: lang }, {
@@ -50,8 +54,9 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
   /**
    * Translate text function
    * Returns original text immediately and triggers background translation
+   * Wrapped in useCallback to re-create when language or translationVersion changes
    */
-  const t = (text: string): string => {
+  const t = useCallback((text: string): string => {
     // Return original for English
     if (language === "en" || !language || !text) {
       return text;
@@ -86,7 +91,8 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
                 newSet.delete(`${text}:${language}`);
                 return newSet;
               });
-              // Force re-render by updating a dummy state
+              // Force re-render by incrementing version
+              setTranslationVersion(prev => prev + 1);
               setIsTranslating(prev => !prev);
             });
           }
@@ -105,10 +111,10 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
 
     // Return original text while translation is pending
     return text;
-  };
+  }, [language, translationVersion, pendingTranslations]);
 
   return (
-    <TranslationContext.Provider value={{ language, setLanguage, t, isTranslating }}>
+    <TranslationContext.Provider value={{ language, setLanguage, t, isTranslating, translationVersion }}>
       {children}
     </TranslationContext.Provider>
   );
