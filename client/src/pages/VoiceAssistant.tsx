@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -16,6 +17,7 @@ import { Label } from "@/components/ui/label";
 
 export default function VoiceAssistant() {
   const { user, isAuthenticated, loading } = useAuth();
+  const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState("");
@@ -73,7 +75,7 @@ export default function VoiceAssistant() {
         
         // Check file size (16MB limit)
         if (audioBlob.size > 16 * 1024 * 1024) {
-          toast.error("Recording too large. Please keep it under 16MB.");
+          toast.error(t("Recording too large. Please keep it under 16MB."));
           return;
         }
 
@@ -88,7 +90,7 @@ export default function VoiceAssistant() {
           });
 
           if (!uploadResponse.ok) {
-            throw new Error("Upload failed");
+            throw new Error(t("Upload failed"));
           }
 
           const { url } = await uploadResponse.json();
@@ -154,7 +156,7 @@ export default function VoiceAssistant() {
           }
         } catch (error) {
           console.error("Error processing audio:", error);
-          toast.error("Failed to process your voice input. Please try again.");
+          toast.error(t("Failed to process your voice input. Please try again."));
         }
 
         // Stop all tracks
@@ -163,10 +165,10 @@ export default function VoiceAssistant() {
 
       mediaRecorder.start();
       setIsRecording(true);
-      toast.success("Recording started. Speak now!");
+      toast.success(t("Recording started. Speak now!"));
     } catch (error) {
       console.error("Error accessing microphone:", error);
-      toast.error("Could not access microphone. Please check permissions.");
+      toast.error(t("Could not access microphone. Please check permissions."));
     }
   };
 
@@ -174,7 +176,7 @@ export default function VoiceAssistant() {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      toast.info("Processing your voice input...");
+      toast.info(t("Processing your voice input..."));
     }
   };
 
@@ -247,7 +249,7 @@ export default function VoiceAssistant() {
       
       utterance.onerror = () => {
         setIsSpeaking(false);
-        toast.error("Failed to speak response");
+        toast.error(t("Failed to speak response"));
       };
 
       window.speechSynthesis.speak(utterance);
@@ -264,7 +266,7 @@ export default function VoiceAssistant() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-foreground">Loading...</div>
+        <div className="text-foreground">{t("Loading...")}</div>
       </div>
     );
   }
@@ -274,12 +276,12 @@ export default function VoiceAssistant() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to use SASS-E</CardDescription>
+            <CardTitle>{t("Authentication Required")}</CardTitle>
+            <CardDescription>{t("Please log in to use SASS-E")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full">
-              <a href={getLoginUrl()}>Log In</a>
+              <a href={getLoginUrl()}>{t("Log In")}</a>
             </Button>
           </CardContent>
         </Card>
@@ -299,7 +301,7 @@ export default function VoiceAssistant() {
             SASS-E
           </h1>
           <p className="text-base sm:text-lg text-slate-300">
-            Your intelligent voice assistant, ready to help.
+            {t("Your intelligent voice assistant, ready to help.")}
           </p>
         </div>
 
@@ -309,13 +311,13 @@ export default function VoiceAssistant() {
             <CardContent className="py-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                 <div>
-                  <p className="text-sm text-slate-300">Current Personality Level</p>
+                  <p className="text-sm text-slate-300">{t("Current Personality Level")}</p>
                   <p className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
                     {profile.sarcasmLevel}/10 - {profile.sarcasmIntensity}
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-sm text-slate-300">Total Interactions</p>
+                  <p className="text-sm text-slate-300">{t("Total Interactions")}</p>
                   <p className="text-xl sm:text-2xl font-bold text-purple-400">{profile.totalInteractions}</p>
                 </div>
               </div>
@@ -328,7 +330,7 @@ export default function VoiceAssistant() {
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2 text-center">
-                SASS-E learns from your interactions and becomes more familiar over time. Use feedback buttons to adjust!
+                {t("SASS-E learns from your interactions and becomes more familiar over time. Use feedback buttons to adjust!")}
               </p>
             </CardContent>
           </Card>
@@ -337,9 +339,9 @@ export default function VoiceAssistant() {
         {/* Main Voice Interface */}
         <Card className="border-purple-500/20 bg-slate-800/50 backdrop-blur">
           <CardHeader>
-                <CardTitle className="text-2xl text-center">Voice Interface</CardTitle>
+                <CardTitle className="text-2xl text-center">{t("Voice Interface")}</CardTitle>
             <CardDescription className="text-center">
-              Click the microphone to speak. Your voice assistant is listening.
+              {t("Click the microphone to speak. Your voice assistant is listening.")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -362,24 +364,24 @@ export default function VoiceAssistant() {
 
             {/* Status Indicator */}
             <div className="text-center text-sm text-slate-400">
-              {isRecording && "🎤 Recording... Click again to stop"}
-              {transcribeMutation.isPending && "🔄 Transcribing your voice..."}
-              {chatMutation.isPending && "🤔 Crafting a response..."}
+              {isRecording && t("🎤 Recording... Click again to stop")}
+              {transcribeMutation.isPending && t("🔄 Transcribing your voice...")}
+              {chatMutation.isPending && t("🤔 Crafting a response...")}
               {isSpeaking && (
                 <div className="flex items-center justify-center gap-2">
                   <Volume2 className="h-4 w-4 animate-pulse" />
-                  <span>Speaking... (Click below to stop)</span>
+                  <span>{t("Speaking... (Click below to stop)")}</span>
                 </div>
               )}
               {!isRecording && !transcribeMutation.isPending && !chatMutation.isPending && !isSpeaking && 
-                "Ready to listen"}
+                t("Ready to listen")}
             </div>
 
             {/* Stop Speaking Button */}
             {isSpeaking && (
               <div className="flex justify-center">
                 <Button variant="outline" onClick={stopSpeaking}>
-                  Stop Speaking
+                  {t("Stop Speaking")}
                 </Button>
               </div>
             )}
@@ -391,8 +393,8 @@ export default function VoiceAssistant() {
                 size="sm"
                 onClick={() => {
                   setConversationMemory([]);
-                  toast.success('Conversation memory cleared', {
-                    description: 'Starting fresh! Previous context has been forgotten.'
+                  toast.success(t('Conversation memory cleared'), {
+                    description: t('Starting fresh! Previous context has been forgotten.')
                   });
                 }}
                 disabled={conversationMemory.length === 0}
@@ -400,25 +402,25 @@ export default function VoiceAssistant() {
               >
                 <Trash2 className="h-4 w-4" />
                 {conversationMemory.length > 0 
-                  ? `Clear Memory (${Math.floor(conversationMemory.length / 2)} exchanges)`
-                  : 'No Memory to Clear'
+                  ? t(`Clear Memory (${Math.floor(conversationMemory.length / 2)} exchanges)`)
+                  : t('No Memory to Clear')
                 }
               </Button>
               <Button 
                 variant="destructive" 
                 size="sm"
                 onClick={() => {
-                  if (confirm('Are you sure you want to delete ALL conversation history? This cannot be undone.')) {
+                  if (confirm(t('Are you sure you want to delete ALL conversation history? This cannot be undone.'))) {
                     clearAllHistoryMutation.mutate(undefined, {
                       onSuccess: () => {
                         setConversationMemory([]);
                         refetchHistory();
-                        toast.success('All conversation history deleted', {
-                          description: 'Your entire conversation history has been permanently deleted.'
+                        toast.success(t('All conversation history deleted'), {
+                          description: t('Your entire conversation history has been permanently deleted.')
                         });
                       },
                       onError: (error) => {
-                        toast.error('Failed to delete history', {
+                        toast.error(t('Failed to delete history'), {
                           description: error.message
                         });
                       }
@@ -429,7 +431,7 @@ export default function VoiceAssistant() {
                 className="gap-2"
               >
                 <Trash2 className="h-4 w-4" />
-                Clear All History
+                {t("Clear All History")}
               </Button>
             </div>
 

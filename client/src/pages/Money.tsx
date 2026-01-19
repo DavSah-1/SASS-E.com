@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useLocation } from "wouter";
 import { Navigation } from "@/components/Navigation";
@@ -64,6 +65,7 @@ const GoalsTab = () => {
 
 export default function Money() {
   const { user, isAuthenticated, loading } = useAuth();
+  const { t } = useTranslation();
   const [location, setLocation] = useLocation();
 
   // Subscription check - redirect non-subscribers to demo
@@ -170,10 +172,10 @@ export default function Money() {
 
   // Get health score label
   const getScoreLabel = (score: number) => {
-    if (score >= 80) return "Excellent";
-    if (score >= 60) return "Good";
-    if (score >= 40) return "Fair";
-    return "Needs Attention";
+    if (score >= 80) return t("Excellent");
+    if (score >= 60) return t("Good");
+    if (score >= 40) return t("Fair");
+    return t("Needs Attention");
   };
 
   if (loading) {
@@ -181,7 +183,7 @@ export default function Money() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <Navigation />
         <div className="container mx-auto py-8 px-4">
-          <div className="text-center text-white">Loading...</div>
+          <div className="text-center text-white">{t("Loading...")}</div>
         </div>
       </div>
     );
@@ -196,21 +198,21 @@ export default function Money() {
         <div className="container mx-auto py-16 px-4">
           <div className="text-center mb-16">
             <div className="inline-block mb-4 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full">
-              <span className="text-green-400 font-semibold text-sm">AI-POWERED FINANCIAL MANAGEMENT</span>
+              <span className="text-green-400 font-semibold text-sm">{t("AI-POWERED FINANCIAL MANAGEMENT")}</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
               <span className="text-6xl md:text-7xl">💰</span>{" "}
               <span className="bg-gradient-to-r from-green-400 via-emerald-500 to-purple-400 bg-clip-text text-transparent">Money Hub</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
-              Take control of your financial future with intelligent budgeting, debt management, and goal tracking—all powered by AI
+              {t("Take control of your financial future with intelligent budgeting, debt management, and goal tracking—all powered by AI")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button asChild size="lg" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-6 text-lg">
-                <a href={getLoginUrl()}>Start Managing Your Money</a>
+                <a href={getLoginUrl()}>{t("Start Managing Your Money")}</a>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-green-500/50 text-green-400 hover:bg-green-500/10 px-8 py-6 text-lg">
-                <a href="/money-demo">View Demo</a>
+                <a href="/money-demo">{t("View Demo")}</a>
               </Button>
             </div>
           </div>
@@ -223,27 +225,27 @@ export default function Money() {
                 <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center mb-4">
                   <Wallet className="h-6 w-6 text-green-400" />
                 </div>
-                <CardTitle className="text-white">Smart Budgeting</CardTitle>
+                <CardTitle className="text-white">{t("Smart Budgeting")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  Create and track monthly budgets with intelligent category suggestions and spending limits
+                  {t("Create and track monthly budgets with intelligent category suggestions and spending limits")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Automatic expense categorization</span>
+                  <span>{t("Automatic expense categorization")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Real-time spending tracking</span>
+                  <span>{t("Real-time spending tracking")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Budget vs actual comparisons</span>
+                  <span>{t("Budget vs actual comparisons")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Overspending alerts</span>
+                  <span>{t("Overspending alerts")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -254,27 +256,27 @@ export default function Money() {
                 <div className="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center mb-4">
                   <CreditCard className="h-6 w-6 text-emerald-400" />
                 </div>
-                <CardTitle className="text-white">Expense Tracking</CardTitle>
+                <CardTitle className="text-white">{t("Expense Tracking")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  Log and categorize every expense with detailed insights into your spending patterns
+                  {t("Log and categorize every expense with detailed insights into your spending patterns")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Quick expense entry</span>
+                  <span>{t("Quick expense entry")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Custom categories & tags</span>
+                  <span>{t("Custom categories & tags")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Recurring expense management</span>
+                  <span>{t("Recurring expense management")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Spending trend analysis</span>
+                  <span>{t("Spending trend analysis")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -285,27 +287,27 @@ export default function Money() {
                 <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
                   <Target className="h-6 w-6 text-purple-400" />
                 </div>
-                <CardTitle className="text-white">Financial Goals</CardTitle>
+                <CardTitle className="text-white">{t("Financial Goals")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  Set and achieve savings goals with progress tracking and milestone celebrations
+                  {t("Set and achieve savings goals with progress tracking and milestone celebrations")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Multiple goal types (savings, debt, purchase)</span>
+                  <span>{t("Multiple goal types (savings, debt, purchase)")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Visual progress tracking</span>
+                  <span>{t("Visual progress tracking")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Target date projections</span>
+                  <span>{t("Target date projections")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Milestone celebrations</span>
+                  <span>{t("Milestone celebrations")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -316,27 +318,27 @@ export default function Money() {
                 <div className="w-12 h-12 rounded-lg bg-red-500/20 flex items-center justify-center mb-4">
                   <DebtIcon className="h-6 w-6 text-red-400" />
                 </div>
-                <CardTitle className="text-white">Debt Coach</CardTitle>
+                <CardTitle className="text-white">{t("Debt Coach")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  AI-powered debt payoff strategies with snowball and avalanche method recommendations
+                  {t("AI-powered debt payoff strategies with snowball and avalanche method recommendations")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Multiple debt tracking</span>
+                  <span>{t("Multiple debt tracking")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Optimized payoff plans</span>
+                  <span>{t("Optimized payoff plans")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Interest savings calculator</span>
+                  <span>{t("Interest savings calculator")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Payment reminders</span>
+                  <span>{t("Payment reminders")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -347,27 +349,27 @@ export default function Money() {
                 <div className="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center mb-4">
                   <Sparkles className="h-6 w-6 text-yellow-400" />
                 </div>
-                <CardTitle className="text-white">AI Financial Insights</CardTitle>
+                <CardTitle className="text-white">{t("AI Financial Insights")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  Get personalized recommendations and spending insights powered by artificial intelligence
+                  {t("Get personalized recommendations and spending insights powered by artificial intelligence")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Spending pattern analysis</span>
+                  <span>{t("Spending pattern analysis")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Savings opportunities</span>
+                  <span>{t("Savings opportunities")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Budget optimization tips</span>
+                  <span>{t("Budget optimization tips")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Predictive cash flow</span>
+                  <span>{t("Predictive cash flow")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -378,27 +380,27 @@ export default function Money() {
                 <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-4">
                   <TrendingUp className="h-6 w-6 text-blue-400" />
                 </div>
-                <CardTitle className="text-white">Reports & Analytics</CardTitle>
+                <CardTitle className="text-white">{t("Reports & Analytics")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  Comprehensive financial reports with charts, trends, and actionable insights
+                  {t("Comprehensive financial reports with charts, trends, and actionable insights")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Monthly spending summaries</span>
+                  <span>{t("Monthly spending summaries")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Category breakdowns</span>
+                  <span>{t("Category breakdowns")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Year-over-year comparisons</span>
+                  <span>{t("Year-over-year comparisons")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  <span>Export to CSV/PDF</span>
+                  <span>{t("Export to CSV/PDF")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -406,33 +408,33 @@ export default function Money() {
 
           {/* Why Choose Money Hub */}
           <div className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-500/30 rounded-2xl p-8 md:p-12 mb-16">
-            <h2 className="text-3xl font-bold text-white mb-6 text-center">Why Choose Money Hub?</h2>
+            <h2 className="text-3xl font-bold text-white mb-6 text-center">{t("Why Choose Money Hub?")}</h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="h-8 w-8 text-green-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">AI-Powered Intelligence</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{t("AI-Powered Intelligence")}</h3>
                 <p className="text-slate-300">
-                  Advanced algorithms analyze your spending patterns and provide personalized recommendations to help you save more
+                  {t("Advanced algorithms analyze your spending patterns and provide personalized recommendations to help you save more")}
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
                   <Target className="h-8 w-8 text-emerald-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">Goal-Oriented Approach</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{t("Goal-Oriented Approach")}</h3>
                 <p className="text-slate-300">
-                  Set financial goals and let Money Hub guide you with actionable steps, progress tracking, and motivational milestones
+                  {t("Set financial goals and let Money Hub guide you with actionable steps, progress tracking, and motivational milestones")}
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
                   <PiggyBank className="h-8 w-8 text-purple-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">Complete Financial Picture</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{t("Complete Financial Picture")}</h3>
                 <p className="text-slate-300">
-                  Manage budgets, track expenses, eliminate debt, and build savings—all in one integrated platform
+                  {t("Manage budgets, track expenses, eliminate debt, and build savings—all in one integrated platform")}
                 </p>
               </div>
             </div>
@@ -440,13 +442,13 @@ export default function Money() {
 
           {/* CTA Section */}
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Transform Your Finances?</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">{t("Ready to Transform Your Finances?")}</h2>
             <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-              Join thousands of users who have taken control of their financial future with Money Hub
+              {t("Join thousands of users who have taken control of their financial future with Money Hub")}
             </p>
             <Button asChild size="lg" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-6 text-lg">
               <a href={getLoginUrl()} className="flex items-center gap-2">
-                Get Started Free
+                {t("Get Started Free")}
                 <ArrowRight className="h-5 w-5" />
               </a>
             </Button>
@@ -469,7 +471,7 @@ export default function Money() {
             <span className="bg-gradient-to-r from-green-400 via-emerald-500 to-purple-400 bg-clip-text text-transparent">Money Hub</span>
           </h1>
           <p className="text-slate-300">
-            Your complete financial command center
+            {t("Your complete financial command center")}
           </p>
         </div>
 
@@ -478,19 +480,19 @@ export default function Money() {
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8 bg-slate-800/50 border border-purple-500/30 rounded-lg p-1">
             <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600">
               <Sparkles className="h-4 w-4 mr-2" />
-              Overview
+              {t("Overview")}
             </TabsTrigger>
             <TabsTrigger value="budget" className="data-[state=active]:bg-green-600">
               <Wallet className="h-4 w-4 mr-2" />
-              Budget
+              {t("Budget")}
             </TabsTrigger>
             <TabsTrigger value="debts" className="data-[state=active]:bg-blue-600">
               <CreditCard className="h-4 w-4 mr-2" />
-              Debt Coach
+              {t("Debt Coach")}
             </TabsTrigger>
             <TabsTrigger value="goals" className="data-[state=active]:bg-orange-600">
               <Target className="h-4 w-4 mr-2" />
-              Goals
+              {t("Goals")}
             </TabsTrigger>
           </TabsList>
 
@@ -502,14 +504,14 @@ export default function Money() {
                 <CardTitle className="flex items-center justify-between text-white">
                   <span className="flex items-center gap-2">
                     <Target className="h-6 w-6" />
-                    Financial Health Score
+                    {t("Financial Health Score")}
                   </span>
                   <span className={`text-4xl font-bold ${getScoreColor(healthScore)}`}>
                     {healthScore}
                   </span>
                 </CardTitle>
                 <CardDescription className="text-slate-300">
-                  {getScoreLabel(healthScore)} - {healthScore >= 60 ? "Keep up the great work!" : "Let's improve together"}
+                  {getScoreLabel(healthScore)} - {healthScore >= 60 ? t("Keep up the great work!") : t("Let's improve together")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -530,20 +532,20 @@ export default function Money() {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
-                    <p className="text-slate-400">Cash Flow</p>
+                    <p className="text-slate-400">{t("Cash Flow")}</p>
                     <p className={`font-semibold ${monthlySummary?.netCashFlow && monthlySummary.netCashFlow > 0 ? "text-green-400" : "text-red-400"}`}>
                       {monthlySummary?.netCashFlow && monthlySummary.netCashFlow > 0 ? <CheckCircle2 className="h-4 w-4 inline" /> : <AlertCircle className="h-4 w-4 inline" />}
-                      {" "}{monthlySummary?.netCashFlow && monthlySummary.netCashFlow > 0 ? "Positive" : "Negative"}
+                      {" "}{monthlySummary?.netCashFlow && monthlySummary.netCashFlow > 0 ? t("Positive") : t("Negative")}
                     </p>
                   </div>
                   <div>
-                    <p className="text-slate-400">Savings Rate</p>
+                    <p className="text-slate-400">{t("Savings Rate")}</p>
                     <p className="font-semibold text-white">
                       {monthlySummary ? (monthlySummary.savingsRate / 100).toFixed(1) : "0.0"}%
                     </p>
                   </div>
                   <div>
-                    <p className="text-slate-400">Debt Progress</p>
+                    <p className="text-slate-400">{t("Debt Progress")}</p>
                     <p className="font-semibold text-white">
                       {debtSummary && debtSummary.totalOriginalBalance > 0
                         ? ((debtSummary.totalPaid / debtSummary.totalOriginalBalance) * 100).toFixed(0)
@@ -681,22 +683,22 @@ export default function Money() {
             {/* Quick Actions */}
             <Card className="bg-slate-800/50 border-slate-700">
               <CardHeader>
-                <CardTitle className="text-white">Quick Actions</CardTitle>
-                <CardDescription>Common tasks to keep your finances on track</CardDescription>
+                <CardTitle className="text-white">{t("Quick Actions")}</CardTitle>
+                <CardDescription>{t("Common tasks to keep your finances on track")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button onClick={() => setActiveTab("budget")} variant="outline" className="h-auto py-4 flex-col gap-2">
                     <Plus className="h-5 w-5" />
-                    <span>Add Transaction</span>
+                    <span>{t("Add Transaction")}</span>
                   </Button>
                   <Button onClick={() => setActiveTab("debts")} variant="outline" className="h-auto py-4 flex-col gap-2">
                     <DollarSign className="h-5 w-5" />
-                    <span>Log Debt Payment</span>
+                    <span>{t("Log Debt Payment")}</span>
                   </Button>
                   <Button onClick={() => setActiveTab("debts")} variant="outline" className="h-auto py-4 flex-col gap-2">
                     <CreditCard className="h-5 w-5" />
-                    <span>Add New Debt</span>
+                    <span>{t("Add New Debt")}</span>
                   </Button>
                 </div>
               </CardContent>
@@ -717,7 +719,7 @@ export default function Money() {
                       </CardDescription>
                     </div>
                     <Button asChild variant="outline" size="sm">
-                      <a href="/goals">View All</a>
+                      <a href="/goals">{t("View All")}</a>
                     </Button>
                   </div>
                 </CardHeader>

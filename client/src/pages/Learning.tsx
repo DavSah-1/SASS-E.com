@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ import { Footer } from "@/components/Footer";
 
 export default function Learning() {
   const { user, isAuthenticated, loading } = useAuth();
+  const { t } = useTranslation();
   const [topic, setTopic] = useState("");
   const [question, setQuestion] = useState("");
   const [currentExplanation, setCurrentExplanation] = useState<any>(null);
@@ -34,7 +36,7 @@ export default function Learning() {
 
   const handleExplain = async () => {
     if (!question.trim()) {
-      toast.error("Please enter a question");
+      toast.error(t("Please enter a question"));
       return;
     }
 
@@ -49,16 +51,16 @@ export default function Learning() {
       setCurrentQuiz(null);
       setQuizCompleted(false);
       setQuizResults(null);
-      toast.success("Explanation generated with fact-checking!");
+      toast.success(t("Explanation generated with fact-checking!"));
     } catch (error) {
-      toast.error("Failed to generate explanation");
+      toast.error(t("Failed to generate explanation"));
       console.error("Explain error:", error);
     }
   };
 
   const handleGenerateStudyGuide = async () => {
     if (!currentExplanation) {
-      toast.error("Please get an explanation first");
+      toast.error(t("Please get an explanation first"));
       return;
     }
 
@@ -68,16 +70,16 @@ export default function Learning() {
       });
 
       setCurrentStudyGuide(result);
-      toast.success("Study guide generated!");
+      toast.success(t("Study guide generated!"));
     } catch (error) {
-      toast.error("Failed to generate study guide");
+      toast.error(t("Failed to generate study guide"));
       console.error("Study guide error:", error);
     }
   };
 
   const handleGenerateQuiz = async () => {
     if (!currentExplanation) {
-      toast.error("Please get an explanation first");
+      toast.error(t("Please get an explanation first"));
       return;
     }
 
@@ -90,16 +92,16 @@ export default function Learning() {
       setQuizAnswers([]);
       setQuizCompleted(false);
       setQuizResults(null);
-      toast.success("Quiz generated! Test your knowledge.");
+      toast.success(t("Quiz generated! Test your knowledge."));
     } catch (error) {
-      toast.error("Failed to generate quiz");
+      toast.error(t("Failed to generate quiz"));
       console.error("Quiz error:", error);
     }
   };
 
   const handleSubmitQuiz = async () => {
     if (!currentQuiz || quizAnswers.length !== currentQuiz.questions.length) {
-      toast.error("Please answer all questions");
+      toast.error(t("Please answer all questions"));
       return;
     }
 
@@ -118,7 +120,7 @@ export default function Learning() {
         toast.error(`Quiz failed. Score: ${result.score}/${result.totalQuestions}. Keep learning!`);
       }
     } catch (error) {
-      toast.error("Failed to submit quiz");
+      toast.error(t("Failed to submit quiz"));
       console.error("Submit quiz error:", error);
     }
   };
@@ -150,13 +152,13 @@ export default function Learning() {
 
   const handleCategorySelect = (categoryTopic: string) => {
     setTopic(categoryTopic);
-    toast.success(`Category selected: ${categoryTopic}`);
+    toast.success(t(`Category selected: ${categoryTopic}`));
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-foreground">Loading...</div>
+        <div className="text-foreground">{t("Loading...")}</div>
       </div>
     );
   }
@@ -170,17 +172,17 @@ export default function Learning() {
         <div className="container mx-auto py-16 px-4">
           <div className="text-center mb-16">
             <div className="inline-block mb-4 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full">
-              <span className="text-purple-400 font-semibold text-sm">AI-POWERED VERIFIED LEARNING</span>
+              <span className="text-purple-400 font-semibold text-sm">{t("AI-POWERED VERIFIED LEARNING")}</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
               <span className="text-6xl md:text-7xl">📚</span>{" "}
               <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent">Learning Hub</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
-              Master any subject with AI-powered explanations, fact-checked content, personalized study guides, and interactive quizzes
+              {t("Master any subject with AI-powered explanations, fact-checked content, personalized study guides, and interactive quizzes")}
             </p>
             <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-6 text-lg">
-              <a href={getLoginUrl()}>Start Learning Today</a>
+              <a href={getLoginUrl()}>{t("Start Learning Today")}</a>
             </Button>
           </div>
 
@@ -192,9 +194,9 @@ export default function Learning() {
                 <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
                   <BookOpen className="h-6 w-6 text-purple-400" />
                 </div>
-                <CardTitle className="text-white">AI-Powered Explanations</CardTitle>
+                <CardTitle className="text-white">{t("AI-Powered Explanations")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  Get clear, detailed explanations for any topic with automatic fact-checking and source verification
+                  {t("Get clear, detailed explanations for any topic with automatic fact-checking and source verification")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">

@@ -2491,7 +2491,18 @@
 - [x] Translation caching system to avoid repeated API calls
 - [x] Auto-detect browser language on first visit
 - [x] Store language preference in localStorage and user profile
-- [ ] Implement translation for remaining pages (Assistant, Money, Learning, Wellness, Profile, etc.)
+- [ ] Implement translation for Assistant page
+- [ ] Implement translation for Money Hub pages (Money, Debt Coach, Budget, Loan Calculator, Receipt Scanner, Goals, Currency)
+- [ ] Implement translation for Learning Hub pages (Learning, Language Learning, Math Tutor, Science Lab)
+- [ ] Implement translation for Wellness Hub pages (Wellness, Fitness, Nutrition, Mental Wellness)
+- [ ] Implement translation for Profile page
 - [ ] Add loading indicators for translation in progress
 - [ ] Implement batch translation for better performance
 - [ ] Add translation quality feedback mechanism
+- [x] Implemented Assistant page translation (VoiceAssistant.tsx) - 100% complete
+- [x] Implemented Money Hub landing page translation - 75% complete (hero, features, Why Choose, CTA, tabs, overview)
+- [x] Implemented Learning Hub landing page translation - 40% complete (toast messages, hero, features started)
+- [ ] Complete remaining Money Hub page translations (Money.tsx remaining sections)
+- [ ] Complete remaining Learning Hub page translations (Learning.tsx remaining sections)
+- [ ] Implement translation for Wellness Hub pages
+- [ ] Implement translation for Profile page
