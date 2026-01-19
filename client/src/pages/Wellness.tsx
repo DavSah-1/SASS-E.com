@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,6 +51,7 @@ import { CoachingDashboard } from "@/components/CoachingDashboard";
 
 export default function Wellness() {
   const { user, isAuthenticated, loading } = useAuth();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -101,7 +103,7 @@ export default function Wellness() {
   // Mutations
   const logWorkoutMutation = trpc.wellbeing.logWorkout.useMutation({
     onSuccess: () => {
-      toast.success("Workout logged successfully!");
+      toast.success(t("Workout logged successfully!"));
       utils.wellbeing.getWorkoutHistory.invalidate();
       utils.wellbeing.getDailyActivity.invalidate();
       setWorkoutTitle("");
@@ -112,7 +114,7 @@ export default function Wellness() {
 
   const addFoodLogMutation = trpc.wellbeing.addFoodLog.useMutation({
     onSuccess: () => {
-      toast.success("Food logged successfully!");
+      toast.success(t("Food logged successfully!"));
       utils.wellbeing.getFoodLog.invalidate();
       utils.wellbeing.getDailyActivity.invalidate();
       setFoodName("");
@@ -122,7 +124,7 @@ export default function Wellness() {
 
   const addHydrationMutation = trpc.wellbeing.addHydrationLog.useMutation({
     onSuccess: () => {
-      toast.success("Water intake logged!");
+      toast.success(t("Water intake logged!"));
       utils.wellbeing.getHydrationLog.invalidate();
       utils.wellbeing.getDailyActivity.invalidate();
     },
@@ -130,7 +132,7 @@ export default function Wellness() {
 
   const updateMoodMutation = trpc.wellbeing.updateMoodLog.useMutation({
     onSuccess: () => {
-      toast.success("Mood updated!");
+      toast.success(t("Mood updated!"));
       utils.wellbeing.getMoodLog.invalidate();
       utils.wellbeing.getDailyActivity.invalidate();
     },
@@ -138,7 +140,7 @@ export default function Wellness() {
 
   const addJournalMutation = trpc.wellbeing.addJournalEntry.useMutation({
     onSuccess: () => {
-      toast.success("Journal entry saved!");
+      toast.success(t("Journal entry saved!"));
       utils.wellbeing.getJournalEntries.invalidate();
       setJournalContent("");
     },
@@ -146,7 +148,7 @@ export default function Wellness() {
 
   const logMeditationMutation = trpc.wellbeing.logMeditationSession.useMutation({
     onSuccess: () => {
-      toast.success("Meditation session logged!");
+      toast.success(t("Meditation session logged!"));
       utils.wellbeing.getMeditationSessions.invalidate();
       setMeditationDuration("");
     },
@@ -154,7 +156,7 @@ export default function Wellness() {
 
   const addHealthMetricMutation = trpc.wellbeing.addHealthMetric.useMutation({
     onSuccess: () => {
-      toast.success("Health metrics updated!");
+      toast.success(t("Health metrics updated!"));
       utils.wellbeing.getHealthMetrics.invalidate();
       setWeight("");
       setRestingHeartRate("");
@@ -460,7 +462,7 @@ export default function Wellness() {
 
   const handleLogWorkout = () => {
     if (!workoutTitle || !workoutDuration) {
-      toast.error("Please fill in workout title and duration");
+      toast.error(t("Please fill in workout title and duration"));
       return;
     }
 
@@ -473,7 +475,7 @@ export default function Wellness() {
 
   const handleAddFood = () => {
     if (!foodName) {
-      toast.error("Please enter food name");
+      toast.error(t("Please enter food name"));
       return;
     }
 
@@ -501,13 +503,13 @@ export default function Wellness() {
           setCarbs(product.carbs?.toString() || "");
           setFat(product.fat?.toString() || "");
           setShowBarcodeScanner(false);
-          toast.success("Food details loaded from barcode!");
+          toast.success(t("Food details loaded from barcode!"));
         } else {
-          toast.error("Product not found in database");
+          toast.error(t("Product not found in database"));
         }
       })
       .catch(() => {
-        toast.error("Error looking up barcode");
+        toast.error(t("Error looking up barcode"));
       });
   };
 
@@ -517,7 +519,7 @@ export default function Wellness() {
     setProtein(food.protein?.toString() || "");
     setCarbs(food.carbs?.toString() || "");
     setFat(food.fat?.toString() || "");
-    toast.success("Food details loaded!");
+    toast.success(t("Food details loaded!"));
     // Close modal after short delay to show success message
     setTimeout(() => setShowFoodSearch(false), 500);
   };
@@ -540,7 +542,7 @@ export default function Wellness() {
 
   const handleAddJournal = () => {
     if (!journalContent) {
-      toast.error("Please write something in your journal");
+      toast.error(t("Please write something in your journal"));
       return;
     }
 
@@ -552,7 +554,7 @@ export default function Wellness() {
 
   const handleLogMeditation = () => {
     if (!meditationDuration) {
-      toast.error("Please enter meditation duration");
+      toast.error(t("Please enter meditation duration"));
       return;
     }
 
@@ -564,7 +566,7 @@ export default function Wellness() {
 
   const handleAddHealthMetric = () => {
     if (!weight && !restingHeartRate) {
-      toast.error("Please enter at least one health metric");
+      toast.error(t("Please enter at least one health metric"));
       return;
     }
 
@@ -589,7 +591,7 @@ export default function Wellness() {
           <div className="inline-flex items-center gap-2 mb-4">
             <Badge className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 py-1.5">
               <Heart className="h-4 w-4 mr-1.5 inline" />
-              WELLNESS HUB
+              {t("WELLNESS HUB")}
             </Badge>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold mb-3">
@@ -597,13 +599,13 @@ export default function Wellness() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-400">Wellness Dashboard</span>
           </h1>
           <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-            Track your fitness, nutrition, mental health, and overall wellness in one comprehensive hub
+            {t("Track your fitness, nutrition, mental health, and overall wellness in one comprehensive hub")}
           </p>
         </div>
 
         {/* Date Selector */}
         <div className="mb-6">
-          <Label htmlFor="date">Date</Label>
+          <Label htmlFor="date">{t("Date")}</Label>
           <Input
             id="date"
             type="date"
@@ -615,11 +617,11 @@ export default function Wellness() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-slate-800/50 border border-cyan-500/30 rounded-lg p-1">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="fitness">Fitness</TabsTrigger>
-            <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
-            <TabsTrigger value="mental">Mental</TabsTrigger>
-            <TabsTrigger value="health">Health</TabsTrigger>
+            <TabsTrigger value="overview">{t("Overview")}</TabsTrigger>
+            <TabsTrigger value="fitness">{t("Fitness")}</TabsTrigger>
+            <TabsTrigger value="nutrition">{t("Nutrition")}</TabsTrigger>
+            <TabsTrigger value="mental">{t("Mental")}</TabsTrigger>
+            <TabsTrigger value="health">{t("Health")}</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -630,29 +632,29 @@ export default function Wellness() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Steps Today</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("Steps Today")}</CardTitle>
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{dailyActivity.data?.steps || 0}</div>
-                  <p className="text-xs text-muted-foreground">Goal: 10,000 steps</p>
+                  <p className="text-xs text-muted-foreground">{t("Goal: 10,000 steps")}</p>
                 </CardContent>
               </Card>
 
               <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Calories</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("Calories")}</CardTitle>
                   <Apple className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{totalCaloriesConsumed}</div>
-                  <p className="text-xs text-muted-foreground">Consumed today</p>
+                  <p className="text-xs text-muted-foreground">{t("Consumed today")}</p>
                 </CardContent>
               </Card>
 
               <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Hydration</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("Hydration")}</CardTitle>
                   <Droplet className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -663,12 +665,12 @@ export default function Wellness() {
 
               <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Mood</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t("Mood")}</CardTitle>
                   <Smile className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold capitalize">{moodLog.data?.mood || "Not set"}</div>
-                  <p className="text-xs text-muted-foreground">Today's mood</p>
+                  <div className="text-2xl font-bold capitalize">{moodLog.data?.mood || t("Not set")}</div>
+                  <p className="text-xs text-muted-foreground">{t("Today's mood")}</p>
                 </CardContent>
               </Card>
             </div>
@@ -676,7 +678,7 @@ export default function Wellness() {
             <div className="grid gap-6 md:grid-cols-2">
               <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
-                  <CardTitle>Recent Workouts</CardTitle>
+                  <CardTitle>{t("Recent Workouts")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {workoutHistory.data && workoutHistory.data.length > 0 ? (
@@ -694,14 +696,14 @@ export default function Wellness() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-muted-foreground">No workouts logged yet</p>
+                    <p className="text-muted-foreground">{t("No workouts logged yet")}</p>
                   )}
                 </CardContent>
               </Card>
 
               <Card className="border-cyan-500/20 bg-slate-800/50 backdrop-blur">
                 <CardHeader>
-                  <CardTitle>Recent Journal Entries</CardTitle>
+                  <CardTitle>{t("Recent Journal Entries")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {journalEntries.data && journalEntries.data.length > 0 ? (
@@ -715,7 +717,7 @@ export default function Wellness() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-muted-foreground">No journal entries yet</p>
+                    <p className="text-muted-foreground">{t("No journal entries yet")}</p>
                   )}
                 </CardContent>
               </Card>

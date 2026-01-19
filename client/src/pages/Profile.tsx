@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { useCurrency, CURRENCY_LIST, CurrencyCode } from "@/contexts/CurrencyContext";
 import { Language, getLanguageName, getLanguageFlag } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
@@ -18,7 +19,8 @@ const SUPPORTED_LANGUAGES: Language[] = ['en', 'es', 'fr', 'de'];
 
 export default function Profile() {
   const { user, loading } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
   const { currency, setCurrency } = useCurrency();
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(language);
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>(currency);
@@ -63,12 +65,12 @@ export default function Profile() {
     try {
       setCurrency(newCurrency);
       const currencyInfo = CURRENCY_LIST.find(c => c.code === newCurrency);
-      toast.success("Currency Updated", {
+      toast.success(t("Currency Updated"), {
         description: `Currency changed to ${currencyInfo?.name || newCurrency}`,
       });
     } catch (error) {
       console.error('Failed to save currency preference:', error);
-      toast.error("Error", {
+      toast.error(t("Error"), {
         description: 'Failed to save currency preference',
       });
     } finally {
@@ -82,12 +84,12 @@ export default function Profile() {
     
     try {
       await setLanguage(newLang);
-      toast.success(t.common.success, {
+      toast.success(t("Success"), {
         description: `Language changed to ${getLanguageName(newLang)}`,
       });
     } catch (error) {
       console.error('Failed to save language preference:', error);
-      toast.error(t.common.error, {
+      toast.error(t("Error"), {
         description: 'Failed to save language preference',
       });
     } finally {
@@ -101,7 +103,7 @@ export default function Profile() {
     
     try {
       await setStaySignedInMutation.mutateAsync({ staySignedIn: checked });
-      toast.success("Session Preference Updated", {
+      toast.success(t("Session Preference Updated"), {
         description: checked 
           ? "You'll stay signed in for 30 days"
           : "You'll stay signed in for 1 day",
@@ -109,7 +111,7 @@ export default function Profile() {
     } catch (error) {
       console.error('Failed to save session preference:', error);
       setStaySignedIn(!checked); // Revert on error
-      toast.error("Error", {
+      toast.error(t("Error"), {
         description: 'Failed to save session preference',
       });
     } finally {
@@ -125,7 +127,7 @@ export default function Profile() {
       setShow2FASetup(true);
     } catch (error) {
       console.error('Failed to generate 2FA secret:', error);
-      toast.error("Error", {
+      toast.error(t("Error"), {
         description: 'Failed to generate 2FA setup',
       });
     }
@@ -133,7 +135,7 @@ export default function Profile() {
 
   const handleEnable2FA = async () => {
     if (!twoFactorSecret || !verificationCode) {
-      toast.error("Error", {
+      toast.error(t("Error"), {
         description: 'Please enter the verification code',
       });
       return;
@@ -146,12 +148,12 @@ export default function Profile() {
       });
       
       setBackupCodes(result.backupCodes);
-      toast.success("2FA Enabled", {
+      toast.success(t("2FA Enabled"), {
         description: 'Two-factor authentication has been enabled successfully',
       });
     } catch (error) {
       console.error('Failed to enable 2FA:', error);
-      toast.error("Error", {
+      toast.error(t("Error"), {
         description: 'Invalid verification code. Please try again.',
       });
     }
@@ -168,13 +170,13 @@ export default function Profile() {
       setQrCode(null);
       setVerificationCode("");
       setBackupCodes(null);
-      toast.success("2FA Disabled", {
+      toast.success(t("2FA Disabled"), {
         description: 'Two-factor authentication has been disabled',
       });
       window.location.reload(); // Refresh to update user state
     } catch (error) {
       console.error('Failed to disable 2FA:', error);
-      toast.error("Error", {
+      toast.error(t("Error"), {
         description: 'Invalid verification code or failed to disable 2FA',
       });
     }
@@ -185,7 +187,7 @@ export default function Profile() {
       navigator.clipboard.writeText(backupCodes.join('\n'));
       setCopiedBackupCodes(true);
       setTimeout(() => setCopiedBackupCodes(false), 2000);
-      toast.success("Copied", {
+      toast.success(t("Copied"), {
         description: 'Backup codes copied to clipboard',
       });
     }
@@ -194,7 +196,7 @@ export default function Profile() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-foreground">{t.common.loading}</div>
+        <div className="text-foreground">{t("Loading...")}</div>
       </div>
     );
   }
@@ -204,9 +206,9 @@ export default function Profile() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <Navigation />
         <div className="container mx-auto px-4 sm:px-6 py-12 text-center">
-          <h1 className="text-3xl font-bold text-white mb-4">Please log in to view your profile</h1>
+          <h1 className="text-3xl font-bold text-white mb-4">{t("Please log in to view your profile")}</h1>
           <Button asChild>
-            <a href="/assistant">Go to Assistant</a>
+            <a href="/assistant">{t("Go to Assistant")}</a>
           </Button>
         </div>
       </div>
@@ -224,10 +226,10 @@ export default function Profile() {
           {/* Header */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-              Profile Settings
+              {t("Profile Settings")}
             </h1>
             <p className="text-base sm:text-lg text-slate-300">
-              Manage your account preferences and view your interaction statistics
+              {t("Manage your account preferences and view your interaction statistics")}
             </p>
           </div>
 
@@ -236,28 +238,28 @@ export default function Profile() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <User className="h-5 w-5" />
-                Account Information
+                {t("Account Information")}
               </CardTitle>
               <CardDescription className="text-slate-400">
-                Your account details and login information
+                {t("Your account details and login information")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-slate-300 text-sm">Name</Label>
-                  <p className="text-white font-medium mt-1">{user.name || 'Not set'}</p>
+                  <Label className="text-slate-300 text-sm">{t("Name")}</Label>
+                  <p className="text-white font-medium mt-1">{user.name || t('Not set')}</p>
                 </div>
                 <div>
-                  <Label className="text-slate-300 text-sm">Email</Label>
-                  <p className="text-white font-medium mt-1">{user.email || 'Not set'}</p>
+                  <Label className="text-slate-300 text-sm">{t("Email")}</Label>
+                  <p className="text-white font-medium mt-1">{user.email || t('Not set')}</p>
                 </div>
                 <div>
-                  <Label className="text-slate-300 text-sm">Login Method</Label>
+                  <Label className="text-slate-300 text-sm">{t("Login Method")}</Label>
                   <p className="text-white font-medium mt-1 capitalize">{user.loginMethod || 'Unknown'}</p>
                 </div>
                 <div>
-                  <Label className="text-slate-300 text-sm">Role</Label>
+                  <Label className="text-slate-300 text-sm">{t("Role")}</Label>
                   <p className="text-white font-medium mt-1 capitalize">{user.role || 'user'}</p>
                 </div>
               </div>
@@ -619,7 +621,7 @@ export default function Profile() {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild variant="default" size="lg">
-              <a href="/assistant">Go to Assistant</a>
+              <a href="/assistant">{t("Go to Assistant")}</a>
             </Button>
             <Button asChild variant="outline" size="lg">
               <a href="/">Back to Home</a>
