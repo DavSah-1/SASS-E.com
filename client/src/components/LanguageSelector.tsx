@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useTranslation } from '@/contexts/TranslationContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Language } from '@/lib/i18n';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇬🇧' },
@@ -24,7 +25,7 @@ const languages = [
 ];
 
 export function LanguageSelector() {
-  const { language, setLanguage } = useTranslation();
+  const { language, setLanguage } = useLanguage();
   const currentLanguage = languages.find((lang) => lang.code === language) || languages[0];
 
   return (
@@ -40,7 +41,7 @@ export function LanguageSelector() {
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => setLanguage(lang.code)}
+            onClick={() => setLanguage(lang.code as Language)}
             className={language === lang.code ? 'bg-accent' : ''}
           >
             <span className="mr-2">{lang.flag}</span>

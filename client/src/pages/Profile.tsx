@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useTranslation } from "@/contexts/TranslationContext";
 import { useCurrency, CURRENCY_LIST, CurrencyCode } from "@/contexts/CurrencyContext";
 import { Language, getLanguageName, getLanguageFlag } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
@@ -19,8 +18,7 @@ const SUPPORTED_LANGUAGES: Language[] = ['en', 'es', 'fr', 'de'];
 
 export default function Profile() {
   const { user, loading } = useAuth();
-  const { language, setLanguage } = useLanguage();
-  const { t } = useTranslation();
+  const { language, setLanguage, translate: t } = useLanguage();
   const { currency, setCurrency } = useCurrency();
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(language);
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>(currency);

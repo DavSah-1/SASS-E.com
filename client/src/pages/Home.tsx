@@ -1,5 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,8 @@ import { Link } from "wouter";
 export default function Home() {
   const { loading, isAuthenticated } = useAuth();
   const isIncognito = useIncognitoDetection();
-  const { t } = useTranslation();
+  const { translate: t } = useLanguage();
+  
 
   if (loading) {
     return (

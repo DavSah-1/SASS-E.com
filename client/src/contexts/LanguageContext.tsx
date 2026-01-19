@@ -7,6 +7,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: Translations;
+  translate: (text: string) => string;
   isLoading: boolean;
 }
 
@@ -54,9 +55,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = getTranslations(language);
+  
+  // Simple translate function that just returns the original text for now
+  // This maintains compatibility with pages that use t("text") syntax
+  const translate = (text: string): string => {
+    // For now, just return the original text
+    // In the future, this can be enhanced with AI translation
+    return text;
+  };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, isLoading }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, translate, isLoading }}>
       {children}
     </LanguageContext.Provider>
   );

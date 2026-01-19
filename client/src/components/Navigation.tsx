@@ -5,7 +5,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
 import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff, AlertCircle } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { NotificationBell } from "./NotificationBell";
 import { useLocation } from "wouter";
@@ -26,7 +26,7 @@ export function Navigation() {
   const { isInstallable, isInstalled, installApp } = usePWA();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
-  const { t } = useTranslation();
+  const { t, translate } = useLanguage();
   const isOnline = useOnlineStatus();
   const [, setLocation] = useLocation();
 
@@ -58,19 +58,19 @@ export function Navigation() {
             </a>
             <a href="/learning" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <GraduationCap className="h-4 w-4" />
-              {t("Learning")}
+              {translate("Learning")}
             </a>
             <a href={isAuthenticated ? "/translate-app" : "/translate"} className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Languages className="h-4 w-4" />
-              {t("Translate")}
+              {translate("Translate")}
             </a>
             <a href="/money" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Wallet className="h-4 w-4" />
-              {t("Money")}
+              {translate("Money")}
             </a>
             <a href="/wellness" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Heart className="h-4 w-4" />
-              {t("Wellness")}
+              {translate("Wellness")}
             </a>
           </div>
         </div>
@@ -79,7 +79,7 @@ export function Navigation() {
           {!isOnline && (
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30">
               <WifiOff className="h-4 w-4 text-yellow-500" />
-              <span className="text-xs font-medium text-yellow-500 hidden sm:inline">{t("Offline")}</span>
+              <span className="text-xs font-medium text-yellow-500 hidden sm:inline">{translate("Offline")}</span>
             </div>
           )}
           
@@ -100,7 +100,7 @@ export function Navigation() {
           {isInstallable && !isInstalled && (
             <Button onClick={installApp} variant="outline" size="sm" className="gap-2">
               <Download className="h-4 w-4" />
-              {t("Install App")}
+              {translate("Install App")}
             </Button>
           )}
           {isAuthenticated ? (
@@ -112,7 +112,7 @@ export function Navigation() {
                 </a>
               </Button>
               <Button asChild variant="default" size="sm">
-                <a href="/assistant">{t("Launch Assistant")}</a>
+                <a href="/assistant">{translate("Launch Assistant")}</a>
               </Button>
               <Button onClick={handleLogoutClick} variant="ghost" size="sm">
                 <LogOut className="h-4 w-4" />
@@ -120,7 +120,7 @@ export function Navigation() {
             </>
           ) : (
             <Button asChild variant="default" size="sm">
-              <a href={getLoginUrl()}>{t("Get Started")}</a>
+              <a href={getLoginUrl()}>{translate("Get Started")}</a>
             </Button>
           )}
           </div>
@@ -138,7 +138,7 @@ export function Navigation() {
               title="Home"
             >
               <HomeIcon className="h-5 w-5" />
-              <span>{t("Home")}</span>
+              <span>{translate("Home")}</span>
             </a>
             <a
               href="/learning"
@@ -146,7 +146,7 @@ export function Navigation() {
               onClick={() => setMobileMenuOpen(false)}
             >
               <GraduationCap className="h-5 w-5" />
-              <span>{t("Learning")}</span>
+              <span>{translate("Learning")}</span>
             </a>
             <a
               href={isAuthenticated ? "/translate-app" : "/translate"}
@@ -154,7 +154,7 @@ export function Navigation() {
               onClick={() => setMobileMenuOpen(false)}
             >
               <Languages className="h-5 w-5" />
-              <span>{t("Translate")}</span>
+              <span>{translate("Translate")}</span>
             </a>
             <a
               href="/money"
@@ -162,7 +162,7 @@ export function Navigation() {
               onClick={() => setMobileMenuOpen(false)}
             >
               <Wallet className="h-5 w-5" />
-              <span>{t("Money")}</span>
+              <span>{translate("Money")}</span>
             </a>
             <a
               href="/wellness"
@@ -170,7 +170,7 @@ export function Navigation() {
               onClick={() => setMobileMenuOpen(false)}
             >
               <Heart className="h-5 w-5" />
-              <span>{t("Wellness")}</span>
+              <span>{translate("Wellness")}</span>
             </a>
             {isAuthenticated && (
               <a
@@ -179,22 +179,22 @@ export function Navigation() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <User className="h-5 w-5" />
-                <span>{t("Profile")}</span>
+                <span>{translate("Profile")}</span>
               </a>
             )}
             {isAuthenticated ? (
               <>
                 <Button asChild variant="default" className="w-full">
-                  <a href="/assistant">{t("Launch Assistant")}</a>
+                  <a href="/assistant">{translate("Launch Assistant")}</a>
                 </Button>
                 <Button onClick={() => { handleLogoutClick(); setMobileMenuOpen(false); }} variant="outline" className="w-full gap-2">
                   <LogOut className="h-5 w-5" />
-                  <span>{t("Sign Out")}</span>
+                  <span>{translate("Sign Out")}</span>
                 </Button>
               </>
             ) : (
               <Button asChild variant="default" className="w-full">
-                <a href={getLoginUrl()}>{t("Get Started")}</a>
+                <a href={getLoginUrl()}>{translate("Get Started")}</a>
               </Button>
             )}
           </div>
@@ -207,21 +207,21 @@ export function Navigation() {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-slate-100 flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-yellow-500" />
-              {t("Confirm Sign Out")}
+              {translate("Confirm Sign Out")}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-300">
-              {t("Are you sure you want to sign out? You'll need to log in again to access your personalized features.")}
+              {translate("Are you sure you want to sign out? You'll need to log in again to access your personalized features.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-slate-700 text-slate-100 hover:bg-slate-600 border-slate-600">
-              {t("Cancel")}
+              {translate("Cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleLogoutConfirm}
               className="bg-purple-600 text-white hover:bg-purple-700"
             >
-              {t("Sign Out")}
+              {translate("Sign Out")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

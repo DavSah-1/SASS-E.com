@@ -1,5 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import { Footer } from "@/components/Footer";
 
 export default function Learning() {
   const { user, isAuthenticated, loading } = useAuth();
-  const { t } = useTranslation();
+  const { translate: t } = useLanguage();
   const [topic, setTopic] = useState("");
   const [question, setQuestion] = useState("");
   const [currentExplanation, setCurrentExplanation] = useState<any>(null);

@@ -1,120 +1,118 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { trpc } from "@/lib/trpc";
 
 interface TranslationContextType {
   language: string;
   setLanguage: (lang: string) => void;
   t: (text: string) => string;
-  isTranslating: boolean;
-  translationVersion: number;
 }
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
 
 /**
  * Translation cache to avoid repeated API calls
+ * Structure: Map<language, Map<originalText, translatedText>>
  */
 const translationCache = new Map<string, Map<string, string>>();
 
 export function TranslationProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<string>("en");
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [pendingTranslations, setPendingTranslations] = useState<Set<string>>(new Set());
-  const [translationVersion, setTranslationVersion] = useState(0);
+  const [translations, setTranslations] = useState<Map<string, string>>(new Map());
+  
+  const setPreferredLanguageMutation = trpc.auth.setLanguage.useMutation();
 
-  const setPreferredLanguageMutation = trpc.i18n.setPreferredLanguage.useMutation();
-
-  // Detect browser language on mount
+  // Initialize language from localStorage or browser
   useEffect(() => {
-    const stored = localStorage.getItem("preferredLanguage");
-    if (stored) {
-      setLanguageState(stored);
+    const saved = localStorage.getItem("preferredLanguage");
+    if (saved && saved !== "en") {
+      setLanguageState(saved);
     } else {
-      // Detect from browser
-      const browserLang = navigator.language.split("-")[0]; // e.g., "en-US" -> "en"
-      setLanguageState(browserLang);
-      localStorage.setItem("preferredLanguage", browserLang);
+      const browserLang = navigator.language.split("-")[0];
+      if (browserLang && browserLang !== "en") {
+        setLanguageState(browserLang);
+        localStorage.setItem("preferredLanguage", browserLang);
+      }
     }
   }, []);
+
+  // When language changes, update the translations map from cache
+  useEffect(() => {
+    if (language === "en") {
+      setTranslations(new Map());
+      return;
+    }
+
+    const langCache = translationCache.get(language);
+    if (langCache) {
+      setTranslations(new Map(langCache));
+    } else {
+      setTranslations(new Map());
+      translationCache.set(language, new Map());
+    }
+  }, [language]);
 
   const setLanguage = (lang: string) => {
     setLanguageState(lang);
     localStorage.setItem("preferredLanguage", lang);
-    // Increment version to force re-render of all components using t()
-    setTranslationVersion(prev => prev + 1);
     
     // Update user preference in database if authenticated
     setPreferredLanguageMutation.mutate({ language: lang }, {
       onError: () => {
-        // Ignore errors if user is not authenticated
+        console.warn("Failed to save language preference to database");
       }
     });
   };
 
   /**
-   * Translate text function
-   * Returns original text immediately and triggers background translation
-   * Wrapped in useCallback to re-create when language or translationVersion changes
+   * Translation function
+   * Returns cached translation if available, otherwise triggers fetch and returns original
    */
-  const t = useCallback((text: string): string => {
-    // Return original for English
+  const t = (text: string): string => {
+    console.log(`[t] Called with text="${text.substring(0, 30)}...", language="${language}"`);
+    
+    // Return original for English or empty text
     if (language === "en" || !language || !text) {
+      console.log(`[t] Returning original (lang=${language})`);
       return text;
     }
 
-    // Check cache first
-    if (!translationCache.has(language)) {
-      translationCache.set(language, new Map());
-    }
-    
-    const langCache = translationCache.get(language)!;
-    if (langCache.has(text)) {
-      return langCache.get(text)!;
+    // Check if we have a cached translation
+    const cached = translations.get(text);
+    if (cached) {
+      return cached;
     }
 
-    // If not in cache and not already pending, trigger translation
-    if (!pendingTranslations.has(`${text}:${language}`)) {
-      // Defer state update to avoid setState-in-render error
-      queueMicrotask(() => {
-        setPendingTranslations(prev => new Set(prev).add(`${text}:${language}`));
-      });
+    // Trigger background translation (fire and forget)
+    const langCache = translationCache.get(language);
+    if (langCache && !langCache.has(text)) {
+      // Mark as pending to avoid duplicate requests
+      langCache.set(text, text);
       
-      // Trigger background translation
+      // Fetch translation in background
       fetch(`/api/trpc/i18n.translate?input=${encodeURIComponent(JSON.stringify({ text, targetLanguage: language }))}`)
         .then(res => res.json())
         .then(data => {
           if (data.result?.data?.translated) {
-            langCache.set(text, data.result.data.translated);
-            queueMicrotask(() => {
-              setPendingTranslations(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(`${text}:${language}`);
-                return newSet;
-              });
-              // Force re-render by incrementing version
-              setTranslationVersion(prev => prev + 1);
-              setIsTranslating(prev => !prev);
-            });
+            const translated = data.result.data.translated;
+            langCache.set(text, translated);
+            
+            // Update state to trigger re-render
+            setTranslations(new Map(langCache));
           }
         })
         .catch(err => {
           console.error("Translation error:", err);
-          queueMicrotask(() => {
-            setPendingTranslations(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(`${text}:${language}`);
-              return newSet;
-            });
-          });
+          // Remove pending marker on error
+          langCache.delete(text);
         });
     }
 
     // Return original text while translation is pending
     return text;
-  }, [language, translationVersion, pendingTranslations]);
+  };
 
   return (
-    <TranslationContext.Provider value={{ language, setLanguage, t, isTranslating, translationVersion }}>
+    <TranslationContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </TranslationContext.Provider>
   );
@@ -122,8 +120,8 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
 
 export function useTranslation() {
   const context = useContext(TranslationContext);
-  if (!context) {
-    throw new Error("useTranslation must be used within TranslationProvider");
+  if (context === undefined) {
+    throw new Error("useTranslation must be used within a TranslationProvider");
   }
   return context;
 }

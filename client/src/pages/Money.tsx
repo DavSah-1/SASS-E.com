@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useLocation } from "wouter";
 import { Navigation } from "@/components/Navigation";
@@ -65,7 +65,7 @@ const GoalsTab = () => {
 
 export default function Money() {
   const { user, isAuthenticated, loading } = useAuth();
-  const { t } = useTranslation();
+  const { translate: t } = useLanguage();
   const [location, setLocation] = useLocation();
 
   // Subscription check - redirect non-subscribers to demo

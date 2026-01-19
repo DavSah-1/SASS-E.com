@@ -2516,7 +2516,8 @@
 - [x] Translate Profile page (Profile.tsx - complete)
 
 ## Bug Fixes (Current)
-- [x] Fix React setState-in-render error in TranslationContext t() function
-
-## Bug Fixes (Current)
-- [x] Fix language selector not triggering translations when language is changed
+- [x] Revert to original LanguageContext
+- [x] Add translate() function to LanguageContext (returns original text for now)
+- [x] Update all pages to use translate() function
+- [ ] Implement AI translation in translate() function
+- [ ] Test language switching triggers translations

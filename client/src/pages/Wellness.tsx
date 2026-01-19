@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { useTranslation } from "@/contexts/TranslationContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,7 +51,7 @@ import { CoachingDashboard } from "@/components/CoachingDashboard";
 
 export default function Wellness() {
   const { user, isAuthenticated, loading } = useAuth();
-  const { t } = useTranslation();
+  const { translate: t } = useLanguage();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
