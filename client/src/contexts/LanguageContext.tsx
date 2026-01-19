@@ -98,8 +98,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       return langCache.get(text)!;
     }
     
-    // Fetch translation in background using tRPC utils
-    utils.client.i18n.translate.query({ text, targetLanguage: language })
+    // Fetch translation in background using tRPC utils (only if available)
+    if (utils?.client?.i18n?.translate) {
+      utils.client.i18n.translate.query({ text, targetLanguage: language })
       .then(result => {
         if (result.translated) {
           if (!translationCache.current.has(language)) {
@@ -112,8 +113,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         }
       })
       .catch(error => {
-        console.error('Translation failed:', error);
+        // Silently fail - translation will be retried on next render
+        console.warn('Translation API call failed (will retry):', error.message);
       });
+    }
     
     // Return original text while waiting for translation
     return text;
