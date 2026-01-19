@@ -22,6 +22,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [renderCounter, setRenderCounter] = useState(0);
   
   const setLanguageMutation = trpc.auth.setLanguage.useMutation();
+  const utils = trpc.useUtils();
 
   // Initialize language from user preference or browser
   useEffect(() => {
@@ -97,15 +98,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       return langCache.get(text)!;
     }
     
-    // Fetch translation in background
-    fetch('/api/trpc/i18n.translate?input=' + encodeURIComponent(JSON.stringify({ text, targetLanguage: language })))
-      .then(res => res.json())
-      .then(data => {
-        if (data.result?.data?.translated) {
+    // Fetch translation in background using tRPC utils
+    utils.client.i18n.translate.query({ text, targetLanguage: language })
+      .then(result => {
+        if (result.translated) {
           if (!translationCache.current.has(language)) {
             translationCache.current.set(language, new Map());
           }
-          translationCache.current.get(language)!.set(text, data.result.data.translated);
+          translationCache.current.get(language)!.set(text, result.translated);
           saveCache();
           // Force re-render to show translated text
           setRenderCounter(prev => prev + 1);
