@@ -6,32 +6,45 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Language, getLanguageName, getLanguageFlag } from '@/lib/i18n';
+import { useTranslation } from '@/contexts/TranslationContext';
 
-const SUPPORTED_LANGUAGES: Language[] = ['en', 'es', 'fr', 'de'];
+const languages = [
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'zh', name: '中文', flag: '🇨🇳' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵' },
+  { code: 'ko', name: '한국어', flag: '🇰🇷' },
+  { code: 'pt', name: 'Português', flag: '🇵🇹' },
+  { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+];
 
 export function LanguageSelector() {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage } = useTranslation();
+  const currentLanguage = languages.find((lang) => lang.code === language) || languages[0];
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2">
           <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline">{getLanguageFlag(language)} {getLanguageName(language)}</span>
-          <span className="sm:hidden">{getLanguageFlag(language)}</span>
+          <span className="hidden sm:inline">{currentLanguage.flag} {currentLanguage.name}</span>
+          <span className="sm:hidden">{currentLanguage.flag}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {SUPPORTED_LANGUAGES.map((lang) => (
+      <DropdownMenuContent align="end" className="w-48 max-h-[400px] overflow-y-auto">
+        {languages.map((lang) => (
           <DropdownMenuItem
-            key={lang}
-            onClick={() => setLanguage(lang)}
-            className={language === lang ? 'bg-accent' : ''}
+            key={lang.code}
+            onClick={() => setLanguage(lang.code)}
+            className={language === lang.code ? 'bg-accent' : ''}
           >
-            <span className="mr-2">{getLanguageFlag(lang)}</span>
-            {getLanguageName(lang)}
+            <span className="mr-2">{lang.flag}</span>
+            <span>{lang.name}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

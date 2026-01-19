@@ -89,14 +89,14 @@ export default function Translation() {
   const [activeTab, setActiveTab] = useState<"translate" | "image_ocr" | "conversation" | "phrasebook" | "chat">("translate");
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   
-  const translateTextMutation = trpc.translation.translate.useMutation();
-  const saveTranslationMutation = trpc.translation.saveTranslation.useMutation({
+  const translateTextMutation = trpc.translationApp.translate.useMutation();
+  const saveTranslationMutation = trpc.translationApp.saveTranslation.useMutation({
     onSuccess: () => {
       toast.success("Saved to phrasebook!");
     },
     onError: () => toast.error("Failed to save translation"),
   });
-  const translateImageMutation = trpc.translation.translateImage.useMutation();
+  const translateImageMutation = trpc.translationApp.translateImage.useMutation();
   const transcribeMutation = trpc.assistant.transcribe.useMutation();
   
   const handleTextTranslation = async () => {

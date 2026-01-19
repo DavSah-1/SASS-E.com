@@ -19,7 +19,7 @@ import { wellbeingRouter } from "./wellbeingRouter";
 import { wearableRouter } from "./wearableRouter";
 import { topicRouter } from "./topicRouter";
 import { translateChatRouter } from "./translateChatRouter";
-import { translationRouter as i18nRouter } from "./translationRouter";
+import { translationRouter } from "./translationRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -33,7 +33,7 @@ export const appRouter = router({
   wearable: wearableRouter,
   topic: topicRouter,
   translateChat: translateChatRouter,
-  i18n: i18nRouter,
+  translation: translationRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -1325,7 +1325,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       }),
   }),
 
-  translationApp: router({
+  translation: router({
     // Translate text (simple, direct translation only)
     translate: protectedProcedure
       .input(

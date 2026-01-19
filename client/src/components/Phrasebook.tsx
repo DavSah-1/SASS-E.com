@@ -58,15 +58,15 @@ export function Phrasebook({ onSpeak, isSpeaking }: PhrasebookProps) {
   const utils = trpc.useUtils();
 
   // Queries
-  const { data: categories = [] } = trpc.translation.getCategories.useQuery();
-  const { data: translations = [] } = trpc.translation.getSavedTranslations.useQuery({
+  const { data: categories = [] } = trpc.translationApp.getCategories.useQuery();
+  const { data: translations = [] } = trpc.translationApp.getSavedTranslations.useQuery({
     categoryId: selectedCategory,
   });
 
   // Mutations
-  const createCategoryMutation = trpc.translation.createCategory.useMutation({
+  const createCategoryMutation = trpc.translationApp.createCategory.useMutation({
     onSuccess: () => {
-      utils.translation.getCategories.invalidate();
+      utils.translationApp.getCategories.invalidate();
       toast.success("Category created!");
       setNewCategoryName("");
       setNewCategoryIcon("");
@@ -75,34 +75,34 @@ export function Phrasebook({ onSpeak, isSpeaking }: PhrasebookProps) {
     onError: () => toast.error("Failed to create category"),
   });
 
-  const deleteCategoryMutation = trpc.translation.deleteCategory.useMutation({
+  const deleteCategoryMutation = trpc.translationApp.deleteCategory.useMutation({
     onSuccess: () => {
-      utils.translation.getCategories.invalidate();
-      utils.translation.getSavedTranslations.invalidate();
+      utils.translationApp.getCategories.invalidate();
+      utils.translationApp.getSavedTranslations.invalidate();
       toast.success("Category deleted");
       if (selectedCategory) setSelectedCategory(undefined);
     },
     onError: () => toast.error("Failed to delete category"),
   });
 
-  const deleteTranslationMutation = trpc.translation.deleteSavedTranslation.useMutation({
+  const deleteTranslationMutation = trpc.translationApp.deleteSavedTranslation.useMutation({
     onSuccess: () => {
-      utils.translation.getSavedTranslations.invalidate();
+      utils.translationApp.getSavedTranslations.invalidate();
       toast.success("Translation deleted");
     },
     onError: () => toast.error("Failed to delete translation"),
   });
 
-  const toggleFavoriteMutation = trpc.translation.toggleFavorite.useMutation({
+  const toggleFavoriteMutation = trpc.translationApp.toggleFavorite.useMutation({
     onSuccess: () => {
-      utils.translation.getSavedTranslations.invalidate();
+      utils.translationApp.getSavedTranslations.invalidate();
     },
     onError: () => toast.error("Failed to update favorite"),
   });
 
-  const updateCategoryMutation = trpc.translation.updateCategory.useMutation({
+  const updateCategoryMutation = trpc.translationApp.updateCategory.useMutation({
     onSuccess: () => {
-      utils.translation.getSavedTranslations.invalidate();
+      utils.translationApp.getSavedTranslations.invalidate();
       toast.success("Category updated");
     },
     onError: () => toast.error("Failed to update category"),
@@ -249,7 +249,7 @@ export function Phrasebook({ onSpeak, isSpeaking }: PhrasebookProps) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {categories.map((cat) => (
+            {categories.map((cat: any) => (
               <SelectItem key={cat.id} value={cat.id.toString()}>
                 {cat.icon} {cat.name}
               </SelectItem>
@@ -266,7 +266,7 @@ export function Phrasebook({ onSpeak, isSpeaking }: PhrasebookProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => (
+              {categories.map((cat: any) => (
                 <div
                   key={cat.id}
                   className="flex items-center gap-2 px-3 py-2 bg-slate-900/50 rounded-lg border border-purple-500/20"
@@ -311,8 +311,8 @@ export function Phrasebook({ onSpeak, isSpeaking }: PhrasebookProps) {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {filteredTranslations.map((translation) => {
-            const category = categories.find((c) => c.id === translation.categoryId);
+              {filteredTranslations.map((translation: any) => {
+                const category = categories.find((c: any) => c.id === translation.categoryId);
             
             return (
               <Card key={translation.id} className="bg-slate-800/50 border-purple-500/20">
@@ -361,7 +361,7 @@ export function Phrasebook({ onSpeak, isSpeaking }: PhrasebookProps) {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="none">No Category</SelectItem>
-                            {categories.map((cat) => (
+                            {categories.map((cat: any) => (
                               <SelectItem key={cat.id} value={cat.id.toString()}>
                                 {cat.icon} {cat.name}
                               </SelectItem>

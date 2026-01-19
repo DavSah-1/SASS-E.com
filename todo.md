@@ -2439,3 +2439,59 @@
 - [x] Add confirmation dialogs for both actions
 - [x] Update conversation list after leave/delete
 - [x] Show appropriate error messages for unauthorized actions
+
+## Implement Auto-Translation System
+### Architecture & Planning
+- [x] Design i18n architecture (context-based translation system)
+- [x] Decide on translation approach (AI-powered vs static dictionaries)
+- [x] Plan language detection strategy (browser locale, IP geolocation, user preference)
+
+### Backend Implementation
+- [x] Add language detection API endpoint (detect from IP/browser headers)
+- [x] Add translation caching to avoid repeated API calls
+- [x] Update user schema to store preferredLanguage if not already present
+- [x] Add translation service helper using LLM for dynamic content
+- [x] Create translationRouter with API endpoints
+- [x] Remove duplicate inline translation router from routers.ts
+
+### Frontend Implementation
+- [x] Create TranslationContext with language state and translation function
+- [x] Create useTranslation hook for components
+- [x] Add language selector dropdown in navigation/header (12 languages)
+- [x] Detect user's browser language on first visit
+- [x] Store language preference in localStorage and user profile
+- [x] Implement translation function that caches results
+- [ ] Wrap all static text with translation function (in progress)
+- [ ] Add loading states for translations
+
+### Page-by-Page Translation Integration
+- [ ] Fix Phrasebook TypeScript implicit any errors
+- [ ] Home page (example implementation)
+- [ ] Navigation and header (example implementation)
+- [ ] Math Tutor page
+- [ ] Math Curriculum page
+- [ ] Language Learning page
+- [ ] Science Lab page
+- [ ] Translation App page
+- [ ] Money Hub page
+- [ ] Wellness page
+- [ ] All other pages
+- [ ] Test with multiple languages (Spanish, French, German, Chinese, Arabic)
+
+
+## Auto-Translation (i18n) System Implementation
+- [x] Fixed Phrasebook.tsx TypeScript errors (27 implicit 'any' type errors)
+- [x] Fixed ConversationMode.tsx router naming conflicts (translation -> translationApp)
+- [x] Created TranslationContext with useTranslation hook for i18n
+- [x] Implemented language selector in header (50+ languages)
+- [x] Created backend translation API (i18n router) with AI-powered translation
+- [x] Fixed translation API endpoint naming (translation -> i18n)
+- [x] Implemented Home page translation (hero, Money Hub, Learning Hub sections)
+- [x] Implemented Navigation component translation (menu items, buttons, dialogs)
+- [x] Translation caching system to avoid repeated API calls
+- [x] Auto-detect browser language on first visit
+- [x] Store language preference in localStorage and user profile
+- [ ] Implement translation for remaining pages (Assistant, Money, Learning, Wellness, Profile, etc.)
+- [ ] Add loading indicators for translation in progress
+- [ ] Implement batch translation for better performance
+- [ ] Add translation quality feedback mechanism

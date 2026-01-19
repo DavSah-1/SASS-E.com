@@ -84,14 +84,14 @@ export default function ConversationMode() {
   const audioChunksRef = useRef<Blob[]>([]);
 
   // Queries and mutations
-  const { data: conversations, refetch: refetchConversations } = trpc.translation.getConversations.useQuery();
-  const createConversation = trpc.translation.createConversation.useMutation();
-  const sendMessage = trpc.translation.sendMessage.useMutation();
-  const deleteConversation = trpc.translation.deleteConversation.useMutation();
-  const saveToPhrasebook = trpc.translation.saveConversationToPhrasebook.useMutation();
+  const { data: conversations, refetch: refetchConversations } = trpc.translationApp.getConversations.useQuery();
+  const createConversation = trpc.translationApp.createConversation.useMutation();
+  const sendMessage = trpc.translationApp.sendMessage.useMutation();
+  const deleteConversation = trpc.translationApp.deleteConversation.useMutation();
+  const saveToPhrasebook = trpc.translationApp.saveConversationToPhrasebook.useMutation();
 
   // Load conversation when selected
-  const { data: conversationData } = trpc.translation.getConversation.useQuery(
+  const { data: conversationData } = trpc.translationApp.getConversation.useQuery(
     { sessionId: selectedSession! },
     { enabled: !!selectedSession }
   );

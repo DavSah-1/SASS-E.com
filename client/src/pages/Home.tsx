@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useTranslation } from "@/contexts/TranslationContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,11 +36,12 @@ import { Link } from "wouter";
 export default function Home() {
   const { loading, isAuthenticated } = useAuth();
   const isIncognito = useIncognitoDetection();
+  const { t } = useTranslation();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-foreground">Loading...</div>
+        <div className="text-foreground">{t("Loading...")}</div>
       </div>
     );
   }
@@ -54,9 +56,9 @@ export default function Home() {
         <div className="container mx-auto px-6 pt-6">
           <Alert className="bg-yellow-900/20 border-yellow-500/50 text-yellow-200">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Private/Incognito Mode Detected</AlertTitle>
+            <AlertTitle>{t("Private/Incognito Mode Detected")}</AlertTitle>
             <AlertDescription>
-              You appear to be using private/incognito mode. Please note that authentication requires cookies and may not work properly in this mode. For the best experience, please use a regular browser window.
+              {t("You appear to be using private/incognito mode. Please note that authentication requires cookies and may not work properly in this mode. For the best experience, please use a regular browser window.")}
             </AlertDescription>
           </Alert>
         </div>
@@ -73,7 +75,7 @@ export default function Home() {
               Synthetic Adaptive Synaptic System - Entity
             </p>
             <p className="text-lg sm:text-xl md:text-2xl text-slate-300">
-              Your intelligent AI assistant. Advanced, adaptive, and always ready to help.
+              {t("Your intelligent AI assistant. Advanced, adaptive, and always ready to help.")}
             </p>
           </div>
 
@@ -83,19 +85,19 @@ export default function Home() {
                 <Button asChild size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                   <Link href="/assistant">
                     <MessageSquare className="mr-2 h-5 w-5" />
-                    Start Voice Chat
+                    {t("Start Voice Chat")}
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 w-full sm:w-auto border-green-500 text-green-300 hover:bg-green-900/50">
                   <Link href="/money">
                     <DollarSign className="mr-2 h-5 w-5" />
-                    Money Hub
+                    {t("Money Hub")}
                   </Link>
                 </Button>
               </>
             ) : (
               <Button asChild size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                <a href={getLoginUrl()}>Get Started Free</a>
+                <a href={getLoginUrl()}>{t("Get Started Free")}</a>
               </Button>
             )}
           </div>
@@ -113,7 +115,7 @@ export default function Home() {
                 <div className="flex items-center justify-center gap-3 mb-4">
                   <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-1 text-sm font-semibold">
                     <Sparkles className="h-4 w-4 mr-1 inline" />
-                    NEW FEATURE
+                    {t("NEW FEATURE")}
                   </Badge>
                 </div>
                 
@@ -122,7 +124,7 @@ export default function Home() {
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400">Money Hub</span>
                 </h2>
                 <p className="text-lg sm:text-xl text-center text-slate-300 mb-8 max-w-3xl mx-auto">
-                  Take control of your financial future with AI-powered money management tools
+                  {t("Take control of your financial future with AI-powered money management tools")}
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
@@ -130,12 +132,12 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-green-400">
                         <TrendingDown className="h-5 w-5" />
-                        Debt Coach
+                        {t("Debt Coach")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Track multiple debts, visualize payoff strategies, and get AI-powered motivation to become debt-free faster
+                        {t("Track multiple debts, visualize payoff strategies, and get AI-powered motivation to become debt-free faster")}
                       </p>
                     </CardContent>
                   </Card>
@@ -144,12 +146,12 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-green-400">
                         <PiggyBank className="h-5 w-5" />
-                        Budget Management
+                        {t("Budget Management")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Create shared budgets, categorize expenses, and track spending with real-time insights
+                        {t("Create shared budgets, categorize expenses, and track spending with real-time insights")}
                       </p>
                     </CardContent>
                   </Card>
@@ -158,12 +160,12 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-green-400">
                         <Calculator className="h-5 w-5" />
-                        Loan Calculators
+                        {t("Loan Calculators")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Calculate mortgages, auto loans, and personal loans with amortization schedules
+                        {t("Calculate mortgages, auto loans, and personal loans with amortization schedules")}
                       </p>
                     </CardContent>
                   </Card>
@@ -172,12 +174,12 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-green-400">
                         <Receipt className="h-5 w-5" />
-                        Receipt Scanner
+                        {t("Receipt Scanner")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Scan receipts with AI, auto-categorize expenses, and track spending patterns
+                        {t("Scan receipts with AI, auto-categorize expenses, and track spending patterns")}
                       </p>
                     </CardContent>
                   </Card>
@@ -186,12 +188,12 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-green-400">
                         <Target className="h-5 w-5" />
-                        Financial Goals
+                        {t("Financial Goals")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Set savings goals, track progress, and get personalized recommendations
+                        {t("Set savings goals, track progress, and get personalized recommendations")}
                       </p>
                     </CardContent>
                   </Card>
@@ -200,12 +202,12 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-green-400">
                         <DollarSign className="h-5 w-5" />
-                        Currency Tools
+                        {t("Currency Tools")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Real-time currency conversion, multi-currency support, and exchange rate tracking
+                        {t("Real-time currency conversion, multi-currency support, and exchange rate tracking")}
                       </p>
                     </CardContent>
                   </Card>
@@ -214,7 +216,7 @@ export default function Home() {
                 <div className="text-center">
             <Button asChild size="lg" className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-8 py-6 text-lg">
               <Link href="/money">
-                      Explore Money Hub
+                      {t("Explore Money Hub")}
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
@@ -236,7 +238,7 @@ export default function Home() {
                 <div className="flex items-center justify-center gap-3 mb-4">
                   <Badge className="text-white px-4 py-1 text-sm font-semibold" style={{backgroundColor: 'oklch(0.69 0.2 325.48)'}}>
                     <Sparkles className="h-4 w-4 mr-1 inline" />
-                    NEW FEATURE
+                    {t("NEW FEATURE")}
                   </Badge>
                 </div>
                 
@@ -244,7 +246,7 @@ export default function Home() {
                   🎓 Learning Hub
                 </h2>
                 <p className="text-lg sm:text-xl text-center text-slate-300 mb-8 max-w-3xl mx-auto">
-                  Master new skills with AI-powered learning tools tailored to your pace
+                  {t("Master new skills with AI-powered learning tools tailored to your pace")}
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
@@ -252,12 +254,12 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2" style={{color: 'oklch(0.75 0.15 325.48)'}}>
                         <Languages className="h-5 w-5" />
-                        Language Learning
+                        {t("Language Learning")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Master languages with interactive vocabulary flashcards, pronunciation practice, and support for Spanish, French, German, Italian, and Japanese
+                        {t("Master languages with interactive vocabulary flashcards, pronunciation practice, and support for Spanish, French, German, Italian, and Japanese")}
                       </p>
                     </CardContent>
                   </Card>
@@ -266,12 +268,12 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2" style={{color: 'oklch(0.75 0.15 325.48)'}}>
                         <Calculator className="h-5 w-5" />
-                        Math Tutor
+                        {t("Math Tutor")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Step-by-step problem solving for algebra, geometry, calculus, and statistics with detailed explanations and adaptive difficulty
+                        {t("Step-by-step problem solving for algebra, geometry, calculus, and statistics with detailed explanations and adaptive difficulty")}
                       </p>
                     </CardContent>
                   </Card>
@@ -280,12 +282,12 @@ export default function Home() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2" style={{color: 'oklch(0.75 0.15 325.48)'}}>
                         <Microscope className="h-5 w-5" />
-                        Science Lab
+                        {t("Science Lab")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Interactive experiments and simulations for physics, chemistry, and biology with virtual lab environments and detailed explanations
+                        {t("Interactive experiments and simulations for physics, chemistry, and biology with virtual lab environments and detailed explanations")}
                       </p>
                     </CardContent>
                   </Card>
@@ -294,7 +296,7 @@ export default function Home() {
                 <div className="text-center">
                   <Button asChild size="lg" className="text-white font-semibold px-8 py-6 text-lg hover:opacity-90 transition-opacity" style={{backgroundColor: 'oklch(0.69 0.2 325.48)'}}>
                     <Link href="/learning">
-                      Explore Learning Hub
+                      {t("Explore Learning Hub")}
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
