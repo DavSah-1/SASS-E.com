@@ -66,7 +66,7 @@ export const SPECIALIZED_HUBS: Record<SpecializedHub, { name: string; descriptio
   },
   translation_hub: {
     name: "Translation Hub",
-    description: "Real-time translation, conversation mode, phrasebook, multilingual chat",
+    description: "Real-time translation, Image OCR, conversation mode, phrasebook, multilingual chat",
     icon: "🌐",
   },
   money_hub: {
@@ -185,7 +185,7 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       "Language Learning (10 languages)",
       "Math Tutor (full curriculum)",
       "Science Labs (30+ experiments)",
-      "Translation Hub (real-time translation, conversation mode)",
+      "Translation Hub (translation, Image OCR, conversation, phrasebook, multilingual chat)",
       "Money Hub (budget, debt, goals)",
       "Wellness Hub (fitness, nutrition, mental health)",
       "Priority support",

@@ -297,7 +297,7 @@ export default function Pricing() {
                   <li>Language Learning (10 languages, 3,450 vocabulary words)</li>
                   <li>Math Tutor (full curriculum, 120+ problems)</li>
                   <li>Science Labs (30+ virtual experiments)</li>
-                  <li>Translation Hub (real-time translation, conversation mode, phrasebook)</li>
+                  <li>Translation Hub (real-time translation, Image OCR, conversation mode, phrasebook, multilingual chat)</li>
                   <li>Money Hub (budget, debt coach, goals)</li>
                   <li>Wellness Hub (fitness, nutrition, mental health)</li>
                 </ul>

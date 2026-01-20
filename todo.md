@@ -2643,3 +2643,9 @@
 - [x] Update Ultimate tier: "All 5 specialized hubs" → "All 6 specialized hubs"
 - [x] Update FAQ to list all 6 hubs including Translation Hub
 - [x] Update pricing page descriptions to reflect 6 hubs
+
+
+## Update Translation Hub Description
+- [x] Update Translation Hub description in pricing.ts to include Image OCR and Multilingual Chat
+- [x] Update Translation Hub description in Pricing.tsx FAQ to include all features
+- [x] Update Ultimate tier feature list to mention Image OCR
