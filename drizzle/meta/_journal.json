@@ -239,6 +239,13 @@
       "when": 1768754146528,
       "tag": "0033_pink_onslaught",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "5",
+      "when": 1768940008550,
+      "tag": "0034_lively_gateway",
+      "breakpoints": true
     }
   ]
 }

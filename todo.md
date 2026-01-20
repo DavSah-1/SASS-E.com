@@ -2552,3 +2552,77 @@
 - [x] Fix tRPC translation API returning HTML instead of JSON error
 - [x] Added safety check to prevent API calls before tRPC client is ready
 - [x] Verified translation endpoint is accessible and working
+
+
+## Simplified 4-Tier Pricing Implementation
+### Database Schema Updates
+- [x] Update users table with new subscription tier enum (free, starter, pro, ultimate)
+- [x] Add selectedSpecializedPaths field to track Starter/Pro path selections
+- [x] Add dailyUsageLimits tracking table for feature usage
+- [x] Add subscriptionPrice and subscriptionCurrency fields
+- [x] Push database migration
+
+### Backend API
+- [x] Create pricing configuration constants (tiers, prices, limits)
+- [ ] Add subscription tier check middleware
+- [ ] Implement feature usage tracking endpoints
+- [ ] Add daily usage limit enforcement
+- [ ] Create specialized path selection endpoints
+- [ ] Add subscription upgrade/downgrade endpoints
+- [ ] Implement usage reset cron job (daily)
+
+### Pricing Page
+- [x] Create Pricing page component at /pricing route
+- [x] Build 4-tier comparison table (Free, Starter £7.99, Pro £14.99, Ultimate £24.99)
+- [x] Add feature comparison rows with checkmarks/limits)
+- [x] Implement "Choose Plan" buttons for each tier
+- [x] Add annual pricing toggle (show monthly vs annual savings)
+- [x] Create FAQ section for pricing questions
+- [x] Add testimonials section
+- [x] Mobile-responsive pricing cards
+
+### Subscription Management
+- [ ] Create subscription management page at /subscription
+- [ ] Display current plan and usage statistics
+- [ ] Add upgrade/downgrade buttons
+- [ ] Show specialized path selector for Starter/Pro tiers
+- [ ] Display billing history
+- [ ] Add cancel subscription flow
+- [ ] Implement reactivation flow
+
+### Feature Gating
+- [ ] Add usage limit checks to Voice Assistant
+- [ ] Add usage limit checks to Verified Learning
+- [ ] Add usage limit checks to Math Tutor
+- [ ] Add usage limit checks to Translation features
+- [ ] Add usage limit checks to Image OCR
+- [ ] Add IoT device limit enforcement
+- [ ] Add specialized path access checks (Language Learning, Math, Science Labs, Money Hub, Wellness)
+- [ ] Create upgrade prompt modals when limits reached
+- [ ] Add usage indicators in UI (e.g., "5/20 used today")
+
+### Stripe Integration
+- [ ] Set up Stripe using webdev_add_feature
+- [ ] Create Stripe products for each tier
+- [ ] Implement checkout session creation
+- [ ] Add payment success/failure webhooks
+- [ ] Update subscription status after payment
+- [ ] Handle subscription renewals
+- [ ] Implement proration for upgrades/downgrades
+- [ ] Add invoice generation
+
+### Navigation Updates
+- [x] Add "Pricing" link to main navigation
+- [ ] Add "Upgrade" button in navigation for non-Ultimate users
+- [ ] Update profile page to show current subscription tier
+- [ ] Add subscription management link to profile
+
+### Testing
+- [ ] Test Free tier limits and upgrade prompts
+- [ ] Test Starter tier with 1 specialized path selection
+- [ ] Test Pro tier with 2 specialized path selections
+- [ ] Test Ultimate tier with full access
+- [ ] Test usage tracking and daily reset
+- [ ] Test payment flow end-to-end
+- [ ] Test subscription upgrades and downgrades
+- [ ] Verify feature gating across all features

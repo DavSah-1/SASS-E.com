@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff, AlertCircle } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff, AlertCircle, DollarSign } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -71,6 +71,10 @@ export function Navigation() {
             <a href="/wellness" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Heart className="h-4 w-4" />
               {translate("Wellness")}
+            </a>
+            <a href="/pricing" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              {translate("Pricing")}
             </a>
           </div>
         </div>
@@ -171,6 +175,14 @@ export function Navigation() {
             >
               <Heart className="h-5 w-5" />
               <span>{translate("Wellness")}</span>
+            </a>
+            <a
+              href="/pricing"
+              className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <DollarSign className="h-5 w-5" />
+              <span>{translate("Pricing")}</span>
             </a>
             {isAuthenticated && (
               <a

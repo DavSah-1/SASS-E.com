@@ -19,9 +19,12 @@ export const users = mysqlTable("users", {
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   preferredLanguage: varchar("preferredLanguage", { length: 10 }).default("en"),
   preferredCurrency: varchar("preferredCurrency", { length: 3 }).default("USD"),
-  subscriptionTier: mysqlEnum("subscriptionTier", ["free", "pro"]).default("free").notNull(),
+  subscriptionTier: mysqlEnum("subscriptionTier", ["free", "starter", "pro", "ultimate"]).default("free").notNull(),
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "inactive", "trial"]).default("inactive").notNull(),
   subscriptionExpiresAt: timestamp("subscriptionExpiresAt"),
+  selectedSpecializedPaths: text("selectedSpecializedPaths"), // JSON array of selected paths for Starter/Pro tiers
+  subscriptionPrice: decimal("subscriptionPrice", { precision: 10, scale: 2 }),
+  subscriptionCurrency: varchar("subscriptionCurrency", { length: 3 }).default("GBP"),
   staySignedIn: boolean("staySignedIn").default(false).notNull(),
   twoFactorEnabled: boolean("twoFactorEnabled").default(false).notNull(),
   twoFactorSecret: varchar("twoFactorSecret", { length: 255 }),
@@ -1729,3 +1732,22 @@ export const translateMessageTranslations = mysqlTable("translate_message_transl
 
 export type TranslateMessageTranslation = typeof translateMessageTranslations.$inferSelect;
 export type InsertTranslateMessageTranslation = typeof translateMessageTranslations.$inferInsert;
+
+/**
+ * Daily Usage Tracking table for feature limits
+ */
+export const dailyUsage = mysqlTable("daily_usage", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  date: timestamp("date").notNull(),
+  voiceAssistantCount: int("voiceAssistantCount").default(0).notNull(),
+  verifiedLearningCount: int("verifiedLearningCount").default(0).notNull(),
+  mathTutorCount: int("mathTutorCount").default(0).notNull(),
+  translateCount: int("translateCount").default(0).notNull(),
+  imageOcrCount: int("imageOcrCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DailyUsage = typeof dailyUsage.$inferSelect;
+export type InsertDailyUsage = typeof dailyUsage.$inferInsert;
