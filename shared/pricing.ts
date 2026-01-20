@@ -4,7 +4,7 @@
  */
 
 export type SubscriptionTier = "free" | "starter" | "pro" | "ultimate";
-export type SpecializedHub = "language_learning" | "math_tutor" | "science_labs" | "money_hub" | "wellness";
+export type SpecializedHub = "language_learning" | "math_tutor" | "science_labs" | "translation_hub" | "money_hub" | "wellness";
 
 export interface TierLimits {
   voiceAssistant: number | "unlimited";
@@ -63,6 +63,11 @@ export const SPECIALIZED_HUBS: Record<SpecializedHub, { name: string; descriptio
     name: "Science Labs",
     description: "30+ virtual experiments across Physics, Chemistry, Biology",
     icon: "🔬",
+  },
+  translation_hub: {
+    name: "Translation Hub",
+    description: "Real-time translation, conversation mode, phrasebook, multilingual chat",
+    icon: "🌐",
   },
   money_hub: {
     name: "Money Hub",
@@ -176,10 +181,11 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
     },
     features: [
       "Everything in Pro",
-      "All 5 specialized hubs included",
+      "All 6 specialized hubs included",
       "Language Learning (10 languages)",
       "Math Tutor (full curriculum)",
       "Science Labs (30+ experiments)",
+      "Translation Hub (real-time translation, conversation mode)",
       "Money Hub (budget, debt, goals)",
       "Wellness Hub (fitness, nutrition, mental health)",
       "Priority support",

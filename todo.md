@@ -2635,3 +2635,11 @@
 - [x] Update database schema: Rename selectedSpecializedPaths to selectedSpecializedHubs
 - [x] Push database migration for field rename
 - [ ] Update any other references to "specialized path" in codebase
+
+
+## Add Translation Hub to Pricing
+- [x] Add translation_hub to SpecializedHub type in pricing.ts
+- [x] Add Translation Hub to SPECIALIZED_HUBS constant with description
+- [x] Update Ultimate tier: "All 5 specialized hubs" → "All 6 specialized hubs"
+- [x] Update FAQ to list all 6 hubs including Translation Hub
+- [x] Update pricing page descriptions to reflect 6 hubs

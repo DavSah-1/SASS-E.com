@@ -252,7 +252,7 @@ export default function Pricing() {
                   <td className="p-4 text-center text-purple-100">7-day trial</td>
                   <td className="p-4 text-center text-purple-100">Choose 1</td>
                   <td className="p-4 text-center text-purple-100">Choose 2</td>
-                  <td className="p-4 text-center text-purple-100">All 5 included</td>
+                  <td className="p-4 text-center text-purple-100">All 6 included</td>
                 </tr>
                 <tr>
                   <td className="p-4 text-purple-200">Priority Support</td>
@@ -297,6 +297,7 @@ export default function Pricing() {
                   <li>Language Learning (10 languages, 3,450 vocabulary words)</li>
                   <li>Math Tutor (full curriculum, 120+ problems)</li>
                   <li>Science Labs (30+ virtual experiments)</li>
+                  <li>Translation Hub (real-time translation, conversation mode, phrasebook)</li>
                   <li>Money Hub (budget, debt coach, goals)</li>
                   <li>Wellness Hub (fitness, nutrition, mental health)</li>
                 </ul>
