@@ -22,7 +22,7 @@ export const users = mysqlTable("users", {
   subscriptionTier: mysqlEnum("subscriptionTier", ["free", "starter", "pro", "ultimate"]).default("free").notNull(),
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "inactive", "trial"]).default("inactive").notNull(),
   subscriptionExpiresAt: timestamp("subscriptionExpiresAt"),
-  selectedSpecializedPaths: text("selectedSpecializedPaths"), // JSON array of selected paths for Starter/Pro tiers
+  selectedSpecializedHubs: text("selectedSpecializedHubs"), // JSON array of selected hubs for Starter/Pro tiers
   subscriptionPrice: decimal("subscriptionPrice", { precision: 10, scale: 2 }),
   subscriptionCurrency: varchar("subscriptionCurrency", { length: 3 }).default("GBP"),
   staySignedIn: boolean("staySignedIn").default(false).notNull(),

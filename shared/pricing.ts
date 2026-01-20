@@ -4,7 +4,7 @@
  */
 
 export type SubscriptionTier = "free" | "starter" | "pro" | "ultimate";
-export type SpecializedPath = "language_learning" | "math_tutor" | "science_labs" | "money_hub" | "wellness";
+export type SpecializedHub = "language_learning" | "math_tutor" | "science_labs" | "money_hub" | "wellness";
 
 export interface TierLimits {
   voiceAssistant: number | "unlimited";
@@ -13,7 +13,7 @@ export interface TierLimits {
   mathTutor: number | "unlimited";
   translate: number | "unlimited";
   imageOcr: number | "unlimited";
-  specializedPathsCount: number | "unlimited";
+  specializedHubsCount: number | "unlimited";
 }
 
 export interface TierPricing {
@@ -48,7 +48,7 @@ export interface TierFeatures {
   popular?: boolean;
 }
 
-export const SPECIALIZED_PATHS: Record<SpecializedPath, { name: string; description: string; icon: string }> = {
+export const SPECIALIZED_HUBS: Record<SpecializedHub, { name: string; description: string; icon: string }> = {
   language_learning: {
     name: "Language Learning",
     description: "10 languages, 3,450 vocabulary words, interactive exercises",
@@ -91,7 +91,7 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       mathTutor: 5,
       translate: 5,
       imageOcr: 1,
-      specializedPathsCount: 0,
+      specializedHubsCount: 0,
     },
     features: [
       "5 voice assistant conversations per day",
@@ -117,7 +117,7 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       mathTutor: "unlimited",
       translate: "unlimited",
       imageOcr: 10,
-      specializedPathsCount: 1,
+      specializedHubsCount: 1,
     },
     features: [
       "20 voice assistant conversations per day",
@@ -126,8 +126,8 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       "Unlimited math tutor access",
       "Unlimited translations",
       "10 image OCR per day",
-      "Choose 1 specialized learning path",
-      "Full access to selected path features",
+      "Choose 1 specialized hub",
+      "Full access to selected hub features",
     ],
   },
   pro: {
@@ -144,7 +144,7 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       mathTutor: "unlimited",
       translate: "unlimited",
       imageOcr: "unlimited",
-      specializedPathsCount: 2,
+      specializedHubsCount: 2,
     },
     features: [
       "Unlimited voice assistant conversations",
@@ -153,8 +153,8 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       "Unlimited math tutor access",
       "Unlimited translations",
       "Unlimited image OCR",
-      "Choose 2 specialized learning paths",
-      "Full access to selected path features",
+      "Choose 2 specialized hubs",
+      "Full access to selected hub features",
     ],
     popular: true,
   },
@@ -172,11 +172,11 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       mathTutor: "unlimited",
       translate: "unlimited",
       imageOcr: "unlimited",
-      specializedPathsCount: "unlimited",
+      specializedHubsCount: "unlimited",
     },
     features: [
       "Everything in Pro",
-      "All 5 specialized learning paths included",
+      "All 5 specialized hubs included",
       "Language Learning (10 languages)",
       "Math Tutor (full curriculum)",
       "Science Labs (30+ experiments)",
@@ -207,25 +207,25 @@ export function getMonthlyFromAnnual(tier: SubscriptionTier, currency: keyof Tie
 }
 
 /**
- * Check if a user has access to a specialized path
+ * Check if a user has access to a specialized hub
  */
-export function hasAccessToPath(
+export function hasAccessToHub(
   tier: SubscriptionTier,
-  selectedPaths: SpecializedPath[],
-  pathToCheck: SpecializedPath
+  selectedHubs: SpecializedHub[],
+  hubToCheck: SpecializedHub
 ): boolean {
   if (tier === "free") return false;
   if (tier === "ultimate") return true;
-  return selectedPaths.includes(pathToCheck);
+  return selectedHubs.includes(hubToCheck);
 }
 
 /**
- * Check if a user can add more specialized paths
+ * Check if a user can add more specialized hubs
  */
-export function canAddMorePaths(tier: SubscriptionTier, currentPathsCount: number): boolean {
-  const limit = PRICING_TIERS[tier].limits.specializedPathsCount;
+export function canAddMoreHubs(tier: SubscriptionTier, currentHubsCount: number): boolean {
+  const limit = PRICING_TIERS[tier].limits.specializedHubsCount;
   if (limit === "unlimited") return true;
-  return currentPathsCount < limit;
+  return currentHubsCount < limit;
 }
 
 /**

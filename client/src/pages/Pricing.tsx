@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Navigation } from "@/components/Navigation";
-import { PRICING_TIERS, getAnnualDiscountPercent, getMonthlyFromAnnual, getCurrencySymbol } from "@shared/pricing";
+import { PRICING_TIERS, getAnnualDiscountPercent, getMonthlyFromAnnual, getCurrencySymbol, SPECIALIZED_HUBS } from "@shared/pricing";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Link } from "wouter";
 
@@ -248,7 +248,7 @@ export default function Pricing() {
                   <td className="p-4 text-center text-purple-100">Unlimited</td>
                 </tr>
                 <tr className="border-b border-purple-700/30">
-                  <td className="p-4 text-purple-200">Specialized Learning Paths</td>
+                  <td className="p-4 text-purple-200">Specialized Hubs</td>
                   <td className="p-4 text-center text-purple-100">7-day trial</td>
                   <td className="p-4 text-center text-purple-100">Choose 1</td>
                   <td className="p-4 text-center text-purple-100">Choose 2</td>
@@ -287,11 +287,11 @@ export default function Pricing() {
 
             <Card className="bg-purple-900/30 backdrop-blur-sm border-purple-700/50">
               <CardHeader>
-                <CardTitle className="text-white">What are Specialized Learning Paths?</CardTitle>
+                <CardTitle className="text-white">What are Specialized Hubs?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-purple-200 mb-2">
-                  Specialized Learning Paths are comprehensive feature sets for specific domains:
+                  Specialized Hubs are comprehensive feature sets for specific domains:
                 </p>
                 <ul className="list-disc list-inside text-purple-200 space-y-1">
                   <li>Language Learning (10 languages, 3,450 vocabulary words)</li>

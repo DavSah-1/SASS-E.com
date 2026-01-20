@@ -246,6 +246,13 @@
       "when": 1768940008550,
       "tag": "0034_lively_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "5",
+      "when": 1768940869144,
+      "tag": "0035_natural_scalphunter",
+      "breakpoints": true
     }
   ]
 }

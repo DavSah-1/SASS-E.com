@@ -2626,3 +2626,12 @@
 - [ ] Test payment flow end-to-end
 - [ ] Test subscription upgrades and downgrades
 - [ ] Verify feature gating across all features
+
+
+## Update Pricing Terminology
+- [x] Update pricing.ts: Change "SpecializedPath" to "SpecializedHub"
+- [x] Update pricing.ts: Change all references from "path" to "hub"
+- [x] Update Pricing.tsx: Change all text from "learning path" to "hub"
+- [x] Update database schema: Rename selectedSpecializedPaths to selectedSpecializedHubs
+- [x] Push database migration for field rename
+- [ ] Update any other references to "specialized path" in codebase
