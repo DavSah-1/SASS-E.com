@@ -56,6 +56,11 @@ export function Footer() {
                   Wellness Demo
                 </Link>
               </li>
+              <li>
+                <Link href="/learning-demo" className="hover:text-foreground transition-colors">
+                  Learning Demo
+                </Link>
+              </li>
             </ul>
           </div>
 

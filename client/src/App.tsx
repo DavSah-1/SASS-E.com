@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import VoiceAssistant from "./pages/VoiceAssistant";
 import IoTDevices from "./pages/IoTDevices";
 import Learning from "./pages/Learning";
+import LearningDemo from "./pages/LearningDemo";
 import LanguageLearning from "./pages/LanguageLearning";
 import Translation from "./pages/Translation";
 import TranslateLanding from "./pages/TranslateLanding";
@@ -40,6 +41,7 @@ function Router() {
       <Route path={"/assistant"} component={VoiceAssistant} />
       <Route path={"/devices"} component={IoTDevices} />
       <Route path={"/learning"} component={Learning} />
+      <Route path={"/learning-demo"} component={LearningDemo} />
       <Route path={"/language-learning"} component={LanguageLearning} />
       <Route path={"/translate"} component={TranslateLanding} />
       <Route path={"/translate-app"} component={Translation} />

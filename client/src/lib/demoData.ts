@@ -454,3 +454,134 @@ export const DEMO_SPLIT_EXPENSES = [
     date: new Date("2024-12-10"),
   },
 ];
+
+/**
+ * Sample data for Learning Hub demo page
+ * Realistic learning sessions and content for showcasing features
+ */
+
+export const DEMO_LEARNING_SESSIONS = [
+  {
+    id: 1,
+    topic: "Quantum Physics",
+    question: "How does quantum entanglement work?",
+    explanation: "Quantum entanglement is a phenomenon where two or more particles become correlated in such a way that the quantum state of each particle cannot be described independently. When particles are entangled, measuring the state of one particle instantaneously affects the state of the other, regardless of the distance between them. This doesn't violate the speed of light because no information is transmitted - the correlation exists from the moment of entanglement.",
+    confidence: 95,
+    verificationStatus: "verified" as const,
+    sources: [
+      { title: "Stanford Encyclopedia of Philosophy - Quantum Entanglement", url: "https://plato.stanford.edu/entries/qt-entangle/" },
+      { title: "Nature Physics - Quantum entanglement", url: "https://www.nature.com/subjects/quantum-entanglement" },
+    ],
+    createdAt: new Date("2024-12-15T10:30:00"),
+  },
+  {
+    id: 2,
+    topic: "World War II",
+    question: "What were the main causes of World War II?",
+    explanation: "The main causes of World War II included: (1) The Treaty of Versailles imposed harsh penalties on Germany after WWI, creating economic hardship and resentment; (2) The rise of fascism and totalitarian regimes in Germany, Italy, and Japan; (3) The failure of the League of Nations to prevent aggression; (4) Economic depression in the 1930s that destabilized governments; (5) Appeasement policies by Western powers that emboldened aggressive expansion.",
+    confidence: 92,
+    verificationStatus: "verified" as const,
+    sources: [
+      { title: "History.com - Causes of World War II", url: "https://www.history.com/topics/world-war-ii/world-war-ii-history" },
+      { title: "Britannica - World War II", url: "https://www.britannica.com/event/World-War-II" },
+    ],
+    createdAt: new Date("2024-12-14T14:20:00"),
+  },
+  {
+    id: 3,
+    topic: "Machine Learning",
+    question: "What is the difference between supervised and unsupervised learning?",
+    explanation: "Supervised learning uses labeled training data where the correct output is known, allowing the model to learn the mapping between inputs and outputs (e.g., classification, regression). Unsupervised learning works with unlabeled data to discover hidden patterns or structures without predefined categories (e.g., clustering, dimensionality reduction). The key difference is whether the training data includes the 'answers' the model should learn.",
+    confidence: 97,
+    verificationStatus: "verified" as const,
+    sources: [
+      { title: "MIT - Introduction to Machine Learning", url: "https://ocw.mit.edu/courses/machine-learning/" },
+      { title: "Google AI - Machine Learning Crash Course", url: "https://developers.google.com/machine-learning" },
+    ],
+    createdAt: new Date("2024-12-13T09:15:00"),
+  },
+];
+
+export const DEMO_STUDY_GUIDE = {
+  topic: "Quantum Entanglement",
+  keyPoints: [
+    "Quantum entanglement creates correlations between particles that persist regardless of distance",
+    "Measuring one entangled particle instantaneously affects its partner",
+    "No information travels faster than light - the correlation exists from entanglement",
+    "Einstein called it 'spooky action at a distance' but it's now experimentally verified",
+    "Entanglement is the basis for quantum computing and quantum cryptography",
+  ],
+  definitions: [
+    { term: "Quantum State", definition: "The complete description of a quantum system's properties" },
+    { term: "Superposition", definition: "A quantum system existing in multiple states simultaneously until measured" },
+    { term: "Wave Function Collapse", definition: "The process where a quantum system assumes a definite state upon measurement" },
+  ],
+  practiceQuestions: [
+    "Explain why quantum entanglement doesn't violate the speed of light.",
+    "How is quantum entanglement used in quantum computing?",
+    "What is the difference between quantum entanglement and classical correlation?",
+  ],
+  studyTips: [
+    "Start with understanding superposition before tackling entanglement",
+    "Use visual diagrams to understand particle correlations",
+    "Practice explaining concepts in simple terms to reinforce understanding",
+  ],
+};
+
+export const DEMO_QUIZ = {
+  topic: "Machine Learning Basics",
+  questions: [
+    {
+      id: 1,
+      question: "Which type of learning uses labeled training data?",
+      options: ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning", "Transfer Learning"],
+      correctAnswer: 0,
+      explanation: "Supervised learning uses labeled data where the correct output is known, allowing the model to learn from examples.",
+    },
+    {
+      id: 2,
+      question: "What is the main goal of unsupervised learning?",
+      options: ["Predict future values", "Discover hidden patterns", "Classify data into categories", "Optimize rewards"],
+      correctAnswer: 1,
+      explanation: "Unsupervised learning aims to discover hidden patterns and structures in unlabeled data without predefined categories.",
+    },
+    {
+      id: 3,
+      question: "Which algorithm is commonly used for classification tasks?",
+      options: ["K-means clustering", "Decision Trees", "PCA", "Autoencoders"],
+      correctAnswer: 1,
+      explanation: "Decision Trees are supervised learning algorithms commonly used for classification tasks by creating decision rules.",
+    },
+    {
+      id: 4,
+      question: "What does overfitting mean in machine learning?",
+      options: [
+        "Model performs well on all data",
+        "Model is too simple",
+        "Model memorizes training data but fails on new data",
+        "Model has too few parameters",
+      ],
+      correctAnswer: 2,
+      explanation: "Overfitting occurs when a model learns the training data too well, including noise, and fails to generalize to new data.",
+    },
+  ],
+  passingScore: 3,
+};
+
+export const DEMO_LEARNING_CATEGORIES = [
+  { id: 1, name: "Sciences", icon: "🔬", topics: ["Physics", "Chemistry", "Biology"], color: "blue" },
+  { id: 2, name: "Mathematics", icon: "📐", topics: ["Algebra", "Calculus", "Statistics"], color: "purple" },
+  { id: 3, name: "Humanities", icon: "📚", topics: ["History", "Literature", "Philosophy"], color: "green" },
+  { id: 4, name: "Technology", icon: "💻", topics: ["Programming", "AI", "Cybersecurity"], color: "cyan" },
+  { id: 5, name: "Business", icon: "💼", topics: ["Economics", "Marketing", "Finance"], color: "yellow" },
+  { id: 6, name: "Creative Arts", icon: "🎨", topics: ["Music", "Design", "Photography"], color: "pink" },
+];
+
+export const DEMO_LEARNING_STATS = {
+  totalSessions: 47,
+  topicsExplored: 23,
+  quizzesPassed: 15,
+  averageConfidence: 94,
+  studyStreak: 12,
+  favoriteCategory: "Technology",
+};
