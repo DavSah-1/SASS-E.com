@@ -36,6 +36,66 @@ export const appRouter = router({
   i18n: i18nRouter,
 
   subscription: router({
+    selectHubs: protectedProcedure
+      .input(z.object({
+        hubs: z.array(z.enum(["language_learning", "math_tutor", "science_labs", "translation_hub", "money_hub", "wellness"])),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { updateUserHubSelection } = await import("./db");
+        const { checkFeatureAccess } = await import("./accessControl");
+        
+        // Check if user can change hubs
+        const user = ctx.user;
+        if (user.hubsSelectedAt && user.subscriptionExpiresAt) {
+          const now = new Date();
+          const expiresAt = new Date(user.subscriptionExpiresAt);
+          
+          // If subscription hasn't expired yet, prevent changes
+          if (now < expiresAt) {
+            throw new Error("Your hub selection is locked until your subscription ends");
+          }
+        }
+        
+        // Validate hub count based on tier
+        const maxHubs = user.subscriptionTier === "starter" ? 1 : user.subscriptionTier === "pro" ? 2 : 6;
+        if (input.hubs.length > maxHubs) {
+          throw new Error(`You can only select ${maxHubs} hub${maxHubs > 1 ? 's' : ''} with your ${user.subscriptionTier} plan`);
+        }
+        
+        await updateUserHubSelection(ctx.user.id, input.hubs);
+        return { success: true, hubs: input.hubs };
+      }),
+    canChangeHubs: protectedProcedure
+      .query(async ({ ctx }) => {
+        const user = ctx.user;
+        
+        // Owner can always change
+        const { ENV } = await import("./_core/env");
+        if (user.openId === ENV.ownerOpenId) {
+          return { canChange: true, reason: "Owner access" };
+        }
+        
+        // If no hubs selected yet, can change
+        if (!user.hubsSelectedAt) {
+          return { canChange: true, reason: "No hubs selected yet" };
+        }
+        
+        // Check if subscription has expired
+        if (user.subscriptionExpiresAt) {
+          const now = new Date();
+          const expiresAt = new Date(user.subscriptionExpiresAt);
+          
+          if (now >= expiresAt) {
+            return { canChange: true, reason: "Subscription expired" };
+          }
+        }
+        
+        return { 
+          canChange: false, 
+          reason: "Hub selection is locked until subscription ends",
+          lockedUntil: user.subscriptionExpiresAt 
+        };
+      }),
     checkAccess: protectedProcedure
       .input(z.object({
         featureType: z.enum(["voice_assistant", "iot_device", "verified_learning", "math_tutor", "translate", "image_ocr", "specialized_hub"]),

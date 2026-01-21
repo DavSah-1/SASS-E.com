@@ -202,6 +202,19 @@ export async function updateUserLanguage(userId: number, language: string) {
   await db.update(users).set({ preferredLanguage: language }).where(eq(users.id, userId));
 }
 
+export async function updateUserHubSelection(userId: number, hubs: string[]) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update user hub selection: database not available");
+    return;
+  }
+
+  await db.update(users).set({ 
+    selectedSpecializedHubs: JSON.stringify(hubs),
+    hubsSelectedAt: new Date()
+  }).where(eq(users.id, userId));
+}
+
 export async function updateUserStaySignedIn(userId: number, staySignedIn: boolean) {
   const db = await getDb();
   if (!db) {

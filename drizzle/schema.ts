@@ -23,6 +23,7 @@ export const users = mysqlTable("users", {
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "inactive", "trial"]).default("inactive").notNull(),
   subscriptionExpiresAt: timestamp("subscriptionExpiresAt"),
   selectedSpecializedHubs: text("selectedSpecializedHubs"), // JSON array of selected hubs for Starter/Pro tiers
+  hubsSelectedAt: timestamp("hubsSelectedAt"), // Timestamp when user selected their hubs (locks until subscription ends)
   subscriptionPrice: decimal("subscriptionPrice", { precision: 10, scale: 2 }),
   subscriptionCurrency: varchar("subscriptionCurrency", { length: 3 }).default("GBP"),
   staySignedIn: boolean("staySignedIn").default(false).notNull(),

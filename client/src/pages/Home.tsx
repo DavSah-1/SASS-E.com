@@ -33,11 +33,14 @@ import {
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "wouter";
+import { HubSelectionModal } from "@/components/HubSelectionModal";
+import { useHubSelection } from "@/hooks/useHubSelection";
 
 export default function Home() {
   const { loading, isAuthenticated } = useAuth();
   const isIncognito = useIncognitoDetection();
   const { translate: t } = useLanguage();
+  const hubSelection = useHubSelection();
   
   // Test useTranslate hook with one string
   const translatedTagline = useTranslate("Your intelligent AI assistant. Advanced, adaptive, and always ready to help.");
@@ -55,6 +58,17 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Navigation */}
       <Navigation />
+      
+      {/* Hub Selection Modal */}
+      {isAuthenticated && (
+        <HubSelectionModal
+          open={hubSelection.showModal}
+          onClose={() => hubSelection.setShowModal(false)}
+          userTier={hubSelection.userTier}
+          currentSelection={hubSelection.selectedHubs}
+          isLocked={hubSelection.isLocked}
+        />
+      )}
 
       {/* Incognito Mode Notice */}
       {isIncognito && !isAuthenticated && (

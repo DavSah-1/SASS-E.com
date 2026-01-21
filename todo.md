@@ -2702,3 +2702,19 @@
 - [x] Apply hub access control to Language Learning pages
 - [x] Apply hub access control to Science Labs pages
 - [x] Test hub access control for all specialized hubs
+
+
+## Hub Selection Interface with Permanent Lock
+
+- [x] Update database schema to add hubsSelectedAt timestamp field
+- [x] Push database migration for new field
+- [x] Create HubSelectionModal component with visual hub cards
+- [x] Add tier-based selection limits (Starter: 1, Pro: 2, Ultimate: all)
+- [x] Show lock indicator when hubs are already selected
+- [x] Add tRPC procedure to save hub selection with timestamp
+- [x] Add tRPC procedure to check if hubs can be changed
+- [x] Add validation to prevent hub changes until subscription ends
+- [x] Trigger hub selection modal on first login for Starter/Pro users
+- [ ] Add "Manage Hubs" button in navigation (disabled if locked)
+- [x] Test hub selection flow for all tiers
+- [x] Test lock mechanism prevents changes
