@@ -2756,3 +2756,6 @@
 - [ ] Check if useAuth has redirectOnUnauthenticated enabled
 - [ ] Fix Learning.tsx to show landing page for unauthenticated users
 - [ ] Test /learning in incognito mode
+
+## Add Demo Button to Learning Page
+- [x] Add "Try Demo" button next to "Start Learning Today" button on /learning page hero section

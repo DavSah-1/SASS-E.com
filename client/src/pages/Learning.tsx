@@ -7,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { BookOpen, CheckCircle2, XCircle, AlertCircle, HelpCircle, ExternalLink, Loader2, ArrowRight } from "lucide-react";
+import { BookOpen, CheckCircle2, XCircle, AlertCircle, HelpCircle, ExternalLink, Loader2, ArrowRight, Sparkles } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
+import { Link } from "wouter";
 import { Footer } from "@/components/Footer";
 import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
@@ -197,9 +198,17 @@ export default function Learning() {
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
               {t("Master any subject with AI-powered explanations, fact-checked content, personalized study guides, and interactive quizzes")}
             </p>
-            <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-6 text-lg">
-              <a href={getLoginUrl()}>{t("Start Learning Today")}</a>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-6 text-lg">
+                <a href={getLoginUrl()}>{t("Start Learning Today")}</a>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 px-8 py-6 text-lg">
+                <Link href="/learning-demo">
+                  <Sparkles className="h-5 w-5 mr-2" />
+                  {t("Try Demo")}
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {/* Features Grid */}
