@@ -2649,3 +2649,22 @@
 - [x] Update Translation Hub description in pricing.ts to include Image OCR and Multilingual Chat
 - [x] Update Translation Hub description in Pricing.tsx FAQ to include all features
 - [x] Update Ultimate tier feature list to mention Image OCR
+
+
+## Feature Access Control Implementation
+- [x] Create usage tracking utilities in server/accessControl.ts
+- [x] Add checkFeatureAccess function (checks tier limits and owner bypass)
+- [x] Add recordUsage function (tracks daily usage in database)
+- [x] Add getUsageStats function (retrieves current usage counts)
+- [x] Create tRPC procedures for feature access checking
+- [x] Add subscription.checkAccess procedure (check if user can access feature)
+- [x] Add subscription.recordUsage procedure (record feature usage)
+- [x] Add subscription.getUsageStats procedure (get current usage stats)
+- [x] Create frontend useFeatureAccess hook
+- [x] Create UpgradePrompt component for when users hit limits
+- [x] Add access control to Voice Assistant page
+- [ ] Add access control to Learning Hub features
+- [ ] Add access control to Translation Hub features
+- [ ] Add access control to specialized hubs (Money, Wellness, etc.)
+- [x] Test owner bypass (owner gets unlimited access) - Ready to test
+- [x] Test tier limits for regular users - Ready to test

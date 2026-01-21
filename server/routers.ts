@@ -35,6 +35,38 @@ export const appRouter = router({
   translateChat: translateChatRouter,
   i18n: i18nRouter,
 
+  subscription: router({
+    checkAccess: protectedProcedure
+      .input(z.object({
+        featureType: z.enum(["voice_assistant", "iot_device", "verified_learning", "math_tutor", "translate", "image_ocr", "specialized_hub"]),
+        specializedHub: z.enum(["language_learning", "math_tutor", "science_labs", "translation_hub", "money_hub", "wellness"]).optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const { checkFeatureAccess } = await import("./accessControl");
+        return await checkFeatureAccess(
+          ctx.user.id,
+          ctx.user.openId,
+          ctx.user.subscriptionTier,
+          input.featureType,
+          input.specializedHub
+        );
+      }),
+    recordUsage: protectedProcedure
+      .input(z.object({
+        featureType: z.enum(["voice_assistant", "iot_device", "verified_learning", "math_tutor", "translate", "image_ocr", "specialized_hub"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { recordUsage } = await import("./accessControl");
+        await recordUsage(ctx.user.id, input.featureType);
+        return { success: true };
+      }),
+    getUsageStats: protectedProcedure
+      .query(async ({ ctx }) => {
+        const { getUsageStats } = await import("./accessControl");
+        return await getUsageStats(ctx.user.id);
+      }),
+  }),
+
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

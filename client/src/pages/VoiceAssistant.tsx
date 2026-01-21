@@ -14,6 +14,8 @@ import { SUPPORTED_LANGUAGES, getSpeechRecognitionLanguage, getSpeechSynthesisLa
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 export default function VoiceAssistant() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -32,6 +34,10 @@ export default function VoiceAssistant() {
   const chatMutation = trpc.assistant.chat.useMutation();
   const transcribeMutation = trpc.assistant.transcribe.useMutation();
   const feedbackMutation = trpc.assistant.submitFeedback.useMutation();
+  
+  // Access control
+  const voiceAccess = useFeatureAccess("voice_assistant");
+  const { recordUsage } = useRecordUsage();
 
   const clearAllHistoryMutation = trpc.assistant.clearAllConversations.useMutation();
   const { data: history, refetch: refetchHistory } = trpc.assistant.history.useQuery(undefined, {
@@ -58,6 +64,12 @@ export default function VoiceAssistant() {
 
 
   const startRecording = async () => {
+    // Check access before recording
+    if (!voiceAccess.allowed && !voiceAccess.isLoading) {
+      toast.error(voiceAccess.reason || "You've reached your daily limit for Voice Assistant");
+      return;
+    }
+    
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
@@ -130,6 +142,9 @@ export default function VoiceAssistant() {
             locationInfo,
             conversationHistory: conversationMemory
           });
+          
+          // Record usage after successful interaction
+          recordUsage("voice_assistant");
           
           // Update conversation memory (keep last 10 exchanges)
           setConversationMemory(prev => {
@@ -334,6 +349,16 @@ export default function VoiceAssistant() {
               </p>
             </CardContent>
           </Card>
+        )}
+
+        {/* Upgrade Prompt if limit reached */}
+        {!voiceAccess.allowed && !voiceAccess.isLoading && voiceAccess.upgradeRequired && (
+          <UpgradePrompt
+            featureName="Voice Assistant"
+            currentUsage={voiceAccess.currentUsage}
+            limit={voiceAccess.limit}
+            reason={voiceAccess.reason}
+          />
         )}
 
         {/* Main Voice Interface */}
