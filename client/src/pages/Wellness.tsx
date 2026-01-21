@@ -60,8 +60,8 @@ export default function Wellness() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   
-  // Hub access control
-  const wellnessHubAccess = useFeatureAccess("specialized_hub", "wellness");
+  // Hub access control - only check for authenticated users
+  const wellnessHubAccess = useFeatureAccess("specialized_hub", "wellness", { enabled: isAuthenticated });
   
   // Hub access control - only redirect authenticated users without access
   // Wait for access check to complete before redirecting

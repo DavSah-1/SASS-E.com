@@ -70,8 +70,8 @@ export default function Money() {
   const { translate: t } = useLanguage();
   const [location, setLocation] = useLocation();
   
-  // Hub access control
-  const moneyHubAccess = useFeatureAccess("specialized_hub", "money_hub");
+  // Hub access control - only check for authenticated users
+  const moneyHubAccess = useFeatureAccess("specialized_hub", "money_hub", { enabled: isAuthenticated });
 
   // Hub access control - only redirect authenticated users without access
   // Wait for access check to complete before redirecting

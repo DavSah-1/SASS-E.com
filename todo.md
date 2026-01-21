@@ -2735,3 +2735,24 @@
 - [x] Identify why useFeatureAccess hook is triggering - user is actually signed in as admin but redirect happens before owner bypass response returns
 - [x] Fix the root cause of the redirect - changed !moneyHubAccess.allowed to moneyHubAccess.allowed === false to wait for backend owner bypass
 - [x] Verify owner (admin) can access all hubs without redirect
+
+
+## Fix Redirect for Unauthenticated Users (Round 3)
+- [x] Clear browser session and test /money as unauthenticated user
+- [x] Clear browser session and test /wellness as unauthenticated user  
+- [x] Identify why useFeatureAccess is causing redirects for unauthenticated users - hook is called unconditionally at component top, before authentication check
+- [x] Fix redirect logic to NOT redirect unauthenticated users - added enabled parameter to useFeatureAccess hook, set to isAuthenticated
+- [ ] Verify unauthenticated users see landing pages, not redirects
+
+
+## Fix useFeatureAccess Hook for Disabled Queries
+- [x] Fix useFeatureAccess to return allowed: true when query is disabled (not allowed: false)
+- [ ] Test unauthenticated user access to /money, /wellness, /learning
+- [ ] Test authenticated user access to hubs they don't have selected
+
+
+## Fix /learning Page Redirect for Unauthenticated Users
+- [ ] Investigate why /learning redirects to sign-in
+- [ ] Check if useAuth has redirectOnUnauthenticated enabled
+- [ ] Fix Learning.tsx to show landing page for unauthenticated users
+- [ ] Test /learning in incognito mode

@@ -25,8 +25,11 @@ export interface FeatureAccessResult {
  */
 export function useFeatureAccess(
   featureType: FeatureType,
-  specializedHub?: SpecializedHub
+  specializedHub?: SpecializedHub,
+  options?: { enabled?: boolean }
 ): FeatureAccessResult {
+  const enabled = options?.enabled !== false;
+  
   const { data, isLoading } = trpc.subscription.checkAccess.useQuery(
     { featureType, specializedHub },
     {
@@ -34,8 +37,19 @@ export function useFeatureAccess(
       staleTime: 30000,
       // Refetch when window regains focus
       refetchOnWindowFocus: true,
+      // Allow disabling the query (e.g., for unauthenticated users)
+      enabled,
     }
   );
+
+  // If query is disabled (e.g., user not authenticated), return allowed: true
+  // This prevents redirect logic from triggering for unauthenticated users
+  if (!enabled) {
+    return {
+      allowed: true,
+      isLoading: false,
+    };
+  }
 
   if (isLoading || !data) {
     return {
