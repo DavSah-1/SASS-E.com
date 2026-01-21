@@ -15,10 +15,27 @@ import { Beaker, FlaskConical, Microscope, AlertTriangle, CheckCircle2, Clock, T
 import { LabNotebook } from "@/components/LabNotebook";
 import { PreLabQuiz } from "@/components/PreLabQuiz";
 import { EquipmentGallery } from "@/components/LabEquipment";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useLocation } from "wouter";
+import { useEffect } from "react";
 
 export default function ScienceLab() {
   const { user, isAuthenticated } = useAuth();
+  const [location, setLocation] = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<"physics" | "chemistry" | "biology" | "all">("all");
+  
+  // Hub access control
+  const scienceHubAccess = useFeatureAccess("specialized_hub", "science_labs");
+  
+  // Hub access control - show upgrade prompt if no access
+  useEffect(() => {
+    if (!scienceHubAccess.isLoading && isAuthenticated) {
+      if (!scienceHubAccess.allowed) {
+        // Show upgrade prompt at the top of the page
+      }
+    }
+  }, [scienceHubAccess.isLoading, scienceHubAccess.allowed, isAuthenticated]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<"beginner" | "intermediate" | "advanced" | "all">("all");
   const [selectedExperiment, setSelectedExperiment] = useState<any>(null);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -176,6 +193,16 @@ export default function ScienceLab() {
             </Button>
           </div>
         </div>
+
+        {/* Upgrade Prompt if no access */}
+        {!scienceHubAccess.allowed && !scienceHubAccess.isLoading && scienceHubAccess.upgradeRequired && (
+          <div className="mb-8">
+            <UpgradePrompt
+              featureName="Science Labs Hub"
+              reason={scienceHubAccess.reason}
+            />
+          </div>
+        )}
 
         {/* Progress Stats */}
         {progressQuery.data && (

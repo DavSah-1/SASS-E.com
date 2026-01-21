@@ -48,12 +48,30 @@ import { WorkoutLibrary } from "@/components/WorkoutLibrary";
 import { WearableDevices } from "@/components/WearableDevices";
 import { WellnessOnboarding } from "@/components/WellnessOnboarding";
 import { CoachingDashboard } from "@/components/CoachingDashboard";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useLocation } from "wouter";
+import { useEffect } from "react";
 
 export default function Wellness() {
   const { user, isAuthenticated, loading } = useAuth();
   const { translate: t } = useLanguage();
+  const [location, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  // Hub access control
+  const wellnessHubAccess = useFeatureAccess("specialized_hub", "wellness");
+  
+  // Hub access control - redirect if user doesn't have access
+  useEffect(() => {
+    if (!loading && !wellnessHubAccess.isLoading && isAuthenticated) {
+      if (!wellnessHubAccess.allowed) {
+        // Redirect to demo page if no access
+        setLocation('/wellness-demo');
+      }
+    }
+  }, [loading, wellnessHubAccess.isLoading, wellnessHubAccess.allowed, isAuthenticated, setLocation]);
 
   // Fitness state
   const [workoutTitle, setWorkoutTitle] = useState("");

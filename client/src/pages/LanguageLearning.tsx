@@ -31,10 +31,27 @@ import { initializeSpeechSynthesis, speakInLanguage, stopSpeech, isTTSAvailableF
 import { PronunciationPractice } from "@/components/PronunciationPractice";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useLocation } from "wouter";
 
 export default function LanguageLearning() {
   const { user, isAuthenticated, loading } = useAuth();
+  const [location, setLocation] = useLocation();
   const [selectedLanguage, setSelectedLanguage] = useState<string>("es");
+  
+  // Hub access control
+  const languageHubAccess = useFeatureAccess("specialized_hub", "language_learning");
+  
+  // Hub access control - show upgrade prompt if no access
+  useEffect(() => {
+    if (!loading && !languageHubAccess.isLoading && isAuthenticated) {
+      if (!languageHubAccess.allowed) {
+        // Could redirect or show upgrade prompt
+        // For now, we'll show an upgrade prompt at the top of the page
+      }
+    }
+  }, [loading, languageHubAccess.isLoading, languageHubAccess.allowed, isAuthenticated]);
   const [activeTab, setActiveTab] = useState("overview");
   const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -358,6 +375,16 @@ export default function LanguageLearning() {
               </Select>
             </div>
           </div>
+
+          {/* Upgrade Prompt if no access */}
+          {!languageHubAccess.allowed && !languageHubAccess.isLoading && languageHubAccess.upgradeRequired && (
+            <div className="mb-6">
+              <UpgradePrompt
+                featureName="Language Learning Hub"
+                reason={languageHubAccess.reason}
+              />
+            </div>
+          )}
 
           {/* Progress Overview */}
           {progress && (

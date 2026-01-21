@@ -2690,3 +2690,15 @@
 - [x] Add usage tracking after successful operations
 - [x] Add UpgradePrompt display when limit reached
 - [x] Test Math Tutor access control
+
+
+## Implement Hub-Level Access Control
+- [x] Update accessControl.ts to support hub-level checks (already implemented)
+- [x] Add checkHubAccess function for specialized hub verification (already in checkFeatureAccess)
+- [x] Update tRPC procedures to include hub access checking (already supports specializedHub param)
+- [x] Update useFeatureAccess hook to support hub parameter (already supports it)
+- [x] Apply hub access control to Money Hub pages
+- [x] Apply hub access control to Wellness Hub pages
+- [x] Apply hub access control to Language Learning pages
+- [x] Apply hub access control to Science Labs pages
+- [x] Test hub access control for all specialized hubs

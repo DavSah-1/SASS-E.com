@@ -37,6 +37,8 @@ import DebtCoach from "./DebtCoach";
 import Goals from "./Goals";
 import { BudgetAlerts } from "@/components/BudgetAlerts";
 import { FinancialInsights } from "@/components/FinancialInsights";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 // Wrapper to hide navigation in embedded context
 const BudgetTab = () => {
@@ -67,19 +69,19 @@ export default function Money() {
   const { user, isAuthenticated, loading } = useAuth();
   const { translate: t } = useLanguage();
   const [location, setLocation] = useLocation();
+  
+  // Hub access control
+  const moneyHubAccess = useFeatureAccess("specialized_hub", "money_hub");
 
-  // Subscription check - redirect non-subscribers to demo
+  // Hub access control - redirect if user doesn't have access
   useEffect(() => {
-    if (!loading && isAuthenticated && user) {
-      // Check if user has active pro subscription
-      const hasProAccess = user.subscriptionTier === 'pro' && user.subscriptionStatus === 'active';
-      
-      if (!hasProAccess) {
-        // Redirect to demo page
+    if (!loading && !moneyHubAccess.isLoading && isAuthenticated) {
+      if (!moneyHubAccess.allowed) {
+        // Redirect to demo page if no access
         setLocation('/money-demo');
       }
     }
-  }, [loading, isAuthenticated, user, setLocation]);
+  }, [loading, moneyHubAccess.isLoading, moneyHubAccess.allowed, isAuthenticated, setLocation]);
   
   // Read tab from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
