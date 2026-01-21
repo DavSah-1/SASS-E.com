@@ -32,8 +32,8 @@ export default function Learning() {
   const quizMutation = trpc.learning.generateQuiz.useMutation();
   const submitQuizMutation = trpc.learning.submitQuizAttempt.useMutation();
   
-  // Access control
-  const learningAccess = useFeatureAccess("verified_learning");
+  // Access control - only check for authenticated users
+  const learningAccess = useFeatureAccess("verified_learning", undefined, { enabled: isAuthenticated });
   const { recordUsage } = useRecordUsage();
   
   const { data: history } = trpc.learning.getHistory.useQuery(undefined, {
