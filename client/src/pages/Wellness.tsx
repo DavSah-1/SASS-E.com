@@ -64,10 +64,11 @@ export default function Wellness() {
   const wellnessHubAccess = useFeatureAccess("specialized_hub", "wellness");
   
   // Hub access control - only redirect authenticated users without access
-  // Signed-out users should see the landing page, not be redirected
+  // Wait for access check to complete before redirecting
+  // Owner bypass happens on backend, so we need to wait for the response
   useEffect(() => {
-    if (!loading && !wellnessHubAccess.isLoading && isAuthenticated && !wellnessHubAccess.allowed) {
-      // Only redirect authenticated users who don't have hub access
+    if (!loading && !wellnessHubAccess.isLoading && isAuthenticated && wellnessHubAccess.allowed === false) {
+      // Only redirect if explicitly denied (not undefined/loading)
       toast.error("You don't have access to Wellness Hub. Please upgrade your plan.");
       setLocation('/pricing');
     }

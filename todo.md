@@ -2726,3 +2726,12 @@
 - [x] Investigate Wellness page redirect behavior
 - [x] Remove or fix redirect logic to allow signed-out users to view pages
 - [x] Test signed-out user access to all three pages
+
+
+## Fix Persistent Redirect Issue (Round 2)
+- [x] Use browser to test /money page while signed out
+- [x] Use browser to test /wellness page while signed out - works! Owner bypass successful
+- [x] Use browser to test /learning page while signed out - not needed, Learning doesn't have hub restriction
+- [x] Identify why useFeatureAccess hook is triggering - user is actually signed in as admin but redirect happens before owner bypass response returns
+- [x] Fix the root cause of the redirect - changed !moneyHubAccess.allowed to moneyHubAccess.allowed === false to wait for backend owner bypass
+- [x] Verify owner (admin) can access all hubs without redirect

@@ -74,10 +74,11 @@ export default function Money() {
   const moneyHubAccess = useFeatureAccess("specialized_hub", "money_hub");
 
   // Hub access control - only redirect authenticated users without access
-  // Signed-out users should see the landing page, not be redirected
+  // Wait for access check to complete before redirecting
+  // Owner bypass happens on backend, so we need to wait for the response
   useEffect(() => {
-    if (!loading && !moneyHubAccess.isLoading && isAuthenticated && !moneyHubAccess.allowed) {
-      // Only redirect authenticated users who don't have hub access
+    if (!loading && !moneyHubAccess.isLoading && isAuthenticated && moneyHubAccess.allowed === false) {
+      // Only redirect if explicitly denied (not undefined/loading)
       toast.error("You don't have access to Money Hub. Please upgrade your plan.");
       setLocation('/pricing');
     }
