@@ -205,7 +205,7 @@ export default function Learning() {
               <Button asChild size="lg" variant="outline" className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 px-8 py-6 text-lg">
                 <Link href="/learning-demo">
                   <Sparkles className="h-5 w-5 mr-2" />
-                  {t("Try Demo")}
+                  {t("View Demo")}
                 </Link>
               </Button>
             </div>

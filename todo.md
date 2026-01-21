@@ -2759,3 +2759,6 @@
 
 ## Add Demo Button to Learning Page
 - [x] Add "Try Demo" button next to "Start Learning Today" button on /learning page hero section
+
+## Update Demo Button Text
+- [x] Change demo button text from "Try Demo" to "View Demo" on Learning page
