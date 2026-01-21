@@ -63,13 +63,13 @@ export default function Wellness() {
   // Hub access control
   const wellnessHubAccess = useFeatureAccess("specialized_hub", "wellness");
   
-  // Hub access control - redirect if user doesn't have access
+  // Hub access control - only redirect authenticated users without access
+  // Signed-out users should see the landing page, not be redirected
   useEffect(() => {
-    if (!loading && !wellnessHubAccess.isLoading && isAuthenticated) {
-      if (!wellnessHubAccess.allowed) {
-        // Redirect to demo page if no access
-        setLocation('/wellness-demo');
-      }
+    if (!loading && !wellnessHubAccess.isLoading && isAuthenticated && !wellnessHubAccess.allowed) {
+      // Only redirect authenticated users who don't have hub access
+      toast.error("You don't have access to Wellness Hub. Please upgrade your plan.");
+      setLocation('/pricing');
     }
   }, [loading, wellnessHubAccess.isLoading, wellnessHubAccess.allowed, isAuthenticated, setLocation]);
 

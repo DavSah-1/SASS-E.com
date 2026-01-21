@@ -73,13 +73,13 @@ export default function Money() {
   // Hub access control
   const moneyHubAccess = useFeatureAccess("specialized_hub", "money_hub");
 
-  // Hub access control - redirect if user doesn't have access
+  // Hub access control - only redirect authenticated users without access
+  // Signed-out users should see the landing page, not be redirected
   useEffect(() => {
-    if (!loading && !moneyHubAccess.isLoading && isAuthenticated) {
-      if (!moneyHubAccess.allowed) {
-        // Redirect to demo page if no access
-        setLocation('/money-demo');
-      }
+    if (!loading && !moneyHubAccess.isLoading && isAuthenticated && !moneyHubAccess.allowed) {
+      // Only redirect authenticated users who don't have hub access
+      toast.error("You don't have access to Money Hub. Please upgrade your plan.");
+      setLocation('/pricing');
     }
   }, [loading, moneyHubAccess.isLoading, moneyHubAccess.allowed, isAuthenticated, setLocation]);
   

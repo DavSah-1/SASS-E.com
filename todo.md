@@ -2718,3 +2718,11 @@
 - [ ] Add "Manage Hubs" button in navigation (disabled if locked)
 - [x] Test hub selection flow for all tiers
 - [x] Test lock mechanism prevents changes
+
+
+## Fix Redirect Issue for Signed-Out Users
+- [x] Investigate Learning page redirect behavior
+- [x] Investigate Money page redirect behavior
+- [x] Investigate Wellness page redirect behavior
+- [x] Remove or fix redirect logic to allow signed-out users to view pages
+- [x] Test signed-out user access to all three pages
