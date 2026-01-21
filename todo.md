@@ -2681,3 +2681,12 @@
 - [x] Add upgrade prompts to Translation Hub pages
 - [x] Test access control on Learning Hub
 - [x] Test access control on Translation Hub
+
+
+## Apply Access Control to Math Tutor
+- [x] Find Math Tutor page and analyze structure
+- [x] Add access control imports and hooks
+- [x] Add access check before problem solving
+- [x] Add usage tracking after successful operations
+- [x] Add UpgradePrompt display when limit reached
+- [x] Test Math Tutor access control

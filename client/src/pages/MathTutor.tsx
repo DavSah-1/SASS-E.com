@@ -14,6 +14,8 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 interface Step {
   stepNumber: number;
@@ -922,10 +924,18 @@ export default function MathTutor() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<"beginner" | "intermediate" | "advanced" | "all">("all");
   const [showPracticeLibrary, setShowPracticeLibrary] = useState(false);
 
+  // Access control
+  const mathAccess = useFeatureAccess("math_tutor");
+  const { recordUsage } = useRecordUsage();
+
   const solveMutation = trpc.math.solveProblem.useMutation({
     onSuccess: (data) => {
       setSolution(data as Solution);
       setCheckResult(null);
+      
+      // Record usage after successful solution
+      recordUsage("math_tutor");
+      
       toast.success("Problem solved! Check out the step-by-step solution below.");
     },
     onError: (error) => {
@@ -968,6 +978,12 @@ export default function MathTutor() {
   const handleSolveProblem = () => {
     if (!problemText.trim()) {
       toast.error("Please enter a math problem");
+      return;
+    }
+    
+    // Check access before solving
+    if (!mathAccess.allowed && !mathAccess.isLoading) {
+      toast.error(mathAccess.reason || "You've reached your daily limit for Math Tutor");
       return;
     }
 
@@ -1043,6 +1059,18 @@ export default function MathTutor() {
             Step-by-step problem solving with SASS-E's guidance
           </p>
         </div>
+
+        {/* Upgrade Prompt if limit reached */}
+        {!mathAccess.allowed && !mathAccess.isLoading && mathAccess.upgradeRequired && (
+          <div className="mb-8">
+            <UpgradePrompt
+              featureName="Math Tutor"
+              currentUsage={mathAccess.currentUsage}
+              limit={mathAccess.limit}
+              reason={mathAccess.reason}
+            />
+          </div>
+        )}
 
         {/* Progress Stats */}
         {progressQuery.data && (
