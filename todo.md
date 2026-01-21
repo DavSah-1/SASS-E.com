@@ -2668,3 +2668,16 @@
 - [ ] Add access control to specialized hubs (Money, Wellness, etc.)
 - [x] Test owner bypass (owner gets unlimited access) - Ready to test
 - [x] Test tier limits for regular users - Ready to test
+
+
+## Apply Access Control to Learning and Translation Hubs
+- [x] Find Learning Hub page(s) and analyze structure
+- [x] Find Translation Hub page(s) and analyze structure
+- [x] Add access control to verified_learning feature
+- [ ] Add access control to math_tutor feature
+- [x] Add access control to translate feature
+- [x] Add access control to image_ocr feature
+- [x] Add upgrade prompts to Learning Hub pages
+- [x] Add upgrade prompts to Translation Hub pages
+- [x] Test access control on Learning Hub
+- [x] Test access control on Translation Hub

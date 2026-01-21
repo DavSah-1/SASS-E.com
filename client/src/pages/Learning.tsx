@@ -12,6 +12,8 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 export default function Learning() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -30,6 +32,10 @@ export default function Learning() {
   const quizMutation = trpc.learning.generateQuiz.useMutation();
   const submitQuizMutation = trpc.learning.submitQuizAttempt.useMutation();
   
+  // Access control
+  const learningAccess = useFeatureAccess("verified_learning");
+  const { recordUsage } = useRecordUsage();
+  
   const { data: history } = trpc.learning.getHistory.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -37,6 +43,12 @@ export default function Learning() {
   const handleExplain = async () => {
     if (!question.trim()) {
       toast.error(t("Please enter a question"));
+      return;
+    }
+    
+    // Check access before processing
+    if (!learningAccess.allowed && !learningAccess.isLoading) {
+      toast.error(learningAccess.reason || "You've reached your daily limit for Verified Learning");
       return;
     }
 
@@ -51,6 +63,10 @@ export default function Learning() {
       setCurrentQuiz(null);
       setQuizCompleted(false);
       setQuizResults(null);
+      
+      // Record usage after successful explanation
+      recordUsage("verified_learning");
+      
       toast.success(t("Explanation generated with fact-checking!"));
     } catch (error) {
       toast.error(t("Failed to generate explanation"));
@@ -445,6 +461,16 @@ export default function Learning() {
               {t("Learn with confidence. Every fact checked, every source verified.")}
             </p>
           </div>
+
+          {/* Upgrade Prompt if limit reached */}
+          {!learningAccess.allowed && !learningAccess.isLoading && learningAccess.upgradeRequired && (
+            <UpgradePrompt
+              featureName="Verified Learning"
+              currentUsage={learningAccess.currentUsage}
+              limit={learningAccess.limit}
+              reason={learningAccess.reason}
+            />
+          )}
 
           {/* Quick Learning Section */}
           <div className="mb-8">

@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getLoginUrl } from "@/const";
 import { Phrasebook } from "@/components/Phrasebook";
 import ConversationMode from "@/components/ConversationMode";
@@ -99,9 +101,20 @@ export default function Translation() {
   const translateImageMutation = trpc.translationApp.translateImage.useMutation();
   const transcribeMutation = trpc.assistant.transcribe.useMutation();
   
+  // Access control
+  const translateAccess = useFeatureAccess("translate");
+  const imageOcrAccess = useFeatureAccess("image_ocr");
+  const { recordUsage } = useRecordUsage();
+  
   const handleTextTranslation = async () => {
     if (!textInput.trim()) {
       toast.error("Please enter text to translate");
+      return;
+    }
+    
+    // Check access before translating
+    if (!translateAccess.allowed && !translateAccess.isLoading) {
+      toast.error(translateAccess.reason || "You've reached your daily limit for Translation");
       return;
     }
     
@@ -113,6 +126,10 @@ export default function Translation() {
       });
       
       setTextTranslationResult(result);
+      
+      // Record usage after successful translation
+      recordUsage("translate");
+      
       toast.success("Translation complete!");
     } catch (error) {
       console.error("Translation error:", error);
@@ -131,6 +148,12 @@ export default function Translation() {
     
     if (file.size > 10 * 1024 * 1024) {
       toast.error("Image too large. Please keep it under 10MB.");
+      return;
+    }
+    
+    // Check access before processing image
+    if (!imageOcrAccess.allowed && !imageOcrAccess.isLoading) {
+      toast.error(imageOcrAccess.reason || "You've reached your daily limit for Image OCR");
       return;
     }
     
@@ -158,6 +181,10 @@ export default function Translation() {
       });
       
       setImageTranslationResult(result);
+      
+      // Record usage after successful image translation
+      recordUsage("image_ocr");
+      
       toast.success("Translation complete!");
     } catch (error) {
       console.error("Image translation error:", error);
@@ -356,6 +383,24 @@ export default function Translation() {
             </div>
             <p className="text-slate-300">Translate text or images between languages</p>
           </div>
+          
+          {/* Upgrade Prompts if limits reached */}
+          {!translateAccess.allowed && !translateAccess.isLoading && translateAccess.upgradeRequired && activeTab === "translate" && (
+            <UpgradePrompt
+              featureName="Translation"
+              currentUsage={translateAccess.currentUsage}
+              limit={translateAccess.limit}
+              reason={translateAccess.reason}
+            />
+          )}
+          {!imageOcrAccess.allowed && !imageOcrAccess.isLoading && imageOcrAccess.upgradeRequired && activeTab === "image_ocr" && (
+            <UpgradePrompt
+              featureName="Image OCR"
+              currentUsage={imageOcrAccess.currentUsage}
+              limit={imageOcrAccess.limit}
+              reason={imageOcrAccess.reason}
+            />
+          )}
           
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "image_ocr" | "conversation" | "phrasebook" | "chat")} className="w-full">
