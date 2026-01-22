@@ -260,6 +260,13 @@
       "when": 1768989902897,
       "tag": "0036_left_red_shift",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "5",
+      "when": 1769111286980,
+      "tag": "0037_condemned_blacklash",
+      "breakpoints": true
     }
   ]
 }

@@ -45,7 +45,7 @@ export const systemRouter = router({
       await db
         .update(users)
         .set({ preferredCurrency: input.currency })
-        .where(eq(users.openId, ctx.user.openId));
+        .where(eq(users.id, ctx.user.id));
 
       return { success: true };
     }),

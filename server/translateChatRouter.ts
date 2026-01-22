@@ -16,7 +16,7 @@ import {
   getMessageTranslation,
   getUserTranslateConversations,
   removeConversationParticipant,
-  getUserByOpenId,
+  getUserById,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
 
@@ -127,7 +127,7 @@ export const translateChatRouter = router({
       // Get user details for each participant
       const participantsWithDetails = await Promise.all(
         participants.map(async (p) => {
-          const user = await getUserByOpenId(ctx.user.openId); // This is a placeholder, need proper user lookup
+          const user = await getUserById(p.userId);
           return {
             userId: p.userId,
             preferredLanguage: p.preferredLanguage,

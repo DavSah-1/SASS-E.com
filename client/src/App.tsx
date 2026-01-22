@@ -31,6 +31,8 @@ import WellnessDemo from "./pages/WellnessDemo";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
+import AuthTest from "./pages/AuthTest";
+import SignIn from "./pages/SignIn";
 
 
 function Router() {
@@ -46,6 +48,8 @@ function Router() {
       <Route path={"/translate"} component={TranslateLanding} />
       <Route path={"/translate-app"} component={Translation} />
       <Route path={"/translate-demo"} component={TranslateDemo} />
+      <Route path={"/auth-test"} component={AuthTest} />
+      <Route path={"/sign-in"} component={SignIn} />
 
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/math-curriculum"} component={MathCurriculum} />

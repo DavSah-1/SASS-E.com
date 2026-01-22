@@ -2810,3 +2810,28 @@
 
 ## Update Supabase Setup Guide
 - [x] Review and update SUPABASE_SETUP.md with latest API and best practices
+
+## Supabase Auth Integration Implementation
+- [x] Create Supabase client initialization file
+- [x] Create useSupabaseAuth hook for React
+- [x] Create backend Supabase auth helper
+- [ ] Update login components to use Supabase
+- [ ] Test authentication flow
+
+## Supabase Auth Complete Migration (Replace Manus OAuth)
+- [x] Update database schema: replace openId with supabaseId
+- [x] Push database schema changes with pnpm db:push
+- [x] Update server/db.ts to use supabaseId instead of openId
+- [x] Update server/_core/context.ts to verify Supabase tokens
+- [x] Update server/routers.ts auth procedures
+- [x] Update useAuth hook to use Supabase
+- [x] Update all frontend components that use auth
+- [x] Remove Manus OAuth callback handler
+- [x] Create SignIn page with Supabase authentication
+- [ ] Test signup flow with Supabase
+- [ ] Test login flow with Supabase
+- [ ] Test logout flow with Supabase
+- [ ] Verify subscription tiers still work
+- [ ] Verify hub access control still works
+- [ ] Verify owner/admin privileges still work
+- [ ] Create new admin account in Supabase for owner

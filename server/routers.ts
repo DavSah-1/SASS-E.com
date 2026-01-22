@@ -69,9 +69,8 @@ export const appRouter = router({
       .query(async ({ ctx }) => {
         const user = ctx.user;
         
-        // Owner can always change
-        const { ENV } = await import("./_core/env");
-        if (user.openId === ENV.ownerOpenId) {
+        // Owner can always change (check by role)
+        if (user.role === "admin") {
           return { canChange: true, reason: "Owner access" };
         }
         
@@ -105,7 +104,7 @@ export const appRouter = router({
         const { checkFeatureAccess } = await import("./accessControl");
         return await checkFeatureAccess(
           ctx.user.id,
-          ctx.user.openId,
+          ctx.user.supabaseId,
           ctx.user.subscriptionTier,
           input.featureType,
           input.specializedHub
