@@ -20,6 +20,8 @@ import {
   Lock,
   Crown,
   Zap,
+  Eye,
+  Users,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
 
@@ -38,6 +40,14 @@ const DEMO_CONVERSATIONS = [
   { speaker: "You", original: "I'd like to order a coffee", translated: "Me gustaría pedir un café" },
   { speaker: "Them", original: "¿Qué tamaño?", translated: "What size?" },
   { speaker: "You", original: "Large, please", translated: "Grande, por favor" },
+];
+
+
+const DEMO_CHAT_MESSAGES = [
+  { id: 1, sender: "Alice", language: "English", original: "Hey everyone! Ready for the meeting?", translated: "¡Hola a todos! ¿Listos para la reunión?", timestamp: "10:30 AM", userLanguage: "English" },
+  { id: 2, sender: "Carlos", language: "Spanish", original: "Sí, estoy listo. ¿Dónde está María?", translated: "Yes, I'm ready. Where is Maria?", timestamp: "10:31 AM", userLanguage: "Spanish" },
+  { id: 3, sender: "Maria", language: "French", original: "Je suis là! Désolée pour le retard.", translated: "I'm here! Sorry for being late.", timestamp: "10:32 AM", userLanguage: "French" },
+  { id: 4, sender: "You", language: "English", original: "No problem! Let's get started.", translated: "¡No hay problema! Empecemos.", timestamp: "10:33 AM", userLanguage: "English" },
 ];
 
 const DEMO_PHRASEBOOK = [
@@ -116,6 +126,10 @@ export default function TranslateDemo() {
             <TabsTrigger value="phrasebook" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">
               <BookMarked className="h-4 w-4 mr-2" />
               Phrasebook
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Multilingual Chat
             </TabsTrigger>
           </TabsList>
 
@@ -355,6 +369,76 @@ export default function TranslateDemo() {
                   <Zap className="h-5 w-5 text-green-400" />
                   <p className="text-sm text-slate-300">
                     <strong className="text-green-400">Offline Access:</strong> Top 100 phrases cached locally for use without internet
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Multilingual Chat Tab */}
+          <TabsContent value="chat" className="space-y-6">
+            <Card className="bg-slate-800/50 border-blue-500/30">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <MessageSquare className="h-5 w-5 text-purple-400" />
+                  Multilingual Group Chat
+                </CardTitle>
+                <CardDescription className="text-slate-300">
+                  Chat with people speaking different languages - everyone reads in their preferred language
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {DEMO_CHAT_MESSAGES.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`p-4 rounded-lg ${
+                        msg.sender === "You"
+                          ? "bg-blue-900/30 border border-blue-500/30"
+                          : "bg-slate-900/50 border border-slate-700"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-white">{msg.sender}</span>
+                          <Badge variant="outline" className="text-xs text-slate-400 border-slate-600">
+                            {msg.userLanguage}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-slate-500">{msg.timestamp}</span>
+                      </div>
+                      <p className="text-white mb-1">{msg.translated}</p>
+                      <p className="text-xs text-slate-500 italic">Original: {msg.original}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid md:grid-cols-3 gap-4 mt-6">
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-900/50 border border-slate-700">
+                    <Globe className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-semibold text-white text-sm mb-1">Auto-Translate</h4>
+                      <p className="text-xs text-slate-400">Messages instantly translated to your language</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-900/50 border border-slate-700">
+                    <Users className="h-5 w-5 text-green-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-semibold text-white text-sm mb-1">Group Chats</h4>
+                      <p className="text-xs text-slate-400">Support for multiple participants</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-slate-900/50 border border-slate-700">
+                    <Eye className="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-semibold text-white text-sm mb-1">Show Original</h4>
+                      <p className="text-xs text-slate-400">Toggle to see original messages</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-4 rounded-lg bg-purple-900/20 border border-purple-500/30">
+                  <Sparkles className="h-5 w-5 text-purple-400" />
+                  <p className="text-sm text-slate-300">
+                    <strong className="text-purple-400">Real-time Translation:</strong> Create shareable chat rooms with instant translation for all participants
                   </p>
                 </div>
               </CardContent>

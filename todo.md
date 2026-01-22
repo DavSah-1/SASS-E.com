@@ -2767,7 +2767,7 @@
 - [x] Add "View Demo" translation key to all supported language files
 
 ## Translation Demo - Missing Tab
-- [ ] Add Multilingual Chat tab to /translate-demo page
+- [x] Add Multilingual Chat tab to /translate-demo page
 ## URGENT Bug Fixes (Current)
 - [ ] Fix broken navbar links
 - [ ] Fix translation system not working
