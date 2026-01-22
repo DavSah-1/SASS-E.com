@@ -2772,3 +2772,15 @@
 - [ ] Fix broken navbar links
 - [ ] Fix translation system not working
 - [ ] Test all functionality after fixes
+
+## Self-Hosting / Local Deployment
+- [x] Create Docker Compose configuration for local deployment
+- [x] Create environment configuration template for self-hosting
+- [ ] Document database setup (MySQL/TiDB) for self-hosting
+- [x] Create deployment guide (Docker, manual, and cloud options)
+- [ ] Document external service requirements (LLM API, OAuth, Storage)
+- [ ] Provide alternatives for Manus-specific services (OAuth, Storage, Analytics)
+- [ ] Create backup and restore scripts
+- [ ] Add health check endpoints for monitoring
+- [ ] Document reverse proxy setup (Nginx/Caddy) with SSL
+- [ ] Create systemd service files for production deployment

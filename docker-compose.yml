@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: sass-e-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-sass_e}
+      MYSQL_USER: ${DB_USER:-sass_e_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-sass_e_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # SASS-E Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sass-e-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://${DB_USER:-sass_e_user}:${DB_PASSWORD:-sass_e_password}@db:3306/${DB_NAME:-sass_e}
+      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-random-secret-key}
+      PORT: 3000
+      # OAuth Configuration (replace with your own OAuth provider)
+      OAUTH_SERVER_URL: ${OAUTH_SERVER_URL:-http://localhost:3000/auth}
+      VITE_OAUTH_PORTAL_URL: ${VITE_OAUTH_PORTAL_URL:-http://localhost:3000/login}
+      VITE_APP_ID: ${VITE_APP_ID:-sass-e-local}
+      # App Configuration
+      VITE_APP_TITLE: ${VITE_APP_TITLE:-SASS-E}
+      VITE_APP_LOGO: ${VITE_APP_LOGO:-/logo.svg}
+      # Owner Configuration
+      OWNER_OPEN_ID: ${OWNER_OPEN_ID:-admin}
+      OWNER_NAME: ${OWNER_NAME:-Admin}
+      # LLM API Configuration (use your own OpenAI/Anthropic key)
+      BUILT_IN_FORGE_API_URL: ${LLM_API_URL:-https://api.openai.com/v1}
+      BUILT_IN_FORGE_API_KEY: ${LLM_API_KEY:-your-openai-api-key}
+      VITE_FRONTEND_FORGE_API_KEY: ${LLM_API_KEY:-your-openai-api-key}
+      VITE_FRONTEND_FORGE_API_URL: ${LLM_API_URL:-https://api.openai.com/v1}
+      # Storage Configuration (local filesystem fallback)
+      S3_ENDPOINT: ${S3_ENDPOINT:-}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-}
+      S3_BUCKET: ${S3_BUCKET:-sass-e-uploads}
+      # Analytics (optional, can be disabled)
+      VITE_ANALYTICS_ENDPOINT: ${ANALYTICS_ENDPOINT:-}
+      VITE_ANALYTICS_WEBSITE_ID: ${ANALYTICS_WEBSITE_ID:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  db_data:
+    driver: local
+  uploads:
+    driver: local
