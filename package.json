@@ -13,6 +13,8 @@
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.11.0",
+    "@auth0/auth0-spa-js": "^2.11.3",
     "@aws-sdk/client-s3": "^3.693.0",
     "@aws-sdk/s3-request-presigner": "^3.693.0",
     "@radix-ui/react-accordion": "^1.2.12",

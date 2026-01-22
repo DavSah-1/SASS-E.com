@@ -2784,3 +2784,17 @@
 - [ ] Add health check endpoints for monitoring
 - [ ] Document reverse proxy setup (Nginx/Caddy) with SSL
 - [ ] Create systemd service files for production deployment
+
+## Branding - Remove Meta References
+- [ ] Remove Meta branding from login page
+- [ ] Remove Meta references from authentication components
+- [ ] Search and remove all Meta logos/text from codebase
+
+## Auth0 Integration - Replace Manus OAuth
+- [x] Install Auth0 SDK (@auth0/auth0-react, @auth0/auth0-spa-js)
+- [ ] Create Auth0 configuration file
+- [ ] Update environment variables for Auth0
+- [ ] Modify OAuth callback handler for Auth0
+- [ ] Update frontend authentication hooks
+- [x] Create Auth0 setup documentation
+- [ ] Test Auth0 login flow
