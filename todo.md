@@ -2768,3 +2768,7 @@
 
 ## Translation Demo - Missing Tab
 - [ ] Add Multilingual Chat tab to /translate-demo page
+## URGENT Bug Fixes (Current)
+- [ ] Fix broken navbar links
+- [ ] Fix translation system not working
+- [ ] Test all functionality after fixes
