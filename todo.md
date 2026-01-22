@@ -2765,3 +2765,6 @@
 
 ## Localize View Demo Button
 - [x] Add "View Demo" translation key to all supported language files
+
+## Translation Demo - Missing Tab
+- [ ] Add Multilingual Chat tab to /translate-demo page
