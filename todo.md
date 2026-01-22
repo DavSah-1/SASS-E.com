@@ -2798,3 +2798,12 @@
 - [ ] Update frontend authentication hooks
 - [x] Create Auth0 setup documentation
 - [ ] Test Auth0 login flow
+
+## Supabase Auth Integration - Replace Manus OAuth
+- [x] Remove Auth0 packages and install Supabase SDK
+- [ ] Create Supabase project and get credentials
+- [ ] Update environment variables for Supabase
+- [ ] Modify OAuth callback handler for Supabase
+- [ ] Update frontend authentication hooks
+- [x] Create Supabase setup documentation
+- [ ] Test Supabase Auth login flow
