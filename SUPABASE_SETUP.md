@@ -40,14 +40,26 @@ This guide will help you replace the Manus OAuth system with Supabase Auth to re
 
 Once your project is ready:
 
-1. Go to **Settings** → **API** in the left sidebar
-2. Copy these values:
+1. In the Supabase dashboard, click on your project
+2. Go to **Project Settings** (gear icon in the left sidebar)
+3. Navigate to **API** section
+4. Copy these values:
 
-   - **Project URL**: `https://xxxxx.supabase.co`
-   - **anon/public key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (long string)
-   - **service_role key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (different long string)
+   **Configuration:**
+   - **Project URL**: `https://xxxxx.supabase.co` (under "Project URL" or "API URL")
+   - **Project API keys**:
+     - **anon** / **public** key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (long string)
+     - **service_role** key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (different long string)
 
-⚠️ **Important**: Keep the `service_role` key secret! Never expose it in frontend code.
+   **Alternative location (if above doesn't work):**
+   - Click **Home** in the sidebar
+   - Look for **Connect** or **API** section on the project homepage
+   - Click **API settings** or similar button
+
+⚠️ **Important**: 
+- Keep the `service_role` key secret! Never expose it in frontend code or commit it to Git.
+- The `anon` key is safe to use in frontend code - it's designed to be public.
+- Your Project URL format is: `https://[PROJECT_REF].supabase.co`
 
 ---
 
