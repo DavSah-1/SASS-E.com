@@ -122,6 +122,7 @@ export interface Translations {
     next: string;
     submit: string;
     language: string;
+    viewDemo: string;
   };
 }
 
@@ -230,6 +231,7 @@ export const translations: Record<Language, Translations> = {
       next: 'Next',
       submit: 'Submit',
       language: 'Language',
+      viewDemo: 'View Demo',
     },
   },
   
@@ -338,6 +340,7 @@ export const translations: Record<Language, Translations> = {
       next: 'Siguiente',
       submit: 'Enviar',
       language: 'Idioma',
+      viewDemo: 'Ver Demo',
     },
   },
   
@@ -446,6 +449,7 @@ export const translations: Record<Language, Translations> = {
       next: 'Suivant',
       submit: 'Soumettre',
       language: 'Langue',
+      viewDemo: 'Voir la Démo',
     },
   },
   
@@ -554,6 +558,7 @@ export const translations: Record<Language, Translations> = {
       next: 'Weiter',
       submit: 'Absenden',
       language: 'Sprache',
+      viewDemo: 'Demo Ansehen',
     },
   },
   
@@ -662,6 +667,7 @@ export const translations: Record<Language, Translations> = {
       next: '下一步',
       submit: '提交',
       language: '语言',
+      viewDemo: '查看演示',
     },
   },
   
@@ -770,6 +776,7 @@ export const translations: Record<Language, Translations> = {
       next: '次へ',
       submit: '送信',
       language: '言語',
+      viewDemo: 'デモを見る',
     },
   },
   
@@ -878,6 +885,7 @@ export const translations: Record<Language, Translations> = {
       next: 'التالي',
       submit: 'إرسال',
       language: 'اللغة',
+      viewDemo: 'عرض التجريبي',
     },
   },
   
@@ -986,6 +994,7 @@ export const translations: Record<Language, Translations> = {
       next: 'Próximo',
       submit: 'Enviar',
       language: 'Idioma',
+      viewDemo: 'Ver Demonstração',
     },
   },
   
@@ -1094,6 +1103,7 @@ export const translations: Record<Language, Translations> = {
       next: 'Далее',
       submit: 'Отправить',
       language: 'Язык',
+      viewDemo: 'Посмотреть Демо',
     },
   },
   
@@ -1200,8 +1210,9 @@ export const translations: Record<Language, Translations> = {
       close: 'बंद करें',
       back: 'वापस',
       next: 'अगला',
-      submit: 'जमा करें',
+      submit: 'सबमिट करें',
       language: 'भाषा',
+      viewDemo: 'डेमो देखें',
     },
   },
 };

@@ -18,7 +18,7 @@ import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 export default function Learning() {
   const { user, isAuthenticated, loading } = useAuth();
-  const { translate: t } = useLanguage();
+  const { t, translate } = useLanguage();
   const [topic, setTopic] = useState("");
   const [question, setQuestion] = useState("");
   const [currentExplanation, setCurrentExplanation] = useState<any>(null);
@@ -43,7 +43,7 @@ export default function Learning() {
 
   const handleExplain = async () => {
     if (!question.trim()) {
-      toast.error(t("Please enter a question"));
+      toast.error(translate("Please enter a question"));
       return;
     }
     
@@ -68,16 +68,16 @@ export default function Learning() {
       // Record usage after successful explanation
       recordUsage("verified_learning");
       
-      toast.success(t("Explanation generated with fact-checking!"));
+      toast.success(translate("Explanation generated with fact-checking!"));
     } catch (error) {
-      toast.error(t("Failed to generate explanation"));
+      toast.error(translate("Failed to generate explanation"));
       console.error("Explain error:", error);
     }
   };
 
   const handleGenerateStudyGuide = async () => {
     if (!currentExplanation) {
-      toast.error(t("Please get an explanation first"));
+      toast.error(translate("Please get an explanation first"));
       return;
     }
 
@@ -87,16 +87,16 @@ export default function Learning() {
       });
 
       setCurrentStudyGuide(result);
-      toast.success(t("Study guide generated!"));
+      toast.success(translate("Study guide generated!"));
     } catch (error) {
-      toast.error(t("Failed to generate study guide"));
+      toast.error(translate("Failed to generate study guide"));
       console.error("Study guide error:", error);
     }
   };
 
   const handleGenerateQuiz = async () => {
     if (!currentExplanation) {
-      toast.error(t("Please get an explanation first"));
+      toast.error(translate("Please get an explanation first"));
       return;
     }
 
@@ -109,16 +109,16 @@ export default function Learning() {
       setQuizAnswers([]);
       setQuizCompleted(false);
       setQuizResults(null);
-      toast.success(t("Quiz generated! Test your knowledge."));
+      toast.success(translate("Quiz generated! Test your knowledge."));
     } catch (error) {
-      toast.error(t("Failed to generate quiz"));
+      toast.error(translate("Failed to generate quiz"));
       console.error("Quiz error:", error);
     }
   };
 
   const handleSubmitQuiz = async () => {
     if (!currentQuiz || quizAnswers.length !== currentQuiz.questions.length) {
-      toast.error(t("Please answer all questions"));
+      toast.error(translate("Please answer all questions"));
       return;
     }
 
@@ -137,7 +137,7 @@ export default function Learning() {
         toast.error(`Quiz failed. Score: ${result.score}/${result.totalQuestions}. Keep learning!`);
       }
     } catch (error) {
-      toast.error(t("Failed to submit quiz"));
+      toast.error(translate("Failed to submit quiz"));
       console.error("Submit quiz error:", error);
     }
   };
@@ -169,13 +169,13 @@ export default function Learning() {
 
   const handleCategorySelect = (categoryTopic: string) => {
     setTopic(categoryTopic);
-    toast.success(t(`Category selected: ${categoryTopic}`));
+    toast.success(translate(`Category selected: ${categoryTopic}`));
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-foreground">{t("Loading...")}</div>
+        <div className="text-foreground">{translate("Loading...")}</div>
       </div>
     );
   }
@@ -189,23 +189,23 @@ export default function Learning() {
         <div className="container mx-auto py-16 px-4">
           <div className="text-center mb-16">
             <div className="inline-block mb-4 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full">
-              <span className="text-purple-400 font-semibold text-sm">{t("AI-POWERED VERIFIED LEARNING")}</span>
+              <span className="text-purple-400 font-semibold text-sm">{translate("AI-POWERED VERIFIED LEARNING")}</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
               <span className="text-6xl md:text-7xl">📚</span>{" "}
               <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-purple-400 bg-clip-text text-transparent">Learning Hub</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-300 mb-8 max-w-3xl mx-auto">
-              {t("Master any subject with AI-powered explanations, fact-checked content, personalized study guides, and interactive quizzes")}
+              {translate("Master any subject with AI-powered explanations, fact-checked content, personalized study guides, and interactive quizzes")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-6 text-lg">
-                <a href={getLoginUrl()}>{t("Start Learning Today")}</a>
+                <a href={getLoginUrl()}>{translate("Start Learning Today")}</a>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-purple-500/50 text-purple-400 hover:bg-purple-500/10 px-8 py-6 text-lg">
                 <Link href="/learning-demo">
                   <Sparkles className="h-5 w-5 mr-2" />
-                  {t("View Demo")}
+                  {t.common.viewDemo}
                 </Link>
               </Button>
             </div>
@@ -219,27 +219,27 @@ export default function Learning() {
                 <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
                   <BookOpen className="h-6 w-6 text-purple-400" />
                 </div>
-                <CardTitle className="text-white">{t("AI-Powered Explanations")}</CardTitle>
+                <CardTitle className="text-white">{translate("AI-Powered Explanations")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  {t("Get clear, detailed explanations for any topic with automatic fact-checking and source verification")}
+                  {translate("Get clear, detailed explanations for any topic with automatic fact-checking and source verification")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Natural language question input")}</span>
+                  <span>{translate("Natural language question input")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Comprehensive topic coverage")}</span>
+                  <span>{translate("Comprehensive topic coverage")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Step-by-step breakdowns")}</span>
+                  <span>{translate("Step-by-step breakdowns")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Multiple difficulty levels")}</span>
+                  <span>{translate("Multiple difficulty levels")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -250,27 +250,27 @@ export default function Learning() {
                 <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center mb-4">
                   <CheckCircle2 className="h-6 w-6 text-green-400" />
                 </div>
-                <CardTitle className="text-white">{t("Automatic Fact-Checking")}</CardTitle>
+                <CardTitle className="text-white">{translate("Automatic Fact-Checking")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  {t("Every explanation is verified against reliable sources to ensure accuracy and credibility")}
+                  {translate("Every explanation is verified against reliable sources to ensure accuracy and credibility")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Real-time source verification")}</span>
+                  <span>{translate("Real-time source verification")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Credible reference links")}</span>
+                  <span>{translate("Credible reference links")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Accuracy confidence scores")}</span>
+                  <span>{translate("Accuracy confidence scores")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Citation transparency")}</span>
+                  <span>{translate("Citation transparency")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -281,27 +281,27 @@ export default function Learning() {
                 <div className="w-12 h-12 rounded-lg bg-pink-500/20 flex items-center justify-center mb-4">
                   <BookOpen className="h-6 w-6 text-pink-400" />
                 </div>
-                <CardTitle className="text-white">{t("Personalized Study Guides")}</CardTitle>
+                <CardTitle className="text-white">{translate("Personalized Study Guides")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  {t("Generate custom study guides tailored to your learning style and knowledge gaps")}
+                  {translate("Generate custom study guides tailored to your learning style and knowledge gaps")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Key concepts summary")}</span>
+                  <span>{translate("Key concepts summary")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Important terms & definitions")}</span>
+                  <span>{translate("Important terms & definitions")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Practice questions")}</span>
+                  <span>{translate("Practice questions")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Study tips & strategies")}</span>
+                  <span>{translate("Study tips & strategies")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -312,27 +312,27 @@ export default function Learning() {
                 <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-4">
                   <HelpCircle className="h-6 w-6 text-blue-400" />
                 </div>
-                <CardTitle className="text-white">{t("Interactive Quizzes")}</CardTitle>
+                <CardTitle className="text-white">{translate("Interactive Quizzes")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  {t("Test your knowledge with AI-generated quizzes that adapt to your understanding level")}
+                  {translate("Test your knowledge with AI-generated quizzes that adapt to your understanding level")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Multiple choice questions")}</span>
+                  <span>{translate("Multiple choice questions")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Instant feedback & scoring")}</span>
+                  <span>{translate("Instant feedback & scoring")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Detailed answer explanations")}</span>
+                  <span>{translate("Detailed answer explanations")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Progress tracking")}</span>
+                  <span>{translate("Progress tracking")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -343,27 +343,27 @@ export default function Learning() {
                 <div className="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center mb-4">
                   <BookOpen className="h-6 w-6 text-yellow-400" />
                 </div>
-                <CardTitle className="text-white">{t("Learning History")}</CardTitle>
+                <CardTitle className="text-white">{translate("Learning History")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  {t("Track your learning journey with complete session history and progress analytics")}
+                  {translate("Track your learning journey with complete session history and progress analytics")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Session replay & review")}</span>
+                  <span>{translate("Session replay & review")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Topics mastered tracking")}</span>
+                  <span>{translate("Topics mastered tracking")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Quiz performance analytics")}</span>
+                  <span>{translate("Quiz performance analytics")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Learning streaks & milestones")}</span>
+                  <span>{translate("Learning streaks & milestones")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -374,27 +374,27 @@ export default function Learning() {
                 <div className="w-12 h-12 rounded-lg bg-indigo-500/20 flex items-center justify-center mb-4">
                   <BookOpen className="h-6 w-6 text-indigo-400" />
                 </div>
-                <CardTitle className="text-white">{t("Multi-Subject Support")}</CardTitle>
+                <CardTitle className="text-white">{translate("Multi-Subject Support")}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  {t("Learn anything from mathematics and science to history, languages, and professional skills")}
+                  {translate("Learn anything from mathematics and science to history, languages, and professional skills")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-slate-400 text-sm space-y-2">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("STEM subjects (Math, Physics, Chemistry)")}</span>
+                  <span>{translate("STEM subjects (Math, Physics, Chemistry)")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Humanities (History, Literature, Philosophy)")}</span>
+                  <span>{translate("Humanities (History, Literature, Philosophy)")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Languages & linguistics")}</span>
+                  <span>{translate("Languages & linguistics")}</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-purple-400 mt-0.5 flex-shrink-0" />
-                  <span>{t("Professional & technical skills")}</span>
+                  <span>{translate("Professional & technical skills")}</span>
                 </div>
               </CardContent>
             </Card>
@@ -402,33 +402,33 @@ export default function Learning() {
 
           {/* Why Choose Learning Hub */}
           <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/30 rounded-2xl p-8 md:p-12 mb-16">
-            <h2 className="text-3xl font-bold text-white mb-6 text-center">{t("Why Choose Learning Hub?")}</h2>
+            <h2 className="text-3xl font-bold text-white mb-6 text-center">{translate("Why Choose Learning Hub?")}</h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="h-8 w-8 text-purple-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">{t("Verified Accuracy")}</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{translate("Verified Accuracy")}</h3>
                 <p className="text-slate-300">
-                  {t("Every explanation is fact-checked against reliable sources, ensuring you learn correct information with proper citations")}
+                  {translate("Every explanation is fact-checked against reliable sources, ensuring you learn correct information with proper citations")}
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-pink-500/20 flex items-center justify-center mx-auto mb-4">
                   <BookOpen className="h-8 w-8 text-pink-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">{t("Personalized Learning")}</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{translate("Personalized Learning")}</h3>
                 <p className="text-slate-300">
-                  {t("AI adapts to your knowledge level and learning style, providing customized study materials and quizzes that match your needs")}
+                  {translate("AI adapts to your knowledge level and learning style, providing customized study materials and quizzes that match your needs")}
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
                   <HelpCircle className="h-8 w-8 text-indigo-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">{t("Complete Learning System")}</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">{translate("Complete Learning System")}</h3>
                 <p className="text-slate-300">
-                  {t("From initial explanation to mastery testing—get explanations, study guides, quizzes, and progress tracking all in one place")}
+                  {translate("From initial explanation to mastery testing—get explanations, study guides, quizzes, and progress tracking all in one place")}
                 </p>
               </div>
             </div>
@@ -436,13 +436,13 @@ export default function Learning() {
 
           {/* CTA Section */}
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">{t("Ready to Accelerate Your Learning?")}</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">{translate("Ready to Accelerate Your Learning?")}</h2>
             <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-              {t("Join students and professionals using Learning Hub to master new subjects faster with AI-powered, fact-checked education")}
+              {translate("Join students and professionals using Learning Hub to master new subjects faster with AI-powered, fact-checked education")}
             </p>
             <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-6 text-lg">
               <a href={getLoginUrl()} className="flex items-center gap-2">
-                {t("Get Started Free")}
+                {translate("Get Started Free")}
                 <ExternalLink className="h-5 w-5" />
               </a>
             </Button>
@@ -464,10 +464,10 @@ export default function Learning() {
           {/* Header */}
           <div className="text-center space-y-2">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600" style={{height: '75px'}}>
-              {t("Verified Learning Assistant")}
+              {translate("Verified Learning Assistant")}
             </h1>
             <p className="text-base sm:text-lg text-slate-300">
-              {t("Learn with confidence. Every fact checked, every source verified.")}
+              {translate("Learn with confidence. Every fact checked, every source verified.")}
             </p>
           </div>
 
@@ -484,12 +484,12 @@ export default function Learning() {
           {/* Quick Learning Section */}
           <div className="mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">⚡ Quick Learning</h2>
-            <p className="text-slate-300 mb-6">{t("Get instant explanations on any topic with fact-checking and verified sources")}</p>
+            <p className="text-slate-300 mb-6">{translate("Get instant explanations on any topic with fact-checking and verified sources")}</p>
             
             <Card className="bg-slate-800/50 border-purple-500/20 mb-6">
               <CardHeader>
-                <CardTitle className="text-xl sm:text-2xl text-purple-400">{t("Choose a Category")}</CardTitle>
-                <CardDescription>{t("Select a category to explore, or enter your own topic below")}</CardDescription>
+                <CardTitle className="text-xl sm:text-2xl text-purple-400">{translate("Choose a Category")}</CardTitle>
+                <CardDescription>{translate("Select a category to explore, or enter your own topic below")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
@@ -526,7 +526,7 @@ export default function Learning() {
           {/* Specialized Learning Paths Section */}
           <div className="mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">🎯 Specialized Learning Paths</h2>
-            <p className="text-slate-300 mb-6">{t("Dedicated learning experiences with structured lessons and interactive practice")}</p>
+            <p className="text-slate-300 mb-6">{translate("Dedicated learning experiences with structured lessons and interactive practice")}</p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Math Tutor Path */}
@@ -595,25 +595,25 @@ export default function Learning() {
           {/* Question Input */}
           <Card className="bg-slate-800/50 border-purple-500/20">
             <CardHeader>
-                <CardTitle className="text-purple-400">{t("Ask Your Question")}</CardTitle>
-              <CardDescription>{t("Get verified explanations with fact-checking and source citations")}</CardDescription>
+                <CardTitle className="text-purple-400">{translate("Ask Your Question")}</CardTitle>
+              <CardDescription>{translate("Get verified explanations with fact-checking and source citations")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="topic">{t("Topic (Optional)")}</Label>
+                <Label htmlFor="topic">{translate("Topic (Optional)")}</Label>
                 <Input
                   id="topic"
-                  placeholder={t("e.g., Quantum Physics, World War II, Machine Learning")}
+                  placeholder={translate("e.g., Quantum Physics, World War II, Machine Learning")}
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   className="bg-slate-700/50 border-purple-500/30"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="question">{t("Question")}</Label>
+                <Label htmlFor="question">{translate("Question")}</Label>
                 <Input
                   id="question"
-                  placeholder={t("What would you like to learn about?")}
+                  placeholder={translate("What would you like to learn about?")}
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   className="bg-slate-700/50 border-purple-500/30"
@@ -627,10 +627,10 @@ export default function Learning() {
                 {explainMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t("Generating...")}
+                    {translate("Generating...")}
                   </>
                 ) : (
-                  t("Get Verified Explanation")
+                  translate("Get Verified Explanation")
                 )}
               </Button>
             </CardContent>
@@ -718,7 +718,7 @@ export default function Learning() {
                     {studyGuideMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t("Generating...")}
+                        {translate("Generating...")}
                       </>
                     ) : (
                       "Generate Study Guide"
@@ -732,7 +732,7 @@ export default function Learning() {
                     {quizMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t("Generating...")}
+                        {translate("Generating...")}
                       </>
                     ) : (
                       "Generate Quiz"

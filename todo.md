@@ -2762,3 +2762,6 @@
 
 ## Update Demo Button Text
 - [x] Change demo button text from "Try Demo" to "View Demo" on Learning page
+
+## Localize View Demo Button
+- [x] Add "View Demo" translation key to all supported language files
