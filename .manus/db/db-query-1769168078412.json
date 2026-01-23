@@ -1,0 +1,9 @@
+{
+  "query": "\nDELETE FROM conversations WHERE userId NOT IN (SELECT id FROM users WHERE supabaseId = 'ZEzzLenxvtRvm3UuQCvS7x');\nDELETE FROM users WHERE supabaseId != 'ZEzzLenxvtRvm3UuQCvS7x';\nUPDATE users SET role = 'admin' WHERE supabaseId = 'ZEzzLenxvtRvm3UuQCvS7x';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute \nDELETE FROM conversations WHERE userId NOT IN (SELECT id FROM users WHERE supabaseId = 'ZEzzLenxvtRvm3UuQCvS7x');\nDELETE FROM users WHERE supabaseId != 'ZEzzLenxvtRvm3UuQCvS7x';\nUPDATE users SET role = 'admin' WHERE supabaseId = 'ZEzzLenxvtRvm3UuQCvS7x';\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 66
+}

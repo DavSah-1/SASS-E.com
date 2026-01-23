@@ -1,0 +1,498 @@
+{
+  "query": "SELECT id, supabaseId, name, email, role, lastSignedIn FROM users ORDER BY lastSignedIn DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT id, supabaseId, name, email, role, lastSignedIn FROM users ORDER BY lastSignedIn DESC;",
+  "rows": [
+    {
+      "id": "19380046",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "user",
+      "lastSignedIn": "2026-01-23 11:31:49"
+    },
+    {
+      "id": "19380045",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "user",
+      "lastSignedIn": "2026-01-23 11:31:33"
+    },
+    {
+      "id": "19380044",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "user",
+      "lastSignedIn": "2026-01-23 11:31:15"
+    },
+    {
+      "id": "19380043",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:48"
+    },
+    {
+      "id": "19380042",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:48"
+    },
+    {
+      "id": "19380041",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:48"
+    },
+    {
+      "id": "19380040",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:44"
+    },
+    {
+      "id": "19380039",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:44"
+    },
+    {
+      "id": "19380038",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:40"
+    },
+    {
+      "id": "19380037",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:40"
+    },
+    {
+      "id": "19380036",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:38"
+    },
+    {
+      "id": "19380035",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:38"
+    },
+    {
+      "id": "19380034",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:33"
+    },
+    {
+      "id": "19380033",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:33"
+    },
+    {
+      "id": "19380032",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:32"
+    },
+    {
+      "id": "19380031",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:30"
+    },
+    {
+      "id": "19380030",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:29"
+    },
+    {
+      "id": "19380029",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:29"
+    },
+    {
+      "id": "19380028",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:26"
+    },
+    {
+      "id": "19380027",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:26"
+    },
+    {
+      "id": "19380026",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:21"
+    },
+    {
+      "id": "19380025",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:21"
+    },
+    {
+      "id": "19380024",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:29:20"
+    },
+    {
+      "id": "19380023",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:27:11"
+    },
+    {
+      "id": "19380022",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:26:42"
+    },
+    {
+      "id": "19380021",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:26:42"
+    },
+    {
+      "id": "19380020",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:24:06"
+    },
+    {
+      "id": "19380019",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:23:50"
+    },
+    {
+      "id": "19380018",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:23:37"
+    },
+    {
+      "id": "19380017",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:23:30"
+    },
+    {
+      "id": "19380016",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:22:38"
+    },
+    {
+      "id": "19380015",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:21:54"
+    },
+    {
+      "id": "19380014",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:21:00"
+    },
+    {
+      "id": "19380013",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:20:48"
+    },
+    {
+      "id": "19380012",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:20:37"
+    },
+    {
+      "id": "19380011",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:20:35"
+    },
+    {
+      "id": "19380010",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:20:24"
+    },
+    {
+      "id": "19380009",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:20:15"
+    },
+    {
+      "id": "19380008",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:20:03"
+    },
+    {
+      "id": "19380007",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:19:51"
+    },
+    {
+      "id": "19380006",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:19:40"
+    },
+    {
+      "id": "19380005",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:19:29"
+    },
+    {
+      "id": "19380004",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:19:17"
+    },
+    {
+      "id": "19380003",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:19:16"
+    },
+    {
+      "id": "19380002",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:19:02"
+    },
+    {
+      "id": "19380001",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:17:48"
+    },
+    {
+      "id": "19350013",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:04:23"
+    },
+    {
+      "id": "19350012",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:04:17"
+    },
+    {
+      "id": "19350011",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:04:12"
+    },
+    {
+      "id": "19350010",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:04:07"
+    },
+    {
+      "id": "19350009",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:04:07"
+    },
+    {
+      "id": "19350008",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:03:59"
+    },
+    {
+      "id": "19350007",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:03:59"
+    },
+    {
+      "id": "19350006",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:03:42"
+    },
+    {
+      "id": "19350005",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:03:42"
+    },
+    {
+      "id": "19350004",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:03:30"
+    },
+    {
+      "id": "19350003",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:03:30"
+    },
+    {
+      "id": "19350002",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:03:17"
+    },
+    {
+      "id": "19350001",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin",
+      "lastSignedIn": "2026-01-23 11:03:16"
+    },
+    {
+      "id": "1",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin",
+      "lastSignedIn": "2026-01-22 19:47:21"
+    },
+    {
+      "id": "7590001",
+      "supabaseId": "kcvxectpwEnmD24Q2ePMBB",
+      "name": "Sue Lock",
+      "email": "sueelock@gmail.com",
+      "role": "admin",
+      "lastSignedIn": "2026-01-20 20:50:32"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsupabaseId\tname\temail\trole\tlastSignedIn\n19380046\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tuser\t2026-01-23 11:31:49\n19380045\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tuser\t2026-01-23 11:31:33\n19380044\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tuser\t2026-01-23 11:31:15\n19380043\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:48\n19380042\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:48\n19380041\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:48\n19380040\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:44\n19380039\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:44\n19380038\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:40\n19380037\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:40\n19380036\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:38\n19380035\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:38\n19380034\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:33\n19380033\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:33\n19380032\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:32\n19380031\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:30\n19380030\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:29\n19380029\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:29\n19380028\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:26\n19380027\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:26\n19380026\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:21\n19380025\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:29:21\n19380024\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\t2026-01-23 11:29:20\n19380023\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\t2026-01-23 11:27:11\n19380022\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:26:42\n19380021\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:26:42\n19380020\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\t2026-01-23 11:24:06\n19380019\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:23:50\n19380018\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:23:37\n19380017\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:23:30\n19380016\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:22:38\n19380015\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:21:54\n19380014\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:21:00\n19380013\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:20:48\n19380012\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:20:37\n19380011\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\t2026-01-23 11:20:35\n19380010\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:20:24\n19380009\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:20:15\n19380008\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:20:03\n19380007\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:19:51\n19380006\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:19:40\n19380005\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:19:29\n19380004\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\t2026-01-23 11:19:17\n19380003\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:19:16\n19380002\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:19:02\n19380001\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:17:48\n19350013\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\t2026-01-23 11:04:23\n19350012\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\t2026-01-23 11:04:17\n19350011\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:04:12\n19350010\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:04:07\n19350009\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:04:07\n19350008\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:03:59\n19350007\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:03:59\n19350006\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:03:42\n19350005\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:03:42\n19350004\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:03:30\n19350003\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:03:30\n19350002\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:03:17\n19350001\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\t2026-01-23 11:03:16\n1\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\t2026-01-22 19:47:21\n7590001\tkcvxectpwEnmD24Q2ePMBB\tSue Lock\tsueelock@gmail.com\tadmin\t2026-01-20 20:50:32\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}

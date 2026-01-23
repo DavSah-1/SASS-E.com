@@ -33,11 +33,14 @@ class SDKServer {
     options: { name: string; expiresInMs: number }
   ): Promise<string> {
     const secretKey = this.getSessionSecret();
-    const expirationDate = new Date(Date.now() + options.expiresInMs);
+    // Convert milliseconds to seconds for JWT exp claim
+    const expirationSeconds = Math.floor(options.expiresInMs / 1000);
+    // Use string format: "Xs" means X seconds from now
+    const expirationTime = `${expirationSeconds}s`;
 
     return await new SignJWT({ openId, appId: ENV.appId, name: options.name })
       .setProtectedHeader({ alg: "HS256", typ: "JWT" })
-      .setExpirationTime(expirationDate)
+      .setExpirationTime(expirationTime)
       .sign(secretKey);
   }
 

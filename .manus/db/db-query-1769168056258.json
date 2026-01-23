@@ -1,0 +1,430 @@
+{
+  "query": "SELECT id, supabaseId, name, email, role FROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT id, supabaseId, name, email, role FROM users;",
+  "rows": [
+    {
+      "id": "1",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "19350001",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350002",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350003",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350004",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350005",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350006",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350007",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350008",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350009",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350010",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350011",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19350012",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "19350013",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "19380001",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380002",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380003",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380004",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "19380005",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380006",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380007",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380008",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380009",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380010",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380011",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "19380012",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380013",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380014",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380015",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380016",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380017",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380018",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380019",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380020",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "19380021",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380022",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380023",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "19380024",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "19380025",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380026",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380027",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380028",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380029",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380030",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380031",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380032",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380033",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380034",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380035",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380036",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380037",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380038",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380039",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380040",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380041",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380042",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380043",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380044",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380045",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "id": "19380046",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsupabaseId\tname\temail\trole\n1\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\n19350001\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350002\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350003\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350004\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350005\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350006\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350007\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350008\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350009\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350010\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350011\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19350012\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\n19350013\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\n19380001\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380002\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380003\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380004\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\n19380005\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380006\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380007\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380008\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380009\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380010\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380011\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\n19380012\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380013\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380014\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380015\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380016\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380017\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380018\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380019\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380020\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\n19380021\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380022\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380023\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\n19380024\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\n19380025\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380026\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380027\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380028\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380029\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380030\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380031\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380032\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380033\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380034\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380035\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380036\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380037\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380038\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380039\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380040\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380041\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380042\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380043\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380044\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380045\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n19380046\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

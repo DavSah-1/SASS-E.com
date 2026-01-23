@@ -41,6 +41,19 @@ export async function checkFeatureAccess(
     };
   }
 
+  // Admin bypass: check if user has admin role
+  const dbConn = await getDb();
+  if (dbConn) {
+    const userRecord = await dbConn.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (userRecord.length > 0 && userRecord[0].role === 'admin') {
+      return {
+        allowed: true,
+        reason: "Admin has unlimited access",
+        limit: "unlimited",
+      };
+    }
+  }
+
   const tierConfig = PRICING_TIERS[subscriptionTier];
 
   // Check specialized hub access

@@ -2866,3 +2866,12 @@
 - [x] Verify session cookie options (domain, path, secure, httpOnly)
 - [x] Fix JWT expiration time format (was using seconds instead of Date)
 - [ ] Test sign-in flow after fix
+
+## Set User as Admin
+- [x] Query database to find user record
+- [x] Update user role to 'admin'
+
+## Fix Admin Bypass for Hub Restrictions
+- [x] Find where hub access is checked in the code
+- [x] Add admin role bypass to hub access checks
+- [ ] Test that admin can access all hubs regardless of subscription

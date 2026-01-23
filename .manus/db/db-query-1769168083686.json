@@ -1,0 +1,24 @@
+{
+  "query": "SELECT COUNT(*) as total_users, supabaseId, name, email, role FROM users GROUP BY supabaseId, name, email, role;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT COUNT(*) as total_users, supabaseId, name, email, role FROM users GROUP BY supabaseId, name, email, role;",
+  "rows": [
+    {
+      "total_users": "52",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "NULL",
+      "email": "NULL",
+      "role": "admin"
+    },
+    {
+      "total_users": "8",
+      "supabaseId": "ZEzzLenxvtRvm3UuQCvS7x",
+      "name": "David Sahnoune",
+      "email": "davidsahnoune1@gmail.com",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_users\tsupabaseId\tname\temail\trole\n52\tZEzzLenxvtRvm3UuQCvS7x\tNULL\tNULL\tadmin\n8\tZEzzLenxvtRvm3UuQCvS7x\tDavid Sahnoune\tdavidsahnoune1@gmail.com\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}
