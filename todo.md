@@ -2853,3 +2853,16 @@
 - [x] Update getLoginUrl to return correct URL based on auth mode
 - [ ] Test Manus OAuth mode (published version)
 - [ ] Test Supabase mode (local/self-hosted)
+
+## Fix OAuth 404 Error
+- [x] Verify OAUTH_SERVER_URL environment variable is set correctly
+- [x] Check if Manus OAuth endpoints have changed
+- [x] Update SDK to use correct gRPC-style endpoints
+- [x] Implement JWT-based session verification
+- [ ] Test OAuth callback flow after fix
+
+## Fix OAuth Sign-In Not Persisting
+- [x] Check OAuth callback handler is setting session cookie correctly
+- [x] Verify session cookie options (domain, path, secure, httpOnly)
+- [x] Fix JWT expiration time format (was using seconds instead of Date)
+- [ ] Test sign-in flow after fix

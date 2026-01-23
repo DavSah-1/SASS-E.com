@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { ForbiddenError } from "@shared/_core/errors";
 import { parse as parseCookieHeader } from "cookie";
 import type { Request } from "express";
+import { jwtVerify, SignJWT } from "jose";
 import type { User } from "../../drizzle/schema";
 import * as db from "../db";
 import { verifySupabaseToken } from "../lib/supabaseAuth";
@@ -22,46 +23,72 @@ class SDKServer {
     return new Map(Object.entries(parsed));
   }
 
+  private getSessionSecret(): Uint8Array {
+    return new TextEncoder().encode(ENV.cookieSecret);
+  }
+
   // Manus OAuth methods
   async createSessionToken(
     openId: string,
     options: { name: string; expiresInMs: number }
   ): Promise<string> {
-    const response = await fetch(`${ENV.oAuthServerUrl}/create-session-token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-App-Id": ENV.appId,
-      },
-      body: JSON.stringify({
-        openId,
-        name: options.name,
-        expiresInMs: options.expiresInMs,
-      }),
-    });
+    const secretKey = this.getSessionSecret();
+    const expirationDate = new Date(Date.now() + options.expiresInMs);
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(
-        `Failed to create session token: ${response.status} ${text}`
-      );
+    return await new SignJWT({ openId, appId: ENV.appId, name: options.name })
+      .setProtectedHeader({ alg: "HS256", typ: "JWT" })
+      .setExpirationTime(expirationDate)
+      .sign(secretKey);
+  }
+
+  async verifySession(
+    cookieValue: string | undefined | null
+  ): Promise<{ openId: string; appId: string; name: string } | null> {
+    if (!cookieValue) {
+      console.warn("[Auth] Missing session cookie");
+      return null;
     }
 
-    const data = await response.json();
-    return data.sessionToken;
+    try {
+      const secretKey = this.getSessionSecret();
+      const { payload } = await jwtVerify(cookieValue, secretKey, {
+        algorithms: ["HS256"],
+      });
+
+      const { openId, appId, name } = payload as Record<string, unknown>;
+
+      if (
+        !isNonEmptyString(openId) ||
+        !isNonEmptyString(appId) ||
+        !isNonEmptyString(name)
+      ) {
+        console.warn("[Auth] Session payload missing required fields");
+        return null;
+      }
+
+      return { openId, appId, name };
+    } catch (error) {
+      console.warn("[Auth] Session verification failed", String(error));
+      return null;
+    }
   }
 
   async exchangeCodeForToken(
     code: string,
     state: string
   ): Promise<{ accessToken: string }> {
-    const response = await fetch(`${ENV.oAuthServerUrl}/exchange-code`, {
+    const redirectUri = atob(state);
+    const response = await fetch(`${ENV.oAuthServerUrl}/webdev.v1.WebDevAuthPublicService/ExchangeToken`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-App-Id": ENV.appId,
       },
-      body: JSON.stringify({ code, state }),
+      body: JSON.stringify({
+        clientId: ENV.appId,
+        grantType: "authorization_code",
+        code,
+        redirectUri,
+      }),
     });
 
     if (!response.ok) {
@@ -75,11 +102,14 @@ class SDKServer {
   }
 
   async getUserInfo(accessToken: string): Promise<GetUserInfoResponse> {
-    const response = await fetch(`${ENV.oAuthServerUrl}/user-info`, {
+    const response = await fetch(`${ENV.oAuthServerUrl}/webdev.v1.WebDevAuthPublicService/GetUserInfo`, {
+      method: "POST",
       headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "X-App-Id": ENV.appId,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        accessToken,
+      }),
     });
 
     if (!response.ok) {
@@ -90,16 +120,21 @@ class SDKServer {
     return await response.json();
   }
 
-  async verifySessionToken(sessionToken: string): Promise<GetUserInfoResponse> {
-    const response = await fetch(`${ENV.oAuthServerUrl}/verify-session`, {
+  async getUserInfoWithJwt(jwtToken: string): Promise<GetUserInfoResponse> {
+    const response = await fetch(`${ENV.oAuthServerUrl}/webdev.v1.WebDevAuthPublicService/GetUserInfoWithJwt`, {
+      method: "POST",
       headers: {
-        Authorization: `Bearer ${sessionToken}`,
-        "X-App-Id": ENV.appId,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        jwtToken,
+        projectId: ENV.appId,
+      }),
     });
 
     if (!response.ok) {
-      throw ForbiddenError("Invalid session token");
+      const text = await response.text();
+      throw new Error(`Failed to get user info with JWT: ${response.status} ${text}`);
     }
 
     return await response.json();
@@ -166,28 +201,36 @@ class SDKServer {
     return user;
   }
 
-  private async authenticateWithManus(token: string): Promise<User> {
-    const userInfo = await this.verifySessionToken(token);
-
-    if (!userInfo.openId) {
-      throw ForbiddenError("Invalid user info");
+  private async authenticateWithManus(sessionCookie: string): Promise<User> {
+    // Verify JWT session cookie
+    const session = await this.verifySession(sessionCookie);
+    
+    if (!session) {
+      throw ForbiddenError("Invalid session cookie");
     }
 
+    const sessionUserId = session.openId;
     const signedInAt = new Date();
     
     // For Manus auth, use openId as supabaseId (they're stored in the same column)
-    let user = await db.getUserBySupabaseId(userInfo.openId);
+    let user = await db.getUserBySupabaseId(sessionUserId);
 
-    // If user not in DB, create them
+    // If user not in DB, sync from OAuth server automatically
     if (!user) {
-      await db.upsertUser({
-        supabaseId: userInfo.openId,
-        name: userInfo.name || null,
-        email: userInfo.email ?? null,
-        loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
-        lastSignedIn: signedInAt,
-      });
-      user = await db.getUserBySupabaseId(userInfo.openId);
+      try {
+        const userInfo = await this.getUserInfoWithJwt(sessionCookie);
+        await db.upsertUser({
+          supabaseId: userInfo.openId,
+          name: userInfo.name || null,
+          email: userInfo.email ?? null,
+          loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
+          lastSignedIn: signedInAt,
+        });
+        user = await db.getUserBySupabaseId(userInfo.openId);
+      } catch (error) {
+        console.error("[Auth] Failed to sync user from OAuth:", error);
+        throw ForbiddenError("Failed to sync user info");
+      }
     }
 
     if (!user) {

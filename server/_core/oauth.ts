@@ -27,10 +27,16 @@ export function registerOAuthRoutes(app: Express) {
     }
 
     try {
+      console.log("[OAuth] Starting callback with code:", code.substring(0, 10) + "...");
+      
       const tokenResponse = await sdk.exchangeCodeForToken(code, state);
+      console.log("[OAuth] Got access token:", tokenResponse.accessToken ? "YES" : "NO");
+      
       const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
+      console.log("[OAuth] Got user info:", { openId: userInfo.openId, name: userInfo.name, email: userInfo.email });
 
       if (!userInfo.openId) {
+        console.error("[OAuth] Missing openId in user info");
         res.status(400).json({ error: "openId missing from user info" });
         return;
       }
@@ -42,6 +48,7 @@ export function registerOAuthRoutes(app: Express) {
         loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
         lastSignedIn: new Date(),
       });
+      console.log("[OAuth] User upserted to database");
 
       // Get user's session preference
       const user = await db.getUserBySupabaseId(userInfo.openId);
@@ -53,9 +60,14 @@ export function registerOAuthRoutes(app: Express) {
         name: userInfo.name || "",
         expiresInMs: sessionDuration,
       });
+      console.log("[OAuth] Created session token, length:", sessionToken.length);
 
       const cookieOptions = getSessionCookieOptions(req);
+      console.log("[OAuth] Cookie options:", cookieOptions);
+      console.log("[OAuth] Setting cookie with name:", COOKIE_NAME, "maxAge:", sessionDuration);
+      
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: sessionDuration });
+      console.log("[OAuth] Cookie set, redirecting to /");
 
       res.redirect(302, "/");
     } catch (error) {
