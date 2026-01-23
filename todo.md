@@ -2835,3 +2835,21 @@
 - [ ] Verify hub access control still works
 - [ ] Verify owner/admin privileges still work
 - [ ] Create new admin account in Supabase for owner
+
+## Fix Get Started Buttons
+- [x] Update navbar Get Started button to link to /sign-in
+- [x] Update home page Get Started Free button to link to /sign-in
+- [x] Update all other Get Started buttons across pages to link to /sign-in
+
+## Fix Publishing Issue
+- [ ] Create server/lib/supabaseAuth.ts file for token verification
+- [ ] Test published version works correctly
+
+## Implement Dual Auth System
+- [x] Add AUTH_MODE environment variable (manus or supabase)
+- [x] Update server/_core/sdk.ts to support both Manus and Supabase auth
+- [x] Restore Manus OAuth callback handler for Manus mode
+- [x] Update frontend useAuth to conditionally use Manus or Supabase
+- [x] Update getLoginUrl to return correct URL based on auth mode
+- [ ] Test Manus OAuth mode (published version)
+- [ ] Test Supabase mode (local/self-hosted)

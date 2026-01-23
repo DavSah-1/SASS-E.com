@@ -7,4 +7,6 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  // Auth mode: 'manus' for Manus OAuth (published), 'supabase' for Supabase Auth (local/self-hosted)
+  authMode: (process.env.AUTH_MODE ?? "manus") as "manus" | "supabase",
 };

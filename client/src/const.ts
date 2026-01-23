@@ -6,8 +6,15 @@ export const APP_LOGO =
   import.meta.env.VITE_APP_LOGO ||
   "https://placehold.co/128x128/E1E7EF/1F2937?text=App";
 
-// Generate login URL at runtime so redirect URI reflects the current origin.
+// Return the appropriate login URL based on auth mode
 export const getLoginUrl = () => {
+  const authMode = import.meta.env.VITE_AUTH_MODE || "manus";
+  
+  if (authMode === "supabase") {
+    return "/sign-in";
+  }
+  
+  // Manus OAuth
   const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   const appId = import.meta.env.VITE_APP_ID;
   const redirectUri = `${window.location.origin}/api/oauth/callback`;

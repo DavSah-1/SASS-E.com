@@ -152,10 +152,8 @@ export default function SignIn() {
           </div>
 
           <div className="mt-4 text-center text-sm">
-            <Link href="/">
-              <a className="text-muted-foreground hover:text-primary">
-                ← Back to home
-              </a>
+            <Link href="/" className="text-muted-foreground hover:text-primary">
+              ← Back to home
             </Link>
           </div>
         </CardContent>
