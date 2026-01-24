@@ -2882,3 +2882,9 @@
 - [x] Extract pricing section from pricing page
 - [x] Insert pricing section between wellness and Core AI sections on home page
 - [x] Test responsive design on home page
+
+## Add Feature Comparison Table to Home Page
+- [x] Read pricing page feature comparison table structure
+- [x] Insert feature comparison table below pricing cards on home page
+- [x] Ensure responsive design for mobile/tablet
+- [x] Test table display and functionality
