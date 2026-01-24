@@ -2875,3 +2875,10 @@
 - [x] Find where hub access is checked in the code
 - [x] Add admin role bypass to hub access checks
 - [ ] Test that admin can access all hubs regardless of subscription
+
+## Move Pricing Section to Home Page
+- [x] Read pricing page content
+- [x] Read home page structure to find wellness and Core AI sections
+- [x] Extract pricing section from pricing page
+- [x] Insert pricing section between wellness and Core AI sections on home page
+- [x] Test responsive design on home page

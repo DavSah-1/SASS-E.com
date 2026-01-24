@@ -1,9 +1,13 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslate } from "@/hooks/useTranslate";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { PRICING_TIERS, getAnnualDiscountPercent, getMonthlyFromAnnual, getCurrencySymbol } from "@shared/pricing";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { getLoginUrl } from "@/const";
@@ -29,7 +33,8 @@ import {
   Dumbbell,
   Apple,
   Brain,
-  Smile
+  Smile,
+  Check
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "wouter";
@@ -37,13 +42,29 @@ import { HubSelectionModal } from "@/components/HubSelectionModal";
 import { useHubSelection } from "@/hooks/useHubSelection";
 
 export default function Home() {
-  const { loading, isAuthenticated } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const isIncognito = useIncognitoDetection();
   const { translate: t } = useLanguage();
   const hubSelection = useHubSelection();
+  const [isAnnual, setIsAnnual] = useState(false);
+  const [currency, setCurrency] = useState<"GBP" | "USD" | "EUR">("GBP");
   
   // Test useTranslate hook with one string
   const translatedTagline = useTranslate("Your intelligent AI assistant. Advanced, adaptive, and always ready to help.");
+
+  const handleChoosePlan = (tier: string) => {
+    if (!isAuthenticated) {
+      window.location.href = "/assistant";
+      return;
+    }
+    
+    if (tier === "free") {
+      return;
+    }
+
+    // TODO: Implement Stripe checkout
+    console.log(`Choosing plan: ${tier}, billing: ${isAnnual ? "annual" : "monthly"}`);
+  };
   
 
   if (loading) {
@@ -446,6 +467,157 @@ export default function Home() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Pricing Section */}
+        <div className="mt-16 sm:mt-24 max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-green-500/20 text-green-300 border-green-500/30">
+              <Sparkles className="w-3 h-3 mr-1" />
+              Simple, Transparent Pricing
+            </Badge>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              Choose Your Plan
+            </h2>
+            <p className="text-lg sm:text-xl text-purple-200 max-w-2xl mx-auto">
+              Get access to AI-powered learning, financial management, wellness tracking, and more.
+              All plans include a 7-day free trial of specialized features.
+            </p>
+          </div>
+
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <Label htmlFor="billing-toggle" className="text-white font-medium">
+              Monthly
+            </Label>
+            <Switch
+              id="billing-toggle"
+              checked={isAnnual}
+              onCheckedChange={setIsAnnual}
+            />
+            <Label htmlFor="billing-toggle" className="text-white font-medium">
+              Annual
+              <Badge variant="secondary" className="ml-2 bg-green-500/20 text-green-300 border-green-500/30">
+                Save {getAnnualDiscountPercent("pro", currency)}%
+              </Badge>
+            </Label>
+          </div>
+
+          {/* Currency Selector */}
+          <div className="flex items-center justify-center gap-2 mb-12">
+            <span className="text-purple-200 text-sm">Currency:</span>
+            {(["GBP", "USD", "EUR"] as const).map((curr) => (
+              <Button
+                key={curr}
+                variant={currency === curr ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrency(curr)}
+                className={currency === curr ? "" : "bg-purple-800/50 border-purple-600 text-white hover:bg-purple-700"}
+              >
+                {curr}
+              </Button>
+            ))}
+          </div>
+
+          {/* Pricing Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {(["free", "starter", "pro", "ultimate"] as const).map((tier) => {
+              const tierData = PRICING_TIERS[tier];
+              const price = isAnnual ? getMonthlyFromAnnual(tier, currency) : tierData.pricing.monthly[currency];
+              const isPopular = tierData.popular;
+              const isCurrentTier = user?.subscriptionTier === tier;
+
+              return (
+                <Card
+                  key={tier}
+                  className={`relative ${
+                    isPopular
+                      ? "border-2 border-pink-500 shadow-xl shadow-pink-500/20"
+                      : "border-purple-700/50 bg-purple-900/30"
+                  } backdrop-blur-sm`}
+                >
+                  {isPopular && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                      <Badge className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-1">
+                        Most Popular
+                      </Badge>
+                    </div>
+                  )}
+
+                  {isCurrentTier && (
+                    <div className="absolute -top-4 right-4">
+                      <Badge className="bg-green-500 text-white">
+                        Current Plan
+                      </Badge>
+                    </div>
+                  )}
+
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-2xl text-white">{tierData.name}</CardTitle>
+                    <CardDescription className="text-purple-300">
+                      {tierData.description}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="pb-4">
+                    <div className="mb-6">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-bold text-white">
+                          {getCurrencySymbol(currency)}{price.toFixed(2)}
+                        </span>
+                        <span className="text-purple-300">/month</span>
+                      </div>
+                      {isAnnual && price > 0 && (
+                        <p className="text-sm text-purple-400 mt-1">
+                          Billed {getCurrencySymbol(currency)}{tierData.pricing.annual[currency].toFixed(2)} annually
+                        </p>
+                      )}
+                    </div>
+
+                    <ul className="space-y-3">
+                      {tierData.features.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-purple-100">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+
+                  <CardFooter>
+                    {isCurrentTier ? (
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        disabled
+                      >
+                        Current Plan
+                      </Button>
+                    ) : tier === "free" ? (
+                      <Button
+                        className="w-full bg-purple-600 hover:bg-purple-700"
+                        asChild
+                      >
+                        <Link href="/assistant">Get Started Free</Link>
+                      </Button>
+                    ) : (
+                      <Button
+                        className={`w-full ${
+                          isPopular
+                            ? "bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                            : "bg-purple-600 hover:bg-purple-700"
+                        }`}
+                        onClick={() => handleChoosePlan(tier)}
+                      >
+                        Choose {tierData.name}
+                      </Button>
+                    )}
+                  </CardFooter>
+                </Card>
+              );
+            })}
           </div>
         </div>
 
