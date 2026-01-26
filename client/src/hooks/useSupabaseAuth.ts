@@ -50,6 +50,9 @@ export function useSupabaseAuth(): UseSupabaseAuthReturn {
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
     })
     return { error }
   }
