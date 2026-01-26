@@ -54,21 +54,21 @@ export const debtCoachRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await addDebt({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         ...input,
       });
 
       // Generate welcome coaching message for first debt
-      const userDebts = await getUserDebts(ctx.user.id);
+      const userDebts = await getUserDebts(ctx.user.numericId);
       if (userDebts.length === 1) {
         const coachingMessage = await generateCoachingMessage(
-          ctx.user.id,
+          ctx.user.numericId,
           "welcome",
           { debtName: input.debtName, balance: input.currentBalance }
         );
         
         await saveCoachingSession({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           sessionType: "welcome",
           message: coachingMessage,
           sentiment: "encouraging",
@@ -88,7 +88,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const debts = await getUserDebts(ctx.user.id, input.includeInactive);
+      const debts = await getUserDebts(ctx.user.numericId, input.includeInactive);
       return debts;
     }),
 
@@ -98,7 +98,7 @@ export const debtCoachRouter = router({
   getDebt: protectedProcedure
     .input(z.object({ debtId: z.number().int().positive() }))
     .query(async ({ ctx, input }) => {
-      const debt = await getDebtById(input.debtId, ctx.user.id);
+      const debt = await getDebtById(input.debtId, ctx.user.numericId);
       if (!debt) {
         throw new Error("Debt not found");
       }
@@ -125,7 +125,7 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await updateDebt(input.debtId, ctx.user.id, input.updates);
+      await updateDebt(input.debtId, ctx.user.numericId, input.updates);
       return { success: true, message: "Debt updated successfully" };
     }),
 
@@ -135,7 +135,7 @@ export const debtCoachRouter = router({
   deleteDebt: protectedProcedure
     .input(z.object({ debtId: z.number().int().positive() }))
     .mutation(async ({ ctx, input }) => {
-      await deleteDebt(input.debtId, ctx.user.id);
+      await deleteDebt(input.debtId, ctx.user.numericId);
       return { success: true, message: "Debt deleted successfully" };
     }),
 
@@ -154,7 +154,7 @@ export const debtCoachRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Get current debt to calculate new balance
-      const debt = await getDebtById(input.debtId, ctx.user.id);
+      const debt = await getDebtById(input.debtId, ctx.user.numericId);
       if (!debt) {
         throw new Error("Debt not found");
       }
@@ -168,7 +168,7 @@ export const debtCoachRouter = router({
       // Record the payment
       await recordDebtPayment({
         debtId: input.debtId,
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         amount: input.amount,
         paymentDate: new Date(input.paymentDate),
         paymentType: input.paymentType,
@@ -179,11 +179,11 @@ export const debtCoachRouter = router({
       });
 
       // Check for milestones
-      await checkAndAwardMilestones(ctx.user.id, input.debtId, debt, balanceAfter);
+      await checkAndAwardMilestones(ctx.user.numericId, input.debtId, debt, balanceAfter);
 
       // Generate coaching message
       const coachingMessage = await generateCoachingMessage(
-        ctx.user.id,
+        ctx.user.numericId,
         "payment_logged",
         {
           debtName: debt.debtName,
@@ -194,7 +194,7 @@ export const debtCoachRouter = router({
       );
 
       await saveCoachingSession({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         sessionType: "payment_logged",
         message: coachingMessage,
         sentiment: "encouraging",
@@ -224,7 +224,7 @@ export const debtCoachRouter = router({
     .query(async ({ ctx, input }) => {
       const payments = await getDebtPaymentHistory(
         input.debtId,
-        ctx.user.id,
+        ctx.user.numericId,
         input.limit
       );
       return payments;
@@ -240,7 +240,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const payments = await getAllUserPayments(ctx.user.id, input.limit);
+      const payments = await getAllUserPayments(ctx.user.numericId, input.limit);
       return payments;
     }),
 
@@ -255,7 +255,7 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const debts = await getUserDebts(ctx.user.id, false);
+      const debts = await getUserDebts(ctx.user.numericId, false);
 
       if (debts.length === 0) {
         throw new Error("No active debts to calculate strategy");
@@ -332,7 +332,7 @@ export const debtCoachRouter = router({
 
       // Save strategy
       await saveDebtStrategy({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         strategyType: input.strategyType,
         monthlyExtraPayment: input.monthlyExtraPayment,
         projectedPayoffDate,
@@ -363,7 +363,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const strategy = await getLatestStrategy(ctx.user.id, input.strategyType);
+      const strategy = await getLatestStrategy(ctx.user.numericId, input.strategyType);
       if (!strategy) {
         return null;
       }
@@ -384,7 +384,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const milestones = await getUserMilestones(ctx.user.id, input.debtId);
+      const milestones = await getUserMilestones(ctx.user.numericId, input.debtId);
       return milestones;
     }),
 
@@ -398,7 +398,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const sessions = await getRecentCoachingSessions(ctx.user.id, input.limit);
+      const sessions = await getRecentCoachingSessions(ctx.user.numericId, input.limit);
       return sessions;
     }),
 
@@ -406,11 +406,11 @@ export const debtCoachRouter = router({
    * Get motivational coaching message
    */
   getMotivation: protectedProcedure.mutation(async ({ ctx }) => {
-    const summary = await getDebtSummary(ctx.user.id);
-    const recentPayments = await getAllUserPayments(ctx.user.id, 5);
+    const summary = await getDebtSummary(ctx.user.numericId);
+    const recentPayments = await getAllUserPayments(ctx.user.numericId, 5);
 
     const coachingMessage = await generateCoachingMessage(
-      ctx.user.id,
+      ctx.user.numericId,
       "motivation",
       {
         summary,
@@ -419,7 +419,7 @@ export const debtCoachRouter = router({
     );
 
     await saveCoachingSession({
-      userId: ctx.user.id,
+      userId: ctx.user.numericId,
       sessionType: "motivation",
       message: coachingMessage,
       sentiment: "motivational",
@@ -432,7 +432,7 @@ export const debtCoachRouter = router({
    * Get debt summary statistics
    */
   getSummary: protectedProcedure.query(async ({ ctx }) => {
-    const summary = await getDebtSummary(ctx.user.id);
+    const summary = await getDebtSummary(ctx.user.numericId);
     return summary;
   }),
 
@@ -453,7 +453,7 @@ export const debtCoachRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await saveBudgetSnapshot({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         ...input,
       });
 
@@ -470,7 +470,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const snapshots = await getBudgetSnapshots(ctx.user.id, input.limit);
+      const snapshots = await getBudgetSnapshots(ctx.user.numericId, input.limit);
       return snapshots;
     }),
 });

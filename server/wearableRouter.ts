@@ -19,7 +19,7 @@ export const wearableRouter = router({
    * Get all wearable connections for the current user
    */
   getConnections: protectedProcedure.query(async ({ ctx }) => {
-    return getUserWearableConnections(ctx.user.id);
+    return getUserWearableConnections(ctx.user.numericId);
   }),
 
   /**
@@ -28,7 +28,7 @@ export const wearableRouter = router({
   getConnection: protectedProcedure
     .input(z.object({ connectionId: z.number() }))
     .query(async ({ ctx, input }) => {
-      return getWearableConnection(input.connectionId, ctx.user.id);
+      return getWearableConnection(input.connectionId, ctx.user.numericId);
     }),
 
   /**
@@ -43,7 +43,7 @@ export const wearableRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const connectionId = await addWearableConnection({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         provider: input.provider,
         deviceName: input.deviceName,
       });
@@ -80,7 +80,7 @@ export const wearableRouter = router({
   disconnect: protectedProcedure
     .input(z.object({ connectionId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await disconnectWearable(input.connectionId, ctx.user.id);
+      await disconnectWearable(input.connectionId, ctx.user.numericId);
       return { success: true };
     }),
 
@@ -95,7 +95,7 @@ export const wearableRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      return getSyncHistory(input.connectionId, ctx.user.id, input.limit);
+      return getSyncHistory(input.connectionId, ctx.user.numericId, input.limit);
     }),
 
   /**
@@ -122,7 +122,7 @@ export const wearableRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return syncWearableData(input.connectionId, ctx.user.id, input.dataTypes);
+      return syncWearableData(input.connectionId, ctx.user.numericId, input.dataTypes);
     }),
 
   /**

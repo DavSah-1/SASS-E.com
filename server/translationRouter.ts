@@ -52,7 +52,7 @@ export const translationRouter = router({
       await db
         .update(users)
         .set({ preferredLanguage: input.language })
-        .where(eq(users.id, ctx.user.id));
+        .where(eq(users.id, ctx.user.numericId));
 
       return { success: true };
     }),

@@ -32,14 +32,14 @@ export const translateChatRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { conversationId, shareableCode } = await createTranslateConversation(
-        ctx.user.id,
+        ctx.user.numericId,
         input.title
       );
 
       // Add creator as first participant
       await addConversationParticipant(
         conversationId,
-        ctx.user.id,
+        ctx.user.numericId,
         ctx.user.preferredLanguage || 'en'
       );
 
@@ -80,7 +80,7 @@ export const translateChatRouter = router({
       // Add user as participant
       await addConversationParticipant(
         conversation.id,
-        ctx.user.id,
+        ctx.user.numericId,
         ctx.user.preferredLanguage || 'en'
       );
 
@@ -116,7 +116,7 @@ export const translateChatRouter = router({
       }
 
       // Check if user is participant
-      const isParticipant = await isUserParticipant(conversation.id, ctx.user.id);
+      const isParticipant = await isUserParticipant(conversation.id, ctx.user.numericId);
       if (!isParticipant) {
         throw new Error("You are not a participant in this conversation");
       }
@@ -155,7 +155,7 @@ export const translateChatRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Verify user is participant
-      const isParticipant = await isUserParticipant(input.conversationId, ctx.user.id);
+      const isParticipant = await isUserParticipant(input.conversationId, ctx.user.numericId);
       if (!isParticipant) {
         throw new Error("You are not a participant in this conversation");
       }
@@ -165,7 +165,7 @@ export const translateChatRouter = router({
       // Save original message
       const messageId = await saveTranslateMessage(
         input.conversationId,
-        ctx.user.id,
+        ctx.user.numericId,
         input.text,
         originalLanguage
       );
@@ -175,7 +175,7 @@ export const translateChatRouter = router({
 
       // Translate for each participant (except sender)
       for (const participant of participants) {
-        if (participant.userId === ctx.user.id) {
+        if (participant.userId === ctx.user.numericId) {
           // Save original for sender
           await saveMessageTranslation(
             messageId,
@@ -247,7 +247,7 @@ export const translateChatRouter = router({
     )
     .query(async ({ ctx, input }) => {
       // Verify user is participant
-      const isParticipant = await isUserParticipant(input.conversationId, ctx.user.id);
+      const isParticipant = await isUserParticipant(input.conversationId, ctx.user.numericId);
       if (!isParticipant) {
         throw new Error("You are not a participant in this conversation");
       }
@@ -258,7 +258,7 @@ export const translateChatRouter = router({
       // Get translations for current user
       const messagesWithTranslations = await Promise.all(
         messages.map(async (msg) => {
-          const translation = await getMessageTranslation(msg.id, ctx.user.id);
+          const translation = await getMessageTranslation(msg.id, ctx.user.numericId);
 
           return {
             id: msg.id,
@@ -268,7 +268,7 @@ export const translateChatRouter = router({
             translatedText: translation?.translatedText || msg.originalText,
             targetLanguage: translation?.targetLanguage || msg.originalLanguage,
             createdAt: msg.createdAt,
-            isMine: msg.senderId === ctx.user.id,
+            isMine: msg.senderId === ctx.user.numericId,
           };
         })
       );
@@ -280,7 +280,7 @@ export const translateChatRouter = router({
    * Get user's conversations
    */
   getMyConversations: protectedProcedure.query(async ({ ctx }) => {
-    const conversations = await getUserTranslateConversations(ctx.user.id);
+    const conversations = await getUserTranslateConversations(ctx.user.numericId);
 
     return conversations.map((conv) => ({
       id: conv.id,
@@ -301,7 +301,7 @@ export const translateChatRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await removeConversationParticipant(input.conversationId, ctx.user.id);
+      await removeConversationParticipant(input.conversationId, ctx.user.numericId);
       return { success: true };
     }),
 
@@ -322,7 +322,7 @@ export const translateChatRouter = router({
       }
 
       // Only creator can delete
-      if (conversation.creatorId !== ctx.user.id) {
+      if (conversation.creatorId !== ctx.user.numericId) {
         throw new Error("Only the conversation creator can delete it");
       }
 

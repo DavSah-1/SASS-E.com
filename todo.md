@@ -2888,3 +2888,24 @@
 - [x] Insert feature comparison table below pricing cards on home page
 - [x] Ensure responsive design for mobile/tablet
 - [x] Test table display and functionality
+
+## Implement Dual Database Architecture (Clean Approach)
+- [x] Install Supabase PostgreSQL client library
+- [x] Create server/supabaseDb.ts with Supabase user schema
+- [x] Revert Manus schema to keep existing code working
+- [x] Add SUPABASE_DB_URL environment variable request
+- [x] Validate Supabase database connection with vitest
+- [x] Create UnifiedUser interface that works with both databases
+- [x] Create database routing helper in server/_core/dbRouter.ts
+- [x] Update authentication context to use UnifiedUser
+- [x] Add numericId property for backward compatibility
+- [x] Fix all 267 TypeScript errors across entire codebase
+- [x] Update all ctx.user.id references to ctx.user.numericId
+- [x] Add all missing properties to UnifiedUser (preferredLanguage, preferredCurrency, loginMethod, staySignedIn, twoFactorEnabled)
+- [ ] Route Manus OAuth users to Manus DB (currently all use Manus DB)
+- [ ] Route Supabase Auth users to Supabase DB
+- [ ] Update accessControl to work with both databases
+- [ ] Test admin login (Manus OAuth → Manus DB)
+- [ ] Test user signup (Supabase Auth → Supabase DB)
+- [ ] Test user login (Supabase Auth → Supabase DB)
+- [ ] Verify complete data isolation

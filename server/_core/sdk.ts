@@ -3,11 +3,18 @@ import { ForbiddenError } from "@shared/_core/errors";
 import { parse as parseCookieHeader } from "cookie";
 import type { Request } from "express";
 import { jwtVerify, SignJWT } from "jose";
-import type { User } from "../../drizzle/schema";
 import * as db from "../db";
+import { getSupabaseUserById, upsertSupabaseUser } from "../supabaseDb";
 import { verifySupabaseToken } from "../lib/supabaseAuth";
 import { ENV } from "./env";
 import type { GetUserInfoResponse } from "./types/manusTypes";
+import { 
+  type UnifiedUser, 
+  type AuthProvider,
+  normalizeManusUser, 
+  normalizeSupabaseUser,
+  detectAuthProvider 
+} from "./dbRouter";
 
 // Utility function
 const isNonEmptyString = (value: unknown): value is string =>
@@ -101,53 +108,35 @@ class SDKServer {
       );
     }
 
-    return await response.json();
+    const data = await response.json();
+    return { accessToken: data.accessToken };
   }
 
-  async getUserInfo(accessToken: string): Promise<GetUserInfoResponse> {
+  async getUserInfoWithJwt(jwt: string): Promise<GetUserInfoResponse> {
     const response = await fetch(`${ENV.oAuthServerUrl}/webdev.v1.WebDevAuthPublicService/GetUserInfo`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt}`,
       },
-      body: JSON.stringify({
-        accessToken,
-      }),
+      body: JSON.stringify({}),
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Failed to get user info: ${response.status} ${text}`);
+      throw new Error(`Failed to get user info: ${response.status}`);
     }
 
     return await response.json();
   }
 
-  async getUserInfoWithJwt(jwtToken: string): Promise<GetUserInfoResponse> {
-    const response = await fetch(`${ENV.oAuthServerUrl}/webdev.v1.WebDevAuthPublicService/GetUserInfoWithJwt`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        jwtToken,
-        projectId: ENV.appId,
-      }),
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Failed to get user info with JWT: ${response.status} ${text}`);
-    }
-
-    return await response.json();
-  }
-
-  // Dual auth: Manus OAuth or Supabase
-  async authenticateRequest(req: Request): Promise<User> {
-    const authHeader = req.headers.authorization;
+  /**
+   * Authenticate request using dual database architecture
+   * Routes to Manus DB for admin (Manus OAuth) or Supabase DB for users (Supabase Auth)
+   */
+  async authenticateRequest(req: Request): Promise<UnifiedUser> {
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);
+    const authHeader = req.headers.authorization;
 
     let token: string | undefined;
 
@@ -161,64 +150,65 @@ class SDKServer {
       throw ForbiddenError("Missing authentication token");
     }
 
-    // Route to appropriate auth system based on AUTH_MODE
-    if (ENV.authMode === "supabase") {
+    // Try Supabase auth first (Bearer token)
+    if (authHeader && authHeader.startsWith("Bearer ")) {
       return await this.authenticateWithSupabase(token);
-    } else {
-      return await this.authenticateWithManus(token);
     }
+
+    // Try Manus auth (session cookie)
+    return await this.authenticateWithManus(token);
   }
 
-  private async authenticateWithSupabase(token: string): Promise<User> {
+  private async authenticateWithSupabase(token: string): Promise<UnifiedUser> {
     const supabaseUser = await verifySupabaseToken(token);
 
     if (!supabaseUser) {
-      throw ForbiddenError("Invalid authentication token");
+      throw ForbiddenError("Invalid Supabase authentication token");
     }
 
     const signedInAt = new Date();
-    let user = await db.getUserBySupabaseId(supabaseUser.id);
+    let user = await getSupabaseUserById(supabaseUser.id);
 
-    // If user not in DB, create them
+    // If user not in Supabase DB, create them
     if (!user) {
-      await db.upsertUser({
-        supabaseId: supabaseUser.id,
+      await upsertSupabaseUser({
+        id: supabaseUser.id,
         name: supabaseUser.user_metadata?.name || supabaseUser.email || null,
         email: supabaseUser.email ?? null,
-        loginMethod: supabaseUser.app_metadata?.provider ?? "email",
+        role: "user", // Regular users always have "user" role
         lastSignedIn: signedInAt,
       });
-      user = await db.getUserBySupabaseId(supabaseUser.id);
+      user = await getSupabaseUserById(supabaseUser.id);
     }
 
     if (!user) {
-      throw ForbiddenError("User not found");
+      throw ForbiddenError("User not found in Supabase database");
     }
 
     // Update last signed in
-    await db.upsertUser({
-      supabaseId: user.supabaseId,
+    await upsertSupabaseUser({
+      id: user.id,
       lastSignedIn: signedInAt,
     });
 
-    return user;
+    return normalizeSupabaseUser(user);
   }
 
-  private async authenticateWithManus(sessionCookie: string): Promise<User> {
+  private async authenticateWithManus(sessionCookie: string): Promise<UnifiedUser> {
     // Verify JWT session cookie
     const session = await this.verifySession(sessionCookie);
     
     if (!session) {
-      throw ForbiddenError("Invalid session cookie");
+      throw ForbiddenError("Invalid Manus session cookie");
     }
 
     const sessionUserId = session.openId;
     const signedInAt = new Date();
     
-    // For Manus auth, use openId as supabaseId (they're stored in the same column)
+    // For Manus auth, query Manus database
     let user = await db.getUserBySupabaseId(sessionUserId);
 
-    // If user not in DB, sync from OAuth server automatically
+    // If user not in Manus DB, sync from OAuth server
     if (!user) {
       try {
         const userInfo = await this.getUserInfoWithJwt(sessionCookie);
@@ -227,17 +217,18 @@ class SDKServer {
           name: userInfo.name || null,
           email: userInfo.email ?? null,
           loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
+          role: "admin", // Manus OAuth users are admins
           lastSignedIn: signedInAt,
         });
         user = await db.getUserBySupabaseId(userInfo.openId);
       } catch (error) {
-        console.error("[Auth] Failed to sync user from OAuth:", error);
-        throw ForbiddenError("Failed to sync user info");
+        console.error("[Auth] Failed to sync Manus user:", error);
+        throw ForbiddenError("Failed to sync user info from Manus OAuth");
       }
     }
 
     if (!user) {
-      throw ForbiddenError("User not found");
+      throw ForbiddenError("User not found in Manus database");
     }
 
     // Update last signed in
@@ -246,7 +237,7 @@ class SDKServer {
       lastSignedIn: signedInAt,
     });
 
-    return user;
+    return normalizeManusUser(user);
   }
 }
 

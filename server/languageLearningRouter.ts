@@ -31,12 +31,12 @@ export const languageLearningRouter = router({
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      const progress = await getUserLanguageProgress(ctx.user.id, input.language);
+      const progress = await getUserLanguageProgress(ctx.user.numericId, input.language);
       
       if (!progress) {
         // Initialize progress for new language
         const newProgress = {
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           language: input.language,
           level: "beginner" as const,
           fluencyScore: 0,
@@ -68,7 +68,7 @@ export const languageLearningRouter = router({
     }))
     .query(async ({ ctx, input }) => {
       const items = await getVocabularyItems(input.language, input.difficulty, input.limit);
-      const userProgress = await getUserVocabularyProgress(ctx.user.id, input.language);
+      const userProgress = await getUserVocabularyProgress(ctx.user.numericId, input.language);
       
       // Merge vocabulary items with user progress
       const flashcards = items.map(item => {
@@ -97,7 +97,7 @@ export const languageLearningRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       // Get existing progress
-      const existingProgress = await getUserVocabularyProgress(ctx.user.id, input.language);
+      const existingProgress = await getUserVocabularyProgress(ctx.user.numericId, input.language);
       const itemProgress = existingProgress.find(p => p.vocabularyItemId === input.vocabularyItemId);
       
       // Calculate new mastery level
@@ -115,7 +115,7 @@ export const languageLearningRouter = router({
       const nextReview = new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
       
       await saveUserVocabularyProgress({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         vocabularyItemId: input.vocabularyItemId,
         language: input.language,
         masteryLevel: newMastery,
@@ -127,9 +127,9 @@ export const languageLearningRouter = router({
       });
       
       // Update overall language progress
-      const overallProgress = await getUserLanguageProgress(ctx.user.id, input.language);
+      const overallProgress = await getUserLanguageProgress(ctx.user.numericId, input.language);
       if (overallProgress) {
-        const allProgress = await getUserVocabularyProgress(ctx.user.id, input.language);
+        const allProgress = await getUserVocabularyProgress(ctx.user.numericId, input.language);
         const vocabularySize = allProgress.filter(p => p.masteryLevel >= 70).length;
         
         await upsertUserLanguageProgress({
@@ -158,7 +158,7 @@ export const languageLearningRouter = router({
     }))
     .query(async ({ ctx, input }) => {
       const lessons = await getGrammarLessons(input.language, input.difficulty);
-      const userProgress = await getUserGrammarProgress(ctx.user.id, input.language);
+      const userProgress = await getUserGrammarProgress(ctx.user.numericId, input.language);
       
       // Merge lessons with user progress
       const lessonsWithProgress = lessons.map(lesson => {
@@ -371,7 +371,7 @@ Format as JSON array with this structure:
       
       // Save attempt
       await saveExerciseAttempt({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         exerciseId: input.exerciseId,
         language: input.language,
         userAnswer: input.userAnswer,
@@ -381,7 +381,7 @@ Format as JSON array with this structure:
       });
       
       // Update overall progress
-      const progress = await getUserLanguageProgress(ctx.user.id, input.language);
+      const progress = await getUserLanguageProgress(ctx.user.numericId, input.language);
       if (progress) {
         await upsertUserLanguageProgress({
           ...progress,
@@ -412,7 +412,7 @@ Format as JSON array with this structure:
       today.setHours(0, 0, 0, 0);
       
       // Check if lesson already exists for today
-      const existingLesson = await getDailyLesson(ctx.user.id, input.language, today);
+      const existingLesson = await getDailyLesson(ctx.user.numericId, input.language, today);
       
       if (existingLesson) {
         return {
@@ -424,7 +424,7 @@ Format as JSON array with this structure:
       }
       
       // Generate new daily lesson
-      const userProgress = await getUserLanguageProgress(ctx.user.id, input.language);
+      const userProgress = await getUserLanguageProgress(ctx.user.numericId, input.language);
       const difficulty = userProgress?.level || "beginner";
       
       // Get vocabulary items for review (spaced repetition)
@@ -437,7 +437,7 @@ Format as JSON array with this structure:
       
       // Save daily lesson
       await saveDailyLesson({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         language: input.language,
         lessonDate: today,
         vocabularyItems: JSON.stringify(vocabIds),
@@ -462,7 +462,7 @@ Format as JSON array with this structure:
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      const achievements = await getUserAchievements(ctx.user.id, input.language);
+      const achievements = await getUserAchievements(ctx.user.numericId, input.language);
       return achievements;
     }),
 

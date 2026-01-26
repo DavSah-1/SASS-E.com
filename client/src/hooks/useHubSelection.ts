@@ -12,9 +12,7 @@ export function useHubSelection() {
   });
 
   // Parse selected hubs from user data
-  const selectedHubs: SpecializedHub[] = user?.selectedSpecializedHubs 
-    ? JSON.parse(user.selectedSpecializedHubs) 
-    : [];
+  const selectedHubs: SpecializedHub[] = (user?.selectedSpecializedHubs || []) as SpecializedHub[];
 
   // Check if user needs to select hubs
   useEffect(() => {

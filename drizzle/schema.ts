@@ -1,8 +1,10 @@
 import { boolean, decimal, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
- * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
+ * User table (Manus Database)
+ * In dual database mode: stores admin/owner accounts using Manus OAuth
+ * In single database mode: stores all users
+ * Regular users in dual mode are stored in Supabase database (see server/supabaseDb.ts).
  * Columns use camelCase to match both database fields and generated types.
  */
 export const users = mysqlTable("users", {
@@ -11,7 +13,7 @@ export const users = mysqlTable("users", {
    * Use this for relations between tables.
    */
   id: int("id").autoincrement().primaryKey(),
-  /** Supabase Auth user ID (UUID). Unique per user. */
+  /** User identifier - can be Supabase ID or Manus openId depending on auth mode */
   supabaseId: varchar("supabaseId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),

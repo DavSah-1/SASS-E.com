@@ -53,7 +53,7 @@ export const wellbeingRouter = router({
   getWorkoutHistory: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getUserWorkoutHistory(ctx.user.id, input.limit);
+      return getUserWorkoutHistory(ctx.user.numericId, input.limit);
     }),
 
   logWorkout: protectedProcedure
@@ -66,7 +66,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       await logWorkout({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         workoutId: input.workoutId,
         workoutTitle: input.workoutTitle,
         duration: input.duration,
@@ -79,7 +79,7 @@ export const wellbeingRouter = router({
   getDailyActivity: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      return getDailyActivityStats(ctx.user.id, input.date);
+      return getDailyActivityStats(ctx.user.numericId, input.date);
     }),
 
   updateDailyActivity: protectedProcedure
@@ -92,7 +92,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       await upsertDailyActivityStats({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         date: input.date,
         steps: input.steps || 0,
         distance: input.distance || 0,
@@ -109,7 +109,7 @@ export const wellbeingRouter = router({
   getFoodLog: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      return getFoodLogByDate(ctx.user.id, input.date);
+      return getFoodLogByDate(ctx.user.numericId, input.date);
     }),
 
   addFoodLog: protectedProcedure
@@ -138,7 +138,7 @@ export const wellbeingRouter = router({
     .mutation(async ({ ctx, input }) => {
       // Convert numeric values to strings for decimal fields
       const foodLogData: any = {
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         date: input.date,
         mealType: input.mealType,
         foodName: input.foodName,
@@ -167,7 +167,7 @@ export const wellbeingRouter = router({
   deleteFoodLog: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await deleteFoodLog(input.id, ctx.user.id);
+      await deleteFoodLog(input.id, ctx.user.numericId);
       return { success: true };
     }),
 
@@ -189,8 +189,8 @@ export const wellbeingRouter = router({
   getHydrationLog: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      const logs = await getHydrationLogByDate(ctx.user.id, input.date);
-      const total = await getDailyHydrationTotal(ctx.user.id, input.date);
+      const logs = await getHydrationLogByDate(ctx.user.numericId, input.date);
+      const total = await getDailyHydrationTotal(ctx.user.numericId, input.date);
       return { logs, total };
     }),
 
@@ -201,7 +201,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       await addHydrationLog({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         date: input.date,
         amount: input.amount,
       });
@@ -215,7 +215,7 @@ export const wellbeingRouter = router({
   getMeditationSessions: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getMeditationSessions(ctx.user.id, input.limit);
+      return getMeditationSessions(ctx.user.numericId, input.limit);
     }),
 
   logMeditationSession: protectedProcedure
@@ -227,7 +227,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       await logMeditationSession({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         ...input,
       });
       return { success: true };
@@ -236,7 +236,7 @@ export const wellbeingRouter = router({
   getMoodLog: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      return getMoodLogByDate(ctx.user.id, input.date);
+      return getMoodLogByDate(ctx.user.numericId, input.date);
     }),
 
   updateMoodLog: protectedProcedure
@@ -250,7 +250,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       await upsertMoodLog({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         ...input,
       });
       return { success: true };
@@ -259,7 +259,7 @@ export const wellbeingRouter = router({
   getJournalEntries: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getJournalEntries(ctx.user.id, input.limit);
+      return getJournalEntries(ctx.user.numericId, input.limit);
     }),
 
   addJournalEntry: protectedProcedure
@@ -271,7 +271,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       await addJournalEntry({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         ...input,
       });
       return { success: true };
@@ -284,21 +284,21 @@ export const wellbeingRouter = router({
       content: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await updateJournalEntry(input.id, ctx.user.id, input.content, input.title);
+      await updateJournalEntry(input.id, ctx.user.numericId, input.content, input.title);
       return { success: true };
     }),
 
   deleteJournalEntry: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await deleteJournalEntry(input.id, ctx.user.id);
+      await deleteJournalEntry(input.id, ctx.user.numericId);
       return { success: true };
     }),
 
   getSleepTracking: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getSleepTracking(ctx.user.id, input.limit);
+      return getSleepTracking(ctx.user.numericId, input.limit);
     }),
 
   addSleepTracking: protectedProcedure
@@ -312,7 +312,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       await addSleepTracking({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         ...input,
       });
       return { success: true };
@@ -325,7 +325,7 @@ export const wellbeingRouter = router({
   getHealthMetrics: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getHealthMetrics(ctx.user.id, input.limit);
+      return getHealthMetrics(ctx.user.numericId, input.limit);
     }),
 
   addHealthMetric: protectedProcedure
@@ -341,14 +341,14 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       await addHealthMetric({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         ...input,
       });
       return { success: true };
     }),
 
   getReminders: protectedProcedure.query(async ({ ctx }) => {
-    return getWellbeingReminders(ctx.user.id);
+    return getWellbeingReminders(ctx.user.numericId);
   }),
 
   addReminder: protectedProcedure
@@ -361,7 +361,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       await addWellbeingReminder({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         ...input,
       });
       return { success: true };
@@ -370,7 +370,7 @@ export const wellbeingRouter = router({
   deleteReminder: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await deleteWellbeingReminder(input.id, ctx.user.id);
+      await deleteWellbeingReminder(input.id, ctx.user.numericId);
       return { success: true };
     }),
 
@@ -380,7 +380,7 @@ export const wellbeingRouter = router({
       isActive: z.boolean(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await toggleWellbeingReminder(input.id, ctx.user.id, input.isActive);
+      await toggleWellbeingReminder(input.id, ctx.user.numericId, input.isActive);
       return { success: true };
     }),
 
@@ -390,7 +390,7 @@ export const wellbeingRouter = router({
 
   getWellnessProfile: protectedProcedure.query(async ({ ctx }) => {
     const { getWellnessProfile } = await import("./wellbeingDb");
-    return getWellnessProfile(ctx.user.id);
+    return getWellnessProfile(ctx.user.numericId);
   }),
 
   createWellnessProfile: protectedProcedure
@@ -411,7 +411,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       const { createWellnessProfile } = await import("./wellbeingDb");
-      return createWellnessProfile(ctx.user.id, input);
+      return createWellnessProfile(ctx.user.numericId, input);
     }),
 
   updateWellnessProfile: protectedProcedure
@@ -432,7 +432,7 @@ export const wellbeingRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       const { updateWellnessProfile } = await import("./wellbeingDb");
-      return updateWellnessProfile(ctx.user.id, input);
+      return updateWellnessProfile(ctx.user.numericId, input);
     }),
 
   // ============================================================================
@@ -441,7 +441,7 @@ export const wellbeingRouter = router({
 
   getCoachingRecommendations: protectedProcedure.query(async ({ ctx }) => {
     const { getActiveCoachingRecommendations } = await import("./wellbeingDb");
-    return getActiveCoachingRecommendations(ctx.user.id);
+    return getActiveCoachingRecommendations(ctx.user.numericId);
   }),
 
   generateCoaching: protectedProcedure.mutation(async ({ ctx }) => {
@@ -455,7 +455,7 @@ export const wellbeingRouter = router({
     } = await import("./wellbeingDb");
 
     // Gather user data
-    const profile = await getWellnessProfile(ctx.user.id);
+    const profile = await getWellnessProfile(ctx.user.numericId);
     if (!profile) {
       throw new Error("Please complete onboarding first");
     }
@@ -463,10 +463,10 @@ export const wellbeingRouter = router({
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const recentWorkouts = await getUserWorkoutHistory(ctx.user.id, 7);
-    const recentMeals = await getFoodLogByDateRange(ctx.user.id, sevenDaysAgo, new Date());
-    const recentMoods = await getMoodLogByDateRange(ctx.user.id, sevenDaysAgo, new Date());
-    const recentMetrics = await getHealthMetricsByDateRange(ctx.user.id, sevenDaysAgo, new Date());
+    const recentWorkouts = await getUserWorkoutHistory(ctx.user.numericId, 7);
+    const recentMeals = await getFoodLogByDateRange(ctx.user.numericId, sevenDaysAgo, new Date());
+    const recentMoods = await getMoodLogByDateRange(ctx.user.numericId, sevenDaysAgo, new Date());
+    const recentMetrics = await getHealthMetricsByDateRange(ctx.user.numericId, sevenDaysAgo, new Date());
 
     const daysSinceOnboarding = Math.floor(
       (new Date().getTime() - new Date(profile.onboardingCompletedAt).getTime()) / (1000 * 60 * 60 * 24)
@@ -486,7 +486,7 @@ export const wellbeingRouter = router({
     const { createCoachingRecommendation } = await import("./wellbeingDb");
     for (const rec of recommendations) {
       await createCoachingRecommendation({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         recommendationType: rec.type,
         title: rec.title,
         content: rec.content,
@@ -509,21 +509,21 @@ export const wellbeingRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const { markRecommendationViewed } = await import("./wellbeingDb");
-      return markRecommendationViewed(input.id, ctx.user.id);
+      return markRecommendationViewed(input.id, ctx.user.numericId);
     }),
 
   dismissRecommendation: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const { dismissRecommendation } = await import("./wellbeingDb");
-      return dismissRecommendation(input.id, ctx.user.id);
+      return dismissRecommendation(input.id, ctx.user.numericId);
     }),
 
   completeRecommendation: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const { completeRecommendation } = await import("./wellbeingDb");
-      return completeRecommendation(input.id, ctx.user.id);
+      return completeRecommendation(input.id, ctx.user.numericId);
     }),
 
   addCoachingFeedback: protectedProcedure
@@ -537,7 +537,7 @@ export const wellbeingRouter = router({
       const { addCoachingFeedback } = await import("./wellbeingDb");
       return addCoachingFeedback({
         recommendationId: input.recommendationId,
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         helpful: input.helpful,
         rating: input.rating,
         comment: input.comment,

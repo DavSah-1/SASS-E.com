@@ -26,7 +26,7 @@ export const topicRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.user.numericId;
 
       // Get or create progress
       const progress = await getTopicProgress(userId, input.topicName, input.category);
@@ -157,7 +157,7 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.user.numericId;
 
       await updateTopicProgress(userId, input.topicName, input.category, {
         lessonCompleted: 1,
@@ -179,7 +179,7 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.user.numericId;
 
       // Get current progress
       const progress = await getTopicProgress(userId, input.topicName, input.category);
@@ -272,7 +272,7 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.user.numericId;
 
       // Simple answer checking (can be enhanced with LLM for more flexible matching)
       const isCorrect =
@@ -310,7 +310,7 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.user.numericId;
 
       const accuracy = Math.round((input.problemsCorrect / input.problemsSolved) * 100);
 
@@ -361,7 +361,7 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.user.numericId;
 
       const systemPrompt = `You are SASS-E, creating a quiz for "${input.topicName}" for Pre-K to Grade 2 students.
 
@@ -458,7 +458,7 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.user.numericId;
 
       const totalQuestions = input.answers.length;
       const correctAnswers = input.answers.filter((a) => a.isCorrect).length;
@@ -526,7 +526,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const progress = await getTopicProgress(ctx.user.id, input.topicName, input.category);
+      const progress = await getTopicProgress(ctx.user.numericId, input.topicName, input.category);
       return progress;
     }),
 
@@ -540,7 +540,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const progressList = await getCategoryProgress(ctx.user.id, input.category);
+      const progressList = await getCategoryProgress(ctx.user.numericId, input.category);
       return progressList;
     }),
 
@@ -555,7 +555,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const results = await getQuizResults(ctx.user.id, input.topicName, input.category);
+      const results = await getQuizResults(ctx.user.numericId, input.topicName, input.category);
       return results;
     }),
 
@@ -570,7 +570,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const sessions = await getPracticeSessions(ctx.user.id, input.topicName, input.category);
+      const sessions = await getPracticeSessions(ctx.user.numericId, input.topicName, input.category);
       return sessions;
     }),
 });

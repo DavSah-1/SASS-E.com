@@ -267,6 +267,13 @@
       "when": 1769111286980,
       "tag": "0037_condemned_blacklash",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "5",
+      "when": 1769329842938,
+      "tag": "0038_blue_invaders",
+      "breakpoints": true
     }
   ]
 }

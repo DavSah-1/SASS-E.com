@@ -253,7 +253,7 @@ export default function ScienceLab() {
         {/* Lab Notebook View */}
         {showNotebook && user && (
           <div className="mb-8">
-            <LabNotebook userId={user.id} />
+            <LabNotebook userId={user.numericId} />
           </div>
         )}
 

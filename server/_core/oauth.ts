@@ -32,7 +32,7 @@ export function registerOAuthRoutes(app: Express) {
       const tokenResponse = await sdk.exchangeCodeForToken(code, state);
       console.log("[OAuth] Got access token:", tokenResponse.accessToken ? "YES" : "NO");
       
-      const userInfo = await sdk.getUserInfo(tokenResponse.accessToken);
+      const userInfo = await sdk.getUserInfoWithJwt(tokenResponse.accessToken);
       console.log("[OAuth] Got user info:", { openId: userInfo.openId, name: userInfo.name, email: userInfo.email });
 
       if (!userInfo.openId) {

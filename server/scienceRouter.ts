@@ -129,7 +129,7 @@ Format as JSON:
 
       // Save lab result
       const resultId = await saveLabResult({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         experimentId: input.experimentId,
         observations: input.observations,
         measurements: input.measurements || null,
@@ -143,10 +143,10 @@ Format as JSON:
       });
 
       // Update science progress
-      let progress = await getScienceProgress(ctx.user.id);
+      let progress = await getScienceProgress(ctx.user.numericId);
       if (!progress) {
-        await initializeScienceProgress(ctx.user.id);
-        progress = await getScienceProgress(ctx.user.id);
+        await initializeScienceProgress(ctx.user.numericId);
+        progress = await getScienceProgress(ctx.user.numericId);
       }
 
       if (progress) {
@@ -164,7 +164,7 @@ Format as JSON:
             newTotal
         );
 
-        await updateScienceProgress(ctx.user.id, {
+        await updateScienceProgress(ctx.user.numericId, {
           totalExperimentsCompleted: newTotal,
           [categoryField]: newCategoryCount,
           averageGrade: newAverageGrade,
@@ -185,16 +185,16 @@ Format as JSON:
   getMyLabResults: protectedProcedure
     .input(z.object({ experimentId: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      const results = await getUserLabResults(ctx.user.id, input.experimentId);
+      const results = await getUserLabResults(ctx.user.numericId, input.experimentId);
       return results;
     }),
 
   // Get user's science progress
   getMyProgress: protectedProcedure.query(async ({ ctx }) => {
-    let progress = await getScienceProgress(ctx.user.id);
+    let progress = await getScienceProgress(ctx.user.numericId);
     if (!progress) {
-      await initializeScienceProgress(ctx.user.id);
-      progress = await getScienceProgress(ctx.user.id);
+      await initializeScienceProgress(ctx.user.numericId);
+      progress = await getScienceProgress(ctx.user.numericId);
     }
     return progress;
   }),
@@ -373,7 +373,7 @@ Format as JSON array with structure:
       const passed = score >= 70 ? 1 : 0;
 
       await saveLabQuizAttempt({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         experimentId: input.experimentId,
         score,
         totalQuestions: questions.length,
@@ -396,7 +396,7 @@ Format as JSON array with structure:
     .input(z.object({ experimentId: z.number() }))
     .query(async ({ ctx, input }) => {
       const { hasPassedLabQuiz } = await import("./db");
-      const passed = await hasPassedLabQuiz(ctx.user.id, input.experimentId);
+      const passed = await hasPassedLabQuiz(ctx.user.numericId, input.experimentId);
       return { passed };
     }),
 });

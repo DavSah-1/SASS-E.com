@@ -37,7 +37,7 @@ export const budgetRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await createBudgetCategory({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         ...input,
         isDefault: 0,
       });
@@ -55,7 +55,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const categories = await getUserBudgetCategories(ctx.user.id, input.type);
+      const categories = await getUserBudgetCategories(ctx.user.numericId, input.type);
       return categories;
     }),
 
@@ -114,7 +114,7 @@ export const budgetRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       await createBudgetTransaction({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         categoryId: input.categoryId,
         amount: input.amount,
         transactionDate: new Date(input.transactionDate),
@@ -127,7 +127,7 @@ export const budgetRouter = router({
 
       // Check for budget alerts after creating transaction
       try {
-        await checkCategoryAlerts(ctx.user.id, input.categoryId);
+        await checkCategoryAlerts(ctx.user.numericId, input.categoryId);
       } catch (error) {
         console.error("[createTransaction] Failed to check alerts:", error);
       }
@@ -148,7 +148,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const transactions = await getUserBudgetTransactions(ctx.user.id, {
+      const transactions = await getUserBudgetTransactions(ctx.user.numericId, {
         categoryId: input.categoryId,
         startDate: input.startDate ? new Date(input.startDate) : undefined,
         endDate: input.endDate ? new Date(input.endDate) : undefined,
@@ -211,7 +211,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const summary = await calculateMonthlyBudgetSummary(ctx.user.id, input.monthYear);
+      const summary = await calculateMonthlyBudgetSummary(ctx.user.numericId, input.monthYear);
       return summary;
     }),
 
@@ -225,7 +225,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const summaries = await getUserMonthlyBudgetSummaries(ctx.user.id, input.limit);
+      const summaries = await getUserMonthlyBudgetSummaries(ctx.user.numericId, input.limit);
       return summaries;
     }),
 
@@ -239,7 +239,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const breakdown = await getCategorySpendingBreakdown(ctx.user.id, input.monthYear);
+      const breakdown = await getCategorySpendingBreakdown(ctx.user.numericId, input.monthYear);
       return breakdown;
     }),
 
@@ -253,8 +253,8 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const summary = await calculateMonthlyBudgetSummary(ctx.user.id, input.monthYear);
-      const debtSummary = await getDebtSummary(ctx.user.id);
+      const summary = await calculateMonthlyBudgetSummary(ctx.user.numericId, input.monthYear);
+      const debtSummary = await getDebtSummary(ctx.user.numericId);
 
       if (!summary) {
         return {
@@ -289,7 +289,7 @@ export const budgetRouter = router({
    * Initialize default budget categories for new users
    */
   initializeDefaultCategories: protectedProcedure.mutation(async ({ ctx }) => {
-    const existingCategories = await getUserBudgetCategories(ctx.user.id);
+    const existingCategories = await getUserBudgetCategories(ctx.user.numericId);
     
     if (existingCategories.length > 0) {
       return { success: true, message: "Categories already initialized" };
@@ -317,7 +317,7 @@ export const budgetRouter = router({
 
     for (const cat of incomeCategories) {
       await createBudgetCategory({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         type: "income",
         isDefault: 1,
         ...cat,
@@ -326,7 +326,7 @@ export const budgetRouter = router({
 
     for (const cat of expenseCategories) {
       await createBudgetCategory({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         type: "expense",
         isDefault: 1,
         ...cat,
@@ -358,7 +358,7 @@ export const budgetRouter = router({
       let query = db
         .select()
         .from(budgetAlerts)
-        .where(eq(budgetAlerts.userId, ctx.user.id))
+        .where(eq(budgetAlerts.userId, ctx.user.numericId))
         .orderBy(desc(budgetAlerts.createdAt))
         .limit(input.limit);
 
@@ -378,7 +378,7 @@ export const budgetRouter = router({
    */
   generateInsights: protectedProcedure.mutation(async ({ ctx }) => {
     const { generateSpendingInsights } = await import("./insightsHelpers");
-    const result = await generateSpendingInsights(ctx.user.id);
+    const result = await generateSpendingInsights(ctx.user.numericId);
     return result;
   }),
 
@@ -399,7 +399,7 @@ export const budgetRouter = router({
       const { financialInsights } = await import("../drizzle/schema");
       const { eq, and, desc, or, isNull, gt } = await import("drizzle-orm");
 
-      let whereConditions = [eq(financialInsights.userId, ctx.user.id)];
+      let whereConditions = [eq(financialInsights.userId, ctx.user.numericId)];
       
       if (input.activeOnly) {
         whereConditions.push(eq(financialInsights.isDismissed, 0));
@@ -472,7 +472,7 @@ export const budgetRouter = router({
 
       // Build query conditions
       const conditions = [
-        eq(budgetTransactions.userId, ctx.user.id),
+        eq(budgetTransactions.userId, ctx.user.numericId),
         gte(budgetTransactions.transactionDate, startDate),
         lte(budgetTransactions.transactionDate, endDate),
       ];
@@ -563,7 +563,7 @@ export const budgetRouter = router({
         .from(budgetCategories)
         .where(and(
           eq(budgetCategories.id, input.categoryId),
-          eq(budgetCategories.userId, ctx.user.id)
+          eq(budgetCategories.userId, ctx.user.numericId)
         ))
         .limit(1);
 
@@ -584,7 +584,7 @@ export const budgetRouter = router({
         })
         .from(budgetTransactions)
         .where(and(
-          eq(budgetTransactions.userId, ctx.user.id),
+          eq(budgetTransactions.userId, ctx.user.numericId),
           eq(budgetTransactions.categoryId, input.categoryId),
           gte(budgetTransactions.transactionDate, startDate)
         ))
@@ -664,7 +664,7 @@ export const budgetRouter = router({
         .from(budgetTransactions)
         .innerJoin(budgetCategories, eq(budgetTransactions.categoryId, budgetCategories.id))
         .where(and(
-          eq(budgetTransactions.userId, ctx.user.id),
+          eq(budgetTransactions.userId, ctx.user.numericId),
           gte(budgetTransactions.transactionDate, startDate)
         ));
 
@@ -749,7 +749,7 @@ export const budgetRouter = router({
       .where(
         or(
           eq(budgetTemplates.isSystemTemplate, 1),
-          eq(budgetTemplates.userId, ctx.user.id)
+          eq(budgetTemplates.userId, ctx.user.numericId)
         )
       )
       .orderBy(budgetTemplates.sortOrder);
@@ -797,7 +797,7 @@ export const budgetRouter = router({
       const categories = await db
         .select()
         .from(budgetCategories)
-        .where(eq(budgetCategories.userId, ctx.user.id));
+        .where(eq(budgetCategories.userId, ctx.user.numericId));
 
       const appliedAllocations: Record<string, any> = {};
 
@@ -886,11 +886,11 @@ export const budgetRouter = router({
       await db
         .update(userBudgetTemplates)
         .set({ isActive: 0 })
-        .where(eq(userBudgetTemplates.userId, ctx.user.id));
+        .where(eq(userBudgetTemplates.userId, ctx.user.numericId));
 
       // Record template application
       await db.insert(userBudgetTemplates).values({
-        userId: ctx.user.id,
+        userId: ctx.user.numericId,
         templateId: input.templateId,
         monthlyIncome: input.monthlyIncome,
         appliedAllocations: JSON.stringify(appliedAllocations),
@@ -929,7 +929,7 @@ export const budgetRouter = router({
       .innerJoin(budgetTemplates, eq(userBudgetTemplates.templateId, budgetTemplates.id))
       .where(
         and(
-          eq(userBudgetTemplates.userId, ctx.user.id),
+          eq(userBudgetTemplates.userId, ctx.user.numericId),
           eq(userBudgetTemplates.isActive, 1)
         )
       )
@@ -967,7 +967,7 @@ export const budgetRouter = router({
     const prefs = await db
       .select()
       .from(notificationPreferences)
-      .where(eq(notificationPreferences.userId, ctx.user.id))
+      .where(eq(notificationPreferences.userId, ctx.user.numericId))
       .limit(1);
 
     if (prefs.length === 0) {
@@ -1020,13 +1020,13 @@ export const budgetRouter = router({
       const existing = await db
         .select()
         .from(notificationPreferences)
-        .where(eq(notificationPreferences.userId, ctx.user.id))
+        .where(eq(notificationPreferences.userId, ctx.user.numericId))
         .limit(1);
 
       if (existing.length === 0) {
         // Create new preferences
         await db.insert(notificationPreferences).values({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           ...input,
         });
       } else {
@@ -1034,7 +1034,7 @@ export const budgetRouter = router({
         await db
           .update(notificationPreferences)
           .set(input)
-          .where(eq(notificationPreferences.userId, ctx.user.id));
+          .where(eq(notificationPreferences.userId, ctx.user.numericId));
       }
 
       return { success: true, message: "Notification preferences updated" };
@@ -1062,7 +1062,7 @@ export const budgetRouter = router({
         .where(
           and(
             eq(budgetAlerts.id, input.alertId),
-            eq(budgetAlerts.userId, ctx.user.id)
+            eq(budgetAlerts.userId, ctx.user.numericId)
           )
         );
 
@@ -1082,7 +1082,7 @@ export const budgetRouter = router({
     await db
       .update(budgetAlerts)
       .set({ isRead: 1 })
-      .where(eq(budgetAlerts.userId, ctx.user.id));
+      .where(eq(budgetAlerts.userId, ctx.user.numericId));
 
     return { success: true };
   }),
@@ -1102,7 +1102,7 @@ export const budgetRouter = router({
       .from(budgetAlerts)
       .where(
         and(
-          eq(budgetAlerts.userId, ctx.user.id),
+          eq(budgetAlerts.userId, ctx.user.numericId),
           eq(budgetAlerts.isRead, 0)
         )
       );
@@ -1115,7 +1115,7 @@ export const budgetRouter = router({
    */
   checkAlerts: protectedProcedure.mutation(async ({ ctx }) => {
     try {
-      await checkAllCategoryAlerts(ctx.user.id);
+      await checkAllCategoryAlerts(ctx.user.numericId);
       return { success: true, message: "Alert check completed" };
     } catch (error) {
       console.error("[checkAlerts] Error:", error);
@@ -1130,7 +1130,7 @@ export const budgetRouter = router({
    */
   detectRecurring: protectedProcedure.mutation(async ({ ctx }) => {
     const { detectRecurringPatterns } = await import("./recurringHelpers");
-    const result = await detectRecurringPatterns(ctx.user.id);
+    const result = await detectRecurringPatterns(ctx.user.numericId);
     return result;
   }),
 
@@ -1145,7 +1145,7 @@ export const budgetRouter = router({
     )
     .query(async ({ ctx, input }) => {
       const { getUserRecurringTransactions } = await import("./recurringHelpers");
-      const recurring = await getUserRecurringTransactions(ctx.user.id, input.activeOnly);
+      const recurring = await getUserRecurringTransactions(ctx.user.numericId, input.activeOnly);
       return recurring;
     }),
 
@@ -1154,7 +1154,7 @@ export const budgetRouter = router({
    */
   getRecurringProjections: protectedProcedure.query(async ({ ctx }) => {
     const { calculateRecurringProjections } = await import("./recurringHelpers");
-    const projections = await calculateRecurringProjections(ctx.user.id);
+    const projections = await calculateRecurringProjections(ctx.user.numericId);
     return projections;
   }),
 
@@ -1163,7 +1163,7 @@ export const budgetRouter = router({
    */
   getUpcomingRecurring: protectedProcedure.query(async ({ ctx }) => {
     const { getUpcomingRecurring } = await import("./recurringHelpers");
-    const upcoming = await getUpcomingRecurring(ctx.user.id);
+    const upcoming = await getUpcomingRecurring(ctx.user.numericId);
     return upcoming;
   }),
 
@@ -1183,7 +1183,7 @@ export const budgetRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { updateRecurringTransaction } = await import("./recurringHelpers");
       const { recurringId, ...updates } = input;
-      const result = await updateRecurringTransaction(ctx.user.id, recurringId, updates);
+      const result = await updateRecurringTransaction(ctx.user.numericId, recurringId, updates);
       return result;
     }),
 
@@ -1194,7 +1194,7 @@ export const budgetRouter = router({
    */
   getGoals: protectedProcedure.query(async ({ ctx }) => {
     const { getUserGoalsWithProgress } = await import("./goalHelpers");
-    const goals = await getUserGoalsWithProgress(ctx.user.id);
+    const goals = await getUserGoalsWithProgress(ctx.user.numericId);
     return goals;
   }),
 
@@ -1209,7 +1209,7 @@ export const budgetRouter = router({
     )
     .query(async ({ ctx, input }) => {
       const { calculateGoalStats } = await import("./goalHelpers");
-      const stats = await calculateGoalStats(input.goalId, ctx.user.id);
+      const stats = await calculateGoalStats(input.goalId, ctx.user.numericId);
       return stats;
     }),
 
@@ -1225,7 +1225,7 @@ export const budgetRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { updateGoalProgress } = await import("./goalHelpers");
-      const result = await updateGoalProgress(input.goalId, input.newAmount, ctx.user.id);
+      const result = await updateGoalProgress(input.goalId, input.newAmount, ctx.user.numericId);
       return result;
     }),
 
@@ -1240,7 +1240,7 @@ export const budgetRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { generateGoalInsights } = await import("./goalHelpers");
-      const insights = await generateGoalInsights(input.goalId, ctx.user.id);
+      const insights = await generateGoalInsights(input.goalId, ctx.user.numericId);
       return insights;
     }),
 
@@ -1249,7 +1249,7 @@ export const budgetRouter = router({
    */
   getUncelebratedMilestones: protectedProcedure.query(async ({ ctx }) => {
     const { getUncelebratedMilestones } = await import("./goalHelpers");
-    const milestones = await getUncelebratedMilestones(ctx.user.id);
+    const milestones = await getUncelebratedMilestones(ctx.user.numericId);
     return milestones;
   }),
 
@@ -1273,7 +1273,7 @@ export const budgetRouter = router({
    */
   autoUpdateLinkedGoals: protectedProcedure.mutation(async ({ ctx }) => {
     const { autoUpdateLinkedGoals } = await import("./goalHelpers");
-    const result = await autoUpdateLinkedGoals(ctx.user.id);
+    const result = await autoUpdateLinkedGoals(ctx.user.numericId);
     return result;
   }),
 
@@ -1290,7 +1290,7 @@ export const budgetRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { processReceiptImage } = await import("./receiptHelpers");
-      const result = await processReceiptImage(input.imageUrl, ctx.user.id);
+      const result = await processReceiptImage(input.imageUrl, ctx.user.numericId);
       return result;
     }),
 
@@ -1305,7 +1305,7 @@ export const budgetRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { suggestCategory } = await import("./receiptHelpers");
-      const result = await suggestCategory(input.merchantName, ctx.user.id);
+      const result = await suggestCategory(input.merchantName, ctx.user.numericId);
       return result;
     }),
 
@@ -1324,7 +1324,7 @@ export const budgetRouter = router({
       const result = await learnFromCorrection(
         input.merchantName,
         input.categoryId,
-        ctx.user.id
+        ctx.user.numericId
       );
       return result;
     }),
@@ -1343,7 +1343,7 @@ export const budgetRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { createSharedBudget } = await import("./sharingHelpers");
-      const result = await createSharedBudget(ctx.user.id, input.name, input.description);
+      const result = await createSharedBudget(ctx.user.numericId, input.name, input.description);
       return result;
     }),
 
@@ -1352,7 +1352,7 @@ export const budgetRouter = router({
    */
   getUserSharedBudgets: protectedProcedure.query(async ({ ctx }) => {
     const { getUserSharedBudgets } = await import("./sharingHelpers");
-    const budgets = await getUserSharedBudgets(ctx.user.id);
+    const budgets = await getUserSharedBudgets(ctx.user.numericId);
     return budgets;
   }),
 
@@ -1371,7 +1371,7 @@ export const budgetRouter = router({
       const { inviteToSharedBudget } = await import("./sharingHelpers");
       const result = await inviteToSharedBudget(
         input.budgetId,
-        ctx.user.id,
+        ctx.user.numericId,
         input.inviteeId,
         input.role
       );

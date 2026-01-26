@@ -27,7 +27,7 @@ export const mathRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.user.numericId;
 
       // Use LLM to generate step-by-step solution with SASS-E personality
       const systemPrompt = `You are SASS-E (Synthetic Adaptive Synaptic System - Entity), a math tutor with a witty, clever personality. 
@@ -188,7 +188,7 @@ Format your response as JSON with this structure:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.user.id;
+      const userId = ctx.user.numericId;
 
       // Get problem details if problemId provided
       let correctAnswer = null;
@@ -282,7 +282,7 @@ Is the student's answer correct?`;
   getSolutionHistory: protectedProcedure
     .input(z.object({ limit: z.number().default(20) }))
     .query(async ({ ctx, input }) => {
-      const solutions = await getUserMathSolutions(ctx.user.id, input.limit);
+      const solutions = await getUserMathSolutions(ctx.user.numericId, input.limit);
       return solutions;
     }),
 
@@ -290,7 +290,7 @@ Is the student's answer correct?`;
    * Get user's math progress
    */
   getProgress: protectedProcedure.query(async ({ ctx }) => {
-    const progress = await getMathProgress(ctx.user.id);
+    const progress = await getMathProgress(ctx.user.numericId);
     return progress;
   }),
 

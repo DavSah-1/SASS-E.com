@@ -20,6 +20,7 @@ import { wearableRouter } from "./wearableRouter";
 import { topicRouter } from "./topicRouter";
 import { translateChatRouter } from "./translateChatRouter";
 import { translationRouter as i18nRouter } from "./translationRouter";
+import { toNumericId } from "./_core/dbWrapper";
 
 export const appRouter = router({
   system: systemRouter,
@@ -62,7 +63,7 @@ export const appRouter = router({
           throw new Error(`You can only select ${maxHubs} hub${maxHubs > 1 ? 's' : ''} with your ${user.subscriptionTier} plan`);
         }
         
-        await updateUserHubSelection(ctx.user.id, input.hubs);
+        await updateUserHubSelection(toNumericId(ctx.user.numericId), input.hubs);
         return { success: true, hubs: input.hubs };
       }),
     canChangeHubs: protectedProcedure
@@ -103,9 +104,7 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         const { checkFeatureAccess } = await import("./accessControl");
         return await checkFeatureAccess(
-          ctx.user.id,
-          ctx.user.supabaseId,
-          ctx.user.subscriptionTier,
+          ctx.user,
           input.featureType,
           input.specializedHub
         );
@@ -116,13 +115,13 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         const { recordUsage } = await import("./accessControl");
-        await recordUsage(ctx.user.id, input.featureType);
+        await recordUsage(ctx.user, input.featureType);
         return { success: true };
       }),
     getUsageStats: protectedProcedure
       .query(async ({ ctx }) => {
         const { getUsageStats } = await import("./accessControl");
-        return await getUsageStats(ctx.user.id);
+        return await getUsageStats(ctx.user);
       }),
   }),
 
@@ -139,14 +138,14 @@ export const appRouter = router({
       .input(z.object({ language: z.string().length(2).or(z.string().length(5)) }))
       .mutation(async ({ ctx, input }) => {
         const { updateUserLanguage } = await import("./db");
-        await updateUserLanguage(ctx.user.id, input.language);
+        await updateUserLanguage(ctx.user.numericId, input.language);
         return { success: true, language: input.language };
       }),
     setStaySignedIn: protectedProcedure
       .input(z.object({ staySignedIn: z.boolean() }))
       .mutation(async ({ ctx, input }) => {
         const { updateUserStaySignedIn } = await import("./db");
-        await updateUserStaySignedIn(ctx.user.id, input.staySignedIn);
+        await updateUserStaySignedIn(ctx.user.numericId, input.staySignedIn);
         return { success: true, staySignedIn: input.staySignedIn };
       }),
     generate2FASecret: protectedProcedure
@@ -183,7 +182,7 @@ export const appRouter = router({
         }
         
         const backupCodes = generateBackupCodes();
-        await enable2FA(ctx.user.id, input.secret, backupCodes);
+        await enable2FA(ctx.user.numericId, input.secret, backupCodes);
         
         return { success: true, backupCodes };
       }),
@@ -193,7 +192,7 @@ export const appRouter = router({
         const speakeasy = await import("speakeasy");
         const { getUserById, disable2FA } = await import("./db");
         
-        const user = await getUserById(ctx.user.id);
+        const user = await getUserById(ctx.user.numericId);
         if (!user?.twoFactorSecret) {
           throw new Error('2FA is not enabled');
         }
@@ -208,7 +207,7 @@ export const appRouter = router({
           throw new Error('Invalid verification code');
         }
         
-        await disable2FA(ctx.user.id);
+        await disable2FA(ctx.user.numericId);
         return { success: true };
       }),
     regenerateBackupCodes: protectedProcedure
@@ -217,7 +216,7 @@ export const appRouter = router({
         const speakeasy = await import("speakeasy");
         const { getUserById, updateBackupCodes, generateBackupCodes } = await import("./db");
         
-        const user = await getUserById(ctx.user.id);
+        const user = await getUserById(ctx.user.numericId);
         if (!user?.twoFactorSecret) {
           throw new Error('2FA is not enabled');
         }
@@ -233,7 +232,7 @@ export const appRouter = router({
         }
         
         const backupCodes = generateBackupCodes();
-        await updateBackupCodes(ctx.user.id, backupCodes);
+        await updateBackupCodes(ctx.user.numericId, backupCodes);
         
         return { success: true, backupCodes };
       }),
@@ -243,7 +242,7 @@ export const appRouter = router({
         const speakeasy = await import("speakeasy");
         const { getUserById, useBackupCode } = await import("./db");
         
-        const user = await getUserById(ctx.user.id);
+        const user = await getUserById(ctx.user.numericId);
         if (!user?.twoFactorSecret) {
           throw new Error('2FA is not enabled');
         }
@@ -261,7 +260,7 @@ export const appRouter = router({
         
         // Try backup code if TOTP failed
         if (user.backupCodes) {
-          const backupCodeUsed = await useBackupCode(ctx.user.id, input.token);
+          const backupCodeUsed = await useBackupCode(ctx.user.numericId, input.token);
           if (backupCodeUsed) {
             return { success: true, usedBackupCode: true };
           }
@@ -293,10 +292,10 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         // Get or create user profile for adaptive learning
-        let userProfile = await getUserProfile(ctx.user.id);
+        let userProfile = await getUserProfile(ctx.user.numericId);
         if (!userProfile) {
           await createUserProfile({
-            userId: ctx.user.id,
+            userId: ctx.user.numericId,
             sarcasmLevel: 5, // Start at medium
             totalInteractions: 0,
             positiveResponses: 0,
@@ -305,7 +304,7 @@ export const appRouter = router({
             preferredTopics: JSON.stringify([]),
             interactionPatterns: JSON.stringify({}),
           });
-          userProfile = await getUserProfile(ctx.user.id);
+          userProfile = await getUserProfile(ctx.user.numericId);
         }
 
         // Build adaptive system prompt based on user's sarcasm level
@@ -342,7 +341,7 @@ export const appRouter = router({
           knowledgeBaseContext = `\n\nVerified Knowledge Base (Last verified: ${verifiedFact.verifiedAt.toLocaleDateString()}):\n${verifiedFact.answer}\n\nSources: ${JSON.parse(verifiedFact.sources).map((s: any) => s.title).join(', ')}`;
           
           // Log fact access for notification purposes
-          await logFactAccess(ctx.user.id, verifiedFact.id, verifiedFact, 'voice_assistant');
+          await logFactAccess(ctx.user.numericId, verifiedFact.id, verifiedFact, 'voice_assistant');
         }
 
         const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}${weatherContext}${knowledgeBaseContext}
@@ -406,7 +405,7 @@ If verified knowledge base information is provided above, use that as your prima
 
         // Save conversation
         await saveConversation({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           userMessage: input.message,
           assistantResponse,
         });
@@ -435,7 +434,7 @@ If verified knowledge base information is provided above, use that as your prima
             newSarcasmLevel = Math.min(10, userProfile.sarcasmLevel + 0.5);
           }
 
-          await updateUserProfile(ctx.user.id, {
+          await updateUserProfile(ctx.user.numericId, {
             totalInteractions: newTotalInteractions,
             averageResponseLength: newAvgLength,
             interactionPatterns: JSON.stringify(updatedPatterns),
@@ -473,25 +472,25 @@ If verified knowledge base information is provided above, use that as your prima
       }),
 
     getConversations: protectedProcedure.query(async ({ ctx }) => {
-      const conversations = await getUserConversations(ctx.user.id);
+      const conversations = await getUserConversations(ctx.user.numericId);
       return conversations;
     }),
     clearAllConversations: protectedProcedure.mutation(async ({ ctx }) => {
       const { deleteAllUserConversations } = await import('./db');
-      await deleteAllUserConversations(ctx.user.id);
+      await deleteAllUserConversations(ctx.user.numericId);
       return { success: true };
     }),
     history: protectedProcedure.query(async ({ ctx }) => {
-      const conversations = await getUserConversations(ctx.user.id);
+      const conversations = await getUserConversations(ctx.user.numericId);
       return conversations;
     }),
 
     // Get user's learning profile
     getProfile: protectedProcedure.query(async ({ ctx }) => {
-      let profile = await getUserProfile(ctx.user.id);
+      let profile = await getUserProfile(ctx.user.numericId);
       if (!profile) {
         await createUserProfile({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           sarcasmLevel: 5,
           totalInteractions: 0,
           positiveResponses: 0,
@@ -500,7 +499,7 @@ If verified knowledge base information is provided above, use that as your prima
           preferredTopics: JSON.stringify([]),
           interactionPatterns: JSON.stringify({}),
         });
-        profile = await getUserProfile(ctx.user.id);
+        profile = await getUserProfile(ctx.user.numericId);
       }
 
       return {
@@ -524,13 +523,13 @@ If verified knowledge base information is provided above, use that as your prima
         // Save feedback
         await saveConversationFeedback({
           conversationId: input.conversationId,
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           feedbackType: input.feedbackType,
           comment: input.comment || null,
         });
 
         // Update user profile based on feedback
-        const profile = await getUserProfile(ctx.user.id);
+        const profile = await getUserProfile(ctx.user.numericId);
         if (profile) {
           const learningData = {
             sarcasmLevel: profile.sarcasmLevel,
@@ -554,7 +553,7 @@ If verified knowledge base information is provided above, use that as your prima
             updates.negativeResponses = profile.negativeResponses + 1;
           }
 
-          await updateUserProfile(ctx.user.id, updates);
+          await updateUserProfile(ctx.user.numericId, updates);
 
           return {
             success: true,
@@ -570,7 +569,7 @@ If verified knowledge base information is provided above, use that as your prima
   iot: router({
     // List all user's IoT devices
     listDevices: protectedProcedure.query(async ({ ctx }) => {
-      const devices = await getUserIoTDevices(ctx.user.id);
+      const devices = await getUserIoTDevices(ctx.user.numericId);
       return devices.map(device => ({
         ...device,
         state: device.state ? JSON.parse(device.state) : {},
@@ -595,7 +594,7 @@ If verified knowledge base information is provided above, use that as your prima
       )
       .mutation(async ({ ctx, input }) => {
         await addIoTDevice({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           deviceId: input.deviceId,
           deviceName: input.deviceName,
           deviceType: input.deviceType,
@@ -625,7 +624,7 @@ If verified knowledge base information is provided above, use that as your prima
           throw new Error("Device not found");
         }
 
-        if (device.userId !== ctx.user.id) {
+        if (device.userId !== ctx.user.numericId) {
           throw new Error("Unauthorized");
         }
 
@@ -673,7 +672,7 @@ If verified knowledge base information is provided above, use that as your prima
 
         // Save command history
         await saveIoTCommand({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           deviceId: device.deviceId,
           command: iotCommand.action,
           parameters: JSON.stringify(iotCommand.parameters || {}),
@@ -703,7 +702,7 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ deviceId: z.string() }))
       .query(async ({ ctx, input }) => {
         const device = await getIoTDeviceById(input.deviceId);
-        if (!device || device.userId !== ctx.user.id) {
+        if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
 
@@ -719,7 +718,7 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ deviceId: z.string() }))
       .mutation(async ({ ctx, input }) => {
         const device = await getIoTDeviceById(input.deviceId);
-        if (!device || device.userId !== ctx.user.id) {
+        if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
 
@@ -732,7 +731,7 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ deviceId: z.string() }))
       .query(async ({ ctx, input }) => {
         const device = await getIoTDeviceById(input.deviceId);
-        if (!device || device.userId !== ctx.user.id) {
+        if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
 
@@ -755,7 +754,7 @@ If verified knowledge base information is provided above, use that as your prima
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const userProfile = await getUserProfile(ctx.user.id);
+          const userProfile = await getUserProfile(ctx.user.numericId);
           const sarcasmLevel = userProfile?.sarcasmLevel || 5;
           const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -894,7 +893,7 @@ If verified knowledge base information is provided above, use that as your prima
               sources: JSON.stringify(factCheckResults.flatMap(fc => fc.sources)),
               verifiedAt: new Date(),
               expiresAt,
-              verifiedByUserId: ctx.user.id,
+              verifiedByUserId: ctx.user.numericId,
             });
           } catch (error) {
             console.error('[Learning] Failed to save verified fact:', error);
@@ -904,7 +903,7 @@ If verified knowledge base information is provided above, use that as your prima
 
         // Step 6: Save to database
         const sessionResult = await saveLearningSession({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           topic: input.topic,
           question: input.question,
           explanation,
@@ -954,7 +953,7 @@ If verified knowledge base information is provided above, use that as your prima
 
     // Get user's learning history
     getHistory: protectedProcedure.query(async ({ ctx }) => {
-      const sessions = await getUserLearningSessions(ctx.user.id, 50);
+      const sessions = await getUserLearningSessions(ctx.user.numericId, 50);
       return sessions;
     }),
 
@@ -971,14 +970,14 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         // Get the learning session
-        const sessions = await getUserLearningSessions(ctx.user.id, 100);
+        const sessions = await getUserLearningSessions(ctx.user.numericId, 100);
         const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
           throw new Error('Learning session not found');
         }
 
-        const userProfile = await getUserProfile(ctx.user.id);
+        const userProfile = await getUserProfile(ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -1045,7 +1044,7 @@ Maintain a ${personalityDesc} tone while being educational.`;
 
         // Save to database
         await saveStudyGuide({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           learningSessionId: input.sessionId,
           title: `Study Guide: ${session.topic}`,
           content: JSON.stringify(studyGuide),
@@ -1064,14 +1063,14 @@ Maintain a ${personalityDesc} tone while being educational.`;
       }))
       .mutation(async ({ ctx, input }) => {
         // Get the learning session
-        const sessions = await getUserLearningSessions(ctx.user.id, 100);
+        const sessions = await getUserLearningSessions(ctx.user.numericId, 100);
         const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
           throw new Error('Learning session not found');
         }
 
-        const userProfile = await getUserProfile(ctx.user.id);
+        const userProfile = await getUserProfile(ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -1156,7 +1155,7 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
 
         // Save to database
         const quizResult = await saveQuiz({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           learningSessionId: input.sessionId,
           title: `Quiz: ${session.topic}`,
           questions: JSON.stringify(quiz.questions),
@@ -1191,7 +1190,7 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const userProfile = await getUserProfile(ctx.user.id);
+        const userProfile = await getUserProfile(ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -1336,7 +1335,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       }))
       .mutation(async ({ ctx, input }) => {
         // Get user's quizzes to find the one being attempted
-        const userQuizzes = await getUserQuizzes(ctx.user.id);
+        const userQuizzes = await getUserQuizzes(ctx.user.numericId);
         const quiz = userQuizzes.find(q => q.id === input.quizId);
         
         if (!quiz) {
@@ -1361,7 +1360,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
         await saveQuizAttempt({
           quizId: input.quizId,
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           answers: JSON.stringify(input.answers),
           score,
           correctAnswers: correctCount,
@@ -1383,7 +1382,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     getNotifications: protectedProcedure
       .input(z.object({ includeRead: z.boolean().default(false) }).optional())
       .query(async ({ ctx, input }) => {
-        const notifications = await getUserNotifications(ctx.user.id, input?.includeRead || false);
+        const notifications = await getUserNotifications(ctx.user.numericId, input?.includeRead || false);
         
         // Parse JSON fields for each notification
         return notifications.map(notif => ({
@@ -1395,7 +1394,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     
     // Get unread notification count
     getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
-      const count = await getUnreadNotificationCount(ctx.user.id);
+      const count = await getUnreadNotificationCount(ctx.user.numericId);
       return { count };
     }),
     
@@ -1403,7 +1402,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     markAsRead: protectedProcedure
       .input(z.object({ notificationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        await markNotificationAsRead(input.notificationId, ctx.user.id);
+        await markNotificationAsRead(input.notificationId, ctx.user.numericId);
         return { success: true };
       }),
     
@@ -1411,7 +1410,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     dismiss: protectedProcedure
       .input(z.object({ notificationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        await dismissNotification(input.notificationId, ctx.user.id);
+        await dismissNotification(input.notificationId, ctx.user.numericId);
         return { success: true };
       }),
   }),
@@ -1664,7 +1663,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .mutation(async ({ ctx, input }) => {
         const { saveTranslation } = await import("./db");
         return await saveTranslation({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           ...input,
         });
       }),
@@ -1677,21 +1676,21 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .query(async ({ ctx, input }) => {
         const { getSavedTranslations } = await import("./db");
-        return await getSavedTranslations(ctx.user.id, input.categoryId);
+        return await getSavedTranslations(ctx.user.numericId, input.categoryId);
       }),
 
     deleteSavedTranslation: protectedProcedure
       .input(z.object({ translationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const { deleteSavedTranslation } = await import("./db");
-        return await deleteSavedTranslation(input.translationId, ctx.user.id);
+        return await deleteSavedTranslation(input.translationId, ctx.user.numericId);
       }),
 
     toggleFavorite: protectedProcedure
       .input(z.object({ translationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const { toggleTranslationFavorite } = await import("./db");
-        return await toggleTranslationFavorite(input.translationId, ctx.user.id);
+        return await toggleTranslationFavorite(input.translationId, ctx.user.numericId);
       }),
 
     updateCategory: protectedProcedure
@@ -1705,7 +1704,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         const { updateTranslationCategory } = await import("./db");
         return await updateTranslationCategory(
           input.translationId,
-          ctx.user.id,
+          ctx.user.numericId,
           input.categoryId
         );
       }),
@@ -1721,26 +1720,26 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .mutation(async ({ ctx, input }) => {
         const { createTranslationCategory } = await import("./db");
         return await createTranslationCategory({
-          userId: ctx.user.id,
+          userId: ctx.user.numericId,
           ...input,
         });
       }),
 
     getCategories: protectedProcedure.query(async ({ ctx }) => {
       const { getTranslationCategories } = await import("./db");
-      return await getTranslationCategories(ctx.user.id);
+      return await getTranslationCategories(ctx.user.numericId);
     }),
 
     deleteCategory: protectedProcedure
       .input(z.object({ categoryId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const { deleteTranslationCategory } = await import("./db");
-        return await deleteTranslationCategory(input.categoryId, ctx.user.id);
+        return await deleteTranslationCategory(input.categoryId, ctx.user.numericId);
       }),
 
     getFrequentTranslations: protectedProcedure.query(async ({ ctx }) => {
       const { getFrequentTranslations } = await import("./db");
-      return await getFrequentTranslations(ctx.user.id);
+      return await getFrequentTranslations(ctx.user.numericId);
     }),
 
     // Conversation mode endpoints
@@ -1754,7 +1753,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         const sessionId = await createConversationSession(
-          ctx.user.id,
+          ctx.user.numericId,
           input.title,
           input.language1,
           input.language2
@@ -1763,13 +1762,13 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       }),
 
     getConversations: protectedProcedure.query(async ({ ctx }) => {
-      return await getUserConversationSessions(ctx.user.id);
+      return await getUserConversationSessions(ctx.user.numericId);
     }),
 
     getConversation: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ ctx, input }) => {
-        const session = await getConversationSession(input.sessionId, ctx.user.id);
+        const session = await getConversationSession(input.sessionId, ctx.user.numericId);
         if (!session) throw new Error("Conversation not found");
         const messages = await getConversationMessages(input.sessionId);
         return { session, messages };
@@ -1786,7 +1785,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         // Get the conversation session to determine target language
-        const session = await getConversationSession(input.sessionId, ctx.user.id);
+        const session = await getConversationSession(input.sessionId, ctx.user.numericId);
         if (!session) throw new Error("Conversation not found");
 
         // Determine target language (translate to the other language)
@@ -1826,7 +1825,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     deleteConversation: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        return await deleteConversationSession(input.sessionId, ctx.user.id);
+        return await deleteConversationSession(input.sessionId, ctx.user.numericId);
       }),
 
     saveConversationToPhrasebook: protectedProcedure
@@ -1839,7 +1838,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .mutation(async ({ ctx, input }) => {
         return await saveConversationSessionToPhrasebook(
           input.sessionId,
-          ctx.user.id,
+          ctx.user.numericId,
           input.categoryId
         );
       }),
