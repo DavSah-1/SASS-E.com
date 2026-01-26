@@ -2909,3 +2909,15 @@
 - [ ] Test user signup (Supabase Auth → Supabase DB)
 - [ ] Test user login (Supabase Auth → Supabase DB)
 - [ ] Verify complete data isolation
+
+## Complete Supabase Authentication Routing
+- [x] Update SDK authenticateRequest to detect Supabase Auth tokens
+- [x] Route Supabase Auth tokens to Supabase database for user lookup
+- [x] Keep Manus OAuth tokens routing to Manus database
+- [x] Update frontend SignIn page to properly use Supabase Auth
+- [x] Update tRPC client to send Bearer token for Supabase users
+- [x] Create Supabase database users table with migration script
+- [x] Test database connections and isolation with vitest
+- [ ] Manual test: Manus OAuth login (admin → Manus DB)
+- [ ] Manual test: Supabase Auth signup (new user → Supabase DB)
+- [ ] Manual test: Supabase Auth login (existing user → Supabase DB)
