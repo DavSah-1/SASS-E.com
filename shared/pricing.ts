@@ -194,7 +194,7 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
     },
     features: [
       "Everything in Pro plan included",
-      "All 6 specialized hubs included",
+      "All hubs included",
       "Priority customer support",
       "Early access to new features",
     ],
