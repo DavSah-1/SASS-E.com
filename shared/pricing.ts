@@ -45,6 +45,11 @@ export interface TierFeatures {
   pricing: TierPricing;
   limits: TierLimits;
   features: string[];
+  hubSection?: {
+    title: string;
+    description: string;
+  };
+  ctaNote?: string;
   popular?: boolean;
 }
 
@@ -100,13 +105,17 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
     },
     features: [
       "5 voice assistant conversations per day",
-      "2 IoT devices",
+      "Connect up to 2 IoT devices",
       "5 verified learning questions per day",
       "5 math problems per day",
       "5 translations per day",
       "1 image OCR per day",
-      "7-day trial of specialized features",
     ],
+    hubSection: {
+      title: "Specialized Features",
+      description: "All hubs available as a 7-day free trial",
+    },
+    ctaNote: "No credit card required",
   },
   starter: {
     name: "Starter",
@@ -126,14 +135,16 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
     },
     features: [
       "20 voice assistant conversations per day",
-      "5 IoT devices",
+      "Connect up to 5 IoT devices",
       "20 verified learning questions per day",
       "Unlimited math tutor access",
       "Unlimited translations",
       "10 image OCR per day",
-      "Choose 1 specialized hub",
-      "Full access to selected hub features",
     ],
+    hubSection: {
+      title: "Specialized Hubs",
+      description: "Choose 1 hub for permanent full access (select during signup)",
+    },
   },
   pro: {
     name: "Pro",
@@ -153,14 +164,16 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
     },
     features: [
       "Unlimited voice assistant conversations",
-      "Unlimited IoT devices",
+      "Unlimited IoT device connections",
       "Unlimited verified learning",
       "Unlimited math tutor access",
       "Unlimited translations",
       "Unlimited image OCR",
-      "Choose 2 specialized hubs",
-      "Full access to selected hub features",
     ],
+    hubSection: {
+      title: "Specialized Hubs",
+      description: "Choose 2 hubs for permanent full access (select during signup)",
+    },
     popular: true,
   },
   ultimate: {
@@ -180,17 +193,15 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       specializedHubsCount: "unlimited",
     },
     features: [
-      "Everything in Pro",
+      "Everything in Pro plan included",
       "All 6 specialized hubs included",
-      "Language Learning (10 languages)",
-      "Math Tutor (full curriculum)",
-      "Science Labs (30+ experiments)",
-      "Translation Hub (translation, Image OCR, conversation, phrasebook, multilingual chat)",
-      "Money Hub (budget, debt, goals)",
-      "Wellness Hub (fitness, nutrition, mental health)",
-      "Priority support",
+      "Priority customer support",
       "Early access to new features",
     ],
+    hubSection: {
+      title: "All Hubs Included",
+      description: "• Language Learning (10 languages)\n• Math Tutor (full curriculum)\n• Science Labs (30+ experiments)\n• Translation Hub (full features)\n• Money Hub (budget, debt, goals)\n• Wellness Hub (fitness, nutrition, mental)",
+    },
   },
 };
 

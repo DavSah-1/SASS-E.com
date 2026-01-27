@@ -142,7 +142,7 @@ export default function Pricing() {
                     )}
                   </div>
 
-                  <ul className="space-y-3">
+                  <ul className="space-y-3 mb-6">
                     {tierData.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
@@ -150,36 +150,54 @@ export default function Pricing() {
                       </li>
                     ))}
                   </ul>
+
+                  {tierData.hubSection && (
+                    <div className="border-t border-purple-700/30 pt-4">
+                      <div className="text-sm font-semibold text-white mb-2">
+                        {tierData.hubSection.title}
+                      </div>
+                      <div className="text-xs text-purple-300 whitespace-pre-line">
+                        {tierData.hubSection.description}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
 
                 <CardFooter>
-                  {isCurrentTier ? (
-                    <Button
-                      className="w-full"
-                      variant="outline"
-                      disabled
-                    >
-                      Current Plan
-                    </Button>
-                  ) : tier === "free" ? (
-                    <Button
-                      className="w-full bg-purple-600 hover:bg-purple-700"
-                      asChild
-                    >
-                      <Link href="/assistant">Get Started Free</Link>
-                    </Button>
-                  ) : (
-                    <Button
-                      className={`w-full ${
-                        isPopular
-                          ? "bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
-                          : "bg-purple-600 hover:bg-purple-700"
-                      }`}
-                      onClick={() => handleChoosePlan(tier)}
-                    >
-                      Choose {tierData.name}
-                    </Button>
-                  )}
+                  <div className="flex flex-col gap-2">
+                    {isCurrentTier ? (
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        disabled
+                      >
+                        Current Plan
+                      </Button>
+                    ) : tier === "free" ? (
+                      <Button
+                        className="w-full bg-purple-600 hover:bg-purple-700"
+                        asChild
+                      >
+                        <Link href="/assistant">Get Started Free</Link>
+                      </Button>
+                    ) : (
+                      <Button
+                        className={`w-full ${
+                          isPopular
+                            ? "bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                            : "bg-purple-600 hover:bg-purple-700"
+                        }`}
+                        onClick={() => handleChoosePlan(tier)}
+                      >
+                        Choose {tierData.name}
+                      </Button>
+                    )}
+                    {tierData.ctaNote && (
+                      <p className="text-xs text-center text-purple-400">
+                        {tierData.ctaNote}
+                      </p>
+                    )}
+                  </div>
                 </CardFooter>
               </Card>
             );
