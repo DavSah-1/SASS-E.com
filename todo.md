@@ -3012,3 +3012,10 @@
 
 [x] Update "Choose Your Plan" section to match /pricing page table-based structure
 [x] Test home page display
+
+## Remove Compare Features Section from Home Page
+- [ ] Locate and remove Compare Features section in Home.tsx
+- [ ] Test home page display
+
+[x] Locate and remove Compare Features section in Home.tsx
+[x] Test home page display
