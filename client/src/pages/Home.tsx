@@ -559,10 +559,7 @@ export default function Home() {
                     <CardDescription className="text-purple-300">
                       {tierData.description}
                     </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="pb-4">
-                    <div className="mb-6">
+                    <div className="mt-4">
                       <div className="flex items-baseline gap-1">
                         <span className="text-4xl font-bold text-white">
                           {getCurrencySymbol(currency)}{price.toFixed(2)}
@@ -575,18 +572,79 @@ export default function Home() {
                         </p>
                       )}
                     </div>
+                  </CardHeader>
 
-                    <ul className="space-y-3">
-                      {tierData.coreFeatures.map((feature, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                          <span className="text-purple-100">{feature.name}: {feature.value}</span>
-                        </li>
+                  <CardContent className="pb-4 flex-1">
+                    {/* Core Features Table */}
+                    <div className="mb-6">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-purple-700/30">
+                            <th className="text-left py-2 text-purple-200 font-semibold">Feature</th>
+                            <th className="text-right py-2 text-purple-200 font-semibold">{tierData.name} Plan</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td colSpan={2} className="pt-3 pb-1 text-white font-semibold text-xs">Core Features</td>
+                          </tr>
+                          {tierData.coreFeatures.map((feature, index) => (
+                            <tr key={index} className="border-b border-purple-700/10">
+                              <td className="py-2 text-purple-200">{feature.name}</td>
+                              <td className={`py-2 text-right ${
+                                feature.limited ? "text-purple-300" : "text-green-400 font-semibold"
+                              }`}>
+                                {feature.value}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Hub Access Section */}
+                    <div className={`mb-4 p-3 rounded-lg ${
+                      tier === "ultimate" ? "bg-purple-800/40" : tier === "free" ? "bg-purple-900/40" : "bg-purple-800/30"
+                    }`}>
+                      <div className="text-xs font-semibold text-white mb-3">
+                        {tierData.hubAccessHeader}
+                      </div>
+                      <div className="space-y-2">
+                        {tierData.hubFeatures.map((hub, index) => (
+                          <div key={index} className="flex justify-between items-center text-xs">
+                            <span className="text-purple-200">{hub.name}</span>
+                            <span className={
+                              hub.included
+                                ? "text-green-400 font-semibold"
+                                : hub.limited
+                                ? "text-purple-400"
+                                : "text-purple-300"
+                            }>
+                              {hub.value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Additional Features */}
+                    <div className="border-t border-purple-700/30 pt-3 space-y-2">
+                      {tierData.additionalFeatures.map((feature, index) => (
+                        <div key={index} className="flex justify-between items-center text-xs">
+                          <span className="text-purple-200">{feature.name}</span>
+                          <span className={
+                            feature.included
+                              ? "text-green-400 font-semibold"
+                              : "text-purple-500"
+                          }>
+                            {feature.value}
+                          </span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </CardContent>
 
-                  <CardFooter>
+                  <CardFooter className="flex flex-col gap-2 pt-4">
                     {isCurrentTier ? (
                       <Button
                         className="w-full"
@@ -600,7 +658,7 @@ export default function Home() {
                         className="w-full bg-purple-600 hover:bg-purple-700"
                         asChild
                       >
-                        <Link href="/assistant">Get Started Free</Link>
+                        <Link href="/assistant">{tierData.ctaButton}</Link>
                       </Button>
                     ) : (
                       <Button
@@ -611,9 +669,12 @@ export default function Home() {
                         }`}
                         onClick={() => handleChoosePlan(tier)}
                       >
-                        Choose {tierData.name}
+                        {tierData.ctaButton}
                       </Button>
                     )}
+                    <p className="text-xs text-center text-purple-400 leading-relaxed">
+                      {tierData.footnote}
+                    </p>
                   </CardFooter>
                 </Card>
               );

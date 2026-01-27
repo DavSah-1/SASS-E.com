@@ -3005,3 +3005,10 @@
 [x] Update footnotes for each tier
 [x] Fix TypeScript errors in Home.tsx and accessControl.ts
 [x] Test pricing page display
+
+## Update Home Page Pricing Section
+- [ ] Update "Choose Your Plan" section to match /pricing page table-based structure
+- [ ] Test home page display
+
+[x] Update "Choose Your Plan" section to match /pricing page table-based structure
+[x] Test home page display
