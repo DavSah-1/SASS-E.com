@@ -577,10 +577,10 @@ export default function Home() {
                     </div>
 
                     <ul className="space-y-3">
-                      {tierData.features.map((feature, index) => (
+                      {tierData.coreFeatures.map((feature, index) => (
                         <li key={index} className="flex items-start gap-2 text-sm">
                           <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                          <span className="text-purple-100">{feature}</span>
+                          <span className="text-purple-100">{feature.name}: {feature.value}</span>
                         </li>
                       ))}
                     </ul>

@@ -2989,3 +2989,19 @@
 - [x] Update Ultimate tier features and hub section
 - [x] Preserve existing styling and design
 - [x] Test pricing page responsiveness
+
+## Update Pricing Cards with Table-Based Structure
+- [ ] Analyze new HTML structure with feature tables
+- [ ] Update pricing.ts with new limits and hub structure
+- [ ] Modify Pricing.tsx to render table-based feature layout
+- [ ] Add Hub A.I. Coach and Priority Support features
+- [ ] Update footnotes for each tier
+- [ ] Test responsive design on all screen sizes
+
+[x] Analyze new HTML structure with feature tables
+[x] Update pricing.ts with new limits and hub structure
+[x] Modify Pricing.tsx to render table-based feature layout
+[x] Add Hub A.I. Coach and Priority Support features
+[x] Update footnotes for each tier
+[x] Fix TypeScript errors in Home.tsx and accessControl.ts
+[x] Test pricing page display

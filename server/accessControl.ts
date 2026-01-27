@@ -80,7 +80,7 @@ export async function checkFeatureAccess(
   
   switch (featureType) {
     case "voice_assistant":
-      dailyLimit = tierConfig.limits.voiceAssistant;
+      dailyLimit = tierConfig.limits.voiceChats;
       break;
     case "iot_device":
       dailyLimit = tierConfig.limits.iotDevices;
@@ -89,13 +89,13 @@ export async function checkFeatureAccess(
       dailyLimit = tierConfig.limits.verifiedLearning;
       break;
     case "math_tutor":
-      dailyLimit = tierConfig.limits.mathTutor;
+      dailyLimit = tierConfig.limits.translationQueries; // Math tutor now part of hubs
       break;
     case "translate":
-      dailyLimit = tierConfig.limits.translate;
+      dailyLimit = tierConfig.limits.translationQueries;
       break;
     case "image_ocr":
-      dailyLimit = tierConfig.limits.imageOcr;
+      dailyLimit = tierConfig.limits.imageTranslation;
       break;
     default:
       dailyLimit = undefined;

@@ -7,13 +7,26 @@ export type SubscriptionTier = "free" | "starter" | "pro" | "ultimate";
 export type SpecializedHub = "language_learning" | "math_tutor" | "science_labs" | "translation_hub" | "money_hub" | "wellness";
 
 export interface TierLimits {
-  voiceAssistant: number | "unlimited";
+  voiceChats: number | "unlimited";
   iotDevices: number | "unlimited";
   verifiedLearning: number | "unlimited";
-  mathTutor: number | "unlimited";
-  translate: number | "unlimited";
-  imageOcr: number | "unlimited";
+  translationQueries: number | "unlimited";
+  imageTranslation: number | "unlimited";
   specializedHubsCount: number | "unlimited";
+}
+
+export interface CoreFeature {
+  name: string;
+  value: number | "unlimited" | string;
+  limited?: boolean;
+}
+
+export interface HubFeature {
+  name: string;
+  value: string;
+  included?: boolean;
+  notIncluded?: boolean;
+  limited?: boolean;
 }
 
 export interface TierPricing {
@@ -44,24 +57,24 @@ export interface TierFeatures {
   description: string;
   pricing: TierPricing;
   limits: TierLimits;
-  features: string[];
-  hubSection?: {
-    title: string;
-    description: string;
-  };
-  ctaNote?: string;
+  coreFeatures: CoreFeature[];
+  hubAccessHeader: string;
+  hubFeatures: HubFeature[];
+  additionalFeatures: HubFeature[];
+  ctaButton: string;
+  footnote: string;
   popular?: boolean;
 }
 
 export const SPECIALIZED_HUBS: Record<SpecializedHub, { name: string; description: string; icon: string }> = {
   language_learning: {
-    name: "Language Learning",
+    name: "Language Hub",
     description: "10 languages, 3,450 vocabulary words, interactive exercises",
     icon: "🌍",
   },
   math_tutor: {
-    name: "Math Tutor",
-    description: "Step-by-step problem solving, 120+ practice problems",
+    name: "Learning Hub",
+    description: "Math tutor with step-by-step problem solving",
     icon: "🔢",
   },
   science_labs: {
@@ -71,18 +84,18 @@ export const SPECIALIZED_HUBS: Record<SpecializedHub, { name: string; descriptio
   },
   translation_hub: {
     name: "Translation Hub",
-    description: "Real-time translation, Image OCR, conversation mode, phrasebook, multilingual chat",
+    description: "Real-time translation, Image OCR, conversation mode",
     icon: "🌐",
-  },
-  money_hub: {
-    name: "Money Hub",
-    description: "Budget tracking, debt coach, financial goals with AI insights",
-    icon: "💰",
   },
   wellness: {
     name: "Wellness Hub",
     description: "Fitness, nutrition, mental health, and wellness tracking",
     icon: "🧘",
+  },
+  money_hub: {
+    name: "Money Hub",
+    description: "Budget tracking, debt coach, financial goals with AI insights",
+    icon: "💰",
   },
 };
 
@@ -95,27 +108,33 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       annual: { GBP: 0, USD: 0, EUR: 0, INR: 0, SGD: 0, JPY: 0, CNY: 0, KRW: 0 },
     },
     limits: {
-      voiceAssistant: 5,
+      voiceChats: 5,
       iotDevices: 2,
       verifiedLearning: 5,
-      mathTutor: 5,
-      translate: 5,
-      imageOcr: 1,
+      translationQueries: 5,
+      imageTranslation: 5,
       specializedHubsCount: 0,
     },
-    features: [
-      "5 voice assistant conversations per day",
-      "Connect up to 2 IoT devices",
-      "5 verified learning questions per day",
-      "5 math problems per day",
-      "5 translations per day",
-      "1 image OCR per day",
+    coreFeatures: [
+      { name: "Voice Chats / Day", value: 5, limited: true },
+      { name: "IoT Device Connections", value: 2, limited: true },
+      { name: "Verified Learning Sessions / Day", value: 5, limited: true },
+      { name: "Translation Queries / Day", value: 5, limited: true },
+      { name: "Image Translation / Day", value: 5, limited: true },
     ],
-    hubSection: {
-      title: "Specialized Features",
-      description: "All hubs available as a 7-day free trial",
-    },
-    ctaNote: "No credit card required",
+    hubAccessHeader: "Premium Hubs Access: 5-day trials only",
+    hubFeatures: [
+      { name: "Language Hub", value: "5-day trial", limited: true },
+      { name: "Learning Hub", value: "5-day trial", limited: true },
+      { name: "Wellness Hub", value: "5-day trial", limited: true },
+      { name: "Money Hub", value: "5-day trial", limited: true },
+    ],
+    additionalFeatures: [
+      { name: "Hub A.I. Coach", value: "–", notIncluded: true },
+      { name: "Priority Support", value: "–", notIncluded: true },
+    ],
+    ctaButton: "Get Started Free",
+    footnote: "No credit card required • All hubs available as 5-day trials",
   },
   starter: {
     name: "Starter",
@@ -125,26 +144,33 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       annual: { GBP: 63.92, USD: 79.92, EUR: 71.92, INR: 2792, SGD: 111.92, JPY: 11040, CNY: 544, KRW: 111200 },
     },
     limits: {
-      voiceAssistant: 15,
+      voiceChats: 10,
       iotDevices: 5,
-      verifiedLearning: 15,
-      mathTutor: 0,
-      translate: 15,
-      imageOcr: 10,
+      verifiedLearning: 10,
+      translationQueries: 10,
+      imageTranslation: 10,
       specializedHubsCount: 1,
     },
-    features: [
-      "15 voice assistant conversations per day",
-      "Connect up to 5 IoT devices",
-      "15 verified learning questions per day",
-      "15 translations",
-      "10 image OCR per day",
-      "Choose 1 hub",
+    coreFeatures: [
+      { name: "Voice Chats / Day", value: 10, limited: true },
+      { name: "IoT Device Connections", value: 5, limited: true },
+      { name: "Verified Learning Sessions / Day", value: 10, limited: true },
+      { name: "Translation Queries / Day", value: 10, limited: true },
+      { name: "Image Translation / Day", value: 10, limited: true },
     ],
-    hubSection: {
-      title: "Specialized Hubs",
-      description: "Choose 1 hub for permanent full access (select during signup)",
-    },
+    hubAccessHeader: "Premium Hubs Access: Choose 1 Hub + Trials on Others",
+    hubFeatures: [
+      { name: "Language Hub", value: "Available²" },
+      { name: "Learning Hub", value: "Available²" },
+      { name: "Wellness Hub", value: "Available²" },
+      { name: "Money Hub", value: "Available²" },
+    ],
+    additionalFeatures: [
+      { name: "Hub A.I. Coach", value: "–", notIncluded: true },
+      { name: "Priority Support", value: "–", notIncluded: true },
+    ],
+    ctaButton: "Choose Starter",
+    footnote: "²Permanently select 1 Hub for full access • Other hubs: 5-day trial only • Upgrading users retain existing access",
   },
   pro: {
     name: "Pro",
@@ -154,26 +180,33 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       annual: { GBP: 119.92, USD: 151.92, EUR: 135.92, INR: 5592, SGD: 207.92, JPY: 21440, CNY: 1024, KRW: 214400 },
     },
     limits: {
-      voiceAssistant: "unlimited",
+      voiceChats: "unlimited",
       iotDevices: "unlimited",
-      verifiedLearning: "unlimited",
-      mathTutor: "unlimited",
-      translate: "unlimited",
-      imageOcr: "unlimited",
+      verifiedLearning: 20,
+      translationQueries: 20,
+      imageTranslation: 20,
       specializedHubsCount: 2,
     },
-    features: [
-      "Unlimited voice assistant conversations",
-      "Unlimited IoT device connections",
-      "Unlimited verified learning",
-      "Unlimited translations",
-      "Unlimited image OCR",
-      "Choose 2 hubs",
+    coreFeatures: [
+      { name: "Voice Chats / Day", value: "Unlimited" },
+      { name: "IoT Device Connections", value: "Unlimited" },
+      { name: "Verified Learning Sessions / Day", value: 20, limited: true },
+      { name: "Translation Queries / Day", value: 20, limited: true },
+      { name: "Image Translation / Day", value: 20, limited: true },
     ],
-    hubSection: {
-      title: "Specialized Hubs",
-      description: "Choose 2 hubs for permanent full access (select during signup)",
-    },
+    hubAccessHeader: "Premium Hubs Access: Choose 2 Hubs + Trials on Others",
+    hubFeatures: [
+      { name: "Language Hub", value: "Available²" },
+      { name: "Learning Hub", value: "Available²" },
+      { name: "Wellness Hub", value: "Available²" },
+      { name: "Money Hub", value: "Available²" },
+    ],
+    additionalFeatures: [
+      { name: "Hub A.I. Coach", value: "✓", included: true },
+      { name: "Priority Support", value: "✓", included: true },
+    ],
+    ctaButton: "Choose Pro",
+    footnote: "²Permanently select 2 Hubs for full access • Other hubs: 5-day trial only • Upgrading users retain existing access",
     popular: true,
   },
   ultimate: {
@@ -184,24 +217,32 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       annual: { GBP: 199.92, USD: 239.92, EUR: 223.92, INR: 7992, SGD: 319.92, JPY: 31840, CNY: 1584, KRW: 318400 },
     },
     limits: {
-      voiceAssistant: "unlimited",
+      voiceChats: "unlimited",
       iotDevices: "unlimited",
       verifiedLearning: "unlimited",
-      mathTutor: "unlimited",
-      translate: "unlimited",
-      imageOcr: "unlimited",
+      translationQueries: "unlimited",
+      imageTranslation: "unlimited",
       specializedHubsCount: "unlimited",
     },
-    features: [
-      "Everything in Pro plan included",
-      "All hubs included",
-      "Priority customer support",
-      "Early access to new features",
+    coreFeatures: [
+      { name: "Voice Chats / Day", value: "Unlimited" },
+      { name: "IoT Device Connections", value: "Unlimited" },
+      { name: "Verified Learning Sessions / Day", value: "Unlimited" },
+      { name: "Translation Queries / Day", value: "Unlimited" },
     ],
-    hubSection: {
-      title: "All Hubs Included",
-      description: "• Language Learning (10 languages)\n• Math Tutor (full curriculum)\n• Science Labs (30+ experiments)\n• Translation Hub (full features)\n• Money Hub (budget, debt, goals)\n• Wellness Hub (fitness, nutrition, mental)",
-    },
+    hubAccessHeader: "Premium Hubs Access: All Hubs Included (Full Access)",
+    hubFeatures: [
+      { name: "Language Hub", value: "✓ Full Access", included: true },
+      { name: "Learning Hub", value: "✓ Full Access", included: true },
+      { name: "Wellness Hub", value: "✓ Full Access", included: true },
+      { name: "Money Hub", value: "✓ Full Access", included: true },
+    ],
+    additionalFeatures: [
+      { name: "Hub A.I. Coach", value: "✓", included: true },
+      { name: "Priority Support", value: "✓", included: true },
+    ],
+    ctaButton: "Choose Ultimate",
+    footnote: "All 4 hubs included • Full access to all features • Priority support included",
   },
 };
 
