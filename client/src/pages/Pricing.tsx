@@ -226,7 +226,7 @@ export default function Pricing() {
                 <tr className="border-b border-purple-700/30">
                   <td className="p-4 text-purple-200">Voice Assistant (per day)</td>
                   <td className="p-4 text-center text-purple-100">5</td>
-                  <td className="p-4 text-center text-purple-100">20</td>
+                  <td className="p-4 text-center text-purple-100">15</td>
                   <td className="p-4 text-center text-purple-100">Unlimited</td>
                   <td className="p-4 text-center text-purple-100">Unlimited</td>
                 </tr>
@@ -240,21 +240,21 @@ export default function Pricing() {
                 <tr className="border-b border-purple-700/30">
                   <td className="p-4 text-purple-200">Verified Learning (per day)</td>
                   <td className="p-4 text-center text-purple-100">5</td>
-                  <td className="p-4 text-center text-purple-100">20</td>
+                  <td className="p-4 text-center text-purple-100">15</td>
                   <td className="p-4 text-center text-purple-100">Unlimited</td>
                   <td className="p-4 text-center text-purple-100">Unlimited</td>
                 </tr>
                 <tr className="border-b border-purple-700/30">
                   <td className="p-4 text-purple-200">Math Tutor</td>
                   <td className="p-4 text-center text-purple-100">5/day</td>
-                  <td className="p-4 text-center text-purple-100">Unlimited</td>
-                  <td className="p-4 text-center text-purple-100">Unlimited</td>
-                  <td className="p-4 text-center text-purple-100">Unlimited</td>
+                  <td className="p-4 text-center text-purple-100">Via Hub</td>
+                  <td className="p-4 text-center text-purple-100">Via Hub</td>
+                  <td className="p-4 text-center text-purple-100">Via Hub</td>
                 </tr>
                 <tr className="border-b border-purple-700/30">
                   <td className="p-4 text-purple-200">Translations (per day)</td>
                   <td className="p-4 text-center text-purple-100">5</td>
-                  <td className="p-4 text-center text-purple-100">Unlimited</td>
+                  <td className="p-4 text-center text-purple-100">15</td>
                   <td className="p-4 text-center text-purple-100">Unlimited</td>
                   <td className="p-4 text-center text-purple-100">Unlimited</td>
                 </tr>
