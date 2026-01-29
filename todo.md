@@ -3086,3 +3086,10 @@
 - [x] Configure email confirmation redirect to Stripe checkout (automatic after magic link)
 - [ ] Ensure user is logged in after successful payment
 - [ ] Test complete flow: Choose Plan → Sign Up → Email Confirm → Stripe Checkout → Login
+
+## Magic Link Redirect Fix
+- [x] Add VITE_SITE_URL environment variable for production domain
+- [x] Update magic link to use production URL instead of localhost
+- [x] Added SITE_URL constant to const.ts
+- [x] Updated SignInNew.tsx to use SITE_URL
+- [ ] Test magic link on published site

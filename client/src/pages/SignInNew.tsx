@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Mail, ArrowLeft } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { APP_LOGO, APP_TITLE } from "@/const";
+import { APP_LOGO, APP_TITLE, SITE_URL } from "@/const";
 import { getPlanSelection, clearPlanSelection } from "@/lib/planSelection";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -68,8 +68,8 @@ export default function SignInNew() {
     try {
       // Determine redirect URL based on pending plan
       const redirectTo = pendingPlan 
-        ? `${window.location.origin}/sign-in` 
-        : `${window.location.origin}`;
+        ? `${SITE_URL}/sign-in` 
+        : SITE_URL;
 
       const result = await signInWithMagicLink(email, redirectTo);
       
