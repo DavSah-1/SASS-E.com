@@ -71,6 +71,9 @@ export default function SignInNew() {
         ? `${SITE_URL}/sign-in` 
         : SITE_URL;
 
+      console.log('[SignIn] SITE_URL:', SITE_URL);
+      console.log('[SignIn] redirectTo:', redirectTo);
+
       const result = await signInWithMagicLink(email, redirectTo);
       
       if (result.error) {

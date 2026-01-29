@@ -3093,3 +3093,9 @@
 - [x] Added SITE_URL constant to const.ts
 - [x] Updated SignInNew.tsx to use SITE_URL
 - [ ] Test magic link on published site
+
+## Magic Link Localhost Redirect Debug
+- [x] Check if VITE_SITE_URL is properly set in environment (confirmed: https://sass-e.manus.space/)
+- [x] Verify SITE_URL constant is reading the correct value
+- [x] Fixed fallback to use production URL instead of window.location.origin
+- [ ] Test magic link with correct production URL after publishing
