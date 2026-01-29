@@ -1,6 +1,6 @@
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { pgTable, text, timestamp, varchar, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, varchar, pgEnum, integer, jsonb } from "drizzle-orm/pg-core";
 import { eq } from "drizzle-orm";
 
 /**
@@ -20,6 +20,22 @@ export const subscriptionTierEnum = pgEnum("subscription_tier", [
   "ultimate",
 ]);
 
+// Define the billing period enum
+export const billingPeriodEnum = pgEnum("billing_period", [
+  "monthly",
+  "six_month",
+  "annual",
+]);
+
+// Define the subscription status enum
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+  "active",
+  "canceled",
+  "past_due",
+  "unpaid",
+  "trialing",
+]);
+
 // Supabase users table schema
 export const supabaseUsers = pgTable("users", {
   id: text("id").primaryKey(), // Supabase Auth user ID
@@ -34,6 +50,25 @@ export const supabaseUsers = pgTable("users", {
     .default([])
     .notNull(),
   hubsSelectedAt: timestamp("hubs_selected_at"),
+  
+  // Stripe subscription fields
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  subscriptionStatus: subscriptionStatusEnum("subscription_status").default("trialing"),
+  billingPeriod: billingPeriodEnum("billing_period").default("monthly"),
+  
+  // Trial tracking fields
+  trialDays: integer("trial_days").default(5).notNull(), // 5 for monthly, 7 for 6-month/annual
+  hubTrialStartDates: jsonb("hub_trial_start_dates").default({}).notNull(), // { "language": "2026-01-29T10:00:00Z", ... }
+  
+  // Billing cycle fields
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: text("cancel_at_period_end"), // null or lowercase tier name to downgrade to
+  
+  // User type tracking
+  isNewUser: text("is_new_user").default("yes").notNull(), // "yes" or "no"
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   lastSignedIn: timestamp("last_signed_in").defaultNow().notNull(),

@@ -3019,3 +3019,24 @@
 
 [x] Locate and remove Compare Features section in Home.tsx
 [x] Test home page display
+
+## Week 1 Day 1: Foundation & Stripe Integration (Implementation Started)
+- [ ] Update Supabase database schema with subscription fields
+- [ ] Add Stripe integration using webdev_add_feature
+- [ ] Configure Stripe webhook endpoints
+- [ ] Test database migration
+- [ ] Verify Stripe connection and webhook handling
+
+## Week 1 Day 1: Completed Tasks
+- [x] Update Supabase database schema with subscription fields
+- [x] Create Stripe products and prices (9 total)
+- [x] Configure Stripe Price IDs in environment variables
+- [x] Write and pass Stripe integration tests (7/7 passing)
+- [x] Verify database migration successful
+- [x] Verify Stripe connection and webhook handling
+
+## Week 1 Day 2: Next Tasks
+- [ ] Create checkout session tRPC endpoint
+- [ ] Implement Stripe webhook handler at /api/stripe/webhook
+- [ ] Build subscription management procedures
+- [ ] Test checkout flow end-to-end
