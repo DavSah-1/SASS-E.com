@@ -8,6 +8,7 @@ export interface UseSupabaseAuthReturn {
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>
+  signInWithMagicLink: (email: string, redirectTo?: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   signInWithGoogle: () => Promise<void>
   signInWithGitHub: () => Promise<void>
@@ -79,12 +80,23 @@ export function useSupabaseAuth(): UseSupabaseAuthReturn {
     })
   }
 
+  const signInWithMagicLink = async (email: string, redirectTo?: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: redirectTo || window.location.origin,
+      },
+    })
+    return { error }
+  }
+
   return {
     user,
     session,
     loading,
     signIn,
     signUp,
+    signInWithMagicLink,
     signOut,
     signInWithGoogle,
     signInWithGitHub,

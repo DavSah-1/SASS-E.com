@@ -3077,3 +3077,12 @@
 ## Authentication Issues
 - [x] Set VITE_AUTH_MODE to "supabase" to enable Supabase authentication for regular users
 - [ ] Test authentication flow on published site with Supabase sign-in
+
+## Sign-Up Flow Improvements (Priority)
+- [x] Fix Supabase email confirmation not sending emails (implemented magic link authentication)
+- [x] Fix all Plan buttons on home page cards (now redirect to /sign-in with plan context)
+- [x] Implement plan selection before authentication (stored in localStorage)
+- [x] Update sign-up flow to show plan context (new SignInNew page)
+- [x] Configure email confirmation redirect to Stripe checkout (automatic after magic link)
+- [ ] Ensure user is logged in after successful payment
+- [ ] Test complete flow: Choose Plan → Sign Up → Email Confirm → Stripe Checkout → Login

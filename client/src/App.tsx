@@ -33,7 +33,7 @@ import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
 import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import AuthTest from "./pages/AuthTest";
-import SignIn from "./pages/SignIn";
+import SignIn from "./pages/SignInNew";
 
 
 function Router() {

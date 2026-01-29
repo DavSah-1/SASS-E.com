@@ -43,6 +43,7 @@ import { CheckoutHubModal } from "@/components/CheckoutHubModal";
 import { useHubSelection } from "@/hooks/useHubSelection";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { savePlanSelection } from "@/lib/planSelection";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -70,17 +71,11 @@ export default function Home() {
   });
 
   const handleChoosePlan = (tier: string) => {
-    if (!isAuthenticated) {
-      toast.info("Please sign in to subscribe");
-      window.location.href = "/assistant";
-      return;
-    }
-    
     if (tier === "free") {
       return;
     }
 
-    // Open hub selection modal
+    // Open hub selection modal (works for both authenticated and unauthenticated)
     setSelectedTier(tier as "starter" | "pro" | "ultimate");
     setHubModalOpen(true);
   };
@@ -90,6 +85,20 @@ export default function Home() {
 
     const billingPeriod = isAnnual ? "annual" : "monthly";
     
+    // If not authenticated, save selection and redirect to sign-in
+    if (!isAuthenticated) {
+      savePlanSelection({
+        tier: selectedTier,
+        billingPeriod,
+        selectedHubs: selectedTier === "ultimate" ? [] : selectedHubs,
+      });
+      
+      toast.info("Please sign in to continue with your subscription");
+      window.location.href = "/sign-in";
+      return;
+    }
+    
+    // If authenticated, proceed to checkout
     createCheckout.mutate({
       tier: selectedTier,
       billingPeriod,
