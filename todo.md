@@ -3073,3 +3073,7 @@
 
 ## Bug Fixes
 - [x] Fix Plan card buttons on home page linking to Manus OAuth instead of intended destinations
+
+## Authentication Issues
+- [x] Set VITE_AUTH_MODE to "supabase" to enable Supabase authentication for regular users
+- [ ] Test authentication flow on published site with Supabase sign-in
