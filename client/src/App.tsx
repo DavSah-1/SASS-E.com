@@ -31,6 +31,7 @@ import WellnessDemo from "./pages/WellnessDemo";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Pricing from "./pages/Pricing";
+import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import AuthTest from "./pages/AuthTest";
 import SignIn from "./pages/SignIn";
 
@@ -60,6 +61,7 @@ function Router() {
       <Route path={"/terms"} component={Terms} />
       <Route path={"/privacy"} component={Privacy} />
       <Route path={"/pricing"} component={Pricing} />
+      <Route path={"/subscription/success"} component={SubscriptionSuccess} />
       {/* Redirect old wellbeing route to wellness */}
       <Route path={"/wellbeing"}>{() => { window.location.href = "/wellness"; return null; }}</Route>
       <Route path={"/profile"} component={Profile} />

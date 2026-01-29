@@ -6,20 +6,38 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Navigation } from "@/components/Navigation";
+import { CheckoutHubModal } from "@/components/CheckoutHubModal";
 import { PRICING_TIERS, getAnnualDiscountPercent, getMonthlyFromAnnual, getCurrencySymbol } from "@shared/pricing";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Link } from "wouter";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function Pricing() {
   const { user, isAuthenticated } = useAuth();
   const [isAnnual, setIsAnnual] = useState(false);
   const [currency, setCurrency] = useState<"GBP" | "USD" | "EUR">("GBP");
+  const [hubModalOpen, setHubModalOpen] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<"starter" | "pro" | "ultimate" | null>(null);
 
   const tiers = ["free", "starter", "pro", "ultimate"] as const;
+
+  const createCheckout = trpc.subscription.createCheckoutSession.useMutation({
+    onSuccess: (data) => {
+      // Redirect to Stripe checkout
+      window.open(data.url, "_blank");
+      toast.success("Redirecting to checkout...");
+      setHubModalOpen(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create checkout session");
+    },
+  });
 
   const handleChoosePlan = (tier: string) => {
     if (!isAuthenticated) {
       // Redirect to login
+      toast.info("Please sign in to subscribe");
       window.location.href = "/assistant";
       return;
     }
@@ -29,8 +47,21 @@ export default function Pricing() {
       return;
     }
 
-    // TODO: Implement Stripe checkout
-    console.log(`Choosing plan: ${tier}, billing: ${isAnnual ? "annual" : "monthly"}`);
+    // Open hub selection modal
+    setSelectedTier(tier as "starter" | "pro" | "ultimate");
+    setHubModalOpen(true);
+  };
+
+  const handleHubConfirm = (selectedHubs: string[]) => {
+    if (!selectedTier) return;
+
+    const billingPeriod = isAnnual ? "annual" : "monthly";
+    
+    createCheckout.mutate({
+      tier: selectedTier,
+      billingPeriod,
+      selectedHubs: selectedTier === "ultimate" ? [] : selectedHubs,
+    });
   };
 
   return (
@@ -323,6 +354,18 @@ export default function Pricing() {
           </div>
         </div>
       </main>
+
+      {/* Hub Selection Modal */}
+      {selectedTier && (
+        <CheckoutHubModal
+          open={hubModalOpen}
+          onOpenChange={setHubModalOpen}
+          tier={selectedTier}
+          billingPeriod={isAnnual ? "annual" : "monthly"}
+          onConfirm={handleHubConfirm}
+          isLoading={createCheckout.isPending}
+        />
+      )}
     </div>
   );
 }
