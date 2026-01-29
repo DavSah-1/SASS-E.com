@@ -3070,3 +3070,6 @@
 - [ ] Verify subscription status updates in database
 - [ ] Test trial period expiration flow
 - [ ] Test payment failure handling
+
+## Bug Fixes
+- [x] Fix Plan card buttons on home page linking to Manus OAuth instead of intended destinations

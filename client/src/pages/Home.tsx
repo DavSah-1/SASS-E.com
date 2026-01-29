@@ -39,7 +39,10 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "wouter";
 import { HubSelectionModal } from "@/components/HubSelectionModal";
+import { CheckoutHubModal } from "@/components/CheckoutHubModal";
 import { useHubSelection } from "@/hooks/useHubSelection";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -48,12 +51,27 @@ export default function Home() {
   const hubSelection = useHubSelection();
   const [isAnnual, setIsAnnual] = useState(false);
   const [currency, setCurrency] = useState<"GBP" | "USD" | "EUR">("GBP");
+  const [hubModalOpen, setHubModalOpen] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<"starter" | "pro" | "ultimate" | null>(null);
   
   // Test useTranslate hook with one string
   const translatedTagline = useTranslate("Your intelligent AI assistant. Advanced, adaptive, and always ready to help.");
 
+  const createCheckout = trpc.subscription.createCheckoutSession.useMutation({
+    onSuccess: (data) => {
+      // Redirect to Stripe checkout
+      window.open(data.url, "_blank");
+      toast.success("Redirecting to checkout...");
+      setHubModalOpen(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create checkout session");
+    },
+  });
+
   const handleChoosePlan = (tier: string) => {
     if (!isAuthenticated) {
+      toast.info("Please sign in to subscribe");
       window.location.href = "/assistant";
       return;
     }
@@ -62,8 +80,21 @@ export default function Home() {
       return;
     }
 
-    // TODO: Implement Stripe checkout
-    console.log(`Choosing plan: ${tier}, billing: ${isAnnual ? "annual" : "monthly"}`);
+    // Open hub selection modal
+    setSelectedTier(tier as "starter" | "pro" | "ultimate");
+    setHubModalOpen(true);
+  };
+
+  const handleHubConfirm = (selectedHubs: string[]) => {
+    if (!selectedTier) return;
+
+    const billingPeriod = isAnnual ? "annual" : "monthly";
+    
+    createCheckout.mutate({
+      tier: selectedTier,
+      billingPeriod,
+      selectedHubs: selectedTier === "ultimate" ? [] : selectedHubs,
+    });
   };
   
 
@@ -80,7 +111,7 @@ export default function Home() {
       {/* Navigation */}
       <Navigation />
       
-      {/* Hub Selection Modal */}
+      {/* Hub Selection Modal for Account Management */}
       {isAuthenticated && (
         <HubSelectionModal
           open={hubSelection.showModal}
@@ -88,6 +119,18 @@ export default function Home() {
           userTier={hubSelection.userTier}
           currentSelection={hubSelection.selectedHubs}
           isLocked={hubSelection.isLocked}
+        />
+      )}
+
+      {/* Checkout Hub Selection Modal */}
+      {selectedTier && (
+        <CheckoutHubModal
+          open={hubModalOpen}
+          onOpenChange={setHubModalOpen}
+          tier={selectedTier}
+          billingPeriod={isAnnual ? "annual" : "monthly"}
+          onConfirm={handleHubConfirm}
+          isLoading={createCheckout.isPending}
         />
       )}
 
