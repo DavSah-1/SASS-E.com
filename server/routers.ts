@@ -123,6 +123,143 @@ export const appRouter = router({
         const { getUsageStats } = await import("./accessControl");
         return await getUsageStats(ctx.user);
       }),
+    
+    // Stripe Checkout & Subscription Management
+    createCheckoutSession: protectedProcedure
+      .input(z.object({
+        tier: z.enum(["starter", "pro", "ultimate"]),
+        billingPeriod: z.enum(["monthly", "six_month", "annual"]),
+        selectedHubs: z.array(z.string()).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { createCheckoutSession } = await import("./stripe/checkout");
+        
+        // Validate hub selection based on tier
+        if (input.tier === "starter" && (!input.selectedHubs || input.selectedHubs.length !== 1)) {
+          throw new Error("Starter tier requires exactly 1 hub selection");
+        }
+        if (input.tier === "pro" && (!input.selectedHubs || input.selectedHubs.length !== 2)) {
+          throw new Error("Pro tier requires exactly 2 hub selections");
+        }
+        
+        // Get user email
+        const userEmail = ctx.user.email || "";
+        if (!userEmail) {
+          throw new Error("User email is required for checkout");
+        }
+        
+        // Create checkout session
+        const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
+        const session = await createCheckoutSession({
+          userId: String(ctx.user.id),
+          userEmail,
+          tier: input.tier,
+          billingPeriod: input.billingPeriod,
+          selectedHubs: input.selectedHubs,
+          successUrl: `${baseUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${baseUrl}/pricing`,
+        });
+        
+        return session;
+      }),
+    
+    getCurrent: protectedProcedure
+      .query(async ({ ctx }) => {
+        const user = ctx.user;
+        
+        return {
+          tier: user.subscriptionTier || "free",
+          status: user.subscriptionStatus || null,
+          billingPeriod: user.billingPeriod || null,
+          currentPeriodStart: user.currentPeriodStart || null,
+          currentPeriodEnd: user.currentPeriodEnd || null,
+          cancelAtPeriodEnd: user.cancelAtPeriodEnd || null,
+          trialDays: user.trialDays || 5,
+          selectedHubs: user.selectedSpecializedHubs || [],
+          stripeCustomerId: user.stripeCustomerId || null,
+        };
+      }),
+    
+    cancel: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const { stripe } = await import("./stripe/client");
+        const { updateSupabaseUser } = await import("./supabaseDb");
+        
+        const user = ctx.user;
+        
+        if (!user.stripeSubscriptionId) {
+          throw new Error("No active subscription found");
+        }
+        
+        // Update Stripe subscription to cancel at period end
+        await stripe.subscriptions.update(user.stripeSubscriptionId, {
+          cancel_at_period_end: true,
+        });
+        
+        // Update database
+        await updateSupabaseUser({
+          id: String(user.id),
+          cancelAtPeriodEnd: "free", // Will downgrade to free tier
+          updatedAt: new Date(),
+        });
+        
+        return { 
+          success: true, 
+          message: "Subscription will be canceled at the end of the billing period" 
+        };
+      }),
+    
+    reactivate: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const { stripe } = await import("./stripe/client");
+        const { updateSupabaseUser } = await import("./supabaseDb");
+        
+        const user = ctx.user;
+        
+        if (!user.stripeSubscriptionId) {
+          throw new Error("No subscription found");
+        }
+        
+        if (!user.cancelAtPeriodEnd) {
+          throw new Error("Subscription is not scheduled for cancellation");
+        }
+        
+        // Update Stripe subscription to continue
+        await stripe.subscriptions.update(user.stripeSubscriptionId, {
+          cancel_at_period_end: false,
+        });
+        
+        // Update database
+        await updateSupabaseUser({
+          id: String(user.id),
+          cancelAtPeriodEnd: null,
+          updatedAt: new Date(),
+        });
+        
+        return { 
+          success: true, 
+          message: "Subscription reactivated successfully" 
+        };
+      }),
+    
+    createPortalSession: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const { createPortalSession } = await import("./stripe/checkout");
+        
+        const user = ctx.user;
+        
+        if (!user.stripeCustomerId) {
+          throw new Error("No Stripe customer found. Please subscribe first.");
+        }
+        
+        const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
+        const session = await createPortalSession(
+          user.stripeCustomerId,
+          `${baseUrl}/account/subscription`
+        );
+        
+        return session;
+      }),
   }),
 
   auth: router({

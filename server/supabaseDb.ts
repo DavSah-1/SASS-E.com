@@ -194,3 +194,32 @@ export async function updateSupabaseUserHubs(
     })
     .where(eq(supabaseUsers.id, userId));
 }
+
+/**
+ * Update a Supabase user with partial data
+ */
+export async function updateSupabaseUser(
+  data: Partial<SupabaseUser> & { id: string }
+): Promise<void> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn(
+      "[Supabase Database] Cannot update user: database not available"
+    );
+    return;
+  }
+
+  try {
+    const { id, ...updateData } = data;
+    await db
+      .update(supabaseUsers)
+      .set({
+        ...updateData,
+        updatedAt: new Date(),
+      })
+      .where(eq(supabaseUsers.id, id));
+  } catch (error) {
+    console.error("[Supabase Database] Failed to update user:", error);
+    throw error;
+  }
+}

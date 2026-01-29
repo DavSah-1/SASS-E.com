@@ -3035,8 +3035,20 @@
 - [x] Verify database migration successful
 - [x] Verify Stripe connection and webhook handling
 
-## Week 1 Day 2: Next Tasks
-- [ ] Create checkout session tRPC endpoint
-- [ ] Implement Stripe webhook handler at /api/stripe/webhook
-- [ ] Build subscription management procedures
-- [ ] Test checkout flow end-to-end
+## Week 1 Day 2: Completed Tasks
+- [x] Create checkout session tRPC endpoint
+- [x] Implement Stripe webhook handler at /api/stripe/webhook
+- [x] Build subscription management procedures (getCurrent, cancel, reactivate, createPortalSession)
+- [x] Test checkout flow end-to-end (10/10 tests passing)
+- [x] Add Stripe client initialization
+- [x] Create checkout helper functions
+- [x] Implement webhook event handlers (6 event types)
+- [x] Add Express webhook endpoint with signature verification
+- [x] Update UnifiedUser interface with Stripe fields
+- [x] Create comprehensive test suite
+
+## Week 1 Day 3: Next Tasks
+- [ ] Build hub selection UI modal
+- [ ] Create subscription success page
+- [ ] Integrate checkout button on pricing page
+- [ ] Test complete user flow from pricing to subscription

@@ -27,6 +27,18 @@ export interface UnifiedUser {
   loginMethod?: string | null;
   staySignedIn?: boolean;
   twoFactorEnabled?: boolean;
+  
+  // Stripe subscription fields
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  subscriptionStatus?: "active" | "canceled" | "past_due" | "unpaid" | "trialing" | null;
+  billingPeriod?: "monthly" | "six_month" | "annual" | null;
+  trialDays?: number;
+  currentPeriodStart?: Date | null;
+  currentPeriodEnd?: Date | null;
+  cancelAtPeriodEnd?: string | null;
+  isNewUser?: string;
+  
   createdAt: Date;
   lastSignedIn: Date;
 }
@@ -100,6 +112,18 @@ export function normalizeSupabaseUser(user: any): UnifiedUser {
     loginMethod: user.loginMethod || user.login_method || null,
     staySignedIn: user.staySignedIn || user.stay_signed_in || false,
     twoFactorEnabled: user.twoFactorEnabled || user.two_factor_enabled || false,
+    
+    // Stripe subscription fields
+    stripeCustomerId: user.stripeCustomerId || user.stripe_customer_id || null,
+    stripeSubscriptionId: user.stripeSubscriptionId || user.stripe_subscription_id || null,
+    subscriptionStatus: user.subscriptionStatus || user.subscription_status || null,
+    billingPeriod: user.billingPeriod || user.billing_period || null,
+    trialDays: user.trialDays || user.trial_days || 5,
+    currentPeriodStart: user.currentPeriodStart || user.current_period_start || null,
+    currentPeriodEnd: user.currentPeriodEnd || user.current_period_end || null,
+    cancelAtPeriodEnd: user.cancelAtPeriodEnd || user.cancel_at_period_end || null,
+    isNewUser: user.isNewUser || user.is_new_user || "yes",
+    
     createdAt: user.createdAt || user.created_at,
     lastSignedIn: user.lastSignedIn || user.last_signed_in,
   };
