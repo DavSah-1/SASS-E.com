@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
+import { SITE_URL } from '@/const'
 
 export interface UseSupabaseAuthReturn {
   user: User | null
@@ -52,7 +53,7 @@ export function useSupabaseAuth(): UseSupabaseAuthReturn {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: SITE_URL,
       },
     })
     return { error }
@@ -66,7 +67,7 @@ export function useSupabaseAuth(): UseSupabaseAuthReturn {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: SITE_URL,
       },
     })
   }
@@ -75,18 +76,23 @@ export function useSupabaseAuth(): UseSupabaseAuthReturn {
     await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: SITE_URL,
       },
     })
   }
 
   const signInWithMagicLink = async (email: string, redirectTo?: string) => {
+    const finalRedirectTo = redirectTo || SITE_URL;
+    console.log('[useSupabaseAuth] signInWithMagicLink called with:', { email, redirectTo, finalRedirectTo, SITE_URL });
+    
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: redirectTo || window.location.origin,
+        emailRedirectTo: finalRedirectTo,
       },
     })
+    
+    console.log('[useSupabaseAuth] Supabase OTP result:', { error });
     return { error }
   }
 

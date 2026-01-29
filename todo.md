@@ -3099,3 +3099,9 @@
 - [x] Verify SITE_URL constant is reading the correct value
 - [x] Fixed fallback to use production URL instead of window.location.origin
 - [ ] Test magic link with correct production URL after publishing
+
+## Persistent Localhost Redirect Issue
+- [x] Check useSupabaseAuth hook signInWithMagicLink implementation
+- [x] Updated all auth methods to use SITE_URL instead of window.location.origin
+- [x] Added console logging to track redirect URLs
+- [ ] Test magic link on published site to verify correct URL
