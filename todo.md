@@ -3111,3 +3111,14 @@
 - [x] Resolve Supabase email rate limit exceeded error (added password-based authentication as alternative)
 - [x] Implement alternative authentication method (password-based with auto sign-up)
 - [ ] Test complete sign-up flow without rate limit issues
+
+## Pay-First, Register-After Flow (Critical Redesign)
+- [x] Create separate /sign-up page (sign-up ONLY, no sign-in option)
+- [x] Remove authentication requirement before checkout
+- [x] Modify checkout to accept email/password credentials from unauthenticated users
+- [x] Store credentials in Stripe checkout session metadata
+- [x] Update Stripe webhook to create Supabase account after successful payment
+- [x] Update home page plan buttons to redirect to /sign-up instead of /sign-in
+- [x] Update pricing page to redirect to /sign-up
+- [ ] Auto-login user after account creation (requires session token from webhook)
+- [ ] Test complete flow: Plan → Sign-up → Stripe Checkout → Payment → Account Creation

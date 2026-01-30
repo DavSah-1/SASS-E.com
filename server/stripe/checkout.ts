@@ -8,11 +8,12 @@ import { stripe } from "./client";
 import { getStripePriceId, getTrialDays } from "./products";
 
 export interface CreateCheckoutSessionParams {
-  userId: string;
+  userId?: string; // Optional for unauthenticated users
   userEmail: string;
   tier: "starter" | "pro" | "ultimate";
   billingPeriod: "monthly" | "six_month" | "annual";
   selectedHubs?: string[];
+  password?: string; // For creating account after payment
   successUrl: string;
   cancelUrl: string;
 }
@@ -31,7 +32,7 @@ export interface CreateCheckoutSessionParams {
 export async function createCheckoutSession(
   params: CreateCheckoutSessionParams
 ): Promise<{ sessionId: string; url: string }> {
-  const { userId, userEmail, tier, billingPeriod, selectedHubs, successUrl, cancelUrl } = params;
+  const { userId, userEmail, tier, billingPeriod, selectedHubs, password, successUrl, cancelUrl } = params;
 
   // Get the Stripe Price ID for this tier/period combination
   const priceId = getStripePriceId(tier, billingPeriod);
@@ -41,11 +42,20 @@ export async function createCheckoutSession(
 
   // Prepare metadata for webhook processing
   const metadata: Record<string, string> = {
-    userId,
     tier,
     billingPeriod,
-    isNewUser: "yes", // Will be set during checkout
+    isNewUser: userId ? "no" : "yes", // New user if no userId provided
   };
+  
+  // Add userId if authenticated
+  if (userId) {
+    metadata.userId = userId;
+  }
+  
+  // Add password for account creation (will be encrypted by Stripe)
+  if (password) {
+    metadata.password = password;
+  }
 
   // Add selected hubs to metadata if provided
   if (selectedHubs && selectedHubs.length > 0) {

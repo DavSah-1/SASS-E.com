@@ -125,11 +125,13 @@ export const appRouter = router({
       }),
     
     // Stripe Checkout & Subscription Management
-    createCheckoutSession: protectedProcedure
+    createCheckoutSession: publicProcedure
       .input(z.object({
         tier: z.enum(["starter", "pro", "ultimate"]),
         billingPeriod: z.enum(["monthly", "six_month", "annual"]),
         selectedHubs: z.array(z.string()).optional(),
+        email: z.string().email().optional(), // For unauthenticated users
+        password: z.string().min(6).optional(), // For unauthenticated users
       }))
       .mutation(async ({ ctx, input }) => {
         const { createCheckoutSession } = await import("./stripe/checkout");
@@ -142,23 +144,36 @@ export const appRouter = router({
           throw new Error("Pro tier requires exactly 2 hub selections");
         }
         
-        // Get user email
-        const userEmail = ctx.user.email || "";
+        // Get user email (from authenticated user or input)
+        const userEmail = ctx.user?.email || input.email || "";
+        const userId = ctx.user?.id ? String(ctx.user.id) : undefined;
+        
         if (!userEmail) {
-          throw new Error("User email is required for checkout");
+          throw new Error("Email is required for checkout");
         }
         
         // Create checkout session
         const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
-        const session = await createCheckoutSession({
-          userId: String(ctx.user.id),
+        const sessionParams: any = {
           userEmail,
           tier: input.tier,
           billingPeriod: input.billingPeriod,
           selectedHubs: input.selectedHubs,
           successUrl: `${baseUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${baseUrl}/pricing`,
-        });
+        };
+        
+        // Add userId if authenticated
+        if (userId) {
+          sessionParams.userId = userId;
+        }
+        
+        // Add password if provided (for new users)
+        if (input.password) {
+          sessionParams.password = input.password;
+        }
+        
+        const session = await createCheckoutSession(sessionParams);
         
         return session;
       }),

@@ -93,8 +93,8 @@ export default function Home() {
         selectedHubs: selectedTier === "ultimate" ? [] : selectedHubs,
       });
       
-      toast.info("Please sign in to continue with your subscription");
-      window.location.href = "/sign-in";
+      toast.info("Create your account to continue");
+      window.location.href = "/sign-up";
       return;
     }
     

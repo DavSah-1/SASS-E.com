@@ -37,8 +37,8 @@ export default function Pricing() {
   const handleChoosePlan = (tier: string) => {
     if (!isAuthenticated) {
       // Redirect to login
-      toast.info("Please sign in to subscribe");
-      window.location.href = "/assistant";
+      toast.info("Create your account to subscribe");
+      window.location.href = "/sign-up";
       return;
     }
     

@@ -89,14 +89,68 @@ async function handleCheckoutSessionCompleted(
   console.log(`[Stripe Webhook] Checkout completed: ${session.id}`);
 
   const userId = session.metadata?.userId;
+  const isNewUser = session.metadata?.isNewUser === "yes";
+  const password = session.metadata?.password;
   const tier = session.metadata?.tier as "starter" | "pro" | "ultimate";
   const billingPeriod = session.metadata?.billingPeriod as "monthly" | "six_month" | "annual";
   const selectedHubs = session.metadata?.selectedHubs 
     ? JSON.parse(session.metadata.selectedHubs) 
     : [];
+  const customerEmail = session.customer_details?.email || session.customer_email;
 
-  if (!userId || !tier || !billingPeriod) {
+  if (!tier || !billingPeriod) {
     console.error("[Stripe Webhook] Missing metadata in checkout session");
+    return;
+  }
+  
+  // For new users, create Supabase account
+  let finalUserId = userId;
+  if (isNewUser && password && customerEmail) {
+    try {
+      // Import Supabase admin client
+      const { createClient } = await import("@supabase/supabase-js");
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+      
+      if (!supabaseUrl || !supabaseServiceKey) {
+        throw new Error("Supabase credentials not configured");
+      }
+      
+      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      });
+      
+      // Create user in Supabase Auth
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email: customerEmail,
+        password: password,
+        email_confirm: true, // Auto-confirm email since they paid
+      });
+      
+      if (authError) {
+        console.error("[Stripe Webhook] Failed to create Supabase auth user:", authError);
+        throw authError;
+      }
+      
+      if (!authData.user) {
+        throw new Error("No user returned from Supabase");
+      }
+      
+      finalUserId = authData.user.id;
+      console.log(`[Stripe Webhook] Created Supabase user: ${finalUserId}`);
+      
+    } catch (error) {
+      console.error("[Stripe Webhook] Error creating Supabase account:", error);
+      // Continue with subscription creation even if account creation fails
+      // Admin can manually create account later
+    }
+  }
+  
+  if (!finalUserId) {
+    console.error("[Stripe Webhook] No user ID available for subscription");
     return;
   }
 
@@ -119,7 +173,7 @@ async function handleCheckoutSessionCompleted(
 
   // Update user record
   await updateSupabaseUser({
-    id: userId,
+    id: finalUserId,
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscriptionId,
     subscriptionTier: tier,
@@ -134,7 +188,15 @@ async function handleCheckoutSessionCompleted(
     updatedAt: new Date(),
   });
 
-  console.log(`[Stripe Webhook] User ${userId} subscription created: ${tier} ${billingPeriod}`);
+  console.log(`[Stripe Webhook] User ${finalUserId} subscription created: ${tier} ${billingPeriod}`);
+  
+  // If new user was created, also update their email in the database
+  if (isNewUser && customerEmail) {
+    await updateSupabaseUser({
+      id: finalUserId,
+      email: customerEmail,
+    });
+  }
 }
 
 /**
