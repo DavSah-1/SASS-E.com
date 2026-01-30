@@ -3105,3 +3105,9 @@
 - [x] Updated all auth methods to use SITE_URL instead of window.location.origin
 - [x] Added console logging to track redirect URLs
 - [ ] Test magic link on published site to verify correct URL
+
+## Sign-Up Issues (Critical)
+- [x] Fix persistent double slash in redirect URL (restarted server to pick up updated VITE_SITE_URL)
+- [x] Resolve Supabase email rate limit exceeded error (added password-based authentication as alternative)
+- [x] Implement alternative authentication method (password-based with auto sign-up)
+- [ ] Test complete sign-up flow without rate limit issues

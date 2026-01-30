@@ -15,13 +15,15 @@ import { toast } from "sonner";
 
 export default function SignInNew() {
   const [, navigate] = useLocation();
-  const { signInWithMagicLink, loading: authLoading } = useSupabaseAuth();
+  const { signInWithMagicLink, signIn, signUp, loading: authLoading } = useSupabaseAuth();
   const { isAuthenticated, loading: userLoading } = useAuth();
   
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<ReturnType<typeof getPlanSelection>>(null);
+  const [authMode, setAuthMode] = useState<'magic-link' | 'password'>('password'); // Default to password to avoid rate limit
 
   const createCheckout = trpc.subscription.createCheckoutSession.useMutation({
     onSuccess: (data) => {
@@ -49,6 +51,44 @@ export default function SignInNew() {
       });
     }
   }, [isAuthenticated, pendingPlan]);
+
+  const handlePasswordSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!email || !password) {
+      setError("Please enter both email and password");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    try {
+      // Try sign in first
+      const signInResult = await signIn(email, password);
+      
+      if (signInResult.error) {
+        // If sign in fails, try sign up
+        const signUpResult = await signUp(email, password);
+        
+        if (signUpResult.error) {
+          setError(signUpResult.error.message);
+        } else {
+          // Sign up successful, user will be auto-logged in
+          toast.success("Account created successfully!");
+        }
+      } else {
+        // Sign in successful
+        toast.success("Signed in successfully!");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
+      console.error("Password auth error:", err);
+    }
+  };
 
   const handleMagicLinkSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,6 +165,8 @@ export default function SignInNew() {
               ? "We've sent you a magic link to sign in"
               : pendingPlan
               ? `Complete your ${pendingPlan.tier} plan subscription`
+              : authMode === 'password'
+              ? "Sign in or create an account"
               : "Enter your email to receive a magic link"
             }
           </CardDescription>
@@ -150,7 +192,7 @@ export default function SignInNew() {
               </Button>
             </div>
           ) : (
-            <form onSubmit={handleMagicLinkSignIn} className="space-y-4">
+            <form onSubmit={authMode === 'password' ? handlePasswordSignIn : handleMagicLinkSignIn} className="space-y-4">
               {pendingPlan && (
                 <Alert className="bg-purple-500/10 border-purple-500/20">
                   <AlertDescription className="text-purple-200">
@@ -181,6 +223,22 @@ export default function SignInNew() {
                 />
               </div>
 
+              {authMode === 'password' && (
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-purple-200">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={authLoading}
+                    className="bg-slate-700/50 border-purple-500/20 text-purple-100 placeholder:text-purple-400/50"
+                  />
+                  <p className="text-xs text-purple-400">New users will be automatically registered</p>
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full bg-purple-600 hover:bg-purple-700"
@@ -189,15 +247,29 @@ export default function SignInNew() {
                 {authLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending Magic Link...
+                    {authMode === 'password' ? 'Signing in...' : 'Sending Magic Link...'}
                   </>
                 ) : (
                   <>
-                    <Mail className="mr-2 h-4 w-4" />
-                    Send Magic Link
+                    {authMode === 'password' ? 'Sign In / Sign Up' : (
+                      <>
+                        <Mail className="mr-2 h-4 w-4" />
+                        Send Magic Link
+                      </>
+                    )}
                   </>
                 )}
               </Button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setAuthMode(authMode === 'password' ? 'magic-link' : 'password')}
+                  className="text-sm text-purple-400 hover:text-purple-300 underline"
+                >
+                  {authMode === 'password' ? 'Use magic link instead' : 'Use password instead'}
+                </button>
+              </div>
 
               <div className="text-center">
                 <Link href="/">
