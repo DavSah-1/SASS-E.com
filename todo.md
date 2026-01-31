@@ -3136,3 +3136,11 @@
 - [ ] Test checkout flow with custom Stripe account
 - [ ] Get live API keys after KYC verification
 - [ ] Switch to live mode for production
+
+## Custom Domain Configuration (sass-e.com)
+- [x] Update VITE_SITE_URL to https://sass-e.com
+- [x] Create custom domain setup guide (CUSTOM_DOMAIN_SETUP.md)
+- [ ] Configure domain in Manus Management UI → Settings → Domains
+- [ ] Update Supabase redirect URLs to include sass-e.com
+- [ ] Update Stripe webhook URL to https://sass-e.com/api/stripe/webhook
+- [ ] Test complete flow with new domain
