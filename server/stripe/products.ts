@@ -80,10 +80,27 @@ export const STRIPE_PRODUCTS = {
 /**
  * Stripe Price IDs
  * 
- * These will be created in Stripe Dashboard and stored here.
- * Format: price_XXXXXXXXXXXXXXXXXXXXXXXX
+ * IMPORTANT: When migrating to your own Stripe account, you need to:
  * 
- * TODO: After creating products in Stripe Dashboard, update these IDs
+ * 1. Create products and prices in your Stripe Dashboard
+ * 2. Copy the Price IDs (format: price_XXXXXXXXXXXXXXXXXXXXXXXX)
+ * 3. Add them as environment variables in Manus Settings → Secrets:
+ *    - STRIPE_PRICE_STARTER_MONTHLY
+ *    - STRIPE_PRICE_STARTER_SIX_MONTH
+ *    - STRIPE_PRICE_STARTER_ANNUAL
+ *    - STRIPE_PRICE_PRO_MONTHLY
+ *    - STRIPE_PRICE_PRO_SIX_MONTH
+ *    - STRIPE_PRICE_PRO_ANNUAL
+ *    - STRIPE_PRICE_ULTIMATE_MONTHLY
+ *    - STRIPE_PRICE_ULTIMATE_SIX_MONTH
+ *    - STRIPE_PRICE_ULTIMATE_ANNUAL
+ * 
+ * See STRIPE_SETUP_GUIDE.md for detailed instructions on creating products.
+ * 
+ * Pricing Reference (from STRIPE_PRODUCTS above):
+ * - Starter: £7.99/mo, £40.31/6mo, £64.31/yr
+ * - Pro: £14.99/mo, £75.55/6mo, £120.71/yr
+ * - Ultimate: £24.99/mo, £125.95/6mo, £201.11/yr
  */
 export const STRIPE_PRICE_IDS = {
   starter_monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || "",

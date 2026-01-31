@@ -3122,3 +3122,17 @@
 - [x] Update pricing page to redirect to /sign-up
 - [ ] Auto-login user after account creation (requires session token from webhook)
 - [ ] Test complete flow: Plan → Sign-up → Stripe Checkout → Payment → Account Creation
+
+## Stripe Migration (Manus → Independent Stripe Account)
+- [x] Create comprehensive migration guide (STRIPE_SETUP_GUIDE.md)
+- [x] Create quick migration checklist (STRIPE_MIGRATION_CHECKLIST.md)
+- [x] Add migration instructions to code comments
+- [x] Document all required environment variables
+- [ ] Create Stripe account at stripe.com
+- [ ] Get test API keys (Publishable and Secret)
+- [ ] Create products and prices in Stripe Dashboard
+- [ ] Update environment variables to use custom Stripe keys
+- [ ] Configure webhook endpoint in Stripe Dashboard
+- [ ] Test checkout flow with custom Stripe account
+- [ ] Get live API keys after KYC verification
+- [ ] Switch to live mode for production
