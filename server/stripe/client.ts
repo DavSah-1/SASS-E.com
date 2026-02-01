@@ -19,15 +19,18 @@
 
 import Stripe from "stripe";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+// Use custom Stripe keys to bypass Manus-managed Stripe integration
+const STRIPE_SECRET_KEY = process.env.CUSTOM_STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY;
+
+if (!STRIPE_SECRET_KEY) {
+  throw new Error("CUSTOM_STRIPE_SECRET_KEY or STRIPE_SECRET_KEY environment variable is not set");
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+export const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: "2026-01-28.clover",
 });
 
-export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "";
+export const STRIPE_WEBHOOK_SECRET = process.env.CUSTOM_STRIPE_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET || "";
 
 if (!STRIPE_WEBHOOK_SECRET) {
   console.warn("[Stripe] STRIPE_WEBHOOK_SECRET not configured - webhook signature verification will fail");

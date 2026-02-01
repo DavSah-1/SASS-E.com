@@ -3144,3 +3144,15 @@
 - [ ] Update Supabase redirect URLs to include sass-e.com
 - [ ] Update Stripe webhook URL to https://sass-e.com/api/stripe/webhook
 - [ ] Test complete flow with new domain
+
+## Stripe "No such price" Error Debug
+- [ ] Verify Stripe API keys are from correct account (test vs live mode)
+- [ ] Confirm Price IDs exist in Stripe Dashboard
+- [ ] Test checkout creation with valid Price IDs
+- [ ] Update API keys if using wrong Stripe account
+
+## Custom Stripe Integration (Bypass Manus Management)
+- [x] Create custom environment variables (CUSTOM_STRIPE_SECRET_KEY, CUSTOM_STRIPE_PUBLISHABLE_KEY, CUSTOM_STRIPE_WEBHOOK_SECRET)
+- [x] Update server/stripe/client.ts to use custom environment variables
+- [x] Test Stripe integration with user's own account
+- [x] Verify Price IDs work correctly (all 10 tests passing)
