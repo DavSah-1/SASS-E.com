@@ -3200,3 +3200,14 @@
 - [x] Update Ultimate plan annual pricing: $239.99 USD, €199.99 EUR, £159.99 GBP
 - [x] Verify pricing displays correctly on Home page
 - [x] Verify pricing displays correctly on Pricing page
+
+## End-to-End Payment Flow Testing
+- [x] Update Stripe keys to user's custom test account (pk_test and sk_test)
+- [ ] Publish the site to get live webhook URL
+- [ ] Configure webhook endpoint in user's Stripe Dashboard with published URL
+- [ ] Test payment flow: select Ultimate plan with 6-month billing
+- [ ] Complete checkout using test card 4242 4242 4242 4242
+- [ ] Verify webhook receives checkout.session.completed event
+- [ ] Verify Supabase account is created via webhook
+- [ ] Verify subscription data saves correctly in database
+- [ ] Test user can log in after successful payment
