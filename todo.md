@@ -3228,3 +3228,21 @@
 - [x] Create updated_at trigger function
 - [x] Verify tables created successfully
 - [x] Test data insertion with UUID
+
+## Test Complete Webhook Flow on Published Site
+- [ ] Navigate to published site (https://sass-e.com)
+- [ ] Select plan and complete sign-up form
+- [ ] Complete Stripe checkout with test card 4242 4242 4242 4242
+- [ ] Verify payment success and redirect
+- [ ] Check server logs for webhook event receipt
+- [ ] Verify Supabase user created with correct subscription data
+- [ ] Test user login with created credentials
+- [ ] Verify premium feature access based on subscription tier
+
+## Test Webhook Flow with Stripe CLI
+- [ ] Complete test payment on dev server with custom test keys
+- [ ] Set up Stripe CLI webhook forwarding or simulate webhook event
+- [ ] Verify webhook receives checkout.session.completed event
+- [ ] Verify Supabase user created with correct email and subscription data
+- [ ] Test user login after webhook processing
+- [ ] Document complete webhook flow results

@@ -158,7 +158,9 @@ async function handleCheckoutSessionCompleted(
   const subscriptionId = session.subscription as string;
 
   // Get subscription details to determine trial status
-  const subscription: any = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription: any = await stripe.subscriptions.retrieve(subscriptionId, {
+    expand: ['latest_invoice', 'customer'],
+  });
 
   const db = await getSupabaseDb();
   if (!db) {
@@ -171,8 +173,13 @@ async function handleCheckoutSessionCompleted(
   // Ultimate tier has no trial
   const effectiveTrialDays = tier === "ultimate" ? 0 : trialDays;
 
+  // Get current period dates from subscription items
+  const subscriptionItem = subscription.items?.data?.[0];
+  const currentPeriodStart = subscriptionItem?.current_period_start || subscription.billing_cycle_anchor;
+  const currentPeriodEnd = subscriptionItem?.current_period_end || subscription.current_period_end;
+  
   // Update user record
-  await updateSupabaseUser({
+  const updateData: any = {
     id: finalUserId,
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscriptionId,
@@ -180,13 +187,19 @@ async function handleCheckoutSessionCompleted(
     subscriptionStatus: subscription.status as any,
     billingPeriod: billingPeriod,
     trialDays: effectiveTrialDays,
-    currentPeriodStart: new Date(subscription.current_period_start * 1000),
-    currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+    currentPeriodStart: currentPeriodStart ? new Date(currentPeriodStart * 1000) : null,
+    currentPeriodEnd: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null,
     selectedSpecializedHubs: selectedHubs,
-    hubsSelectedAt: selectedHubs.length > 0 ? new Date() : null,
     isNewUser: "yes", // Mark as new user for trial tracking
     updatedAt: new Date(),
-  });
+  };
+  
+  // Only include hubsSelectedAt if there are selected hubs
+  if (selectedHubs.length > 0) {
+    updateData.hubsSelectedAt = new Date();
+  }
+  
+  await updateSupabaseUser(updateData);
 
   console.log(`[Stripe Webhook] User ${finalUserId} subscription created: ${tier} ${billingPeriod}`);
   
