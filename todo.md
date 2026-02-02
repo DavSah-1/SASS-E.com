@@ -3156,3 +3156,27 @@
 - [x] Update server/stripe/client.ts to use custom environment variables
 - [x] Test Stripe integration with user's own account
 - [x] Verify Price IDs work correctly (all 10 tests passing)
+
+## Stripe Webhook Configuration
+- [x] Create webhook configuration guide (STRIPE_WEBHOOK_SETUP.md)
+- [ ] Create webhook endpoint in Stripe Dashboard at https://sass-e.com/api/stripe/webhook
+- [ ] Add required webhook events (checkout.session.completed, customer.subscription.*, invoice.payment_*)
+- [ ] Test webhook with Stripe CLI or test events
+- [ ] Verify webhook signature validation works
+
+## Pricing Page Updates
+- [x] Update Starter pricing display ($9.99/mo, $49.99/6mo, $79.99/yr)
+- [x] Update Pro pricing display ($19.99/mo, $99.99/6mo, $159.99/yr)
+- [x] Update Ultimate pricing display ($39.99/mo, $199.99/6mo, $319.99/yr)
+- [x] Show multi-currency support (USD/EUR/GBP)
+- [x] Add sixMonth pricing option to pricing configuration
+
+## End-to-End Payment Flow Testing
+- [x] Create payment flow testing guide (PAYMENT_FLOW_TESTING.md)
+- [ ] Test plan selection and hub selection modal
+- [ ] Test sign-up page with email/password
+- [ ] Test Stripe checkout redirect
+- [ ] Test payment with test card 4242 4242 4242 4242
+- [ ] Verify Supabase account creation via webhook
+- [ ] Verify subscription data saves correctly
+- [ ] Test subscription success page display

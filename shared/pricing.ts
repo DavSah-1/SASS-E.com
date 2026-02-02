@@ -40,6 +40,16 @@ export interface TierPricing {
     CNY: number;
     KRW: number;
   };
+  sixMonth?: {
+    GBP: number;
+    USD: number;
+    EUR: number;
+    INR: number;
+    SGD: number;
+    JPY: number;
+    CNY: number;
+    KRW: number;
+  };
   annual: {
     GBP: number;
     USD: number;
@@ -141,7 +151,8 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
     description: "Perfect for students or single-purpose users",
     pricing: {
       monthly: { GBP: 7.99, USD: 9.99, EUR: 8.99, INR: 349, SGD: 13.99, JPY: 1380, CNY: 68, KRW: 13900 },
-      annual: { GBP: 63.92, USD: 79.92, EUR: 71.92, INR: 2792, SGD: 111.92, JPY: 11040, CNY: 544, KRW: 111200 },
+      sixMonth: { GBP: 34.99, USD: 49.99, EUR: 42.99, INR: 1745, SGD: 69.95, JPY: 6900, CNY: 340, KRW: 69500 },
+      annual: { GBP: 59.99, USD: 79.99, EUR: 69.99, INR: 2792, SGD: 111.92, JPY: 11040, CNY: 544, KRW: 111200 },
     },
     limits: {
       voiceChats: 10,
@@ -176,8 +187,9 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
     name: "Pro",
     description: "For power users who need multiple features",
     pricing: {
-      monthly: { GBP: 14.99, USD: 18.99, EUR: 16.99, INR: 699, SGD: 25.99, JPY: 2680, CNY: 128, KRW: 26800 },
-      annual: { GBP: 119.92, USD: 151.92, EUR: 135.92, INR: 5592, SGD: 207.92, JPY: 21440, CNY: 1024, KRW: 214400 },
+      monthly: { GBP: 14.99, USD: 19.99, EUR: 16.99, INR: 699, SGD: 25.99, JPY: 2680, CNY: 128, KRW: 26800 },
+      sixMonth: { GBP: 74.99, USD: 99.99, EUR: 84.99, INR: 3495, SGD: 129.95, JPY: 13400, CNY: 640, KRW: 134000 },
+      annual: { GBP: 119.99, USD: 159.99, EUR: 134.99, INR: 5592, SGD: 207.92, JPY: 21440, CNY: 1024, KRW: 214400 },
     },
     limits: {
       voiceChats: "unlimited",
@@ -213,8 +225,9 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
     name: "Ultimate",
     description: "Everything unlimited - the complete SASS-E experience",
     pricing: {
-      monthly: { GBP: 24.99, USD: 29.99, EUR: 27.99, INR: 999, SGD: 39.99, JPY: 3980, CNY: 198, KRW: 39800 },
-      annual: { GBP: 199.92, USD: 239.92, EUR: 223.92, INR: 7992, SGD: 319.92, JPY: 31840, CNY: 1584, KRW: 318400 },
+      monthly: { GBP: 29.99, USD: 39.99, EUR: 34.99, INR: 999, SGD: 39.99, JPY: 3980, CNY: 198, KRW: 39800 },
+      sixMonth: { GBP: 149.99, USD: 199.99, EUR: 169.99, INR: 4995, SGD: 199.95, JPY: 19900, CNY: 990, KRW: 199000 },
+      annual: { GBP: 239.99, USD: 319.99, EUR: 269.99, INR: 7992, SGD: 319.92, JPY: 31840, CNY: 1584, KRW: 318400 },
     },
     limits: {
       voiceChats: "unlimited",
