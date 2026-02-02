@@ -3254,3 +3254,13 @@
 - [x] Fixed webhook to use upsertSupabaseUser instead of updateSupabaseUser
 - [ ] Test complete flow: sign-up → payment → webhook → user creation on published site
 - [ ] Verify user can log in with credentials after payment
+
+## Synchronize Supabase and Manus Database Schemas
+- [x] Read Manus database schema from drizzle/schema.ts
+- [x] Read Supabase database schema from server/supabaseDb.ts
+- [x] Compare schemas and identify missing fields in Supabase
+- [x] Generate SQL migration to add missing fields to Supabase
+- [x] Execute migration on Supabase database (added 10 fields + 4 indexes)
+- [x] Update server/supabaseDb.ts schema definition to match Manus
+- [x] Verify both schemas are identical (21/21 required fields present)
+- [x] Test data operations on synchronized schema (INSERT, SELECT, DELETE all working)

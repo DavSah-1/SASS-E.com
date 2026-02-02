@@ -42,6 +42,9 @@ export const supabaseUsers = pgTable("users", {
   email: varchar("email", { length: 320 }),
   name: text("name"),
   role: userRoleEnum("role").default("user").notNull(),
+  loginMethod: varchar("login_method", { length: 64 }),
+  preferredLanguage: varchar("preferred_language", { length: 10 }).default("en"),
+  preferredCurrency: varchar("preferred_currency", { length: 3 }).default("USD"),
   subscriptionTier: subscriptionTierEnum("subscription_tier")
     .default("free")
     .notNull(),
@@ -50,6 +53,13 @@ export const supabaseUsers = pgTable("users", {
     .default([])
     .notNull(),
   hubsSelectedAt: timestamp("hubs_selected_at"),
+  subscriptionExpiresAt: timestamp("subscription_expires_at"),
+  subscriptionPrice: varchar("subscription_price", { length: 20 }), // Using varchar for decimal storage
+  subscriptionCurrency: varchar("subscription_currency", { length: 3 }).default("GBP"),
+  staySignedIn: text("stay_signed_in").default("false").notNull(), // Using text for boolean
+  twoFactorEnabled: text("two_factor_enabled").default("false").notNull(), // Using text for boolean
+  twoFactorSecret: varchar("two_factor_secret", { length: 255 }),
+  backupCodes: text("backup_codes"),
   
   // Stripe subscription fields
   stripeCustomerId: text("stripe_customer_id"),
