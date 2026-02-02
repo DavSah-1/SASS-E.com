@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, email, subscription_status, stripe_customer_id, stripe_subscription_id, created_at FROM users ORDER BY created_at DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT id, email, subscription_status, stripe_customer_id, stripe_subscription_id, created_at FROM users ORDER BY created_at DESC LIMIT 5;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'subscription_status' in 'field list'"
+  ]
+}

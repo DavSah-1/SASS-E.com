@@ -103,17 +103,17 @@ export const STRIPE_PRODUCTS = {
  * - Ultimate: £24.99/mo, £125.95/6mo, £201.11/yr
  */
 export const STRIPE_PRICE_IDS = {
-  starter_monthly: process.env.STRIPE_PRICE_STARTER_MONTHLY || "",
-  starter_six_month: process.env.STRIPE_PRICE_STARTER_SIX_MONTH || "",
-  starter_annual: process.env.STRIPE_PRICE_STARTER_ANNUAL || "",
+  starter_monthly: process.env.CUSTOM_STRIPE_PRICE_STARTER_MONTHLY || process.env.STRIPE_PRICE_STARTER_MONTHLY || "",
+  starter_six_month: process.env.CUSTOM_STRIPE_PRICE_STARTER_SIX_MONTH || process.env.STRIPE_PRICE_STARTER_SIX_MONTH || "",
+  starter_annual: process.env.CUSTOM_STRIPE_PRICE_STARTER_ANNUAL || process.env.STRIPE_PRICE_STARTER_ANNUAL || "",
   
-  pro_monthly: process.env.STRIPE_PRICE_PRO_MONTHLY || "",
-  pro_six_month: process.env.STRIPE_PRICE_PRO_SIX_MONTH || "",
-  pro_annual: process.env.STRIPE_PRICE_PRO_ANNUAL || "",
+  pro_monthly: process.env.CUSTOM_STRIPE_PRICE_PRO_MONTHLY || process.env.STRIPE_PRICE_PRO_MONTHLY || "",
+  pro_six_month: process.env.CUSTOM_STRIPE_PRICE_PRO_SIX_MONTH || process.env.STRIPE_PRICE_PRO_SIX_MONTH || "",
+  pro_annual: process.env.CUSTOM_STRIPE_PRICE_PRO_ANNUAL || process.env.STRIPE_PRICE_PRO_ANNUAL || "",
   
-  ultimate_monthly: process.env.STRIPE_PRICE_ULTIMATE_MONTHLY || "",
-  ultimate_six_month: process.env.STRIPE_PRICE_ULTIMATE_SIX_MONTH || "",
-  ultimate_annual: process.env.STRIPE_PRICE_ULTIMATE_ANNUAL || "",
+  ultimate_monthly: process.env.CUSTOM_STRIPE_PRICE_ULTIMATE_MONTHLY || process.env.STRIPE_PRICE_ULTIMATE_MONTHLY || "",
+  ultimate_six_month: process.env.CUSTOM_STRIPE_PRICE_ULTIMATE_SIX_MONTH || process.env.STRIPE_PRICE_ULTIMATE_SIX_MONTH || "",
+  ultimate_annual: process.env.CUSTOM_STRIPE_PRICE_ULTIMATE_ANNUAL || process.env.STRIPE_PRICE_ULTIMATE_ANNUAL || "",
 } as const;
 
 /**

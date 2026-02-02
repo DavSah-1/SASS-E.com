@@ -3203,11 +3203,16 @@
 
 ## End-to-End Payment Flow Testing
 - [x] Update Stripe keys to user's custom test account (pk_test and sk_test)
-- [ ] Publish the site to get live webhook URL
-- [ ] Configure webhook endpoint in user's Stripe Dashboard with published URL
-- [ ] Test payment flow: select Ultimate plan with 6-month billing
-- [ ] Complete checkout using test card 4242 4242 4242 4242
-- [ ] Verify webhook receives checkout.session.completed event
-- [ ] Verify Supabase account is created via webhook
-- [ ] Verify subscription data saves correctly in database
-- [ ] Test user can log in after successful payment
+- [x] Configure custom Stripe Price IDs for all 9 plans (Starter/Pro/Ultimate × Monthly/6-Month/Annual)
+- [x] Create vitest tests to validate Stripe connection and Price IDs
+- [x] Test payment flow: select Starter plan with monthly billing
+- [x] Complete checkout using test card 4242 4242 4242 4242
+- [x] Verify Stripe checkout session created successfully with correct Price ID
+- [x] Verify payment processed and redirected to success page
+- [ ] Publish the site to get live webhook URL for production testing
+- [ ] Configure webhook endpoint in user's Stripe Dashboard
+- [ ] Create Supabase database tables (schema defined in supabaseDb.ts, tables need manual creation)
+- [ ] Verify webhook receives checkout.session.completed event in production
+- [ ] Verify Supabase account creation via webhook in production
+- [ ] Test user login after successful payment in production
+- [ ] Test all 4 plans (Free, Starter, Pro, Ultimate) end-to-end
