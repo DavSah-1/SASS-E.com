@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { PRICING_TIERS, getAnnualDiscountPercent, getMonthlyFromAnnual, getCurrencySymbol } from "@shared/pricing";
+import { PRICING_TIERS, getAnnualDiscountPercent, getMonthlyFromAnnual, getMonthlyFromSixMonth, getSixMonthDiscountPercent, getCurrencySymbol } from "@shared/pricing";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { getLoginUrl } from "@/const";
@@ -50,7 +50,7 @@ export default function Home() {
   const isIncognito = useIncognitoDetection();
   const { translate: t } = useLanguage();
   const hubSelection = useHubSelection();
-  const [isAnnual, setIsAnnual] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "six_month" | "annual">("monthly");
   const [currency, setCurrency] = useState<"GBP" | "USD" | "EUR">("GBP");
   const [hubModalOpen, setHubModalOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<"starter" | "pro" | "ultimate" | null>(null);
@@ -83,7 +83,7 @@ export default function Home() {
   const handleHubConfirm = (selectedHubs: string[]) => {
     if (!selectedTier) return;
 
-    const billingPeriod = isAnnual ? "annual" : "monthly";
+    // billingPeriod is already set in state
     
     // If not authenticated, save selection and redirect to sign-in
     if (!isAuthenticated) {
@@ -137,7 +137,7 @@ export default function Home() {
           open={hubModalOpen}
           onOpenChange={setHubModalOpen}
           tier={selectedTier}
-          billingPeriod={isAnnual ? "annual" : "monthly"}
+          billingPeriod={billingPeriod}
           onConfirm={handleHubConfirm}
           isLoading={createCheckout.isPending}
         />
@@ -539,22 +539,38 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <Label htmlFor="billing-toggle" className="text-white font-medium">
+          {/* Billing Period Selector */}
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <Button
+              variant={billingPeriod === "monthly" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBillingPeriod("monthly")}
+              className={billingPeriod === "monthly" ? "" : "bg-purple-800/50 border-purple-600 text-white hover:bg-purple-700"}
+            >
               Monthly
-            </Label>
-            <Switch
-              id="billing-toggle"
-              checked={isAnnual}
-              onCheckedChange={setIsAnnual}
-            />
-            <Label htmlFor="billing-toggle" className="text-white font-medium">
+            </Button>
+            <Button
+              variant={billingPeriod === "six_month" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBillingPeriod("six_month")}
+              className={billingPeriod === "six_month" ? "" : "bg-purple-800/50 border-purple-600 text-white hover:bg-purple-700"}
+            >
+              6 Months
+              <Badge variant="secondary" className="ml-2 bg-green-500/20 text-green-300 border-green-500/30">
+                Save {getSixMonthDiscountPercent("pro", currency)}%
+              </Badge>
+            </Button>
+            <Button
+              variant={billingPeriod === "annual" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBillingPeriod("annual")}
+              className={billingPeriod === "annual" ? "" : "bg-purple-800/50 border-purple-600 text-white hover:bg-purple-700"}
+            >
               Annual
               <Badge variant="secondary" className="ml-2 bg-green-500/20 text-green-300 border-green-500/30">
                 Save {getAnnualDiscountPercent("pro", currency)}%
               </Badge>
-            </Label>
+            </Button>
           </div>
 
           {/* Currency Selector */}
@@ -577,7 +593,11 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {(["free", "starter", "pro", "ultimate"] as const).map((tier) => {
               const tierData = PRICING_TIERS[tier];
-              const price = isAnnual ? getMonthlyFromAnnual(tier, currency) : tierData.pricing.monthly[currency];
+              const price = billingPeriod === "annual" 
+                ? getMonthlyFromAnnual(tier, currency) 
+                : billingPeriod === "six_month"
+                ? getMonthlyFromSixMonth(tier, currency)
+                : tierData.pricing.monthly[currency];
               const isPopular = tierData.popular;
               const isCurrentTier = user?.subscriptionTier === tier;
 
@@ -618,9 +638,14 @@ export default function Home() {
                         </span>
                         <span className="text-purple-300">/month</span>
                       </div>
-                      {isAnnual && price > 0 && (
+                      {billingPeriod === "annual" && price > 0 && (
                         <p className="text-sm text-purple-400 mt-1">
                           Billed {getCurrencySymbol(currency)}{tierData.pricing.annual[currency].toFixed(2)} annually
+                        </p>
+                      )}
+                      {billingPeriod === "six_month" && price > 0 && tierData.pricing.sixMonth && (
+                        <p className="text-sm text-purple-400 mt-1">
+                          Billed {getCurrencySymbol(currency)}{tierData.pricing.sixMonth[currency].toFixed(2)} every 6 months
                         </p>
                       )}
                     </div>

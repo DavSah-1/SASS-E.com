@@ -3186,3 +3186,10 @@
 - [x] Update Pricing page to include 6-month billing period selector
 - [x] Verify all three billing options (monthly, 6-month, annual) display correctly
 - [x] Test pricing calculations for all tiers with 6-month option
+
+## Update Home Page Pricing Cards with 6-Month Option
+- [x] Review Home page pricing card structure
+- [x] Add 6-month billing period selector to Home page
+- [x] Update pricing display to show 6-month prices
+- [x] Verify billing period selector works correctly
+- [x] Test checkout flow with 6-month selection from Home page
