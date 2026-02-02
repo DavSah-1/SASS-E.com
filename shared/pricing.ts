@@ -278,6 +278,26 @@ export function getMonthlyFromAnnual(tier: SubscriptionTier, currency: keyof Tie
 }
 
 /**
+ * Get the 6-month discount percentage for a tier
+ */
+export function getSixMonthDiscountPercent(tier: SubscriptionTier, currency: keyof TierPricing["monthly"]): number {
+  const pricing = PRICING_TIERS[tier].pricing;
+  if (pricing.monthly[currency] === 0 || !pricing.sixMonth) return 0;
+  const monthlyTotal = pricing.monthly[currency] * 6;
+  const sixMonthPrice = pricing.sixMonth[currency];
+  return Math.round(((monthlyTotal - sixMonthPrice) / monthlyTotal) * 100);
+}
+
+/**
+ * Get monthly price from 6-month (for display)
+ */
+export function getMonthlyFromSixMonth(tier: SubscriptionTier, currency: keyof TierPricing["monthly"]): number {
+  const pricing = PRICING_TIERS[tier].pricing;
+  if (!pricing.sixMonth) return pricing.monthly[currency];
+  return Math.round((pricing.sixMonth[currency] / 6) * 100) / 100;
+}
+
+/**
  * Check if a user has access to a specialized hub
  */
 export function hasAccessToHub(

@@ -3180,3 +3180,9 @@
 - [ ] Verify Supabase account creation via webhook
 - [ ] Verify subscription data saves correctly
 - [ ] Test subscription success page display
+
+## Fix 6-Month Pricing Display
+- [x] Investigate why 6-month option doesn't show on Pricing page
+- [x] Update Pricing page to include 6-month billing period selector
+- [x] Verify all three billing options (monthly, 6-month, annual) display correctly
+- [x] Test pricing calculations for all tiers with 6-month option
