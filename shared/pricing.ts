@@ -225,9 +225,9 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
     name: "Ultimate",
     description: "Everything unlimited - the complete SASS-E experience",
     pricing: {
-      monthly: { GBP: 29.99, USD: 39.99, EUR: 34.99, INR: 999, SGD: 39.99, JPY: 3980, CNY: 198, KRW: 39800 },
-      sixMonth: { GBP: 149.99, USD: 199.99, EUR: 169.99, INR: 4995, SGD: 199.95, JPY: 19900, CNY: 990, KRW: 199000 },
-      annual: { GBP: 239.99, USD: 319.99, EUR: 269.99, INR: 7992, SGD: 319.92, JPY: 31840, CNY: 1584, KRW: 318400 },
+      monthly: { GBP: 19.99, USD: 29.99, EUR: 24.99, INR: 999, SGD: 39.99, JPY: 3980, CNY: 198, KRW: 39800 },
+      sixMonth: { GBP: 99.99, USD: 149.99, EUR: 124.99, INR: 4995, SGD: 199.95, JPY: 19900, CNY: 990, KRW: 199000 },
+      annual: { GBP: 159.99, USD: 239.99, EUR: 199.99, INR: 7992, SGD: 319.92, JPY: 31840, CNY: 1584, KRW: 318400 },
     },
     limits: {
       voiceChats: "unlimited",

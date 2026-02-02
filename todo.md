@@ -3193,3 +3193,10 @@
 - [x] Update pricing display to show 6-month prices
 - [x] Verify billing period selector works correctly
 - [x] Test checkout flow with 6-month selection from Home page
+
+## Update Ultimate Plan Pricing
+- [x] Update Ultimate plan monthly pricing: $29.99 USD, €24.99 EUR, £19.99 GBP
+- [x] Update Ultimate plan 6-month pricing: $149.99 USD, €124.99 EUR, £99.99 GBP
+- [x] Update Ultimate plan annual pricing: $239.99 USD, €199.99 EUR, £159.99 GBP
+- [x] Verify pricing displays correctly on Home page
+- [x] Verify pricing displays correctly on Pricing page
