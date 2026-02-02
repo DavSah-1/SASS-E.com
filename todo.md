@@ -3246,3 +3246,11 @@
 - [ ] Verify Supabase user created with correct email and subscription data
 - [ ] Test user login after webhook processing
 - [ ] Document complete webhook flow results
+
+## Fix Sign-Up Flow UUID for Webhook
+- [x] Identify where checkout session is created in sign-up flow
+- [x] Verified sign-up flow already correct (no userId for new users)
+- [x] Webhook creates Supabase Auth user and gets UUID automatically
+- [x] Fixed webhook to use upsertSupabaseUser instead of updateSupabaseUser
+- [ ] Test complete flow: sign-up → payment → webhook → user creation on published site
+- [ ] Verify user can log in with credentials after payment

@@ -13,7 +13,7 @@
 
 import Stripe from "stripe";
 import { stripe, STRIPE_WEBHOOK_SECRET } from "./client";
-import { getSupabaseDb, updateSupabaseUser } from "../supabaseDb";
+import { updateSupabaseUser, upsertSupabaseUser, getSupabaseDb } from "../supabaseDb";
 import { eq } from "drizzle-orm";
 import { supabaseUsers } from "../supabaseDb";
 
@@ -199,17 +199,10 @@ async function handleCheckoutSessionCompleted(
     updateData.hubsSelectedAt = new Date();
   }
   
-  await updateSupabaseUser(updateData);
+  // Use upsert to create new record or update existing one
+  await upsertSupabaseUser(updateData as any);
 
   console.log(`[Stripe Webhook] User ${finalUserId} subscription created: ${tier} ${billingPeriod}`);
-  
-  // If new user was created, also update their email in the database
-  if (isNewUser && customerEmail) {
-    await updateSupabaseUser({
-      id: finalUserId,
-      email: customerEmail,
-    });
-  }
 }
 
 /**
