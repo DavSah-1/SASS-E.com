@@ -443,10 +443,14 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        // Import role-aware database functions
+        const dbRoleAware = await import("./dbRoleAware");
+        const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
+        
         // Get or create user profile for adaptive learning
-        let userProfile = await getUserProfile(ctx.user.numericId);
+        let userProfile = await dbRoleAware.getUserProfile(dbCtx, ctx.user.numericId);
         if (!userProfile) {
-          await createUserProfile({
+          await dbRoleAware.createUserProfile(dbCtx, {
             userId: ctx.user.numericId,
             sarcasmLevel: 5, // Start at medium
             totalInteractions: 0,
@@ -456,7 +460,7 @@ export const appRouter = router({
             preferredTopics: JSON.stringify([]),
             interactionPatterns: JSON.stringify({}),
           });
-          userProfile = await getUserProfile(ctx.user.numericId);
+          userProfile = await dbRoleAware.getUserProfile(dbCtx, ctx.user.numericId);
         }
 
         // Build adaptive system prompt based on user's sarcasm level
@@ -555,8 +559,8 @@ If verified knowledge base information is provided above, use that as your prima
           ? messageContent 
           : "Oh great, I seem to have lost my ability to be sarcastic. How tragic.";
 
-        // Save conversation
-        await saveConversation({
+        // Save conversation (role-aware)
+        await dbRoleAware.saveConversation(dbCtx, {
           userId: ctx.user.numericId,
           userMessage: input.message,
           assistantResponse,
@@ -586,7 +590,7 @@ If verified knowledge base information is provided above, use that as your prima
             newSarcasmLevel = Math.min(10, userProfile.sarcasmLevel + 0.5);
           }
 
-          await updateUserProfile(ctx.user.numericId, {
+          await dbRoleAware.updateUserProfile(dbCtx, ctx.user.numericId, {
             totalInteractions: newTotalInteractions,
             averageResponseLength: newAvgLength,
             interactionPatterns: JSON.stringify(updatedPatterns),
