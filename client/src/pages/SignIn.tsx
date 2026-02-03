@@ -8,6 +8,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { APP_LOGO, APP_TITLE } from "@/const";
+import { trpc } from "@/lib/trpc";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export default function SignIn() {
   const [, navigate] = useLocation();
@@ -18,6 +21,11 @@ export default function SignIn() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showPinDialog, setShowPinDialog] = useState(false);
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState<string | null>(null);
+  
+  const validatePinMutation = trpc.adminPin.validatePin.useMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,6 +164,99 @@ export default function SignIn() {
               ← Back to home
             </Link>
           </div>
+
+          {/* PIN-protected Admin link */}
+          <div className="mt-2 text-center">
+            <button
+              type="button"
+              onClick={() => setShowPinDialog(true)}
+              className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+            >
+              Admin
+            </button>
+          </div>
+
+          {/* PIN Dialog */}
+          <Dialog open={showPinDialog} onOpenChange={setShowPinDialog}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Admin Access</DialogTitle>
+                <DialogDescription>
+                  Enter the 10-digit PIN to access admin login
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="pin">PIN Code</Label>
+                  <Input
+                    id="pin"
+                    type="password"
+                    placeholder="Enter 10-digit PIN"
+                    value={pin}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ""); // Only digits
+                      if (value.length <= 10) {
+                        setPin(value);
+                        setPinError(null);
+                      }
+                    }}
+                    maxLength={10}
+                    disabled={validatePinMutation.isPending}
+                  />
+                  {pinError && (
+                    <p className="text-sm text-destructive">{pinError}</p>
+                  )}
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPinDialog(false);
+                    setPin("");
+                    setPinError(null);
+                  }}
+                  disabled={validatePinMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    if (pin.length !== 10) {
+                      setPinError("PIN must be exactly 10 digits");
+                      return;
+                    }
+
+                    try {
+                      const result = await validatePinMutation.mutateAsync({ pin });
+                      if (result.success) {
+                        toast.success("PIN verified! Redirecting to admin login...");
+                        // Redirect to Manus OAuth login
+                        const oauthUrl = `https://manus.im/oauth/authorize?client_id=${import.meta.env.VITE_APP_ID}&redirect_uri=${encodeURIComponent(window.location.origin + "/api/oauth/callback")}&response_type=code&state=${btoa(window.location.origin + "/api/oauth/callback")}`;
+                        window.location.href = oauthUrl;
+                      } else {
+                        setPinError("Invalid PIN. Please try again.");
+                        setPin("");
+                      }
+                    } catch (error) {
+                      setPinError("An error occurred. Please try again.");
+                      console.error("PIN validation error:", error);
+                    }
+                  }}
+                  disabled={validatePinMutation.isPending || pin.length !== 10}
+                >
+                  {validatePinMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    "Continue"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     </div>

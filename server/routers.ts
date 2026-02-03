@@ -20,10 +20,12 @@ import { wearableRouter } from "./wearableRouter";
 import { topicRouter } from "./topicRouter";
 import { translateChatRouter } from "./translateChatRouter";
 import { translationRouter as i18nRouter } from "./translationRouter";
+import { adminPinRouter } from "./adminPinRouter";
 import { toNumericId } from "./_core/dbWrapper";
 
 export const appRouter = router({
   system: systemRouter,
+  adminPin: adminPinRouter,
   languageLearning: languageLearningRouter,
   debtCoach: debtCoachRouter,
   budget: budgetRouter,

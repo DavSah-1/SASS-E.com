@@ -3302,3 +3302,12 @@
 - [x] Run integration tests (8/33 passing, RLS tests need production Supabase JWT)
 - [ ] Save final checkpoint for production deployment
 - [ ] Guide user to publish via Management UI
+
+
+## OAuth Callback Fix and Admin Login Protection
+- [x] Fix OAuth callback to use direct db.* functions instead of dbRoleAware
+- [x] Install bcrypt package for PIN hashing
+- [x] Create backend PIN validation endpoint with bcrypt- [x] Add ADMIN_PIN_HASH environment variable (needs manual setting in Management - [x] Add PIN-protected "Admin" link to /sign-in page
+- [ ] Test OAuth callback with admin credentials (pending)
+- [ ] Test PIN validation flow (pending)
+- [ ] Save checkpoint with OAuth fix and PIN-protected admin access
