@@ -25,12 +25,23 @@ export const adminPinRouter = router({
       const { pin } = input;
 
       // Get hashed PIN from environment variable
-      const hashedPin = process.env.ADMIN_PIN_HASH;
+      let hashedPin = process.env.ADMIN_PIN_HASH;
 
       if (!hashedPin) {
         console.error("[AdminPin] ADMIN_PIN_HASH not configured");
         // Return false without revealing that the hash is missing
         return { success: false };
+      }
+
+      // If hash is base64 encoded (doesn't start with $2), decode it first
+      if (!hashedPin.startsWith('$2')) {
+        try {
+          hashedPin = Buffer.from(hashedPin, 'base64').toString('utf-8');
+          console.log("[AdminPin] Decoded base64 hash");
+        } catch (error) {
+          console.error("[AdminPin] Base64 decode error:", error);
+          return { success: false };
+        }
       }
 
       try {

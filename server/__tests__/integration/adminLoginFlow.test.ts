@@ -14,9 +14,16 @@ import bcrypt from "bcryptjs";
 
 describe("Admin Login Flow Integration", () => {
   let adminPinHash: string | undefined;
+  let decodedHash: string | undefined;
 
   beforeAll(() => {
     adminPinHash = process.env.ADMIN_PIN_HASH;
+    // If hash is base64 encoded, decode it
+    if (adminPinHash && !adminPinHash.startsWith('$2')) {
+      decodedHash = Buffer.from(adminPinHash, 'base64').toString('utf-8');
+    } else {
+      decodedHash = adminPinHash;
+    }
   });
 
   describe("PIN Validation", () => {
@@ -27,25 +34,25 @@ describe("Admin Login Flow Integration", () => {
     });
 
     it("should be a valid bcrypt hash format", () => {
-      expect(adminPinHash).toBeDefined();
+      expect(decodedHash).toBeDefined();
       // Bcrypt hashes: $2a$, $2b$, or $2y$ + rounds + 53 chars
       const bcryptRegex = /^\$2[aby]\$\d{2}\$.{53}$/;
-      expect(adminPinHash).toMatch(bcryptRegex);
-      console.log("✅ ADMIN_PIN_HASH has valid bcrypt format");
+      expect(decodedHash).toMatch(bcryptRegex);
+      console.log("✅ ADMIN_PIN_HASH has valid bcrypt format (decoded if needed)");
     });
 
     it("should validate correct PIN (0302069244)", async () => {
-      expect(adminPinHash).toBeDefined();
+      expect(decodedHash).toBeDefined();
       const correctPin = "0302069244";
-      const isValid = await bcrypt.compare(correctPin, adminPinHash!);
+      const isValid = await bcrypt.compare(correctPin, decodedHash!);
       expect(isValid).toBe(true);
       console.log("✅ Correct PIN validates successfully");
     });
 
     it("should reject incorrect PIN", async () => {
-      expect(adminPinHash).toBeDefined();
+      expect(decodedHash).toBeDefined();
       const incorrectPin = "0000000000";
-      const isValid = await bcrypt.compare(incorrectPin, adminPinHash!);
+      const isValid = await bcrypt.compare(incorrectPin, decodedHash!);
       expect(isValid).toBe(false);
       console.log("✅ Incorrect PIN is rejected");
     });
@@ -101,7 +108,7 @@ describe("Admin Login Flow Integration", () => {
   describe("Admin Login Flow Summary", () => {
     it("should have all components ready for admin login", () => {
       const checks = {
-        pinHash: !!adminPinHash && /^\$2[aby]\$\d{2}\$.{53}$/.test(adminPinHash),
+        pinHash: !!decodedHash && /^\$2[aby]\$\d{2}\$.{53}$/.test(decodedHash),
         oauth: !!process.env.VITE_APP_ID && !!process.env.OAUTH_SERVER_URL,
         owner: !!process.env.OWNER_OPEN_ID,
         mysql: !!process.env.DATABASE_URL,
