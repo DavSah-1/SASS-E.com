@@ -9,4 +9,8 @@ export const ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   // Auth mode: 'manus' for Manus OAuth (published), 'supabase' for Supabase Auth (local/self-hosted)
   authMode: (process.env.AUTH_MODE ?? "manus") as "manus" | "supabase",
+  // Supabase configuration
+  supabaseUrl: process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "",
+  supabaseAnonKey: process.env.VITE_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? "",
+  supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY ?? "",
 };

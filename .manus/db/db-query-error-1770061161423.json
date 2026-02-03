@@ -1,0 +1,13 @@
+{
+  "query": "SELECT n.nspname as schema, t.typname as enum_name, e.enumlabel as enum_value\nFROM pg_type t \nJOIN pg_enum e ON t.oid = e.enumtypid  \nJOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace\nWHERE t.typname IN ('billing_period', 'subscription_status', 'subscription_tier', 'user_role')\nORDER BY t.typname, e.enumsortorder;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT n.nspname as schema, t.typname as enum_name, e.enumlabel as enum_value\nFROM pg_type t \nJOIN pg_enum e ON t.oid = e.enumtypid  \nJOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace\nWHERE t.typname IN ('billing_period', 'subscription_status', 'subscription_tier', 'user_role')\nORDER BY t.typname, e.enumsortorder;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1064 (42000) at line 1: You have an error in your SQL syntax; check the manual that corresponds to your TiDB version for the right syntax to use line 1 column 26 near \"schema, t.typname as enum_name, e.enumlabel as enum_value",
+    "FROM pg_type t ",
+    "JOIN pg_enum e ON t.oid = e.enumtypid  ",
+    "JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace",
+    "WHERE t.typname IN ('billing_period', 'subscription_status', 'subscription_tier', 'user_role')",
+    "ORDER BY t.typname, e.enumsortorder\""
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "query": "SELECT column_name, data_type, is_nullable, column_default\nFROM information_schema.columns\nWHERE table_name = 'users'\nORDER BY ordinal_position;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT column_name, data_type, is_nullable, column_default\nFROM information_schema.columns\nWHERE table_name = 'users'\nORDER BY ordinal_position;",
+  "rows": [
+    {
+      "column_name": "id",
+      "data_type": "int",
+      "is_nullable": "NO",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "supabaseId",
+      "data_type": "varchar",
+      "is_nullable": "NO",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "email",
+      "data_type": "varchar",
+      "is_nullable": "YES",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "loginMethod",
+      "data_type": "varchar",
+      "is_nullable": "YES",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "role",
+      "data_type": "enum",
+      "is_nullable": "NO",
+      "column_default": "user"
+    },
+    {
+      "column_name": "createdAt",
+      "data_type": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "column_name": "updatedAt",
+      "data_type": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "column_name": "lastSignedIn",
+      "data_type": "timestamp",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_TIMESTAMP"
+    },
+    {
+      "column_name": "preferredLanguage",
+      "data_type": "varchar",
+      "is_nullable": "YES",
+      "column_default": "en"
+    },
+    {
+      "column_name": "subscriptionTier",
+      "data_type": "enum",
+      "is_nullable": "NO",
+      "column_default": "free"
+    },
+    {
+      "column_name": "subscriptionStatus",
+      "data_type": "enum",
+      "is_nullable": "NO",
+      "column_default": "inactive"
+    },
+    {
+      "column_name": "subscriptionExpiresAt",
+      "data_type": "timestamp",
+      "is_nullable": "YES",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "preferredCurrency",
+      "data_type": "varchar",
+      "is_nullable": "YES",
+      "column_default": "USD"
+    },
+    {
+      "column_name": "staySignedIn",
+      "data_type": "tinyint",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "column_name": "twoFactorEnabled",
+      "data_type": "tinyint",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "column_name": "twoFactorSecret",
+      "data_type": "varchar",
+      "is_nullable": "YES",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "backupCodes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "subscriptionPrice",
+      "data_type": "decimal",
+      "is_nullable": "YES",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "subscriptionCurrency",
+      "data_type": "varchar",
+      "is_nullable": "YES",
+      "column_default": "GBP"
+    },
+    {
+      "column_name": "selectedSpecializedHubs",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": "NULL"
+    },
+    {
+      "column_name": "hubsSelectedAt",
+      "data_type": "timestamp",
+      "is_nullable": "YES",
+      "column_default": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "column_name\tdata_type\tis_nullable\tcolumn_default\nid\tint\tNO\tNULL\nsupabaseId\tvarchar\tNO\tNULL\nname\ttext\tYES\tNULL\nemail\tvarchar\tYES\tNULL\nloginMethod\tvarchar\tYES\tNULL\nrole\tenum\tNO\tuser\ncreatedAt\ttimestamp\tNO\tCURRENT_TIMESTAMP\nupdatedAt\ttimestamp\tNO\tCURRENT_TIMESTAMP\nlastSignedIn\ttimestamp\tNO\tCURRENT_TIMESTAMP\npreferredLanguage\tvarchar\tYES\ten\nsubscriptionTier\tenum\tNO\tfree\nsubscriptionStatus\tenum\tNO\tinactive\nsubscriptionExpiresAt\ttimestamp\tYES\tNULL\npreferredCurrency\tvarchar\tYES\tUSD\nstaySignedIn\ttinyint\tNO\t0\ntwoFactorEnabled\ttinyint\tNO\t0\ntwoFactorSecret\tvarchar\tYES\tNULL\nbackupCodes\ttext\tYES\tNULL\nsubscriptionPrice\tdecimal\tYES\tNULL\nsubscriptionCurrency\tvarchar\tYES\tGBP\nselectedSpecializedHubs\ttext\tYES\tNULL\nhubsSelectedAt\ttimestamp\tYES\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1039
+}
