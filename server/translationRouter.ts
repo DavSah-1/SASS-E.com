@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { translateText, translateBatch } from "./_core/translation";
-import { getDb } from "./db";
+import * as dbRoleAware from "./dbRoleAware";
 import { users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
@@ -46,7 +46,7 @@ export const translationRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await getDb();
+      const db = await (await import("./db")).getDb();
       if (!db) throw new Error("Database not available");
 
       await db

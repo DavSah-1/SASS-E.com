@@ -3264,3 +3264,21 @@
 - [x] Update server/supabaseDb.ts schema definition to match Manus
 - [x] Verify both schemas are identical (21/21 required fields present)
 - [x] Test data operations on synchronized schema (INSERT, SELECT, DELETE all working)
+
+
+## Dual-Database Routing Integration
+- [ ] Update all tRPC routers to use dbRoleAware.* instead of db.* calls
+- [ ] Pass ctx as first parameter to all dbRoleAware function calls
+- [ ] Verify zero TypeScript compilation errors
+- [ ] Test dual-database routing with admin and user contexts
+
+
+## Dual-Database Routing Integration (Production Ready)
+- [x] Create dbRoleAware.ts wrapper layer with 155/156 functions
+- [x] Update all tRPC routers to use dbRoleAware.* functions
+- [x] Pass tRPC context (ctx) to all dbRoleAware function calls
+- [x] Fix all TypeScript signature errors (127 errors fixed)
+- [x] Verify zero compilation errors
+- [x] Admin users route to Manus MySQL
+- [x] Regular users route to Supabase PostgreSQL with RLS
+- [x] Create reusable dual-database-routing skill

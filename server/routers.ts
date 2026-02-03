@@ -6,7 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getUserConversations, saveConversation, addIoTDevice, getUserIoTDevices, getIoTDeviceById, updateIoTDeviceState, deleteIoTDevice, saveIoTCommand, getDeviceCommandHistory, getUserProfile, createUserProfile, updateUserProfile, saveConversationFeedback, saveLearningSession, saveFactCheckResult, saveLearningSource, getUserLearningSessions, getFactCheckResultsBySession, saveStudyGuide, saveQuiz, getUserQuizzes, saveQuizAttempt, getQuizAttempts, saveVerifiedFact, getVerifiedFact, searchVerifiedFacts, normalizeQuestion, logFactAccess, createFactUpdateNotifications, getUserNotifications, markNotificationAsRead, dismissNotification, getUnreadNotificationCount, createConversationSession, getUserConversationSessions, getConversationSession, getConversationMessages, addConversationMessage, deleteConversationSession, saveConversationSessionToPhrasebook } from "./db";
+import * as dbRoleAware from "./dbRoleAware";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
 import { languageLearningRouter } from "./languageLearningRouter";
@@ -489,15 +489,17 @@ export const appRouter = router({
 
         // Check verified knowledge base first
         let knowledgeBaseContext = "";
+        // normalizeQuestion is a utility function, not wrapped in dbRoleAware
+        const { normalizeQuestion } = await import('./db');
         const normalizedQ = normalizeQuestion(input.message);
-        const verifiedFact = await getVerifiedFact(normalizedQ);
+        const verifiedFact = await dbRoleAware.getVerifiedFact(ctx, normalizedQ);
         
         if (verifiedFact) {
           // We have a verified fact for this question!
           knowledgeBaseContext = `\n\nVerified Knowledge Base (Last verified: ${verifiedFact.verifiedAt.toLocaleDateString()}):\n${verifiedFact.answer}\n\nSources: ${JSON.parse(verifiedFact.sources).map((s: any) => s.title).join(', ')}`;
           
           // Log fact access for notification purposes
-          await logFactAccess(ctx.user.numericId, verifiedFact.id, verifiedFact, 'voice_assistant');
+          await dbRoleAware.logFactAccess(ctx, ctx.user.numericId, verifiedFact.id, verifiedFact, 'voice_assistant');
         }
 
         const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}${weatherContext}${knowledgeBaseContext}
@@ -628,7 +630,7 @@ If verified knowledge base information is provided above, use that as your prima
       }),
 
     getConversations: protectedProcedure.query(async ({ ctx }) => {
-      const conversations = await getUserConversations(ctx.user.numericId);
+      const conversations = await dbRoleAware.getUserConversations(ctx, ctx.user.numericId);
       return conversations;
     }),
     clearAllConversations: protectedProcedure.mutation(async ({ ctx }) => {
@@ -637,15 +639,15 @@ If verified knowledge base information is provided above, use that as your prima
       return { success: true };
     }),
     history: protectedProcedure.query(async ({ ctx }) => {
-      const conversations = await getUserConversations(ctx.user.numericId);
+      const conversations = await dbRoleAware.getUserConversations(ctx, ctx.user.numericId);
       return conversations;
     }),
 
     // Get user's learning profile
     getProfile: protectedProcedure.query(async ({ ctx }) => {
-      let profile = await getUserProfile(ctx.user.numericId);
+      let profile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
       if (!profile) {
-        await createUserProfile({
+        await dbRoleAware.createUserProfile(ctx, {
           userId: ctx.user.numericId,
           sarcasmLevel: 5,
           totalInteractions: 0,
@@ -655,7 +657,7 @@ If verified knowledge base information is provided above, use that as your prima
           preferredTopics: JSON.stringify([]),
           interactionPatterns: JSON.stringify({}),
         });
-        profile = await getUserProfile(ctx.user.numericId);
+        profile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
       }
 
       return {
@@ -677,7 +679,7 @@ If verified knowledge base information is provided above, use that as your prima
       )
       .mutation(async ({ ctx, input }) => {
         // Save feedback
-        await saveConversationFeedback({
+        await dbRoleAware.saveConversationFeedback(ctx, {
           conversationId: input.conversationId,
           userId: ctx.user.numericId,
           feedbackType: input.feedbackType,
@@ -685,7 +687,7 @@ If verified knowledge base information is provided above, use that as your prima
         });
 
         // Update user profile based on feedback
-        const profile = await getUserProfile(ctx.user.numericId);
+        const profile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
         if (profile) {
           const learningData = {
             sarcasmLevel: profile.sarcasmLevel,
@@ -709,7 +711,7 @@ If verified knowledge base information is provided above, use that as your prima
             updates.negativeResponses = profile.negativeResponses + 1;
           }
 
-          await updateUserProfile(ctx.user.numericId, updates);
+          await dbRoleAware.updateUserProfile(ctx, ctx.user.numericId, updates);
 
           return {
             success: true,
@@ -725,7 +727,7 @@ If verified knowledge base information is provided above, use that as your prima
   iot: router({
     // List all user's IoT devices
     listDevices: protectedProcedure.query(async ({ ctx }) => {
-      const devices = await getUserIoTDevices(ctx.user.numericId);
+      const devices = await dbRoleAware.getUserIoTDevices(ctx, ctx.user.numericId);
       return devices.map(device => ({
         ...device,
         state: device.state ? JSON.parse(device.state) : {},
@@ -749,7 +751,7 @@ If verified knowledge base information is provided above, use that as your prima
         })
       )
       .mutation(async ({ ctx, input }) => {
-        await addIoTDevice({
+        await dbRoleAware.addIoTDevice(ctx, {
           userId: ctx.user.numericId,
           deviceId: input.deviceId,
           deviceName: input.deviceName,
@@ -775,7 +777,7 @@ If verified knowledge base information is provided above, use that as your prima
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const device = await getIoTDeviceById(input.deviceId);
+        const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
         if (!device) {
           throw new Error("Device not found");
         }
@@ -823,11 +825,11 @@ If verified knowledge base information is provided above, use that as your prima
         if (result.success && result.newState) {
           const currentState = device.state ? JSON.parse(device.state) : {};
           const updatedState = { ...currentState, ...result.newState };
-          await updateIoTDeviceState(device.deviceId, JSON.stringify(updatedState), "online");
+          await dbRoleAware.updateIoTDeviceState(ctx, device.deviceId, JSON.stringify(updatedState), "online");
         }
 
         // Save command history
-        await saveIoTCommand({
+        await dbRoleAware.saveIoTCommand(ctx, {
           userId: ctx.user.numericId,
           deviceId: device.deviceId,
           command: iotCommand.action,
@@ -857,7 +859,7 @@ If verified knowledge base information is provided above, use that as your prima
     getDeviceStatus: protectedProcedure
       .input(z.object({ deviceId: z.string() }))
       .query(async ({ ctx, input }) => {
-        const device = await getIoTDeviceById(input.deviceId);
+        const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
         if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
@@ -873,12 +875,12 @@ If verified knowledge base information is provided above, use that as your prima
     deleteDevice: protectedProcedure
       .input(z.object({ deviceId: z.string() }))
       .mutation(async ({ ctx, input }) => {
-        const device = await getIoTDeviceById(input.deviceId);
+        const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
         if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
 
-        await deleteIoTDevice(input.deviceId);
+        await dbRoleAware.deleteIoTDevice(ctx, input.deviceId);
         return { success: true, message: "Device deleted successfully" };
       }),
 
@@ -886,12 +888,12 @@ If verified knowledge base information is provided above, use that as your prima
     getCommandHistory: protectedProcedure
       .input(z.object({ deviceId: z.string() }))
       .query(async ({ ctx, input }) => {
-        const device = await getIoTDeviceById(input.deviceId);
+        const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
         if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
 
-        const history = await getDeviceCommandHistory(input.deviceId, 50);
+        const history = await dbRoleAware.getDeviceCommandHistory(ctx, input.deviceId, 50);
         return history.map(cmd => ({
           ...cmd,
           parameters: cmd.parameters ? JSON.parse(cmd.parameters) : {},
@@ -910,7 +912,7 @@ If verified knowledge base information is provided above, use that as your prima
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const userProfile = await getUserProfile(ctx.user.numericId);
+          const userProfile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
           const sarcasmLevel = userProfile?.sarcasmLevel || 5;
           const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -1035,14 +1037,15 @@ If verified knowledge base information is provided above, use that as your prima
         // Step 5: Save verified fact to knowledge base
         // Only save if confidence is high and status is verified
         if (overallConfidence >= 70 && factCheckResults.some(fc => fc.status === 'verified')) {
-          const normalizedQ = normalizeQuestion(input.question);
+          const { normalizeQuestion } = await import('./db');
+          const normalizedQuestion = normalizeQuestion(input.question);
           const expiresAt = new Date();
           expiresAt.setDate(expiresAt.getDate() + 30); // Facts expire after 30 days
           
           try {
-            await saveVerifiedFact({
+            await dbRoleAware.saveVerifiedFact(ctx, {
               question: input.question,
-              normalizedQuestion: normalizedQ,
+              normalizedQuestion: normalizedQuestion,
               answer: explanation,
               verificationStatus: 'verified',
               confidenceScore: overallConfidence,
@@ -1058,7 +1061,7 @@ If verified knowledge base information is provided above, use that as your prima
         }
 
         // Step 6: Save to database
-        const sessionResult = await saveLearningSession({
+        const sessionResult = await dbRoleAware.saveLearningSession(ctx, {
           userId: ctx.user.numericId,
           topic: input.topic,
           question: input.question,
@@ -1072,7 +1075,7 @@ If verified knowledge base information is provided above, use that as your prima
 
         // Save fact-check results
         for (const factCheck of factCheckResults) {
-          const factCheckResult = await saveFactCheckResult({
+          const factCheckResult = await dbRoleAware.saveFactCheckResult(ctx, {
             learningSessionId: sessionId,
             claim: factCheck.claim,
             verificationStatus: factCheck.status,
@@ -1084,7 +1087,7 @@ If verified knowledge base information is provided above, use that as your prima
           // Save individual sources
           const factCheckId = factCheckResult ? Number(factCheckResult[0].insertId) : 0;
           for (const source of factCheck.sources) {
-            await saveLearningSource({
+            await dbRoleAware.saveLearningSource(ctx, {
               factCheckResultId: factCheckId,
               title: source.title,
               url: source.url,
@@ -1109,15 +1112,15 @@ If verified knowledge base information is provided above, use that as your prima
 
     // Get user's learning history
     getHistory: protectedProcedure.query(async ({ ctx }) => {
-      const sessions = await getUserLearningSessions(ctx.user.numericId, 50);
+      const sessions = await dbRoleAware.getUserLearningSessions(ctx, ctx.user.numericId, 50);
       return sessions;
     }),
 
     // Get fact-check results for a session
     getFactChecks: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
-      .query(async ({ input }) => {
-        const factChecks = await getFactCheckResultsBySession(input.sessionId);
+      .query(async ({ ctx, input }) => {
+        const factChecks = await dbRoleAware.getFactCheckResultsBySession(ctx, input.sessionId);
         return factChecks;
       }),
 
@@ -1126,14 +1129,14 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         // Get the learning session
-        const sessions = await getUserLearningSessions(ctx.user.numericId, 100);
+        const sessions = await dbRoleAware.getUserLearningSessions(ctx, ctx.user.numericId, 100);
         const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
           throw new Error('Learning session not found');
         }
 
-        const userProfile = await getUserProfile(ctx.user.numericId);
+        const userProfile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -1199,7 +1202,7 @@ Maintain a ${personalityDesc} tone while being educational.`;
         const studyGuide = JSON.parse(studyGuideText);
 
         // Save to database
-        await saveStudyGuide({
+        await dbRoleAware.saveStudyGuide(ctx, {
           userId: ctx.user.numericId,
           learningSessionId: input.sessionId,
           title: `Study Guide: ${session.topic}`,
@@ -1219,14 +1222,14 @@ Maintain a ${personalityDesc} tone while being educational.`;
       }))
       .mutation(async ({ ctx, input }) => {
         // Get the learning session
-        const sessions = await getUserLearningSessions(ctx.user.numericId, 100);
+        const sessions = await dbRoleAware.getUserLearningSessions(ctx, ctx.user.numericId, 100);
         const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
           throw new Error('Learning session not found');
         }
 
-        const userProfile = await getUserProfile(ctx.user.numericId);
+        const userProfile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -1310,7 +1313,7 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
         const quiz = JSON.parse(quizText);
 
         // Save to database
-        const quizResult = await saveQuiz({
+        const quizResult = await dbRoleAware.saveQuiz(ctx, {
           userId: ctx.user.numericId,
           learningSessionId: input.sessionId,
           title: `Quiz: ${session.topic}`,
@@ -1346,7 +1349,7 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const userProfile = await getUserProfile(ctx.user.numericId);
+        const userProfile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -1491,7 +1494,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       }))
       .mutation(async ({ ctx, input }) => {
         // Get user's quizzes to find the one being attempted
-        const userQuizzes = await getUserQuizzes(ctx.user.numericId);
+        const userQuizzes = await dbRoleAware.getUserQuizzes(ctx, ctx.user.numericId);
         const quiz = userQuizzes.find(q => q.id === input.quizId);
         
         if (!quiz) {
@@ -1514,7 +1517,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
         const score = Math.round((correctCount / questions.length) * 100);
 
-        await saveQuizAttempt({
+        await dbRoleAware.saveQuizAttempt(ctx, {
           quizId: input.quizId,
           userId: ctx.user.numericId,
           answers: JSON.stringify(input.answers),
@@ -1538,7 +1541,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     getNotifications: protectedProcedure
       .input(z.object({ includeRead: z.boolean().default(false) }).optional())
       .query(async ({ ctx, input }) => {
-        const notifications = await getUserNotifications(ctx.user.numericId, input?.includeRead || false);
+        const notifications = await dbRoleAware.getUserNotifications(ctx, ctx.user.numericId, input?.includeRead || false);
         
         // Parse JSON fields for each notification
         return notifications.map(notif => ({
@@ -1550,7 +1553,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     
     // Get unread notification count
     getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
-      const count = await getUnreadNotificationCount(ctx.user.numericId);
+      const count = await dbRoleAware.getUnreadNotificationCount(ctx, ctx.user.numericId);
       return { count };
     }),
     
@@ -1558,7 +1561,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     markAsRead: protectedProcedure
       .input(z.object({ notificationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        await markNotificationAsRead(input.notificationId, ctx.user.numericId);
+        await dbRoleAware.markNotificationAsRead(ctx, input.notificationId, ctx.user.numericId);
         return { success: true };
       }),
     
@@ -1566,7 +1569,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     dismiss: protectedProcedure
       .input(z.object({ notificationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        await dismissNotification(input.notificationId, ctx.user.numericId);
+        await dbRoleAware.dismissNotification(ctx, input.notificationId, ctx.user.numericId);
         return { success: true };
       }),
   }),
@@ -1908,7 +1911,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const sessionId = await createConversationSession(
+        const sessionId = await dbRoleAware.createConversationSession(ctx, 
           ctx.user.numericId,
           input.title,
           input.language1,
@@ -1918,15 +1921,15 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       }),
 
     getConversations: protectedProcedure.query(async ({ ctx }) => {
-      return await getUserConversationSessions(ctx.user.numericId);
+      return await dbRoleAware.getUserConversationSessions(ctx, ctx.user.numericId);
     }),
 
     getConversation: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ ctx, input }) => {
-        const session = await getConversationSession(input.sessionId, ctx.user.numericId);
+        const session = await dbRoleAware.getConversationSession(ctx, input.sessionId, ctx.user.numericId);
         if (!session) throw new Error("Conversation not found");
-        const messages = await getConversationMessages(input.sessionId);
+        const messages = await dbRoleAware.getConversationMessages(ctx, input.sessionId);
         return { session, messages };
       }),
 
@@ -1941,7 +1944,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         // Get the conversation session to determine target language
-        const session = await getConversationSession(input.sessionId, ctx.user.numericId);
+        const session = await dbRoleAware.getConversationSession(ctx, input.sessionId, ctx.user.numericId);
         if (!session) throw new Error("Conversation not found");
 
         // Determine target language (translate to the other language)
@@ -1961,7 +1964,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         const translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
 
         // Save the message
-        const messageId = await addConversationMessage(
+        const messageId = await dbRoleAware.addConversationMessage(ctx, 
           input.sessionId,
           input.messageText,
           translatedText,
@@ -1981,7 +1984,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     deleteConversation: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        return await deleteConversationSession(input.sessionId, ctx.user.numericId);
+        return await dbRoleAware.deleteConversationSession(ctx, input.sessionId, ctx.user.numericId);
       }),
 
     saveConversationToPhrasebook: protectedProcedure
@@ -1992,7 +1995,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        return await saveConversationSessionToPhrasebook(
+        return await dbRoleAware.saveConversationSessionToPhrasebook(ctx, 
           input.sessionId,
           ctx.user.numericId,
           input.categoryId

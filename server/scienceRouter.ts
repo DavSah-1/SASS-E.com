@@ -1,20 +1,11 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import {
-  getExperiments,
-  getExperimentById,
-  getExperimentSteps,
-  saveLabResult,
-  getUserLabResults,
-  getScienceProgress,
-  initializeScienceProgress,
-  updateScienceProgress,
-} from "./db";
+import * as dbRoleAware from "./dbRoleAware";
 import { invokeLLM } from "./_core/llm";
 
 export const scienceRouter = router({
   // Get list of experiments with optional filters
-  getExperiments: publicProcedure
+  getExperiments: protectedProcedure
     .input(
       z.object({
         category: z.enum(["physics", "chemistry", "biology"]).optional(),
@@ -22,21 +13,21 @@ export const scienceRouter = router({
         limit: z.number().optional(),
       })
     )
-    .query(async ({ input }) => {
-      const experiments = await getExperiments(input);
+    .query(async ({ ctx, input }) => {
+      const experiments = await dbRoleAware.getExperiments(ctx, input);
       return experiments;
     }),
 
   // Get experiment details by ID
-  getExperimentDetails: publicProcedure
+  getExperimentDetails: protectedProcedure
     .input(z.object({ experimentId: z.number() }))
-    .query(async ({ input }) => {
-      const experiment = await getExperimentById(input.experimentId);
+    .query(async ({ ctx, input }) => {
+      const experiment = await dbRoleAware.getExperimentById(ctx, input.experimentId);
       if (!experiment) {
         throw new Error("Experiment not found");
       }
 
-      const steps = await getExperimentSteps(input.experimentId);
+      const steps = await dbRoleAware.getExperimentSteps(ctx, input.experimentId);
 
       return {
         experiment,
@@ -59,7 +50,7 @@ export const scienceRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const experiment = await getExperimentById(input.experimentId);
+      const experiment = await dbRoleAware.getExperimentById(ctx, input.experimentId);
       if (!experiment) {
         throw new Error("Experiment not found");
       }
@@ -128,7 +119,7 @@ Format as JSON:
       const aiAnalysis = JSON.parse(llmResponse.choices[0].message.content as string);
 
       // Save lab result
-      const resultId = await saveLabResult({
+      const resultId = await dbRoleAware.saveLabResult(ctx, {
         userId: ctx.user.numericId,
         experimentId: input.experimentId,
         observations: input.observations,
@@ -143,10 +134,10 @@ Format as JSON:
       });
 
       // Update science progress
-      let progress = await getScienceProgress(ctx.user.numericId);
+      let progress = await dbRoleAware.getScienceProgress(ctx, ctx.user.numericId);
       if (!progress) {
-        await initializeScienceProgress(ctx.user.numericId);
-        progress = await getScienceProgress(ctx.user.numericId);
+        await dbRoleAware.initializeScienceProgress(ctx, ctx.user.numericId);
+        progress = await dbRoleAware.getScienceProgress(ctx, ctx.user.numericId);
       }
 
       if (progress) {
@@ -164,7 +155,7 @@ Format as JSON:
             newTotal
         );
 
-        await updateScienceProgress(ctx.user.numericId, {
+        await dbRoleAware.updateScienceProgress(ctx, ctx.user.numericId, {
           totalExperimentsCompleted: newTotal,
           [categoryField]: newCategoryCount,
           averageGrade: newAverageGrade,
@@ -185,16 +176,16 @@ Format as JSON:
   getMyLabResults: protectedProcedure
     .input(z.object({ experimentId: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      const results = await getUserLabResults(ctx.user.numericId, input.experimentId);
+      const results = await dbRoleAware.getUserLabResults(ctx, ctx.user.numericId, input.experimentId);
       return results;
     }),
 
   // Get user's science progress
   getMyProgress: protectedProcedure.query(async ({ ctx }) => {
-    let progress = await getScienceProgress(ctx.user.numericId);
+    let progress = await dbRoleAware.getScienceProgress(ctx, ctx.user.numericId);
     if (!progress) {
-      await initializeScienceProgress(ctx.user.numericId);
-      progress = await getScienceProgress(ctx.user.numericId);
+      await dbRoleAware.initializeScienceProgress(ctx, ctx.user.numericId);
+      progress = await dbRoleAware.getScienceProgress(ctx, ctx.user.numericId);
     }
     return progress;
   }),
@@ -268,7 +259,7 @@ Format as JSON:
         }
         /* LLM generation disabled due to json_schema compatibility issues
         if (questions.length === 0) {
-        const experiment = await getExperimentById(input.experimentId);
+        const experiment = await dbRoleAware.getExperimentById(ctx, input.experimentId);
         if (!experiment) throw new Error("Experiment not found");
 
         const prompt = `Generate 6 multiple-choice quiz questions for a pre-lab quiz about the following science experiment:

@@ -1,21 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import {
-  getVocabularyItems,
-  getUserVocabularyProgress,
-  saveUserVocabularyProgress,
-  getGrammarLessons,
-  getUserGrammarProgress,
-  saveUserGrammarProgress,
-  getLanguageExercises,
-  saveExerciseAttempt,
-  getUserLanguageProgress,
-  upsertUserLanguageProgress,
-  getDailyLesson,
-  saveDailyLesson,
-  getUserAchievements,
-  saveAchievement,
-} from "./db";
+import * as dbRoleAware from "./dbRoleAware";
 import { invokeLLM } from "./_core/llm";
 
 /**
@@ -31,7 +16,7 @@ export const languageLearningRouter = router({
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      const progress = await getUserLanguageProgress(ctx.user.numericId, input.language);
+      const progress = await dbRoleAware.getUserLanguageProgress(ctx, ctx.user.numericId, input.language);
       
       if (!progress) {
         // Initialize progress for new language
@@ -50,7 +35,7 @@ export const languageLearningRouter = router({
           dailyGoal: 15,
         };
         
-        await upsertUserLanguageProgress(newProgress);
+        await dbRoleAware.upsertUserLanguageProgress(ctx, newProgress);
         return newProgress;
       }
       
@@ -67,8 +52,8 @@ export const languageLearningRouter = router({
       limit: z.number().default(20),
     }))
     .query(async ({ ctx, input }) => {
-      const items = await getVocabularyItems(input.language, input.difficulty, input.limit);
-      const userProgress = await getUserVocabularyProgress(ctx.user.numericId, input.language);
+      const items = await dbRoleAware.getVocabularyItems(ctx, input.language, input.difficulty, input.limit);
+      const userProgress = await dbRoleAware.getUserVocabularyProgress(ctx, ctx.user.numericId, input.language);
       
       // Merge vocabulary items with user progress
       const flashcards = items.map(item => {
@@ -97,7 +82,7 @@ export const languageLearningRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       // Get existing progress
-      const existingProgress = await getUserVocabularyProgress(ctx.user.numericId, input.language);
+      const existingProgress = await dbRoleAware.getUserVocabularyProgress(ctx, ctx.user.numericId, input.language);
       const itemProgress = existingProgress.find(p => p.vocabularyItemId === input.vocabularyItemId);
       
       // Calculate new mastery level
@@ -114,7 +99,7 @@ export const languageLearningRouter = router({
       const intervalDays = input.isCorrect ? Math.min(30, Math.pow(2, Math.floor(newMastery / 20))) : 1;
       const nextReview = new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
       
-      await saveUserVocabularyProgress({
+      await dbRoleAware.saveUserVocabularyProgress(ctx, {
         userId: ctx.user.numericId,
         vocabularyItemId: input.vocabularyItemId,
         language: input.language,
@@ -127,12 +112,12 @@ export const languageLearningRouter = router({
       });
       
       // Update overall language progress
-      const overallProgress = await getUserLanguageProgress(ctx.user.numericId, input.language);
+      const overallProgress = await dbRoleAware.getUserLanguageProgress(ctx, ctx.user.numericId, input.language);
       if (overallProgress) {
-        const allProgress = await getUserVocabularyProgress(ctx.user.numericId, input.language);
+        const allProgress = await dbRoleAware.getUserVocabularyProgress(ctx, ctx.user.numericId, input.language);
         const vocabularySize = allProgress.filter(p => p.masteryLevel >= 70).length;
         
-        await upsertUserLanguageProgress({
+        await dbRoleAware.upsertUserLanguageProgress(ctx, {
           ...overallProgress,
           vocabularySize,
           lastStudied: now,
@@ -157,8 +142,8 @@ export const languageLearningRouter = router({
       difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
     }))
     .query(async ({ ctx, input }) => {
-      const lessons = await getGrammarLessons(input.language, input.difficulty);
-      const userProgress = await getUserGrammarProgress(ctx.user.numericId, input.language);
+      const lessons = await dbRoleAware.getGrammarLessons(ctx, input.language, input.difficulty);
+      const userProgress = await dbRoleAware.getUserGrammarProgress(ctx, ctx.user.numericId, input.language);
       
       // Merge lessons with user progress
       const lessonsWithProgress = lessons.map(lesson => {
@@ -261,11 +246,10 @@ Format your response as JSON with this structure:
       limit: z.number().default(10),
     }))
     .query(async ({ ctx, input }) => {
-      const exercises = await getLanguageExercises(
+      const exercises = await dbRoleAware.getLanguageExercises(ctx, 
         input.language,
         input.exerciseType,
-        input.difficulty,
-        input.limit
+        input.difficulty
       );
       
       return exercises;
@@ -359,7 +343,7 @@ Format as JSON array with this structure:
     }))
     .mutation(async ({ ctx, input }) => {
       // Get the exercise to check the answer
-      const exercises = await getLanguageExercises(input.language);
+      const exercises = await dbRoleAware.getLanguageExercises(ctx, input.language);
       const exercise = exercises.find(e => e.id === input.exerciseId);
       
       if (!exercise) {
@@ -370,7 +354,7 @@ Format as JSON array with this structure:
       const isCorrect = input.userAnswer.trim().toLowerCase() === exercise.correctAnswer.trim().toLowerCase();
       
       // Save attempt
-      await saveExerciseAttempt({
+      await dbRoleAware.saveExerciseAttempt(ctx, {
         userId: ctx.user.numericId,
         exerciseId: input.exerciseId,
         language: input.language,
@@ -381,9 +365,9 @@ Format as JSON array with this structure:
       });
       
       // Update overall progress
-      const progress = await getUserLanguageProgress(ctx.user.numericId, input.language);
+      const progress = await dbRoleAware.getUserLanguageProgress(ctx, ctx.user.numericId, input.language);
       if (progress) {
-        await upsertUserLanguageProgress({
+        await dbRoleAware.upsertUserLanguageProgress(ctx, {
           ...progress,
           exercisesCompleted: progress.exercisesCompleted + 1,
           lastStudied: new Date(),
@@ -412,7 +396,7 @@ Format as JSON array with this structure:
       today.setHours(0, 0, 0, 0);
       
       // Check if lesson already exists for today
-      const existingLesson = await getDailyLesson(ctx.user.numericId, input.language, today);
+      const existingLesson = await dbRoleAware.getDailyLesson(ctx, ctx.user.numericId, input.language, today);
       
       if (existingLesson) {
         return {
@@ -424,19 +408,19 @@ Format as JSON array with this structure:
       }
       
       // Generate new daily lesson
-      const userProgress = await getUserLanguageProgress(ctx.user.numericId, input.language);
+      const userProgress = await dbRoleAware.getUserLanguageProgress(ctx, ctx.user.numericId, input.language);
       const difficulty = userProgress?.level || "beginner";
       
       // Get vocabulary items for review (spaced repetition)
-      const vocabItems = await getVocabularyItems(input.language, difficulty, 10);
+      const vocabItems = await dbRoleAware.getVocabularyItems(ctx, input.language, difficulty, 10);
       const vocabIds = vocabItems.map(v => v.id);
       
       // Get exercises
-      const exercises = await getLanguageExercises(input.language, undefined, difficulty, 5);
+      const exercises = await dbRoleAware.getLanguageExercises(ctx, input.language, undefined, difficulty);
       const exerciseIds = exercises.map(e => e.id);
       
       // Save daily lesson
-      await saveDailyLesson({
+      await dbRoleAware.saveDailyLesson(ctx, {
         userId: ctx.user.numericId,
         language: input.language,
         lessonDate: today,
@@ -462,7 +446,7 @@ Format as JSON array with this structure:
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      const achievements = await getUserAchievements(ctx.user.numericId, input.language);
+      const achievements = await dbRoleAware.getUserAchievements(ctx, ctx.user.numericId, input.language);
       return achievements;
     }),
 

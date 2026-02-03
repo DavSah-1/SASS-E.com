@@ -1,14 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import {
-  getMathProblems,
-  getMathProblem,
-  saveMathProblem,
-  saveMathSolution,
-  getUserMathSolutions,
-  getMathProgress,
-  updateMathProgress,
-} from "./db";
+import * as dbRoleAware from "./dbRoleAware";
 import { invokeLLM } from "./_core/llm";
 
 /**
@@ -114,7 +106,7 @@ Format your response as JSON with this structure:
         const solutionData = JSON.parse(contentStr);
 
         // Save solution to database
-        const solutionId = await saveMathSolution({
+        const solutionId = await dbRoleAware.saveMathSolution(ctx, {
           userId,
           problemId: null, // Custom problem
           problemText: input.problemText,
@@ -126,14 +118,14 @@ Format your response as JSON with this structure:
         });
 
         // Update user progress
-        const progress = await getMathProgress(userId);
+        const progress = await dbRoleAware.getMathProgress(ctx, userId);
         if (progress) {
           const topicsExplored = JSON.parse(progress.topicsExplored || "[]");
           if (input.topic && !topicsExplored.includes(input.topic)) {
             topicsExplored.push(input.topic);
           }
 
-          await updateMathProgress(userId, {
+          await dbRoleAware.updateMathProgress(ctx, userId, input.topic || 'general', {
             totalProblemsAttempted: progress.totalProblemsAttempted + 1,
             topicsExplored,
             lastPracticeDate: new Date(),
@@ -161,8 +153,8 @@ Format your response as JSON with this structure:
         limit: z.number().default(10),
       })
     )
-    .query(async ({ input }) => {
-      const problems = await getMathProblems(input.topic, input.difficulty, input.limit);
+    .query(async ({ ctx, input }) => {
+      const problems = await dbRoleAware.getMathProblems(ctx, input.topic ?? undefined, input.difficulty, input.limit);
       return problems;
     }),
 
@@ -171,8 +163,8 @@ Format your response as JSON with this structure:
    */
   getProblem: protectedProcedure
     .input(z.object({ problemId: z.number() }))
-    .query(async ({ input }) => {
-      const problem = await getMathProblem(input.problemId);
+    .query(async ({ ctx, input }) => {
+      const problem = await dbRoleAware.getMathProblem(ctx, input.problemId);
       return problem;
     }),
 
@@ -193,7 +185,7 @@ Format your response as JSON with this structure:
       // Get problem details if problemId provided
       let correctAnswer = null;
       if (input.problemId) {
-        const problem = await getMathProblem(input.problemId);
+        const problem = await dbRoleAware.getMathProblem(ctx, input.problemId);
         correctAnswer = problem?.answer || null;
       }
 
@@ -246,7 +238,7 @@ Is the student's answer correct?`;
         const checkResult = JSON.parse(contentStr);
 
         // Save solution attempt
-        await saveMathSolution({
+        await dbRoleAware.saveMathSolution(ctx, {
           userId,
           problemId: input.problemId || null,
           problemText: input.problemText,
@@ -258,9 +250,9 @@ Is the student's answer correct?`;
         });
 
         // Update progress
-        const progress = await getMathProgress(userId);
+        const progress = await dbRoleAware.getMathProgress(ctx, userId);
         if (progress) {
-          await updateMathProgress(userId, {
+          await dbRoleAware.updateMathProgress(ctx, userId, 'general', {
             totalProblemsAttempted: progress.totalProblemsAttempted + 1,
             totalProblemsSolved: checkResult.isCorrect
               ? progress.totalProblemsSolved + 1
@@ -282,7 +274,7 @@ Is the student's answer correct?`;
   getSolutionHistory: protectedProcedure
     .input(z.object({ limit: z.number().default(20) }))
     .query(async ({ ctx, input }) => {
-      const solutions = await getUserMathSolutions(ctx.user.numericId, input.limit);
+      const solutions = await dbRoleAware.getUserMathSolutions(ctx, ctx.user.numericId, input.limit);
       return solutions;
     }),
 
@@ -290,7 +282,7 @@ Is the student's answer correct?`;
    * Get user's math progress
    */
   getProgress: protectedProcedure.query(async ({ ctx }) => {
-    const progress = await getMathProgress(ctx.user.numericId);
+    const progress = await dbRoleAware.getMathProgress(ctx, ctx.user.numericId);
     return progress;
   }),
 
@@ -305,7 +297,7 @@ Is the student's answer correct?`;
         count: z.number().default(5),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       // Use LLM to generate practice problems
       const systemPrompt = `You are SASS-E, a math tutor generating practice problems.
 Create ${input.count} ${input.difficulty} level problems for the topic: ${input.topic}
@@ -371,7 +363,7 @@ Format your response as JSON:
         // Save problems to database
         const savedProblems = [];
         for (const problem of generatedData.problems) {
-          const problemId = await saveMathProblem({
+          const problemId = await dbRoleAware.saveMathProblem(ctx, {
             topic: input.topic,
             subtopic: null,
             difficulty: input.difficulty,

@@ -1082,8 +1082,8 @@ export async function saveAchievement(
 
 export async function getMathProblems(
   ctx: DbContext,
-  topic: string,
-  difficulty: string,
+  topic?: string,
+  difficulty?: string,
   limit: number = 10
 ) {
   if (ctx.user.role === "admin") {
@@ -1594,17 +1594,23 @@ export async function addDebt(
 
 export async function getUserDebts(
   ctx: DbContext,
-  userId: number
+  userId: number,
+  includeInactive: boolean = false
 ) {
   if (ctx.user.role === "admin") {
-    return await db.getUserDebts(userId);
+    return await db.getUserDebts(userId, includeInactive);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
-    const { data, error } = await supabase
+    let query = supabase
       .from('debts')
       .select('*')
-      .eq('user_id', String(ctx.user.id))
-      .order('created_at', { ascending: false });
+      .eq('user_id', String(ctx.user.id));
+    
+    if (!includeInactive) {
+      query = query.eq('is_paid_off', false);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
     
     if (error) handleSupabaseError(error, 'getUserDebts');
     return data || [];
@@ -1950,15 +1956,20 @@ export async function getDebtSummary(
     
     if (error) handleSupabaseError(error, 'getDebtSummary');
     
-    // Calculate summary
+    // Calculate summary with consistent property names matching MySQL version
     const debts = data || [];
+    const totalBalance = debts.reduce((sum, d) => sum + (d.current_balance || 0), 0);
+    const totalMonthlyMinimum = debts.reduce((sum, d) => sum + (d.minimum_payment || 0), 0);
     return {
-      totalDebt: debts.reduce((sum, d) => sum + (d.current_balance || 0), 0),
-      totalMinimumPayment: debts.reduce((sum, d) => sum + (d.minimum_payment || 0), 0),
+      totalDebts: debts.length,
+      totalBalance,
+      totalOriginalBalance: totalBalance, // Approximate
+      totalPaid: 0, // Not tracked in Supabase yet
       averageInterestRate: debts.length > 0 
         ? debts.reduce((sum, d) => sum + (d.interest_rate || 0), 0) / debts.length 
         : 0,
-      debtCount: debts.length,
+      totalMonthlyMinimum,
+      debtsPaidOff: 0, // Not tracked in Supabase yet
     };
   }
 }
@@ -1994,17 +2005,23 @@ export async function createBudgetCategory(
 
 export async function getUserBudgetCategories(
   ctx: DbContext,
-  userId: number
+  userId: number,
+  type?: "income" | "expense"
 ) {
   if (ctx.user.role === "admin") {
-    return await db.getUserBudgetCategories(userId);
+    return await db.getUserBudgetCategories(userId, type);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
-    const { data, error } = await supabase
+    let query = supabase
       .from('budget_categories')
       .select('*')
-      .eq('user_id', String(ctx.user.id))
-      .order('category_name', { ascending: true });
+      .eq('user_id', String(ctx.user.id));
+    
+    if (type) {
+      query = query.eq('category_type', type);
+    }
+    
+    const { data, error } = await query.order('category_name', { ascending: true });
     
     if (error) handleSupabaseError(error, 'getUserBudgetCategories');
     return data || [];
@@ -2083,11 +2100,15 @@ export async function createBudgetTransaction(
 export async function getUserBudgetTransactions(
   ctx: DbContext,
   userId: number,
-  startDate?: Date,
-  endDate?: Date
+  options?: {
+    categoryId?: number;
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
+  }
 ) {
   if (ctx.user.role === "admin") {
-    return await db.getUserBudgetTransactions(userId, { startDate, endDate });
+    return await db.getUserBudgetTransactions(userId, options);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     let query = supabase
@@ -2095,11 +2116,17 @@ export async function getUserBudgetTransactions(
       .select('*')
       .eq('user_id', String(ctx.user.id));
     
-    if (startDate) {
-      query = query.gte('transaction_date', startDate.toISOString());
+    if (options?.categoryId) {
+      query = query.eq('category_id', options.categoryId);
     }
-    if (endDate) {
-      query = query.lte('transaction_date', endDate.toISOString());
+    if (options?.startDate) {
+      query = query.gte('transaction_date', options.startDate.toISOString());
+    }
+    if (options?.endDate) {
+      query = query.lte('transaction_date', options.endDate.toISOString());
+    }
+    if (options?.limit) {
+      query = query.limit(options.limit);
     }
     
     const { data, error } = await query.order('transaction_date', { ascending: false });
@@ -2155,15 +2182,15 @@ export async function deleteBudgetTransaction(
 export async function calculateMonthlyBudgetSummary(
   ctx: DbContext,
   userId: number,
-  month: number,
-  year: number
+  monthYear: string
 ) {
   if (ctx.user.role === "admin") {
-    return await db.calculateMonthlyBudgetSummary(userId, `${year}-${String(month).padStart(2, "0")}`);
+    return await db.calculateMonthlyBudgetSummary(userId, monthYear);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0, 23, 59, 59);
+    const [year, month] = monthYear.split("-");
+    const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
     
     const { data, error } = await supabase
       .from('budget_transactions')
@@ -2182,13 +2209,34 @@ export async function calculateMonthlyBudgetSummary(
       .filter(t => t.transaction_type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
     
+    // Get debt payments (approximate - would need separate query in production)
+    const totalDebtPayments = 0; // Not tracked separately in Supabase yet
+    
+    const netCashFlow = totalIncome - totalExpenses - totalDebtPayments;
+    const availableForExtraPayments = Math.max(0, netCashFlow);
+    
+    const savingsRate = totalIncome > 0 ? Math.round((netCashFlow / totalIncome) * 10000) : 0;
+    const debtPaymentRate = totalIncome > 0 ? Math.round((totalDebtPayments / totalIncome) * 10000) : 0;
+
+    // Determine budget health
+    let budgetHealth: "excellent" | "good" | "warning" | "critical" = "excellent";
+    if (netCashFlow < 0) {
+      budgetHealth = "critical";
+    } else if (savingsRate < 1000) { // Less than 10% savings
+      budgetHealth = "warning";
+    } else if (savingsRate < 2000) { // Less than 20% savings
+      budgetHealth = "good";
+    }
+
     return {
-      month,
-      year,
       totalIncome,
       totalExpenses,
-      netSavings: totalIncome - totalExpenses,
-      transactionCount: transactions.length,
+      totalDebtPayments,
+      netCashFlow,
+      savingsRate,
+      debtPaymentRate,
+      availableForExtraPayments,
+      budgetHealth,
     };
   }
 }
@@ -2245,15 +2293,15 @@ export async function getUserMonthlyBudgetSummaries(
 export async function getCategorySpendingBreakdown(
   ctx: DbContext,
   userId: number,
-  month: number,
-  year: number
+  monthYear: string
 ) {
   if (ctx.user.role === "admin") {
-    return await db.getCategorySpendingBreakdown(userId, `${year}-${String(month).padStart(2, "0")}`);
+    return await db.getCategorySpendingBreakdown(userId, monthYear);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0, 23, 59, 59);
+    const [year, month] = monthYear.split("-");
+    const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
     
     const { data, error } = await supabase
       .from('budget_transactions')

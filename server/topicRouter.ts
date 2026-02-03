@@ -1,14 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import {
-  getTopicProgress,
-  updateTopicProgress,
-  getCategoryProgress,
-  saveQuizResult,
-  getQuizResults,
-  savePracticeSession,
-  getPracticeSessions,
-} from "./db";
+import * as dbRoleAware from "./dbRoleAware";
 import { invokeLLM } from "./_core/llm";
 
 /**
@@ -29,7 +21,7 @@ export const topicRouter = router({
       const userId = ctx.user.numericId;
 
       // Get or create progress
-      const progress = await getTopicProgress(userId, input.topicName, input.category);
+      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
 
       // Generate lesson content using LLM
       const systemPrompt = `You are SASS-E (Synthetic Adaptive Synaptic System - Entity), a witty and clever math tutor for young learners.
@@ -131,7 +123,7 @@ Format your response as JSON:
 
         // Update progress to "learning" status
         if (progress && progress.status === "not_started") {
-          await updateTopicProgress(userId, input.topicName, input.category, {
+          await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
             status: "learning",
           });
         }
@@ -159,7 +151,7 @@ Format your response as JSON:
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.user.numericId;
 
-      await updateTopicProgress(userId, input.topicName, input.category, {
+      await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
         lessonCompleted: 1,
         status: "practicing",
       });
@@ -182,7 +174,7 @@ Format your response as JSON:
       const userId = ctx.user.numericId;
 
       // Get current progress
-      const progress = await getTopicProgress(userId, input.topicName, input.category);
+      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
 
       const systemPrompt = `You are SASS-E, creating practice problems for "${input.topicName}" for Pre-K to Grade 2 students.
 
@@ -279,9 +271,9 @@ Format your response as JSON:
         input.userAnswer.trim().toLowerCase() === input.correctAnswer.trim().toLowerCase();
 
       // Update practice count
-      const progress = await getTopicProgress(userId, input.topicName, input.category);
+      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
       if (progress) {
-        await updateTopicProgress(userId, input.topicName, input.category, {
+        await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
           practiceCount: progress.practiceCount + 1,
         });
       }
@@ -315,7 +307,7 @@ Format your response as JSON:
       const accuracy = Math.round((input.problemsCorrect / input.problemsSolved) * 100);
 
       // Save practice session
-      await savePracticeSession({
+      await dbRoleAware.savePracticeSession(ctx, {
         userId,
         topicName: input.topicName,
         category: input.category,
@@ -327,7 +319,7 @@ Format your response as JSON:
       });
 
       // Update progress
-      const progress = await getTopicProgress(userId, input.topicName, input.category);
+      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
       if (progress) {
         // Calculate new mastery level based on practice performance
         const newMastery = Math.min(
@@ -335,7 +327,7 @@ Format your response as JSON:
           Math.round((progress.masteryLevel + accuracy) / 2)
         );
 
-        await updateTopicProgress(userId, input.topicName, input.category, {
+        await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
           masteryLevel: newMastery,
         });
       }
@@ -470,7 +462,7 @@ Format your response as JSON:
         .map((a) => a.question.substring(0, 50));
 
       // Save quiz result
-      await saveQuizResult({
+      await dbRoleAware.saveQuizResult(ctx, {
         userId,
         topicName: input.topicName,
         category: input.category,
@@ -484,13 +476,13 @@ Format your response as JSON:
       });
 
       // Update progress
-      const progress = await getTopicProgress(userId, input.topicName, input.category);
+      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
       if (progress) {
         const newQuizzesTaken = progress.quizzesTaken + 1;
         const newBestScore = Math.max(progress.bestQuizScore, score);
         const newMasteryLevel = Math.min(100, Math.round((progress.masteryLevel + score) / 2));
 
-        await updateTopicProgress(userId, input.topicName, input.category, {
+        await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
           quizzesTaken: newQuizzesTaken,
           bestQuizScore: newBestScore,
           masteryLevel: newMasteryLevel,
@@ -526,7 +518,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const progress = await getTopicProgress(ctx.user.numericId, input.topicName, input.category);
+      const progress = await dbRoleAware.getTopicProgress(ctx, ctx.user.numericId, input.topicName, input.category);
       return progress;
     }),
 
@@ -540,7 +532,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const progressList = await getCategoryProgress(ctx.user.numericId, input.category);
+      const progressList = await dbRoleAware.getCategoryProgress(ctx, ctx.user.numericId, input.category);
       return progressList;
     }),
 
@@ -555,7 +547,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const results = await getQuizResults(ctx.user.numericId, input.topicName, input.category);
+      const results = await dbRoleAware.getQuizResults(ctx, ctx.user.numericId, input.topicName, input.category);
       return results;
     }),
 
@@ -570,7 +562,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const sessions = await getPracticeSessions(ctx.user.numericId, input.topicName, input.category);
+      const sessions = await dbRoleAware.getPracticeSessions(ctx, ctx.user.numericId, input.topicName, input.category);
       return sessions;
     }),
 });

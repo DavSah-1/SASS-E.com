@@ -1,25 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
-import {
-  addDebt,
-  getUserDebts,
-  getDebtById,
-  updateDebt,
-  deleteDebt,
-  recordDebtPayment,
-  getDebtPaymentHistory,
-  getAllUserPayments,
-  saveDebtStrategy,
-  getLatestStrategy,
-  saveDebtMilestone,
-  getUserMilestones,
-  saveCoachingSession,
-  getRecentCoachingSessions,
-  saveBudgetSnapshot,
-  getBudgetSnapshots,
-  getDebtSummary,
-} from "./db";
+import * as dbRoleAware from "./dbRoleAware";
 
 /**
  * Debt Elimination Financial Coach Router
@@ -53,13 +35,13 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await addDebt({
+      await dbRoleAware.addDebt(ctx, {
         userId: ctx.user.numericId,
         ...input,
       });
 
       // Generate welcome coaching message for first debt
-      const userDebts = await getUserDebts(ctx.user.numericId);
+      const userDebts = await dbRoleAware.getUserDebts(ctx, ctx.user.numericId);
       if (userDebts.length === 1) {
         const coachingMessage = await generateCoachingMessage(
           ctx.user.numericId,
@@ -67,7 +49,7 @@ export const debtCoachRouter = router({
           { debtName: input.debtName, balance: input.currentBalance }
         );
         
-        await saveCoachingSession({
+        await dbRoleAware.saveCoachingSession(ctx, {
           userId: ctx.user.numericId,
           sessionType: "welcome",
           message: coachingMessage,
@@ -88,7 +70,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const debts = await getUserDebts(ctx.user.numericId, input.includeInactive);
+      const debts = await dbRoleAware.getUserDebts(ctx, ctx.user.numericId, input.includeInactive);
       return debts;
     }),
 
@@ -98,7 +80,7 @@ export const debtCoachRouter = router({
   getDebt: protectedProcedure
     .input(z.object({ debtId: z.number().int().positive() }))
     .query(async ({ ctx, input }) => {
-      const debt = await getDebtById(input.debtId, ctx.user.numericId);
+      const debt = await dbRoleAware.getDebtById(ctx, input.debtId);
       if (!debt) {
         throw new Error("Debt not found");
       }
@@ -125,7 +107,7 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await updateDebt(input.debtId, ctx.user.numericId, input.updates);
+      await dbRoleAware.updateDebt(ctx, input.debtId, input.updates);
       return { success: true, message: "Debt updated successfully" };
     }),
 
@@ -135,7 +117,7 @@ export const debtCoachRouter = router({
   deleteDebt: protectedProcedure
     .input(z.object({ debtId: z.number().int().positive() }))
     .mutation(async ({ ctx, input }) => {
-      await deleteDebt(input.debtId, ctx.user.numericId);
+      await dbRoleAware.deleteDebt(ctx, input.debtId);
       return { success: true, message: "Debt deleted successfully" };
     }),
 
@@ -154,7 +136,7 @@ export const debtCoachRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Get current debt to calculate new balance
-      const debt = await getDebtById(input.debtId, ctx.user.numericId);
+      const debt = await dbRoleAware.getDebtById(ctx, input.debtId);
       if (!debt) {
         throw new Error("Debt not found");
       }
@@ -166,7 +148,7 @@ export const debtCoachRouter = router({
       const balanceAfter = Math.max(0, debt.currentBalance - principalPaid);
 
       // Record the payment
-      await recordDebtPayment({
+      await dbRoleAware.recordDebtPayment(ctx, {
         debtId: input.debtId,
         userId: ctx.user.numericId,
         amount: input.amount,
@@ -179,7 +161,7 @@ export const debtCoachRouter = router({
       });
 
       // Check for milestones
-      await checkAndAwardMilestones(ctx.user.numericId, input.debtId, debt, balanceAfter);
+      await checkAndAwardMilestones(ctx, ctx.user.numericId, input.debtId, debt, balanceAfter);
 
       // Generate coaching message
       const coachingMessage = await generateCoachingMessage(
@@ -193,7 +175,7 @@ export const debtCoachRouter = router({
         }
       );
 
-      await saveCoachingSession({
+      await dbRoleAware.saveCoachingSession(ctx, {
         userId: ctx.user.numericId,
         sessionType: "payment_logged",
         message: coachingMessage,
@@ -222,11 +204,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const payments = await getDebtPaymentHistory(
-        input.debtId,
-        ctx.user.numericId,
-        input.limit
-      );
+      const payments = await dbRoleAware.getDebtPaymentHistory(ctx, input.debtId);
       return payments;
     }),
 
@@ -240,7 +218,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const payments = await getAllUserPayments(ctx.user.numericId, input.limit);
+      const payments = await dbRoleAware.getAllUserPayments(ctx, ctx.user.numericId);
       return payments;
     }),
 
@@ -255,7 +233,7 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const debts = await getUserDebts(ctx.user.numericId, false);
+      const debts = await dbRoleAware.getUserDebts(ctx, ctx.user.numericId, false);
 
       if (debts.length === 0) {
         throw new Error("No active debts to calculate strategy");
@@ -331,7 +309,7 @@ export const debtCoachRouter = router({
       const totalInterestSaved = minimumOnlyInterest - totalInterestPaid;
 
       // Save strategy
-      await saveDebtStrategy({
+      await dbRoleAware.saveDebtStrategy(ctx, {
         userId: ctx.user.numericId,
         strategyType: input.strategyType,
         monthlyExtraPayment: input.monthlyExtraPayment,
@@ -363,7 +341,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const strategy = await getLatestStrategy(ctx.user.numericId, input.strategyType);
+      const strategy = await dbRoleAware.getLatestStrategy(ctx, ctx.user.numericId);
       if (!strategy) {
         return null;
       }
@@ -384,7 +362,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const milestones = await getUserMilestones(ctx.user.numericId, input.debtId);
+      const milestones = await dbRoleAware.getUserMilestones(ctx, ctx.user.numericId);
       return milestones;
     }),
 
@@ -398,7 +376,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const sessions = await getRecentCoachingSessions(ctx.user.numericId, input.limit);
+      const sessions = await dbRoleAware.getRecentCoachingSessions(ctx, ctx.user.numericId, input.limit);
       return sessions;
     }),
 
@@ -406,8 +384,8 @@ export const debtCoachRouter = router({
    * Get motivational coaching message
    */
   getMotivation: protectedProcedure.mutation(async ({ ctx }) => {
-    const summary = await getDebtSummary(ctx.user.numericId);
-    const recentPayments = await getAllUserPayments(ctx.user.numericId, 5);
+    const summary = await dbRoleAware.getDebtSummary(ctx, ctx.user.numericId);
+    const recentPayments = await dbRoleAware.getAllUserPayments(ctx, ctx.user.numericId, 5);
 
     const coachingMessage = await generateCoachingMessage(
       ctx.user.numericId,
@@ -418,7 +396,7 @@ export const debtCoachRouter = router({
       }
     );
 
-    await saveCoachingSession({
+    await dbRoleAware.saveCoachingSession(ctx, {
       userId: ctx.user.numericId,
       sessionType: "motivation",
       message: coachingMessage,
@@ -432,7 +410,7 @@ export const debtCoachRouter = router({
    * Get debt summary statistics
    */
   getSummary: protectedProcedure.query(async ({ ctx }) => {
-    const summary = await getDebtSummary(ctx.user.numericId);
+    const summary = await dbRoleAware.getDebtSummary(ctx, ctx.user.numericId);
     return summary;
   }),
 
@@ -452,7 +430,7 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await saveBudgetSnapshot({
+      await dbRoleAware.saveBudgetSnapshot(ctx, {
         userId: ctx.user.numericId,
         ...input,
       });
@@ -470,7 +448,7 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const snapshots = await getBudgetSnapshots(ctx.user.numericId, input.limit);
+      const snapshots = await dbRoleAware.getBudgetSnapshots(ctx, ctx.user.numericId, input.limit);
       return snapshots;
     }),
 });
@@ -526,6 +504,7 @@ Keep messages concise (2-3 sentences), actionable, and celebrate progress.`;
  * Helper: Check and award milestones
  */
 async function checkAndAwardMilestones(
+  ctx: any,
   userId: number,
   debtId: number,
   debt: any,
@@ -534,12 +513,12 @@ async function checkAndAwardMilestones(
   const percentPaid =
     ((debt.originalBalance - newBalance) / debt.originalBalance) * 100;
 
-  const milestones = await getUserMilestones(userId, debtId);
+  const milestones = await dbRoleAware.getUserMilestones(ctx, userId);
   const achievedTypes = new Set(milestones.map((m) => m.milestoneType));
 
   // Check percentage milestones
   if (percentPaid >= 25 && !achievedTypes.has("25_percent_paid")) {
-    await saveDebtMilestone({
+    await dbRoleAware.saveDebtMilestone(ctx, {
       userId,
       debtId,
       milestoneType: "25_percent_paid",
@@ -549,7 +528,7 @@ async function checkAndAwardMilestones(
   }
 
   if (percentPaid >= 50 && !achievedTypes.has("50_percent_paid")) {
-    await saveDebtMilestone({
+    await dbRoleAware.saveDebtMilestone(ctx, {
       userId,
       debtId,
       milestoneType: "50_percent_paid",
@@ -559,7 +538,7 @@ async function checkAndAwardMilestones(
   }
 
   if (percentPaid >= 75 && !achievedTypes.has("75_percent_paid")) {
-    await saveDebtMilestone({
+    await dbRoleAware.saveDebtMilestone(ctx, {
       userId,
       debtId,
       milestoneType: "75_percent_paid",
@@ -570,7 +549,7 @@ async function checkAndAwardMilestones(
 
   // Check if debt is paid off
   if (newBalance === 0 && !achievedTypes.has("debt_paid_off")) {
-    await saveDebtMilestone({
+    await dbRoleAware.saveDebtMilestone(ctx, {
       userId,
       debtId,
       milestoneType: "debt_paid_off",
