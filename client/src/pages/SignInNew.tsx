@@ -356,9 +356,19 @@ export default function SignInNew() {
                       const result = await validatePinMutation.mutateAsync({ pin });
                       if (result.success) {
                         toast.success("PIN verified! Redirecting to admin login...");
-                        // Redirect to Manus OAuth login
-                        const oauthUrl = `https://manus.im/oauth/authorize?client_id=${import.meta.env.VITE_APP_ID}&redirect_uri=${encodeURIComponent(window.location.origin + "/api/oauth/callback")}&response_type=code&state=${btoa(window.location.origin + "/api/oauth/callback")}`;
-                        window.location.href = oauthUrl;
+                        // Redirect to Manus OAuth login using proper OAuth portal URL
+                        const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
+                        const appId = import.meta.env.VITE_APP_ID;
+                        const redirectUri = `${window.location.origin}/api/oauth/callback`;
+                        const state = btoa(redirectUri);
+                        
+                        const url = new URL(`${oauthPortalUrl}/app-auth`);
+                        url.searchParams.set("appId", appId);
+                        url.searchParams.set("redirectUri", redirectUri);
+                        url.searchParams.set("state", state);
+                        url.searchParams.set("type", "signIn");
+                        
+                        window.location.href = url.toString();
                       } else {
                         setPinError("Invalid PIN. Please try again.");
                         setPin("");

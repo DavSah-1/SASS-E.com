@@ -3338,3 +3338,9 @@
 - [x] Verify Admin link is clickable and functional
 - [x] Test PIN dialog appears when Admin link is clicked
 - [x] Test PIN validation and OAuth redirect
+
+
+## OAuth Redirect URL Issue
+- [x] Fix OAuth redirect URL construction in SignInNew.tsx
+- [x] Use VITE_OAUTH_PORTAL_URL instead of hardcoded manus.im URL
+- [x] Test admin login flow with correct OAuth redirect (code verified, needs re-publish to deploy)
