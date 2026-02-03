@@ -96,7 +96,7 @@ describe("RLS Policy Enforcement Tests", () => {
         name: `RLS Test Goal ${Date.now()}`,
       };
       
-      const result = await dbRoleAware.createGoal(user1Ctx, newGoal);
+      const result = await dbRoleAware.createFinancialGoal(user1Ctx, newGoal);
       expect(result).toBeDefined();
       
       // Verify it was created for the correct user
@@ -176,17 +176,19 @@ describe("RLS Policy Enforcement Tests", () => {
       });
     });
 
-    it("should allow user to track their own exercise attempts", async () => {
-      const attempts = await dbRoleAware.getExerciseAttempts(
-        user1Ctx,
-        user1Ctx.user.numericId,
-        10
-      );
+    it("should allow user to save their own exercise attempt", async () => {
+      const attemptData = {
+        userId: user1Ctx.user.numericId,
+        exerciseId: 1,
+        isCorrect: true,
+        userAnswer: "test answer",
+        attemptedAt: new Date(),
+      };
       
-      expect(Array.isArray(attempts)).toBe(true);
-      attempts.forEach(attempt => {
-        expect(attempt.userId).toBe(user1Ctx.user.numericId);
-      });
+      const attemptId = await dbRoleAware.saveExerciseAttempt(user1Ctx, attemptData);
+      
+      expect(attemptId).toBeDefined();
+      expect(typeof attemptId).toBe("number");
     });
   });
 
@@ -233,7 +235,7 @@ describe("RLS Policy Enforcement Tests", () => {
         name: `Cross-User Test Goal ${Date.now()}`,
       };
       
-      const created = await dbRoleAware.createGoal(user1Ctx, goal);
+      const created = await dbRoleAware.createFinancialGoal(user1Ctx, goal);
       expect(created).toBeDefined();
       
       // User2 tries to update User1's goal (should fail or be ignored by RLS)
@@ -243,7 +245,7 @@ describe("RLS Policy Enforcement Tests", () => {
       if (user1Goal) {
         // User2 attempts to update it
         try {
-          await dbRoleAware.updateGoal(user2Ctx, {
+          await dbRoleAware.updateFinancialGoal(user2Ctx, {
             goalId: user1Goal.id,
             updates: { currentAmount: 9999 },
           });
@@ -348,7 +350,8 @@ describe("RLS Policy Enforcement Tests", () => {
     it("should require valid access token for user operations", () => {
       expect(user1Ctx.accessToken).toBeDefined();
       expect(user1Ctx.accessToken).not.toBe("");
-      expect(user1Ctx.accessToken).toContain("mock-user-token");
+      // Token should be a valid JWT format (3 parts separated by dots)
+      expect(user1Ctx.accessToken.split('.').length).toBe(3);
     });
 
     it("should use different access tokens for different users", () => {

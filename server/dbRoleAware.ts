@@ -3794,4 +3794,5 @@ export async function upsertUser(
 
 // ============================================================================
 // Summary: All 156 database functions wrapped successfully!
+// createFinancialGoal, updateFinancialGoal, and saveExerciseAttempt already exist above
 // ============================================================================
