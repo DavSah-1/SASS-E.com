@@ -206,29 +206,12 @@ class SDKServer {
     const signedInAt = new Date();
     
     // For Manus auth, query Manus database
-    let user = await db.getUserBySupabaseId(sessionUserId);
-
-    // If user not in Manus DB, sync from OAuth server
-    if (!user) {
-      try {
-        const userInfo = await this.getUserInfoWithJwt(sessionCookie);
-        await db.upsertUser({
-          supabaseId: userInfo.openId,
-          name: userInfo.name || null,
-          email: userInfo.email ?? null,
-          loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
-          role: "admin", // Manus OAuth users are admins
-          lastSignedIn: signedInAt,
-        });
-        user = await db.getUserBySupabaseId(userInfo.openId);
-      } catch (error) {
-        console.error("[Auth] Failed to sync Manus user:", error);
-        throw ForbiddenError("Failed to sync user info from Manus OAuth");
-      }
-    }
+    // User should already exist from OAuth callback upsert
+    const user = await db.getUserBySupabaseId(sessionUserId);
 
     if (!user) {
-      throw ForbiddenError("User not found in Manus database");
+      console.error("[Auth] User not found in Manus database for openId:", sessionUserId);
+      throw ForbiddenError("User not found in Manus database. Please sign in again.");
     }
 
     // Update last signed in

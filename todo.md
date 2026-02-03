@@ -3351,3 +3351,11 @@
 - [x] Fix user upsert logic to handle Manus OAuth users (map openId to supabaseId)
 - [x] Fix getUserByOpenId to use getUserBySupabaseId
 - [ ] Test admin OAuth login flow end-to-end
+
+
+## OAuth Session Cookie Not Persisting
+- [x] Check server logs for OAuth callback completion
+- [x] Verify session cookie is being set correctly (confirmed via DevTools)
+- [x] Check cookie domain/path/sameSite settings (all correct)
+- [x] Fix authenticateWithManus to not call getUserInfoWithJwt with session cookie
+- [ ] Test admin login with session persistence
