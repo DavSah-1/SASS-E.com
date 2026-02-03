@@ -3323,3 +3323,18 @@
 - [x] Test admin role assignment (ready)
 - [x] Run full integration test suite (8/11 passed, 73%)
 - [x] Generate test report with results
+
+
+## Admin Link Visibility Issue
+- [ ] Investigate why Admin link is not visible on sign-in page
+- [ ] Fix Admin link rendering/visibility
+- [ ] Verify Admin link is clickable and functional
+- [ ] Test PIN dialog appears when Admin link is clicked
+
+
+## Admin Link Visibility Issue
+- [x] Investigate why Admin link is not visible on sign-in page
+- [x] Fix Admin link rendering/visibility (added to SignInNew.tsx)
+- [x] Verify Admin link is clickable and functional
+- [x] Test PIN dialog appears when Admin link is clicked
+- [x] Test PIN validation and OAuth redirect
