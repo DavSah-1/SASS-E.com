@@ -3359,3 +3359,13 @@
 - [x] Check cookie domain/path/sameSite settings (all correct)
 - [x] Fix authenticateWithManus to not call getUserInfoWithJwt with session cookie
 - [ ] Test admin login with session persistence
+
+
+## Admin Login Still Not Working After Fix
+- [x] Check server logs for authentication errors (no errors, auth working)
+- [x] Verify user exists in MySQL database after OAuth callback (user exists)
+- [x] Check if authenticateWithManus is being called correctly (yes, returns user data)
+- [x] Add debug logging to trace authentication flow (confirmed tRPC returns user)
+- [x] Found root cause: VITE_AUTH_MODE=supabase requires both supabaseUser AND meQuery.data
+- [x] Fix useAuth to support dual authentication (check authProvider field from backend)
+- [x] Test admin login shows authenticated UI (SUCCESS - authenticated buttons visible)

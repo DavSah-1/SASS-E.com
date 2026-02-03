@@ -195,19 +195,25 @@ class SDKServer {
   }
 
   private async authenticateWithManus(sessionCookie: string): Promise<UnifiedUser> {
+    console.log("[Auth] authenticateWithManus called");
+    
     // Verify JWT session cookie
     const session = await this.verifySession(sessionCookie);
+    console.log("[Auth] Session verified:", session ? "YES" : "NO", session ? `openId: ${session.openId}` : "");
     
     if (!session) {
+      console.error("[Auth] Session verification failed");
       throw ForbiddenError("Invalid Manus session cookie");
     }
 
     const sessionUserId = session.openId;
     const signedInAt = new Date();
+    console.log("[Auth] Looking up user in Manus DB with openId:", sessionUserId);
     
     // For Manus auth, query Manus database
     // User should already exist from OAuth callback upsert
     const user = await db.getUserBySupabaseId(sessionUserId);
+    console.log("[Auth] User found in Manus DB:", user ? "YES" : "NO", user ? `id: ${user.id}, role: ${user.role}` : "");
 
     if (!user) {
       console.error("[Auth] User not found in Manus database for openId:", sessionUserId);

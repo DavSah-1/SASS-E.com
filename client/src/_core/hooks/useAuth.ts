@@ -71,10 +71,15 @@ export function useAuth(options?: UseAuthOptions) {
       ? supabaseLoading || meQuery.isLoading || logoutMutation.isPending
       : meQuery.isLoading || logoutMutation.isPending;
     
-    // Calculate authenticated state based on auth mode
+    // Calculate authenticated state based on auth mode and provider
+    // If backend returns user data, check the authProvider field
+    const backendAuthProvider = meQuery.data?.authProvider;
+    
     const isAuthenticated = authMode === "supabase"
-      ? Boolean(supabaseUser && meQuery.data)
-      : Boolean(meQuery.data);
+      ? backendAuthProvider === "manus" 
+        ? Boolean(meQuery.data) // Manus OAuth user (admin) - only need backend data
+        : Boolean(supabaseUser && meQuery.data) // Supabase user - need both
+      : Boolean(meQuery.data); // Manus-only mode
     
     return {
       user: meQuery.data ?? null,
