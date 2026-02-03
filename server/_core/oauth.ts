@@ -43,8 +43,9 @@ export function registerOAuthRoutes(app: Express) {
 
       // Use direct db function (not dbRoleAware) since this is a system-level operation
       // that happens before authentication context is established
+      // Map Manus openId to supabaseId field (schema uses supabaseId for both auth methods)
       await db.upsertUser({
-        openId: userInfo.openId, // Store Manus openId
+        supabaseId: userInfo.openId, // Store Manus openId in supabaseId field
         name: userInfo.name || null,
         email: userInfo.email ?? null,
         loginMethod: userInfo.loginMethod ?? userInfo.platform ?? null,
@@ -54,7 +55,7 @@ export function registerOAuthRoutes(app: Express) {
 
       // Get user's session preference
       // Use direct db function (not dbRoleAware) for system-level operation
-      const user = await db.getUserByOpenId(userInfo.openId);
+      const user = await db.getUserBySupabaseId(userInfo.openId);
       const ONE_DAY_MS = 24 * 60 * 60 * 1000;
       const THIRTY_DAYS_MS = 30 * ONE_DAY_MS;
       const sessionDuration = user?.staySignedIn ? THIRTY_DAYS_MS : ONE_DAY_MS;

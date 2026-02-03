@@ -3344,3 +3344,10 @@
 - [x] Fix OAuth redirect URL construction in SignInNew.tsx
 - [x] Use VITE_OAUTH_PORTAL_URL instead of hardcoded manus.im URL
 - [x] Test admin login flow with correct OAuth redirect (code verified, needs re-publish to deploy)
+
+
+## OAuth Callback Error - Missing supabaseId
+- [x] Investigate OAuth callback handler expecting supabaseId
+- [x] Fix user upsert logic to handle Manus OAuth users (map openId to supabaseId)
+- [x] Fix getUserByOpenId to use getUserBySupabaseId
+- [ ] Test admin OAuth login flow end-to-end
