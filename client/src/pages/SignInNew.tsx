@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 
 export default function SignInNew() {
   const [, navigate] = useLocation();
-  const { signInWithMagicLink, signIn, signUp, loading: authLoading } = useSupabaseAuth();
+  const { signInWithMagicLink, signIn, loading: authLoading } = useSupabaseAuth();
   const { isAuthenticated, loading: userLoading } = useAuth();
   
   const [email, setEmail] = useState("");
@@ -73,19 +73,11 @@ export default function SignInNew() {
     }
 
     try {
-      // Try sign in first
+      // Only sign in, no sign up
       const signInResult = await signIn(email, password);
       
       if (signInResult.error) {
-        // If sign in fails, try sign up
-        const signUpResult = await signUp(email, password);
-        
-        if (signUpResult.error) {
-          setError(signUpResult.error.message);
-        } else {
-          // Sign up successful, user will be auto-logged in
-          toast.success("Account created successfully!");
-        }
+        setError("Invalid email or password. Please try again.");
       } else {
         // Sign in successful
         toast.success("Signed in successfully!");
@@ -172,7 +164,7 @@ export default function SignInNew() {
               : pendingPlan
               ? `Complete your ${pendingPlan.tier} plan subscription`
               : authMode === 'password'
-              ? "Sign in or create an account"
+              ? "Sign in to your account"
               : "Enter your email to receive a magic link"
             }
           </CardDescription>
@@ -241,7 +233,7 @@ export default function SignInNew() {
                     disabled={authLoading}
                     className="bg-slate-700/50 border-purple-500/20 text-purple-100 placeholder:text-purple-400/50"
                   />
-                  <p className="text-xs text-purple-400">New users will be automatically registered</p>
+
                 </div>
               )}
 
@@ -257,7 +249,7 @@ export default function SignInNew() {
                   </>
                 ) : (
                   <>
-                    {authMode === 'password' ? 'Sign In / Sign Up' : (
+                    {authMode === 'password' ? 'Sign In' : (
                       <>
                         <Mail className="mr-2 h-4 w-4" />
                         Send Magic Link

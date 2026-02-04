@@ -3375,3 +3375,10 @@
 - [x] Update Navigation component desktop button text from "Get Started" to "Sign In"
 - [x] Update Navigation component mobile menu button text from "Get Started" to "Sign In"
 - [x] Test both desktop and mobile views (code verified, changes applied)
+
+
+## Make Sign-In Page Authentication-Only
+- [x] Remove sign-up option/link from /sign-in page (SignInNew.tsx)
+- [x] Keep Admin link at bottom unchanged
+- [x] Ensure page only allows existing users to sign in
+- [x] Test sign-in page shows authentication form + Admin link only (verified)
