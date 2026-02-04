@@ -124,7 +124,7 @@ export function Navigation() {
             </>
           ) : (
             <Button asChild variant="default" size="sm">
-              <a href={getLoginUrl()}>{translate("Get Started")}</a>
+              <a href={getLoginUrl()}>{translate("Sign In")}</a>
             </Button>
           )}
           </div>
@@ -206,7 +206,7 @@ export function Navigation() {
               </>
             ) : (
               <Button asChild variant="default" className="w-full">
-                <a href={getLoginUrl()}>{translate("Get Started")}</a>
+                <a href={getLoginUrl()}>{translate("Sign In")}</a>
               </Button>
             )}
           </div>
