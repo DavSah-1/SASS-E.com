@@ -3661,3 +3661,15 @@
 - [ ] Test retake functionality
 - [ ] Verify quiz attempts save to database
 - [ ] Test responsive design on mobile/tablet
+
+
+## Learn Finance Quiz TypeScript Fixes and Testing
+- [ ] Fix TypeScript type errors in ArticleQuiz component (quiz data typing)
+- [ ] Test quiz display with Article 1 (Budgeting 101)
+- [ ] Test quiz display with Article 5 (Credit Score)
+- [ ] Test quiz display with Article 10 (Emergency Fund)
+- [ ] Verify quiz submission saves to database
+- [ ] Test pass scenario (4/5 or 5/5 correct)
+- [ ] Test fail scenario (0-3 correct)
+- [ ] Test retake functionality
+- [ ] Verify SASS-E feedback messages display correctly
