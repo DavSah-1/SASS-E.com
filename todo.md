@@ -3382,3 +3382,10 @@
 - [x] Keep Admin link at bottom unchanged
 - [x] Ensure page only allows existing users to sign in
 - [x] Test sign-in page shows authentication form + Admin link only (verified)
+
+
+## Add Translation Hub Section to Home Page
+- [x] Read Home.tsx to understand current hub sections structure
+- [x] Add Translation Hub section between Money Hub and Learning Hub
+- [x] Match style and format of existing hub sections
+- [x] Test home page displays Translation Hub correctly (verified)

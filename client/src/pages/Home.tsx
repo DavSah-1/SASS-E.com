@@ -318,6 +318,129 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Translation Hub Feature Highlight - PREMIUM SECTION */}
+        <div className="mt-16 sm:mt-24">
+          <div className="max-w-6xl mx-auto">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900/40 via-purple-900/40 to-pink-900/40 border-2 border-indigo-500/50 p-8 sm:p-12">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Badge className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 text-sm font-semibold">
+                    <Sparkles className="h-4 w-4 mr-1 inline" />
+                    {t("NEW FEATURE")}
+                  </Badge>
+                </div>
+                
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-4">
+                  <span className="text-5xl sm:text-6xl">🌐</span>{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Translation Hub</span>
+                </h2>
+                <p className="text-lg sm:text-xl text-center text-slate-300 mb-8 max-w-3xl mx-auto">
+                  {t("Break language barriers with AI-powered translation and language learning tools")}
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+                  <Card className="border-indigo-500/30 bg-slate-800/60 backdrop-blur hover:border-indigo-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-indigo-400">
+                        <Languages className="h-5 w-5" />
+                        {t("Text Translation")}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        {t("Translate text between 100+ languages with AI-powered accuracy and context awareness")}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-indigo-500/30 bg-slate-800/60 backdrop-blur hover:border-indigo-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-indigo-400">
+                        <MessageSquare className="h-5 w-5" />
+                        {t("Real-time Conversation")}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        {t("Have natural conversations across languages with voice-to-voice translation")}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-indigo-500/30 bg-slate-800/60 backdrop-blur hover:border-indigo-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-indigo-400">
+                        <BookOpen className="h-5 w-5" />
+                        {t("Document Translation")}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        {t("Upload and translate documents while preserving formatting and structure")}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-indigo-500/30 bg-slate-800/60 backdrop-blur hover:border-indigo-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-indigo-400">
+                        <Zap className="h-5 w-5" />
+                        {t("Phrase Book")}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        {t("Save frequently used phrases and translations for quick access on the go")}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-indigo-500/30 bg-slate-800/60 backdrop-blur hover:border-indigo-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-indigo-400">
+                        <Brain className="h-5 w-5" />
+                        {t("Context Detection")}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        {t("AI understands context, idioms, and cultural nuances for accurate translations")}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-indigo-500/30 bg-slate-800/60 backdrop-blur hover:border-indigo-500/60 transition-all">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-indigo-400">
+                        <GraduationCap className="h-5 w-5" />
+                        {t("Language Learning")}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-slate-300 text-sm">
+                        {t("Learn new languages with interactive lessons, pronunciation guides, and practice exercises")}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="text-center">
+                  <Button asChild size="lg" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold px-8 py-6 text-lg">
+                    <Link href="/translation">
+                      {t("Explore Translation Hub")}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Learning Hub Feature Highlight - PREMIUM SECTION */}
         <div className="mt-16 sm:mt-24">
           <div className="max-w-6xl mx-auto">
