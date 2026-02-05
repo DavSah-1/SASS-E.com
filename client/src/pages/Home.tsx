@@ -254,13 +254,13 @@ export default function Home() {
                   <Card className="border-green-500/30 bg-slate-800/60 backdrop-blur hover:border-green-500/60 transition-all">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-green-400">
-                        <Calculator className="h-5 w-5" />
-                        {t("Loan Calculators")}
+                        <Activity className="h-5 w-5" />
+                        {t("Financial Health Score")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        {t("Calculate mortgages, auto loans, and personal loans with amortization schedules")}
+                        {t("Track overall financial wellness with AI-powered scoring and personalized insights")}
                       </p>
                     </CardContent>
                   </Card>
@@ -268,13 +268,13 @@ export default function Home() {
                   <Card className="border-green-500/30 bg-slate-800/60 backdrop-blur hover:border-green-500/60 transition-all">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-green-400">
-                        <Receipt className="h-5 w-5" />
-                        {t("Receipt Scanner")}
+                        <TrendingDown className="h-5 w-5" />
+                        {t("Cash Flow Tracking")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        {t("Scan receipts with AI, auto-categorize expenses, and track spending patterns")}
+                        {t("Monitor income, expenses, debt payments, and net cash flow in real-time")}
                       </p>
                     </CardContent>
                   </Card>
@@ -296,13 +296,13 @@ export default function Home() {
                   <Card className="border-green-500/30 bg-slate-800/60 backdrop-blur hover:border-green-500/60 transition-all">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-green-400">
-                        <DollarSign className="h-5 w-5" />
-                        {t("Currency Tools")}
+                        <Sparkles className="h-5 w-5" />
+                        {t("AI Financial Insights")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        {t("Real-time currency conversion, multi-currency support, and exchange rate tracking")}
+                        {t("Get personalized AI-powered recommendations to improve your financial health")}
                       </p>
                     </CardContent>
                   </Card>
@@ -391,13 +391,13 @@ export default function Home() {
                   <Card className="border-cyan-500/30 bg-slate-800/60 backdrop-blur hover:border-cyan-500/60 transition-all">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-cyan-400">
-                        <Activity className="h-5 w-5" />
-                        Wearable Sync
+                        <Sparkles className="h-5 w-5" />
+                        AI Wellness Coach
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Connect Apple Health, Google Fit, Fitbit, Garmin, or Samsung Health to auto-sync steps, heart rate, and sleep data
+                        Get personalized recommendations based on your goals, progress, and activity patterns
                       </p>
                     </CardContent>
                   </Card>
@@ -405,13 +405,13 @@ export default function Home() {
                   <Card className="border-cyan-500/30 bg-slate-800/60 backdrop-blur hover:border-cyan-500/60 transition-all">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-cyan-400">
-                        <Smile className="h-5 w-5" />
-                        Sleep & Recovery
+                        <Target className="h-5 w-5" />
+                        Daily Tracking Dashboard
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        Track sleep quality, duration, and patterns to optimize rest and recovery for peak performance
+                        Monitor steps, calories, hydration, and mood in one comprehensive daily view
                       </p>
                     </CardContent>
                   </Card>

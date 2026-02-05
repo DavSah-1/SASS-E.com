@@ -3400,3 +3400,11 @@
 - [x] Check /translate-app page to identify actual implemented features
 - [x] Update Translation Hub section cards on home page to describe actual features
 - [x] Test home page displays accurate Translation Hub feature descriptions (verified)
+
+
+## Update Money Hub and Wellness Hub Cards to Match Actual Feature Pages
+- [x] Check Money Hub page to identify actual implemented features
+- [x] Check Wellness Hub page to identify actual implemented features
+- [x] Update Money Hub section cards on home page to describe actual features
+- [x] Update Wellness Hub section cards on home page to describe actual features
+- [x] Test home page displays accurate hub feature descriptions (verified)
