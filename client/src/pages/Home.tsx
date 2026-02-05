@@ -34,7 +34,10 @@ import {
   Apple,
   Brain,
   Smile,
-  Check
+  Check,
+  ImageIcon,
+  MessagesSquare,
+  Mic
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "wouter";
@@ -497,13 +500,13 @@ export default function Home() {
                   <Card className="border-indigo-500/30 bg-slate-800/60 backdrop-blur hover:border-indigo-500/60 transition-all">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-indigo-400">
-                        <BookOpen className="h-5 w-5" />
-                        {t("Document Translation")}
+                        <ImageIcon className="h-5 w-5" />
+                        {t("Image OCR")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        {t("Upload and translate documents while preserving formatting and structure")}
+                        {t("Extract and translate text from images with optical character recognition")}
                       </p>
                     </CardContent>
                   </Card>
@@ -525,13 +528,13 @@ export default function Home() {
                   <Card className="border-indigo-500/30 bg-slate-800/60 backdrop-blur hover:border-indigo-500/60 transition-all">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-indigo-400">
-                        <Brain className="h-5 w-5" />
-                        {t("Context Detection")}
+                        <MessagesSquare className="h-5 w-5" />
+                        {t("Multilingual Chat")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        {t("AI understands context, idioms, and cultural nuances for accurate translations")}
+                        {t("Chat seamlessly across languages with automatic real-time translation")}
                       </p>
                     </CardContent>
                   </Card>
@@ -539,13 +542,13 @@ export default function Home() {
                   <Card className="border-indigo-500/30 bg-slate-800/60 backdrop-blur hover:border-indigo-500/60 transition-all">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-indigo-400">
-                        <GraduationCap className="h-5 w-5" />
-                        {t("Language Learning")}
+                        <Mic className="h-5 w-5" />
+                        {t("Voice Input")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-slate-300 text-sm">
-                        {t("Learn new languages with interactive lessons, pronunciation guides, and practice exercises")}
+                        {t("Speak naturally and translate your voice input instantly with speech recognition")}
                       </p>
                     </CardContent>
                   </Card>

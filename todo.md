@@ -3394,3 +3394,9 @@
 ## Reorder Hub Sections on Home Page
 - [x] Reorder sections: Money Hub (1st), Wellness Hub (2nd), Translation Hub (3rd), Learning Hub (4th)
 - [x] Test home page displays sections in correct order (verified)
+
+
+## Update Translation Hub Cards to Match /translate-app Features
+- [x] Check /translate-app page to identify actual implemented features
+- [x] Update Translation Hub section cards on home page to describe actual features
+- [x] Test home page displays accurate Translation Hub feature descriptions (verified)
