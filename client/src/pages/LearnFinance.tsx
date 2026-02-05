@@ -225,11 +225,11 @@ export default function LearnFinance() {
             <Card className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/30 hover:border-yellow-400/60 transition-all">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                  <div className="p-2 bg-yellow-500/20 rounded-lg flex-shrink-0">
                     <Target className="h-5 w-5 text-yellow-400" />
                   </div>
-                  <div>
-                    <div className="text-sm font-bold truncate text-yellow-200">{currentTierName}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-bold text-yellow-200 break-words">{currentTierName}</div>
                     <div className="text-xs text-slate-300">Current Tier</div>
                   </div>
                 </div>
