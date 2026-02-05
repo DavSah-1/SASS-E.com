@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { APP_TITLE } from "@/const";
 import { trpc } from "@/lib/trpc";
+import TierAssessment from "@/components/TierAssessment";
 
 // Learning tier structure
 const learningTiers = [
@@ -340,6 +341,20 @@ export default function LearnFinance() {
                   </p>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Tier 1 Completion Assessment */}
+            {selectedTier === 1 && filteredArticles.length > 0 && !searchQuery && (
+              <div className="mt-8">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold mb-2">Ready to Unlock Tier 2?</h3>
+                  <p className="text-muted-foreground">
+                    Complete this 10-question assessment to prove you've mastered Tier 1 fundamentals. 
+                    Score 80% or higher (8/10 correct) to unlock Building Stability content.
+                  </p>
+                </div>
+                <TierAssessment tierId={1} />
+              </div>
             )}
           </div>
         </div>

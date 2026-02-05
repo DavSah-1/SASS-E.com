@@ -9,6 +9,10 @@ import {
   getArticleQuiz,
   submitQuizAttempt,
   getUserQuizAttempts,
+  getTierAssessment,
+  submitTierAssessmentAttempt,
+  getUserTierAssessmentAttempts,
+  hasUserPassedTierAssessment,
 } from "./supabaseDb";
 
 export const learnFinanceRouter = router({
@@ -103,5 +107,54 @@ export const learnFinanceRouter = router({
     .input(z.object({ articleId: z.number() }))
     .query(async ({ ctx, input }) => {
       return await getUserQuizAttempts(String(ctx.user.id), input.articleId);
+    }),
+
+  /**
+   * Get tier assessment by tier ID
+   */
+  getTierAssessment: publicProcedure
+    .input(z.object({ tierId: z.number() }))
+    .query(async ({ input }) => {
+      return await getTierAssessment(input.tierId);
+    }),
+
+  /**
+   * Submit tier assessment attempt (requires authentication)
+   */
+  submitTierAssessmentAttempt: protectedProcedure
+    .input(
+      z.object({
+        tierId: z.number(),
+        answers: z.array(z.string()),
+        score: z.number(),
+        passed: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await submitTierAssessmentAttempt(
+        String(ctx.user.id),
+        input.tierId,
+        input.answers,
+        input.score,
+        input.passed
+      );
+    }),
+
+  /**
+   * Get user's tier assessment attempts
+   */
+  getTierAssessmentAttempts: protectedProcedure
+    .input(z.object({ tierId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      return await getUserTierAssessmentAttempts(String(ctx.user.id), input.tierId);
+    }),
+
+  /**
+   * Check if user has passed a tier assessment
+   */
+  hasPassedTierAssessment: protectedProcedure
+    .input(z.object({ tierId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      return await hasUserPassedTierAssessment(String(ctx.user.id), input.tierId);
     }),
 });

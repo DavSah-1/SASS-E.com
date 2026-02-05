@@ -516,6 +516,38 @@ export type UserQuizAttempt = typeof userQuizAttempts.$inferSelect;
 export type InsertUserQuizAttempt = typeof userQuizAttempts.$inferInsert;
 
 /**
+ * Tier Assessments table - comprehensive assessments for completing each tier
+ */
+export const tierAssessments = pgTable("tier_assessments", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  tierId: integer("tier_id").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  questions: jsonb("questions").notNull(), // Array of 10 assessment questions
+  passRate: text("pass_rate").notNull(), // "0.80" for 80%
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type TierAssessment = typeof tierAssessments.$inferSelect;
+export type InsertTierAssessment = typeof tierAssessments.$inferInsert;
+
+/**
+ * User Tier Assessment Attempts table - tracks tier assessment submissions
+ */
+export const userTierAssessmentAttempts = pgTable("user_tier_assessment_attempts", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: text("user_id").notNull(),
+  tierId: integer("tier_id").notNull(),
+  answers: jsonb("answers").notNull(), // Array of selected answer indices
+  score: integer("score").notNull(), // Number correct out of 10
+  passed: text("passed").notNull(), // "true" or "false"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type UserTierAssessmentAttempt = typeof userTierAssessmentAttempts.$inferSelect;
+export type InsertUserTierAssessmentAttempt = typeof userTierAssessmentAttempts.$inferInsert;
+
+/**
  * Get quiz for an article
  */
 export async function getArticleQuiz(articleId: number): Promise<ArticleQuiz | undefined> {
@@ -603,5 +635,131 @@ export async function getUserQuizAttempts(
   } catch (error) {
     console.error("[Supabase Database] Failed to get attempts:", error);
     return [];
+  }
+}
+
+// ==================== Tier Assessment Functions ====================
+
+/**
+ * Get tier assessment by tier ID
+ */
+export async function getTierAssessment(tierId: number): Promise<TierAssessment | undefined> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot get tier assessment: database not available");
+    return undefined;
+  }
+
+  try {
+    const result = await db
+      .select()
+      .from(tierAssessments)
+      .where(eq(tierAssessments.tierId, tierId))
+      .limit(1);
+    
+    return result.length > 0 ? result[0] : undefined;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to get tier assessment:", error);
+    return undefined;
+  }
+}
+
+/**
+ * Submit a tier assessment attempt
+ */
+export async function submitTierAssessmentAttempt(
+  userId: string,
+  tierId: number,
+  answers: string[],
+  score: number,
+  passed: boolean
+): Promise<UserTierAssessmentAttempt> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot submit tier assessment: database not available");
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db
+      .insert(userTierAssessmentAttempts)
+      .values({
+        userId,
+        tierId,
+        answers,
+        score,
+        passed: passed ? "true" : "false",
+      })
+      .returning();
+    
+    return result[0];
+  } catch (error) {
+    console.error("[Supabase Database] Failed to submit tier assessment:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get user's tier assessment attempts
+ */
+export async function getUserTierAssessmentAttempts(
+  userId: string,
+  tierId: number
+): Promise<UserTierAssessmentAttempt[]> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot get tier assessment attempts: database not available");
+    return [];
+  }
+
+  try {
+    const attempts = await db
+      .select()
+      .from(userTierAssessmentAttempts)
+      .where(
+        and(
+          eq(userTierAssessmentAttempts.userId, userId),
+          eq(userTierAssessmentAttempts.tierId, tierId)
+        )
+      )
+      .orderBy(userTierAssessmentAttempts.createdAt);
+    
+    return attempts;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to get tier assessment attempts:", error);
+    return [];
+  }
+}
+
+/**
+ * Check if user has passed a tier assessment
+ */
+export async function hasUserPassedTierAssessment(
+  userId: string,
+  tierId: number
+): Promise<boolean> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot check tier assessment: database not available");
+    return false;
+  }
+
+  try {
+    const attempts = await db
+      .select()
+      .from(userTierAssessmentAttempts)
+      .where(
+        and(
+          eq(userTierAssessmentAttempts.userId, userId),
+          eq(userTierAssessmentAttempts.tierId, tierId),
+          eq(userTierAssessmentAttempts.passed, "true")
+        )
+      )
+      .limit(1);
+    
+    return attempts.length > 0;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to check tier assessment:", error);
+    return false;
   }
 }
