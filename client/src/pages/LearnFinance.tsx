@@ -21,6 +21,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { APP_TITLE } from "@/const";
+import { trpc } from "@/lib/trpc";
 
 // Learning tier structure
 const learningTiers = [
@@ -89,8 +90,8 @@ const learningTiers = [
   }
 ];
 
-// Sample articles for demonstration
-const sampleArticles = [
+// Sample articles for demonstration (fallback)
+const sampleArticlesFallback = [
   {
     id: 1,
     tierId: 1,
@@ -128,8 +129,25 @@ const sampleArticles = [
 
 export default function LearnFinance() {
   const { user, isAuthenticated } = useAuth();
-  const [selectedTier, setSelectedTier] = useState(1);
+  const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Fetch real articles from database
+  const { data: articles, isLoading } = trpc.learnFinance.getArticles.useQuery();
+  
+  // Use real articles or fallback to sample data
+  const sampleArticles = articles?.map((article, index) => ({
+    id: article.id,
+    tierId: 1, // All Tier 1 articles for now
+    title: article.title,
+    slug: article.slug,
+    summary: article.summary || "",
+    estimatedReadTime: article.readTime,
+    difficulty: article.difficulty as "beginner" | "intermediate" | "advanced",
+    tags: article.tags?.split(",") || [],
+    completed: false,
+    progress: 0
+  })) || sampleArticlesFallback;
 
   const selectedTierData = learningTiers.find(t => t.id === selectedTier);
   const filteredArticles = sampleArticles.filter(

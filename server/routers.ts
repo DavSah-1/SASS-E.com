@@ -21,6 +21,7 @@ import { topicRouter } from "./topicRouter";
 import { translateChatRouter } from "./translateChatRouter";
 import { translationRouter as i18nRouter } from "./translationRouter";
 import { adminPinRouter } from "./adminPinRouter";
+import { learnFinanceRouter } from "./learnFinanceRouter";
 import { toNumericId } from "./_core/dbWrapper";
 
 export const appRouter = router({
@@ -37,6 +38,7 @@ export const appRouter = router({
   topic: topicRouter,
   translateChat: translateChatRouter,
   i18n: i18nRouter,
+  learnFinance: learnFinanceRouter,
 
   subscription: router({
     selectHubs: protectedProcedure

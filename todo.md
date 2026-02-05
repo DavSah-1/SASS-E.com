@@ -3579,3 +3579,18 @@
 - [x] Match visual style of existing cards (Math Tutor, Language Learning, Science Lab)
 - [x] Link card to /learn-finance route
 - [x] Test navigation flow from Learning Hub to Learn Finance page - working correctly
+
+
+## Learn Finance MVP Implementation (Phase 1 - Supabase Only)
+- [x] Read dual-database-routing skill to understand architecture pattern
+- [x] Create Learn Finance schema in Users Database (Supabase/PRIMARY)
+- [ ] Create Learn Finance schema in Admin Database (MySQL/SECONDARY) - deferred to Phase 2
+- [ ] Set up database routing layer for Learn Finance - deferred to Phase 2
+- [x] Create tRPC procedures (getArticles, getArticle, getProgress, updateProgress, getGlossary)
+- [x] Add database helper functions in supabaseDb.ts for Learn Finance
+- [x] Insert 10 Tier 1 articles into Supabase Database
+- [ ] Insert 10 Tier 1 articles into MySQL Database - deferred to Phase 2
+- [x] Test article retrieval from Supabase database - all 10 articles display correctly
+- [x] Verify RLS policies work correctly (public read for articles, user-specific for progress)
+- [x] Update LearnFinance.tsx to fetch real articles from tRPC
+- [x] Test Learn Finance page with real data - working perfectly
