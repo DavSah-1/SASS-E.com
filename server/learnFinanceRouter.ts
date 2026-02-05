@@ -6,6 +6,9 @@ import {
   getUserLearningProgress,
   updateUserLearningProgress,
   getFinancialGlossaryTerms,
+  getArticleQuiz,
+  submitQuizAttempt,
+  getUserQuizAttempts,
 } from "./supabaseDb";
 
 export const learnFinanceRouter = router({
@@ -60,5 +63,45 @@ export const learnFinanceRouter = router({
     .input(z.object({ category: z.string().optional() }).optional())
     .query(async ({ input }) => {
       return await getFinancialGlossaryTerms(input?.category);
+    }),
+
+  /**
+   * Get quiz for an article
+   */
+  getArticleQuiz: publicProcedure
+    .input(z.object({ articleId: z.number() }))
+    .query(async ({ input }) => {
+      return await getArticleQuiz(input.articleId);
+    }),
+
+  /**
+   * Submit quiz attempt (requires authentication)
+   */
+  submitQuizAttempt: protectedProcedure
+    .input(
+      z.object({
+        articleId: z.number(),
+        answers: z.array(z.number()),
+        score: z.number(),
+        passed: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await submitQuizAttempt(
+        String(ctx.user.id),
+        input.articleId,
+        input.answers,
+        input.score,
+        input.passed
+      );
+    }),
+
+  /**
+   * Get user's quiz attempts for an article
+   */
+  getQuizAttempts: protectedProcedure
+    .input(z.object({ articleId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      return await getUserQuizAttempts(String(ctx.user.id), input.articleId);
     }),
 });

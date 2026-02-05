@@ -483,3 +483,125 @@ export async function getFinancialGlossaryTerms(
     return [];
   }
 }
+
+// ==================== Learn Finance Quiz Functions ====================
+
+/**
+ * Article Quizzes table - quiz questions for each article
+ */
+export const articleQuizzes = pgTable("article_quizzes", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  articleId: integer("article_id").notNull(),
+  questions: jsonb("questions").notNull(), // Array of quiz questions
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ArticleQuiz = typeof articleQuizzes.$inferSelect;
+export type InsertArticleQuiz = typeof articleQuizzes.$inferInsert;
+
+/**
+ * User Quiz Attempts table - tracks quiz submissions
+ */
+export const userQuizAttempts = pgTable("user_quiz_attempts", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: text("user_id").notNull(),
+  articleId: integer("article_id").notNull(),
+  answers: jsonb("answers").notNull(), // Array of selected answer indices
+  score: integer("score").notNull(), // Number correct
+  passed: text("passed").notNull(), // "true" or "false"
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type UserQuizAttempt = typeof userQuizAttempts.$inferSelect;
+export type InsertUserQuizAttempt = typeof userQuizAttempts.$inferInsert;
+
+/**
+ * Get quiz for an article
+ */
+export async function getArticleQuiz(articleId: number): Promise<ArticleQuiz | undefined> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot get quiz: database not available");
+    return undefined;
+  }
+
+  try {
+    const result = await db
+      .select()
+      .from(articleQuizzes)
+      .where(eq(articleQuizzes.articleId, articleId))
+      .limit(1);
+    
+    return result.length > 0 ? result[0] : undefined;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to get quiz:", error);
+    return undefined;
+  }
+}
+
+/**
+ * Submit a quiz attempt
+ */
+export async function submitQuizAttempt(
+  userId: string,
+  articleId: number,
+  answers: number[],
+  score: number,
+  passed: boolean
+): Promise<UserQuizAttempt> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot submit quiz: database not available");
+    throw new Error("Database not available");
+  }
+
+  try {
+    const result = await db
+      .insert(userQuizAttempts)
+      .values({
+        userId,
+        articleId,
+        answers,
+        score,
+        passed: passed ? "true" : "false",
+      })
+      .returning();
+    
+    return result[0];
+  } catch (error) {
+    console.error("[Supabase Database] Failed to submit quiz:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get user's quiz attempts for an article
+ */
+export async function getUserQuizAttempts(
+  userId: string,
+  articleId: number
+): Promise<UserQuizAttempt[]> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot get attempts: database not available");
+    return [];
+  }
+
+  try {
+    const attempts = await db
+      .select()
+      .from(userQuizAttempts)
+      .where(
+        and(
+          eq(userQuizAttempts.userId, userId),
+          eq(userQuizAttempts.articleId, articleId)
+        )
+      )
+      .orderBy(userQuizAttempts.createdAt);
+    
+    return attempts;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to get attempts:", error);
+    return [];
+  }
+}

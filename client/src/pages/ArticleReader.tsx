@@ -14,6 +14,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import ArticleQuiz from "@/components/ArticleQuiz";
 
 export default function ArticleReader() {
   const [, params] = useRoute("/learn-finance/article/:slug");
@@ -144,6 +145,9 @@ export default function ArticleReader() {
 
               {/* Article Content */}
               <ReactMarkdown>{article.content}</ReactMarkdown>
+
+              {/* Article Quiz */}
+              <ArticleQuiz articleId={article.id} />
 
               {/* Mark as Complete */}
               <div className="mt-12 p-6 border rounded-lg bg-muted/50">
