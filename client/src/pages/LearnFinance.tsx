@@ -166,29 +166,105 @@ export default function LearnFinance() {
      article.summary.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  // Calculate user stats
+  const totalArticles = sampleArticles.length;
+  const completedArticles = sampleArticles.filter(a => a.progress === 100).length;
+  const passedQuizzes = 3; // TODO: Get from backend
+  const currentTierName = selectedTierData?.name || "Tier 1: Foundational";
+  const studyStreak = 5; // TODO: Get from backend
+  const overallProgress = Math.round((completedArticles / totalArticles) * 100);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="container py-16">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+      {/* Compact Header with Stats */}
+      <div className="bg-gradient-to-b from-purple-900/20 to-background border-b">
+        <div className="container py-8">
+          {/* Title and Subtitle */}
+          <div className="mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">
               Learn Finance
             </h1>
-            <p className="text-xl text-blue-50 mb-6">
-              Master personal finance with SASS-E's sarcastic yet straightforward approach. 
-              From budgeting basics to advanced investing, we've got your financial education covered.
+            <p className="text-muted-foreground">
+              Master personal finance with SASS-E's sarcastic yet straightforward approach
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Button size="lg" variant="secondary">
-                <BookOpen className="mr-2 h-5 w-5" />
-                Start Learning
-              </Button>
-              <Button size="lg" variant="outline" className="bg-white/10 hover:bg-white/20 text-white border-white/30">
-                <Award className="mr-2 h-5 w-5" />
-                View Progress
-              </Button>
-            </div>
+          </div>
+
+          {/* Stats Row */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {/* Articles Completed */}
+            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/10 rounded-lg">
+                    <BookOpen className="h-5 w-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold">{completedArticles}/{totalArticles}</div>
+                    <div className="text-xs text-muted-foreground">Articles</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quizzes Passed */}
+            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-500/10 rounded-lg">
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold">{passedQuizzes}/{totalArticles}</div>
+                    <div className="text-xs text-muted-foreground">Quizzes</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Current Tier */}
+            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-500/10 rounded-lg">
+                    <Target className="h-5 w-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold truncate">{currentTierName}</div>
+                    <div className="text-xs text-muted-foreground">Current Tier</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Study Streak */}
+            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-orange-500/10 rounded-lg">
+                    <Clock className="h-5 w-5 text-orange-500" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold">{studyStreak}</div>
+                    <div className="text-xs text-muted-foreground">Day Streak</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Overall Progress */}
+            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-pink-500/10 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-pink-500" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold">{overallProgress}%</div>
+                    <div className="text-xs text-muted-foreground">Progress</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
