@@ -3529,3 +3529,10 @@
 - [x] Modify grid to stack vertically (1 column) on screens < 480px (changed from md:grid-cols-2 to sm:grid-cols-2)
 - [x] Test calculator inputs on mobile viewport (375px) - inputs now stack vertically
 - [x] Verify layout works on tablet (768px) and desktop (1024px+) - 2-column grid on larger screens
+
+
+## Money Hub Overview Tab - Financial Insights Button Overflow Fix
+- [x] Investigate Financial Insights card layout in Money.tsx (found in FinancialInsights.tsx component)
+- [x] Identify why buttons are going off-frame on insight cards (no padding for close button, no text wrapping)
+- [x] Fix button layout to stay within card boundaries (added pr-8, break-words, whitespace-normal, h-auto)
+- [x] Test on mobile, tablet, and desktop viewports - buttons now stay within card boundaries
