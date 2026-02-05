@@ -193,7 +193,7 @@ export default function Budget() {
                 Track income and expenses to maximize debt payments
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Dialog open={addCategoryOpen} onOpenChange={setAddCategoryOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="gap-2">
