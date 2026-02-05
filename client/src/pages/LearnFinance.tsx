@@ -26,6 +26,8 @@ import {
 import { APP_TITLE } from "@/const";
 import { trpc } from "@/lib/trpc";
 import TierAssessment from "@/components/TierAssessment";
+import { Navigation } from "@/components/Navigation";
+import { Footer } from "@/components/Footer";
 
 // Learning tier structure
 const learningTiers = [
@@ -218,7 +220,9 @@ export default function LearnFinance() {
   const overallProgress = userStats?.overallProgress ?? 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       {/* Compact Header with Stats */}
       <div className="bg-gradient-to-b from-yellow-900/20 to-background border-b border-yellow-500/20">
         <div className="container py-8">
@@ -516,5 +520,7 @@ export default function LearnFinance() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }

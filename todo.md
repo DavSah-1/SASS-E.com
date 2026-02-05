@@ -3742,3 +3742,10 @@
 - [x] Build Badge component for display - Badge.tsx with tier colors and locked state
 - [x] Add badges row below stats cards on Learn Finance page - "Your Achievements" section added
 - [x] Test badge earning and display - showing "No badges available yet" (need to call checkAndAwardBadges)
+
+## Add Navbar and Footer to Learn Finance Page
+- [x] Find navbar component used on other pages (Home, Learning, etc.) - Navigation.tsx found
+- [x] Find footer component used on other pages - Footer.tsx found
+- [x] Import navbar and footer into LearnFinance page - imports added
+- [x] Wrap LearnFinance content with navbar and footer layout - wrapped with <Navigation /> and <Footer />
+- [x] Test navbar and footer display and responsiveness - navbar sticky at top, footer at bottom with links
