@@ -763,3 +763,106 @@ export async function hasUserPassedTierAssessment(
     return false;
   }
 }
+
+/**
+ * Check if user has passed all article quizzes in a tier
+ * For Tier 1: Check if user has passed all 10 article quizzes
+ */
+export async function hasUserPassedAllTierQuizzes(
+  userId: string,
+  tierId: number
+): Promise<boolean> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot check tier quizzes: database not available");
+    return false;
+  }
+
+  try {
+    // For Tier 1: Get all published articles (currently all are Tier 1)
+    if (tierId === 1) {
+      const allArticles = await db
+        .select()
+        .from(financeArticles)
+        .where(eq(financeArticles.published, "true"));
+      
+      if (allArticles.length === 0) {
+        return false;
+      }
+
+      // Check if user has passed quiz for each article
+      for (const article of allArticles) {
+        const passedAttempts = await db
+          .select()
+          .from(userQuizAttempts)
+          .where(
+            and(
+              eq(userQuizAttempts.userId, userId),
+              eq(userQuizAttempts.articleId, article.id),
+              eq(userQuizAttempts.passed, "true")
+            )
+          )
+          .limit(1);
+        
+        // If user hasn't passed this article's quiz, return false
+        if (passedAttempts.length === 0) {
+          return false;
+        }
+      }
+
+      // User has passed all quizzes in Tier 1
+      return true;
+    }
+
+    // For other tiers: not implemented yet
+    return false;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to check tier quizzes:", error);
+    return false;
+  }
+}
+
+/**
+ * Get user's tier progression status
+ */
+export async function getUserTierProgressionStatus(
+  userId: string
+): Promise<{
+  tier1QuizzesCompleted: boolean;
+  tier1AssessmentPassed: boolean;
+  tier2Unlocked: boolean;
+}> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot get tier progression: database not available");
+    return {
+      tier1QuizzesCompleted: false,
+      tier1AssessmentPassed: false,
+      tier2Unlocked: false,
+    };
+  }
+
+  try {
+    // Check if all Tier 1 quizzes are passed
+    const tier1QuizzesCompleted = await hasUserPassedAllTierQuizzes(userId, 1);
+
+    // Check if Tier 1 assessment is passed
+    const tier1AssessmentPassed = await hasUserPassedTierAssessment(userId, 1);
+
+    // Tier 2 is unlocked if Tier 1 assessment is passed
+    const tier2Unlocked = tier1AssessmentPassed;
+
+    return {
+      tier1QuizzesCompleted,
+      tier1AssessmentPassed,
+      tier2Unlocked,
+    };
+  } catch (error) {
+    console.error("[Supabase Database] Failed to get tier progression:", error);
+    return {
+      tier1QuizzesCompleted: false,
+      tier1AssessmentPassed: false,
+      tier2Unlocked: false,
+    };
+  }
+}

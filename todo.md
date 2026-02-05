@@ -3691,3 +3691,12 @@
 - [x] Build Tier 1 assessment UI component - TierAssessment.tsx created with purple gradient styling
 - [x] Integrate Tier 1 assessment into Learn Finance page - displays after Tier 1 articles
 - [ ] Test Tier 1 assessment submission and scoring (80% pass rate = 8/10 correct) - UI displaying, need to test full submission flow
+
+## Tier Progression Logic Implementation
+- [x] Add backend function to check if all Tier 1 article quizzes are passed - hasUserPassedAllTierQuizzes() implemented
+- [x] Add tRPC procedure to get user's tier unlock status - getTierProgressionStatus() added
+- [x] Update TierAssessment component to show locked state until all Tier 1 quizzes passed - lock icon and message displaying
+- [x] Add visual lock indicator and message for locked Tier 1 Mastery Assessment - "Assessment Locked" card with instructions
+- [x] Update LearnFinance page to lock Tier 2 content until Tier 1 assessment passed - Tier 2 shows lock icon and disabled
+- [x] Add visual lock indicator for Tier 2 in sidebar navigation - "Building Stability 🔒 Pass Tier 1 Assessment"
+- [ ] Test full progression: Complete all Tier 1 quizzes → Unlock assessment → Pass assessment → Unlock Tier 2 - visual confirmation done, need end-to-end test

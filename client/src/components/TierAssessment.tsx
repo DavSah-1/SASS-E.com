@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -11,10 +12,17 @@ interface TierAssessmentProps {
 }
 
 export default function TierAssessment({ tierId }: TierAssessmentProps) {
+  const { isAuthenticated } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
+
+  // Check if user has passed all tier quizzes (required to unlock assessment)
+  const { data: allQuizzesPassed, isLoading: checkingQuizzes } = trpc.learnFinance.hasPassedAllTierQuizzes.useQuery(
+    { tierId },
+    { enabled: isAuthenticated && !!tierId }
+  );
 
   // Fetch assessment data
   const { data: assessmentData, isLoading } = trpc.learnFinance.getTierAssessment.useQuery(
@@ -101,11 +109,40 @@ export default function TierAssessment({ tierId }: TierAssessmentProps) {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || checkingQuizzes) {
     return (
       <Card className="border-2 border-purple-500/20">
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show locked state if user hasn't passed all tier quizzes
+  if (!allQuizzesPassed) {
+    return (
+      <Card className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-pink-500/5">
+        <CardHeader>
+          <div className="flex items-center gap-3 mb-2">
+            <Lock className="w-8 h-8 text-purple-500" />
+            <CardTitle>Tier 1 Mastery Assessment 🔒</CardTitle>
+          </div>
+          <CardDescription>
+            Complete and pass all 10 Tier 1 article quizzes to unlock this assessment.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="p-6 bg-muted/50 rounded-lg text-center">
+            <Lock className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-lg font-semibold mb-2">Assessment Locked</h3>
+            <p className="text-muted-foreground mb-4">
+              You need to pass the quiz for each of the 10 Tier 1 articles before you can take this comprehensive assessment.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              💡 Tip: Each article quiz requires 80% (4/5 correct) to pass. Review the articles and take the quizzes to unlock this assessment.
+            </p>
+          </div>
         </CardContent>
       </Card>
     );

@@ -13,6 +13,8 @@ import {
   submitTierAssessmentAttempt,
   getUserTierAssessmentAttempts,
   hasUserPassedTierAssessment,
+  hasUserPassedAllTierQuizzes,
+  getUserTierProgressionStatus,
 } from "./supabaseDb";
 
 export const learnFinanceRouter = router({
@@ -156,5 +158,22 @@ export const learnFinanceRouter = router({
     .input(z.object({ tierId: z.number() }))
     .query(async ({ ctx, input }) => {
       return await hasUserPassedTierAssessment(String(ctx.user.id), input.tierId);
+    }),
+
+  /**
+   * Check if user has passed all quizzes in a tier
+   */
+  hasPassedAllTierQuizzes: protectedProcedure
+    .input(z.object({ tierId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      return await hasUserPassedAllTierQuizzes(String(ctx.user.id), input.tierId);
+    }),
+
+  /**
+   * Get user's tier progression status
+   */
+  getTierProgressionStatus: protectedProcedure
+    .query(async ({ ctx }) => {
+      return await getUserTierProgressionStatus(String(ctx.user.id));
     }),
 });

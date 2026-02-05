@@ -19,7 +19,8 @@ import {
   Award,
   ChevronRight,
   Bookmark,
-  CheckCircle2
+  CheckCircle2,
+  Lock
 } from "lucide-react";
 import { APP_TITLE } from "@/const";
 import { trpc } from "@/lib/trpc";
@@ -136,6 +137,12 @@ export default function LearnFinance() {
   
   // Fetch real articles from database
   const { data: articles, isLoading } = trpc.learnFinance.getArticles.useQuery();
+
+  // Get user's tier progression status
+  const { data: tierProgression } = trpc.learnFinance.getTierProgressionStatus.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
   
   // Use real articles or fallback to sample data
   const sampleArticles = articles?.map((article, index) => ({
@@ -199,25 +206,41 @@ export default function LearnFinance() {
               <CardContent className="space-y-2">
                 {learningTiers.map((tier) => {
                   const Icon = tier.icon;
+                  const isTier2 = tier.id === 2;
+                  const isTier2Locked = isTier2 && isAuthenticated && !tierProgression?.tier2Unlocked;
+                  
                   return (
                     <button
                       key={tier.id}
-                      onClick={() => setSelectedTier(tier.id)}
+                      onClick={() => {
+                        if (isTier2Locked) return; // Don't allow clicking locked tiers
+                        setSelectedTier(tier.id);
+                      }}
                       className={`w-full text-left p-3 rounded-lg transition-all ${
                         selectedTier === tier.id
                           ? `${tier.bgColor} border-2 border-current ${tier.color}`
+                          : isTier2Locked
+                          ? "opacity-50 cursor-not-allowed"
                           : "hover:bg-muted"
                       }`}
+                      disabled={isTier2Locked}
                     >
                       <div className="flex items-start gap-3">
-                        <Icon className={`h-5 w-5 mt-0.5 flex-shrink-0 ${tier.color}`} />
+                        {isTier2Locked ? (
+                          <Lock className="h-5 w-5 mt-0.5 flex-shrink-0 text-muted-foreground" />
+                        ) : (
+                          <Icon className={`h-5 w-5 mt-0.5 flex-shrink-0 ${tier.color}`} />
+                        )}
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm mb-1">{tier.name}</div>
+                          <div className="font-medium text-sm mb-1">
+                            {tier.name}
+                            {isTier2Locked && " 🔒"}
+                          </div>
                           <div className="text-xs text-muted-foreground">
-                            {tier.articles} articles
+                            {isTier2Locked ? "Pass Tier 1 Assessment" : `${tier.articles} articles`}
                           </div>
                         </div>
-                        {selectedTier === tier.id && (
+                        {selectedTier === tier.id && !isTier2Locked && (
                           <ChevronRight className="h-4 w-4 flex-shrink-0" />
                         )}
                       </div>
