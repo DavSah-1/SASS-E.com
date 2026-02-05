@@ -3,7 +3,8 @@ import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Badge as BadgeUI } from "@/components/ui/badge";
+import { Badge } from "@/components/Badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
@@ -130,6 +131,42 @@ const sampleArticlesFallback = [
   }
 ];
 
+// Badges Display Component
+function BadgesDisplay() {
+  const { data: allBadges } = trpc.learnFinance.getAllBadges.useQuery();
+  const { data: userBadges } = trpc.learnFinance.getUserBadges.useQuery();
+
+  if (!allBadges || allBadges.length === 0) {
+    return <div className="text-slate-400 text-sm">No badges available yet</div>;
+  }
+
+  const earnedBadgeIds = new Set(userBadges?.map(ub => ub.badgeId) || []);
+
+  // Show first 6 badges (3 earned + 3 locked)
+  const badgesToShow = allBadges.slice(0, 6);
+
+  return (
+    <>
+      {badgesToShow.map(badge => {
+        const isEarned = earnedBadgeIds.has(badge.id);
+        const userBadge = userBadges?.find(ub => ub.badgeId === badge.id);
+
+        return (
+          <Badge
+            key={badge.id}
+            icon={badge.icon || "🏆"}
+            name={badge.name}
+            description={badge.description}
+            tier={badge.tier as any}
+            earnedAt={userBadge?.earnedAt}
+            locked={!isEarned}
+          />
+        );
+      })}
+    </>
+  );
+}
+
 export default function LearnFinance() {
   const { user, isAuthenticated } = useAuth();
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
@@ -166,13 +203,19 @@ export default function LearnFinance() {
      article.summary.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  // Calculate user stats
-  const totalArticles = sampleArticles.length;
-  const completedArticles = sampleArticles.filter(a => a.progress === 100).length;
-  const passedQuizzes = 3; // TODO: Get from backend
-  const currentTierName = selectedTierData?.name || "Tier 1: Foundational";
-  const studyStreak = 5; // TODO: Get from backend
-  const overallProgress = Math.round((completedArticles / totalArticles) * 100);
+  // Fetch real user stats from backend
+  const { data: userStats, isLoading: statsLoading } = trpc.learnFinance.getUserStats.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
+
+  // Use real data or fallback to defaults
+  const completedArticles = userStats?.completedArticles ?? 0;
+  const totalArticles = userStats?.totalArticles ?? 10;
+  const passedQuizzes = userStats?.passedQuizzes ?? 0;
+  const currentTierName = userStats?.currentTierName ?? (selectedTierData?.name || "Tier 1: Foundational");
+  const studyStreak = userStats?.studyStreak ?? 0;
+  const overallProgress = userStats?.overallProgress ?? 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -266,6 +309,20 @@ export default function LearnFinance() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Achievement Badges */}
+          {isAuthenticated && (
+            <div className="mt-8">
+              <h2 className="text-xl font-bold text-yellow-200 mb-4 flex items-center gap-2">
+                <Award className="h-5 w-5" />
+                Your Achievements
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {/* Fetch and display badges */}
+                <BadgesDisplay />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -388,17 +445,17 @@ export default function LearnFinance() {
                   <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
-                      <Badge variant={
+                      <BadgeUI variant={
                         article.difficulty === "beginner" ? "default" :
                         article.difficulty === "intermediate" ? "secondary" : "destructive"
                       }>
                         {article.difficulty}
-                      </Badge>
+                      </BadgeUI>
                       <div className="flex items-center gap-2">
                         {article.progress > 0 && article.progress < 100 && (
-                          <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950">
+                          <BadgeUI variant="outline" className="bg-blue-50 dark:bg-blue-950">
                             {article.progress}%
-                          </Badge>
+                          </BadgeUI>
                         )}
                         {article.progress === 100 && (
                           <CheckCircle2 className="h-5 w-5 text-green-500" />

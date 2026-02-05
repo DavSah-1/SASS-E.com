@@ -15,6 +15,10 @@ import {
   hasUserPassedTierAssessment,
   hasUserPassedAllTierQuizzes,
   getUserTierProgressionStatus,
+  getUserLearnFinanceStats,
+  getAllBadges,
+  getUserBadges,
+  checkAndAwardBadges,
 } from "./supabaseDb";
 
 export const learnFinanceRouter = router({
@@ -175,5 +179,37 @@ export const learnFinanceRouter = router({
   getTierProgressionStatus: protectedProcedure
     .query(async ({ ctx }) => {
       return await getUserTierProgressionStatus(String(ctx.user.id));
+    }),
+
+  /**
+   * Get user's Learn Finance stats (articles, quizzes, tier, streak, progress)
+   */
+  getUserStats: protectedProcedure
+    .query(async ({ ctx }) => {
+      return await getUserLearnFinanceStats(String(ctx.user.id));
+    }),
+
+  /**
+   * Get all available badges
+   */
+  getAllBadges: publicProcedure
+    .query(async () => {
+      return await getAllBadges();
+    }),
+
+  /**
+   * Get user's earned badges
+   */
+  getUserBadges: protectedProcedure
+    .query(async ({ ctx }) => {
+      return await getUserBadges(String(ctx.user.id));
+    }),
+
+  /**
+   * Check and award new badges based on user progress
+   */
+  checkAndAwardBadges: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      return await checkAndAwardBadges(String(ctx.user.id));
     }),
 });

@@ -866,3 +866,243 @@ export async function getUserTierProgressionStatus(
     };
   }
 }
+
+/**
+ * Get user's Learn Finance progress stats
+ */
+export async function getUserLearnFinanceStats(
+  userId: string
+): Promise<{
+  completedArticles: number;
+  totalArticles: number;
+  passedQuizzes: number;
+  currentTier: number;
+  currentTierName: string;
+  studyStreak: number;
+  overallProgress: number;
+}> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot get user stats: database not available");
+    return {
+      completedArticles: 0,
+      totalArticles: 10,
+      passedQuizzes: 0,
+      currentTier: 1,
+      currentTierName: "Tier 1: Foundational",
+      studyStreak: 0,
+      overallProgress: 0,
+    };
+  }
+
+  try {
+    // Get total published articles
+    const allArticles = await db
+      .select()
+      .from(financeArticles)
+      .where(eq(financeArticles.published, "true"));
+    
+    const totalArticles = allArticles.length;
+
+    // Get user's article progress (articles with completed = true)
+    const completedArticlesData = await db
+      .select()
+      .from(userLearningProgress)
+      .where(
+        and(
+          eq(userLearningProgress.userId, userId),
+          eq(userLearningProgress.completed, "true")
+        )
+      );
+    
+    const completedArticles = completedArticlesData.length;
+
+    // Get user's passed quizzes (distinct article IDs with passed = true)
+    const passedQuizzesData = await db
+      .selectDistinct({ articleId: userQuizAttempts.articleId })
+      .from(userQuizAttempts)
+      .where(
+        and(
+          eq(userQuizAttempts.userId, userId),
+          eq(userQuizAttempts.passed, "true")
+        )
+      );
+    
+    const passedQuizzes = passedQuizzesData.length;
+
+    // Determine current tier based on progression
+    let currentTier = 1;
+    let currentTierName = "Tier 1: Foundational";
+    
+    const tier1AssessmentPassed = await hasUserPassedTierAssessment(userId, 1);
+    if (tier1AssessmentPassed) {
+      currentTier = 2;
+      currentTierName = "Tier 2: Building Stability";
+    }
+
+    // Calculate study streak (simplified: days with quiz attempts)
+    // For now, return 0 as placeholder - full implementation would track daily activity
+    const studyStreak = 0;
+
+    // Calculate overall progress (based on completed articles)
+    const overallProgress = totalArticles > 0 
+      ? Math.round((completedArticles / totalArticles) * 100)
+      : 0;
+
+    return {
+      completedArticles,
+      totalArticles,
+      passedQuizzes,
+      currentTier,
+      currentTierName,
+      studyStreak,
+      overallProgress,
+    };
+  } catch (error) {
+    console.error("[Supabase Database] Failed to get user stats:", error);
+    return {
+      completedArticles: 0,
+      totalArticles: 10,
+      passedQuizzes: 0,
+      currentTier: 1,
+      currentTierName: "Tier 1: Foundational",
+      studyStreak: 0,
+      overallProgress: 0,
+    };
+  }
+}
+
+/**
+ * Get all available badges
+ */
+export async function getAllBadges(): Promise<LearningBadge[]> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot get badges: database not available");
+    return [];
+  }
+
+  try {
+    const badges = await db.select().from(learningBadges);
+    return badges;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to get badges:", error);
+    return [];
+  }
+}
+
+/**
+ * Get user's earned badges
+ */
+export async function getUserBadges(userId: string): Promise<(UserLearningBadge & { badge: LearningBadge })[]> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot get user badges: database not available");
+    return [];
+  }
+
+  try {
+    const userBadges = await db
+      .select({
+        id: userLearningBadges.id,
+        userId: userLearningBadges.userId,
+        badgeId: userLearningBadges.badgeId,
+        earnedAt: userLearningBadges.earnedAt,
+        badge: learningBadges,
+      })
+      .from(userLearningBadges)
+      .innerJoin(learningBadges, eq(userLearningBadges.badgeId, learningBadges.id))
+      .where(eq(userLearningBadges.userId, userId));
+
+    return userBadges as any;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to get user badges:", error);
+    return [];
+  }
+}
+
+/**
+ * Award a badge to a user
+ */
+export async function awardBadge(userId: string, badgeId: number): Promise<boolean> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    console.warn("[Supabase Database] Cannot award badge: database not available");
+    return false;
+  }
+
+  try {
+    // Check if user already has this badge
+    const existing = await db
+      .select()
+      .from(userLearningBadges)
+      .where(
+        and(
+          eq(userLearningBadges.userId, userId),
+          eq(userLearningBadges.badgeId, badgeId)
+        )
+      )
+      .limit(1);
+
+    if (existing.length > 0) {
+      return false; // Already earned
+    }
+
+    // Award the badge
+    await db.insert(userLearningBadges).values({
+      userId,
+      badgeId,
+    });
+
+    return true;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to award badge:", error);
+    return false;
+  }
+}
+
+/**
+ * Check and award badges based on user progress
+ */
+export async function checkAndAwardBadges(userId: string): Promise<number[]> {
+  const db = await getSupabaseDb();
+  if (!db) {
+    return [];
+  }
+
+  try {
+    const stats = await getUserLearnFinanceStats(userId);
+    const allBadges = await getAllBadges();
+    const earnedBadgeIds: number[] = [];
+
+    for (const badge of allBadges) {
+      const criteria = JSON.parse(badge.criteria);
+
+      let shouldAward = false;
+
+      // Check criteria
+      if (criteria.type === "articles_completed" && stats.completedArticles >= criteria.count) {
+        shouldAward = true;
+      } else if (criteria.type === "quizzes_passed" && stats.passedQuizzes >= criteria.count) {
+        shouldAward = true;
+      } else if (criteria.type === "study_streak" && stats.studyStreak >= criteria.days) {
+        shouldAward = true;
+      } else if (criteria.type === "tier_completed" && criteria.tier === 1) {
+        const tier1Passed = await hasUserPassedTierAssessment(userId, 1);
+        shouldAward = tier1Passed;
+      }
+
+      if (shouldAward) {
+        const awarded = await awardBadge(userId, badge.id);
+        if (awarded) {
+          earnedBadgeIds.push(badge.id);
+        }
+      }
+    }
+
+    return earnedBadgeIds;
+  } catch (error) {
+    console.error("[Supabase Database] Failed to check and award badges:", error);
+    return [];
+  }
+}

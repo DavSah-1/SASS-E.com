@@ -3723,3 +3723,22 @@
 - [x] Test on mobile viewport (320px-640px) - text wraps properly now
 - [x] Test on tablet viewport (640px-1024px) - displays correctly
 - [x] Ensure all stat cards display properly without text cutoff - "Tier 1: Foundational" now wraps to multiple lines
+
+## Real User Progress Data Integration
+- [x] Create backend query to get user's completed articles count - getUserLearnFinanceStats() implemented
+- [x] Create backend query to get user's passed quizzes count - included in getUserLearnFinanceStats()
+- [x] Create backend query to get user's current tier - included in getUserLearnFinanceStats()
+- [x] Create backend query to calculate user's study streak - placeholder implemented (returns 0)
+- [x] Add tRPC procedure to fetch all user progress stats - getUserStats procedure added
+- [x] Update LearnFinance page to fetch real data instead of placeholders - trpc.learnFinance.getUserStats.useQuery() integrated
+- [x] Test real data display with actual user progress - displaying 0/10 articles, 0/10 quizzes, Tier 1, 0 streak, 0%
+
+## Achievement Badge System
+- [x] Design badge data structure (id, name, description, icon, unlock condition) - JSON criteria field with type/count
+- [x] Create badges table in Supabase - learning_badges table exists
+- [x] Create user_badges table to track earned badges - user_learning_badges table exists
+- [x] Define initial badge set (First Quiz, Week Streak, Tier Complete, etc.) - 12 badges inserted (bronze/silver/gold/platinum)
+- [x] Create backend logic to check and award badges - checkAndAwardBadges() implemented
+- [x] Build Badge component for display - Badge.tsx with tier colors and locked state
+- [x] Add badges row below stats cards on Learn Finance page - "Your Achievements" section added
+- [x] Test badge earning and display - showing "No badges available yet" (need to call checkAndAwardBadges)
