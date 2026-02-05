@@ -177,14 +177,14 @@ export default function LearnFinance() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       {/* Compact Header with Stats */}
-      <div className="bg-gradient-to-b from-purple-900/20 to-background border-b">
+      <div className="bg-gradient-to-b from-yellow-900/20 to-background border-b border-yellow-500/20">
         <div className="container py-8">
           {/* Title and Subtitle */}
           <div className="mb-6">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2 text-yellow-200">
               Learn Finance
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-slate-300">
               Master personal finance with SASS-E's sarcastic yet straightforward approach
             </p>
           </div>
@@ -192,75 +192,75 @@ export default function LearnFinance() {
           {/* Stats Row */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {/* Articles Completed */}
-            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+            <Card className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/30 hover:border-yellow-400/60 transition-all">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <BookOpen className="h-5 w-5 text-blue-500" />
+                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                    <BookOpen className="h-5 w-5 text-yellow-400" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{completedArticles}/{totalArticles}</div>
-                    <div className="text-xs text-muted-foreground">Articles</div>
+                    <div className="text-2xl font-bold text-yellow-200">{completedArticles}/{totalArticles}</div>
+                    <div className="text-xs text-slate-300">Articles</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Quizzes Passed */}
-            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+            <Card className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/30 hover:border-yellow-400/60 transition-all">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                    <CheckCircle2 className="h-5 w-5 text-yellow-400" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{passedQuizzes}/{totalArticles}</div>
-                    <div className="text-xs text-muted-foreground">Quizzes</div>
+                    <div className="text-2xl font-bold text-yellow-200">{passedQuizzes}/{totalArticles}</div>
+                    <div className="text-xs text-slate-300">Quizzes</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Current Tier */}
-            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+            <Card className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/30 hover:border-yellow-400/60 transition-all">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-500/10 rounded-lg">
-                    <Target className="h-5 w-5 text-purple-500" />
+                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                    <Target className="h-5 w-5 text-yellow-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold truncate">{currentTierName}</div>
-                    <div className="text-xs text-muted-foreground">Current Tier</div>
+                    <div className="text-sm font-bold truncate text-yellow-200">{currentTierName}</div>
+                    <div className="text-xs text-slate-300">Current Tier</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Study Streak */}
-            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+            <Card className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/30 hover:border-yellow-400/60 transition-all">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-500/10 rounded-lg">
-                    <Clock className="h-5 w-5 text-orange-500" />
+                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                    <Clock className="h-5 w-5 text-yellow-400" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{studyStreak}</div>
-                    <div className="text-xs text-muted-foreground">Day Streak</div>
+                    <div className="text-2xl font-bold text-yellow-200">{studyStreak}</div>
+                    <div className="text-xs text-slate-300">Day Streak</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Overall Progress */}
-            <Card className="bg-card/50 backdrop-blur border-purple-500/20">
+            <Card className="bg-gradient-to-br from-yellow-900/40 to-orange-900/40 border-2 border-yellow-500/30 hover:border-yellow-400/60 transition-all">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-pink-500/10 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-pink-500" />
+                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-yellow-400" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{overallProgress}%</div>
-                    <div className="text-xs text-muted-foreground">Progress</div>
+                    <div className="text-2xl font-bold text-yellow-200">{overallProgress}%</div>
+                    <div className="text-xs text-slate-300">Progress</div>
                   </div>
                 </div>
               </CardContent>
