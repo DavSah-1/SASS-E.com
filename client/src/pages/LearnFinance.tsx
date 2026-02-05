@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -283,7 +284,8 @@ export default function LearnFinance() {
             {/* Articles Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredArticles.map((article) => (
-                <Card key={article.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
+                <Link key={article.id} href={`/learn-finance/article/${article.slug}`}>
+                  <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <Badge variant={
@@ -324,6 +326,7 @@ export default function LearnFinance() {
                     </div>
                   </CardContent>
                 </Card>
+                </Link>
               ))}
             </div>
 
