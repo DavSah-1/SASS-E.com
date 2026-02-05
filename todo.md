@@ -3522,3 +3522,10 @@
   - [x] Goals tab header buttons - added flex-wrap
   - [x] Debt Coach tab header buttons - added flex-wrap
 - [x] Verify all fixes work on mobile (375px), tablet (768px), and desktop (1024px+)
+
+
+## Debt Coach Loan Calculator Mobile Layout Improvement
+- [x] Locate loan calculator input grid layout in DebtCoach.tsx (found in LoanCalculator.tsx component)
+- [x] Modify grid to stack vertically (1 column) on screens < 480px (changed from md:grid-cols-2 to sm:grid-cols-2)
+- [x] Test calculator inputs on mobile viewport (375px) - inputs now stack vertically
+- [x] Verify layout works on tablet (768px) and desktop (1024px+) - 2-column grid on larger screens

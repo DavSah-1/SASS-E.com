@@ -248,7 +248,7 @@ export const LoanCalculator = forwardRef<LoanCalculatorRef, LoanCalculatorProps>
           {/* Calculator Tab */}
           <TabsContent value="calculator" className="space-y-6">
             {/* Input Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="principal" className="text-slate-300 flex items-center gap-2">
                   <DollarSign className="h-4 w-4" />
