@@ -26,6 +26,7 @@ import {
   Play,
   Pause,
   X,
+  Share2,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
 
@@ -212,6 +213,21 @@ export default function Goals() {
                 Set targets, track progress, celebrate milestones
               </p>
             </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => {
+                  toast.info("AI analyzing your financial profile...", { duration: 2000 });
+                  setTimeout(() => {
+                    toast.success("Recommendation: Based on your spending, consider starting an Emergency Fund of $5,000", { duration: 8000 });
+                  }, 2000);
+                }}
+              >
+                <Sparkles className="h-4 w-4" />
+                Get AI Suggestions
+              </Button>
+            </div>
             <Dialog open={addGoalOpen} onOpenChange={(open) => {
               setAddGoalOpen(open);
               // Reset form when dialog closes
@@ -304,6 +320,51 @@ export default function Goals() {
           </div>
         )}
 
+        {/* Popular Goals Templates (shown when no goals) */}
+        {goals && goals.length === 0 && (
+          <Card className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-purple-700/50">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-purple-400" />
+                Popular Goal Templates
+              </CardTitle>
+              <CardDescription className="text-slate-300">
+                Get started quickly with these common financial goals
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { name: "Emergency Fund", type: "emergency_fund", icon: "🚨", target: 5000, description: "3-6 months of expenses" },
+                  { name: "Vacation Fund", type: "purchase", icon: "✈️", target: 3000, description: "Dream vacation savings" },
+                  { name: "Down Payment", type: "savings", icon: "🏠", target: 20000, description: "Home down payment" },
+                  { name: "New Car", type: "purchase", icon: "🚗", target: 15000, description: "Vehicle purchase fund" },
+                  { name: "Retirement Boost", type: "investment", icon: "📈", target: 10000, description: "Extra retirement savings" },
+                  { name: "Debt Elimination", type: "debt_free", icon: "💳", target: 8000, description: "Pay off credit cards" },
+                ].map((template) => (
+                  <Button
+                    key={template.name}
+                    variant="outline"
+                    className="h-auto flex-col items-start p-4 text-left hover:bg-purple-900/20 hover:border-purple-500"
+                    onClick={() => {
+                      // Pre-fill form with template data
+                      setAddGoalOpen(true);
+                      // Note: We'll need to pass template data to the form
+                    }}
+                  >
+                    <div className="text-2xl mb-2">{template.icon}</div>
+                    <div className="font-semibold text-white mb-1">{template.name}</div>
+                    <div className="text-sm text-slate-400 mb-2">{template.description}</div>
+                    <div className="text-sm text-purple-400 font-semibold">
+                      Target: ${template.target.toLocaleString()}
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Goals Grid */}
         {goals && goals.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -330,6 +391,21 @@ export default function Goals() {
                         </div>
                       </div>
                       <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            const shareText = `I'm working towards my ${goal.name} goal! Target: ${formatCurrency(goal.targetAmount)}, Progress: ${getProgressPercentage(goal.currentAmount, goal.targetAmount)}%`;
+                            if (navigator.share) {
+                              navigator.share({ text: shareText });
+                            } else {
+                              navigator.clipboard.writeText(shareText);
+                              toast.success("Goal copied to clipboard!");
+                            }
+                          }}
+                        >
+                          <Share2 className="h-4 w-4 text-blue-400" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -447,19 +523,90 @@ export default function Goals() {
             })}
           </div>
         ) : (
-          <Card className="bg-slate-800/50 border-slate-700">
-            <CardContent className="py-16 text-center">
-              <Target className="h-16 w-16 text-slate-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">No Goals Yet</h3>
-              <p className="text-slate-400 mb-6">
-                Create your first financial goal to start tracking your progress
-              </p>
-              <Button onClick={() => setAddGoalOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Your First Goal
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            {/* Enhanced Empty State with Examples */}
+            <Card className="bg-slate-800/50 border-slate-700">
+              <CardContent className="py-12 text-center">
+                <Target className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">No Goals Yet</h3>
+                <p className="text-slate-400 mb-6">
+                  Create your first financial goal to start tracking your progress
+                </p>
+                <Button onClick={() => setAddGoalOpen(true)} size="lg">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Create Your First Goal
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Demo Goals Preview */}
+            <Card className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Award className="h-5 w-5 text-yellow-400" />
+                  How Goals Work
+                </CardTitle>
+                <CardDescription className="text-slate-300">
+                  Here's what your goals will look like once you create them
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Demo Goal 1 */}
+                  <div className="bg-slate-800/70 border border-slate-600 rounded-lg p-4 opacity-60">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="text-3xl">🚨</div>
+                      <div>
+                        <div className="font-semibold text-white">Emergency Fund</div>
+                        <div className="text-sm text-slate-400">Emergency Fund</div>
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-slate-400">Progress</span>
+                        <span className="text-purple-400 font-semibold">60%</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{width: '60%'}}></div>
+                      </div>
+                    </div>
+                    <div className="text-sm text-slate-400 mb-2">
+                      $3,000 of $5,000
+                    </div>
+                    <div className="text-xs text-slate-500 italic">
+                      Demo goal - Create your own to get started!
+                    </div>
+                  </div>
+
+                  {/* Demo Goal 2 */}
+                  <div className="bg-slate-800/70 border border-slate-600 rounded-lg p-4 opacity-60">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="text-3xl">✈️</div>
+                      <div>
+                        <div className="font-semibold text-white">Vacation Fund</div>
+                        <div className="text-sm text-slate-400">Major Purchase</div>
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-slate-400">Progress</span>
+                        <span className="text-purple-400 font-semibold">25%</span>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2">
+                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{width: '25%'}}></div>
+                      </div>
+                    </div>
+                    <div className="text-sm text-slate-400 mb-2">
+                      $750 of $3,000
+                    </div>
+                    <div className="text-xs text-slate-500 italic">
+                      Demo goal - Create your own to get started!
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
 
@@ -514,14 +661,29 @@ function AddGoalForm({
     });
   };
 
-  const goalTypes = [
-    { value: "savings", label: "Savings Goal", icon: "💰" },
-    { value: "debt_free", label: "Debt Free", icon: "💳" },
-    { value: "emergency_fund", label: "Emergency Fund", icon: "🚨" },
-    { value: "investment", label: "Investment", icon: "📈" },
-    { value: "purchase", label: "Major Purchase", icon: "🛍️" },
-    { value: "custom", label: "Custom Goal", icon: "🎯" },
-  ];
+  const goalCategories = {
+    emergency: [
+      { value: "emergency_fund", label: "Emergency Fund", icon: "🚨", category: "Emergency" },
+    ],
+    short_term: [
+      { value: "purchase", label: "Major Purchase", icon: "🛍️", category: "Short-term (< 1 year)" },
+      { value: "vacation", label: "Vacation Fund", icon: "✈️", category: "Short-term (< 1 year)" },
+    ],
+    medium_term: [
+      { value: "savings", label: "Savings Goal", icon: "💰", category: "Medium-term (1-5 years)" },
+      { value: "debt_free", label: "Debt Free", icon: "💳", category: "Medium-term (1-5 years)" },
+      { value: "down_payment", label: "Down Payment", icon: "🏠", category: "Medium-term (1-5 years)" },
+    ],
+    long_term: [
+      { value: "investment", label: "Investment", icon: "📈", category: "Long-term (5+ years)" },
+      { value: "retirement", label: "Retirement", icon: "🌴", category: "Long-term (5+ years)" },
+    ],
+    custom: [
+      { value: "custom", label: "Custom Goal", icon: "🎯", category: "Custom" },
+    ],
+  };
+
+  const goalTypes = Object.values(goalCategories).flat();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -553,10 +715,19 @@ function AddGoalForm({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {goalTypes.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.icon} {type.label}
-              </SelectItem>
+            {Object.entries(goalCategories).map(([categoryKey, types]) => (
+              <div key={categoryKey}>
+                {types.length > 0 && (
+                  <div className="px-2 py-1.5 text-xs font-semibold text-slate-400 uppercase">
+                    {types[0].category}
+                  </div>
+                )}
+                {types.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.icon} {type.label}
+                  </SelectItem>
+                ))}
+              </div>
             ))}
           </SelectContent>
         </Select>

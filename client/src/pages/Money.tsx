@@ -9,6 +9,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AnimatedTabs as Tabs, AnimatedTabsContent as TabsContent, AnimatedTabsList as TabsList, AnimatedTabsTrigger as TabsTrigger } from "@/components/AnimatedTabs";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +31,10 @@ import {
   ArrowRight,
   PiggyBank,
   TrendingDown as DebtIcon,
+  Info,
+  Coins,
+  Receipt,
+  FileText,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import Budget from "./Budget";
@@ -508,6 +513,18 @@ export default function Money() {
                   <span className="flex items-center gap-2">
                     <Target className="h-6 w-6" />
                     {t("Financial Health Score")}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-slate-400 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-sm">
+                            {t("Based on: Cash flow (25%), Savings rate (25%), Debt progress (25%), Budget adherence (25%)")}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </span>
                   <span className={`text-4xl font-bold ${getScoreColor(healthScore)}`}>
                     {healthScore}
@@ -629,7 +646,7 @@ export default function Money() {
             </div>
 
             {/* Debt Acceleration Opportunity */}
-            {availableForDebt && availableForDebt.availableForExtraPayments > 0 && (
+            {availableForDebt && availableForDebt.availableForExtraPayments > 0 && debtSummary && debtSummary.totalDebts > 0 && (
               <Card className="bg-gradient-to-r from-emerald-900/50 to-green-900/50 border-green-500/30">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-white">
@@ -658,7 +675,7 @@ export default function Money() {
                     <div>
                       <p className="text-sm text-slate-400 mb-1">{t("Projected Debt-Free")}</p>
                       <p className="text-3xl font-bold text-blue-400">
-                        {availableForDebt.projectedMonthsToDebtFree} months
+                        {availableForDebt.projectedMonthsToDebtFree > 0 ? `${availableForDebt.projectedMonthsToDebtFree} months` : t("Soon!")}
                       </p>
                       <p className="text-xs text-slate-500 mt-1">{t("With recommended payments")}</p>
                     </div>
@@ -673,6 +690,23 @@ export default function Money() {
                       {t("Review Budget")}
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* No Debt Celebration */}
+            {debtSummary && debtSummary.totalDebts === 0 && debtSummary.debtsPaidOff > 0 && (
+              <Card className="bg-gradient-to-r from-green-900/50 to-emerald-900/50 border-green-500/30">
+                <CardContent className="py-8 text-center">
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h3 className="text-2xl font-bold text-white mb-2">{t("Debt-Free! Amazing Work!")}</h3>
+                  <p className="text-slate-300 mb-4">
+                    {t("You've paid off all your debts. Keep up the excellent financial habits!")}
+                  </p>
+                  <Button onClick={() => setActiveTab("goals")} className="gap-2">
+                    <Target className="h-4 w-4" />
+                    {t("Set New Financial Goals")}
+                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -692,15 +726,15 @@ export default function Money() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button onClick={() => setActiveTab("budget")} variant="outline" className="h-auto py-4 flex-col gap-2">
-                    <Plus className="h-5 w-5" />
+                    <Receipt className="h-5 w-5" />
                     <span>{t("Add Transaction")}</span>
                   </Button>
                   <Button onClick={() => setActiveTab("debts")} variant="outline" className="h-auto py-4 flex-col gap-2">
-                    <DollarSign className="h-5 w-5" />
+                    <Coins className="h-5 w-5" />
                     <span>{t("Log Debt Payment")}</span>
                   </Button>
                   <Button onClick={() => setActiveTab("debts")} variant="outline" className="h-auto py-4 flex-col gap-2">
-                    <CreditCard className="h-5 w-5" />
+                    <FileText className="h-5 w-5" />
                     <span>{t("Add New Debt")}</span>
                   </Button>
                 </div>

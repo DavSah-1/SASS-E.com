@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import type { DbContext } from "../../dbRoleAware";
+import { expect } from "vitest";
 
 /**
  * Test utilities for dual-database integration testing
@@ -58,14 +59,7 @@ export function createAdminContext(options: Partial<MockContextOptions> = {}): D
     user: {
       id: options.openId || "admin-test-123",
       numericId: options.userId || 1,
-      openId: options.openId || "admin-test-123",
-      name: "Test Admin",
-      email: "admin@test.com",
       role: "admin",
-      loginMethod: "test",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      lastSignedIn: new Date(),
     },
     accessToken: options.accessToken || generateJWT({
       sub: options.openId || "admin-test-123",
@@ -86,14 +80,7 @@ export function createUserContext(options: Partial<MockContextOptions> = {}): Db
     user: {
       id: openId,
       numericId: userId,
-      openId: openId,
-      name: `Test User ${userId}`,
-      email: `user${userId}@test.com`,
       role: "user",
-      loginMethod: "test",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      lastSignedIn: new Date(),
     },
     accessToken: options.accessToken || generateJWT({
       sub: openId,

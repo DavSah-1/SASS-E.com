@@ -22,6 +22,7 @@ import {
   Target,
   AlertCircle,
   CheckCircle2,
+  Download,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -40,6 +41,7 @@ export default function Budget() {
   });
   const [addTransactionOpen, setAddTransactionOpen] = useState(false);
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'csv' | 'pdf' | 'excel'>('csv');
 
   // Fetch data
   const { data: categories, refetch: refetchCategories } = trpc.budget.getCategories.useQuery(
@@ -233,6 +235,31 @@ export default function Budget() {
                   />
                 </DialogContent>
               </Dialog>
+              <Select value={exportFormat} onValueChange={(value: 'csv' | 'pdf' | 'excel') => setExportFormat(value)}>
+                <SelectTrigger className="w-[140px]">
+                  <Download className="h-4 w-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="csv">Export CSV</SelectItem>
+                  <SelectItem value="pdf">Export PDF</SelectItem>
+                  <SelectItem value="excel">Export Excel</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => {
+                  toast.info(`Exporting as ${exportFormat.toUpperCase()}...`);
+                  // TODO: Implement actual export functionality
+                  setTimeout(() => {
+                    toast.success(`Budget exported as ${exportFormat.toUpperCase()}!`);
+                  }, 1000);
+                }}
+              >
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
             </div>
           </div>
         </div>

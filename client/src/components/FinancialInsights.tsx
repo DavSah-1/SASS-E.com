@@ -92,7 +92,7 @@ export function FinancialInsights() {
             ) : (
               <>
                 <Sparkles className="h-4 w-4 mr-2" />
-                Generate Insights
+                {insights.length > 0 ? "Regenerate Insights" : "Generate Insights"}
               </>
             )}
           </Button>
