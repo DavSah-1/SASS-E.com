@@ -222,9 +222,9 @@ export default function LearnFinance() {
   return (
     <>
       <Navigation />
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      <div className="min-h-screen bg-gradient-to-b from-orange-950/30 via-yellow-950/20 to-amber-950/30">
       {/* Compact Header with Stats */}
-      <div className="bg-gradient-to-b from-yellow-900/20 to-background border-b border-yellow-500/20">
+      <div className="bg-gradient-to-b from-yellow-900/40 via-orange-900/30 to-yellow-950/20 border-b border-yellow-500/30">
         <div className="container py-8">
           {/* Title and Subtitle */}
           <div className="mb-6">
@@ -335,7 +335,7 @@ export default function LearnFinance() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar - Learning Tiers */}
           <div className="lg:col-span-1">
-            <Card>
+            <Card className="bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border-yellow-500/20">
               <CardHeader>
                 <CardTitle className="text-lg">Learning Path</CardTitle>
                 <CardDescription>Choose your level</CardDescription>
@@ -389,7 +389,7 @@ export default function LearnFinance() {
 
             {/* Progress Card */}
             {isAuthenticated && (
-              <Card className="mt-4">
+              <Card className="mt-4 bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border-yellow-500/20">
                 <CardHeader>
                   <CardTitle className="text-lg">Your Progress</CardTitle>
                 </CardHeader>
@@ -446,7 +446,7 @@ export default function LearnFinance() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredArticles.map((article) => (
                 <Link key={article.id} href={`/learn-finance/article/${article.slug}`}>
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+                  <Card className="hover:shadow-lg transition-shadow cursor-pointer group bg-gradient-to-br from-yellow-900/10 to-orange-900/10 border-yellow-500/20 hover:border-yellow-400/40">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <BadgeUI variant={
