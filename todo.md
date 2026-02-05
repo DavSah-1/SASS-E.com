@@ -3389,3 +3389,8 @@
 - [x] Add Translation Hub section between Money Hub and Learning Hub
 - [x] Match style and format of existing hub sections
 - [x] Test home page displays Translation Hub correctly (verified)
+
+
+## Reorder Hub Sections on Home Page
+- [x] Reorder sections: Money Hub (1st), Wellness Hub (2nd), Translation Hub (3rd), Learning Hub (4th)
+- [x] Test home page displays sections in correct order (verified)
