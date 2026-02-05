@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('learning_tiers', 'finance_articles', 'user_learning_progress', 'financial_glossary', 'learning_badges', 'user_learning_badges');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name IN ('learning_tiers', 'finance_articles', 'user_learning_progress', 'financial_glossary', 'learning_badges', 'user_learning_badges');",
+  "rows": [
+    {
+      "table_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "table_count\n0\n",
+  "stderr": "",
+  "execution_time_ms": 383
+}

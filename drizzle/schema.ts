@@ -1754,3 +1754,117 @@ export const dailyUsage = mysqlTable("daily_usage", {
 
 export type DailyUsage = typeof dailyUsage.$inferSelect;
 export type InsertDailyUsage = typeof dailyUsage.$inferInsert;
+
+/**
+ * Learn Finance - Educational Content System
+ * 7-tier progressive learning structure for financial literacy
+ */
+
+/**
+ * Learning Tiers table - 7 main categories of financial education
+ */
+export const learningTiers = mysqlTable("learning_tiers", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(), // "Foundational Literacy", "Building Stability", etc.
+  description: text("description").notNull(),
+  orderIndex: int("orderIndex").notNull(), // 1-7 for display order
+  icon: varchar("icon", { length: 50 }), // Emoji or icon name
+  unlockCriteria: text("unlockCriteria"), // JSON object with prerequisites
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LearningTier = typeof learningTiers.$inferSelect;
+export type InsertLearningTier = typeof learningTiers.$inferInsert;
+
+/**
+ * Financial Education Articles table
+ */
+export const financeArticles = mysqlTable("finance_articles", {
+  id: int("id").autoincrement().primaryKey(),
+  tierId: int("tierId").notNull(), // Foreign key to learning_tiers
+  title: varchar("title", { length: 300 }).notNull(),
+  slug: varchar("slug", { length: 300 }).notNull().unique(), // URL-friendly version
+  summary: text("summary").notNull(), // Short description for card preview
+  content: text("content").notNull(), // Full article content in Markdown
+  estimatedReadTime: int("estimatedReadTime").notNull(), // Minutes
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  tags: text("tags"), // JSON array of tags like ["budgeting", "debt", "savings"]
+  relatedTools: text("relatedTools"), // JSON array of Money Hub tool references
+  relatedArticles: text("relatedArticles"), // JSON array of related article IDs
+  author: varchar("author", { length: 100 }).default("SASS-E").notNull(),
+  published: boolean("published").default(false).notNull(),
+  viewCount: int("viewCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FinanceArticle = typeof financeArticles.$inferSelect;
+export type InsertFinanceArticle = typeof financeArticles.$inferInsert;
+
+/**
+ * User Learning Progress table
+ */
+export const userLearningProgress = mysqlTable("user_learning_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  articleId: int("articleId").notNull(),
+  status: mysqlEnum("status", ["not_started", "in_progress", "completed"]).default("not_started").notNull(),
+  progressPercentage: int("progressPercentage").default(0).notNull(), // 0-100
+  timeSpent: int("timeSpent").default(0).notNull(), // Seconds spent reading
+  bookmarked: boolean("bookmarked").default(false).notNull(),
+  lastReadAt: timestamp("lastReadAt"),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserLearningProgress = typeof userLearningProgress.$inferSelect;
+export type InsertUserLearningProgress = typeof userLearningProgress.$inferInsert;
+
+/**
+ * Financial Glossary table
+ */
+export const financialGlossary = mysqlTable("financial_glossary", {
+  id: int("id").autoincrement().primaryKey(),
+  term: varchar("term", { length: 200 }).notNull().unique(),
+  definition: text("definition").notNull(), // Simple explanation
+  example: text("example"), // Real-world example
+  relatedTerms: text("relatedTerms"), // JSON array of related term IDs
+  category: varchar("category", { length: 100 }), // "Credit", "Investing", "Debt", etc.
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FinancialGlossaryTerm = typeof financialGlossary.$inferSelect;
+export type InsertFinancialGlossaryTerm = typeof financialGlossary.$inferInsert;
+
+/**
+ * Learning Badges table
+ */
+export const learningBadges = mysqlTable("learning_badges", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description").notNull(),
+  icon: varchar("icon", { length: 100 }), // Emoji or icon reference
+  tier: mysqlEnum("tier", ["bronze", "silver", "gold", "platinum"]).notNull(),
+  criteria: text("criteria").notNull(), // JSON object describing how to earn
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LearningBadge = typeof learningBadges.$inferSelect;
+export type InsertLearningBadge = typeof learningBadges.$inferInsert;
+
+/**
+ * User Badges table - tracks earned badges
+ */
+export const userLearningBadges = mysqlTable("user_learning_badges", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  badgeId: int("badgeId").notNull(),
+  earnedAt: timestamp("earnedAt").defaultNow().notNull(),
+});
+
+export type UserLearningBadge = typeof userLearningBadges.$inferSelect;
+export type InsertUserLearningBadge = typeof userLearningBadges.$inferInsert;

@@ -528,7 +528,7 @@ export default function Learning() {
             <h2 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">🎯 Specialized Learning Paths</h2>
             <p className="text-slate-300 mb-6">{translate("Dedicated learning experiences with structured lessons and interactive practice")}</p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Math Tutor Path */}
               <a
                 href="/math-tutor"
@@ -576,6 +576,23 @@ export default function Learning() {
                 <p className="text-sm text-slate-300 mb-3">Virtual experiments in physics, chemistry, and biology with step-by-step procedures and AI feedback</p>
                 <div className="flex items-center text-xs text-green-400 font-semibold">
                   <span>Start Experimenting</span>
+                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+                </div>
+              </a>
+
+              {/* Learn Finance Path */}
+              <a
+                href="/learn-finance"
+                className="block p-6 bg-gradient-to-br from-yellow-900/40 to-orange-900/40 hover:from-yellow-800/50 hover:to-orange-800/50 border-2 border-yellow-500/30 hover:border-yellow-400/60 rounded-xl transition-all group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-4xl">💰</div>
+                  <ExternalLink className="h-5 w-5 text-yellow-400 group-hover:text-yellow-300 transition-colors" />
+                </div>
+                <h3 className="text-xl font-bold text-yellow-200 mb-2 group-hover:text-yellow-100">Learn Finance</h3>
+                <p className="text-sm text-slate-300 mb-3">Master personal finance with practical lessons on budgeting, investing, and building wealth for everyday life</p>
+                <div className="flex items-center text-xs text-yellow-400 font-semibold">
+                  <span>Start Learning</span>
                   <span className="ml-2 group-hover:ml-3 transition-all">→</span>
                 </div>
               </a>
