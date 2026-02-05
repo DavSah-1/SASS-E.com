@@ -182,7 +182,7 @@ export default function DebtCoach() {
                 Your journey to financial freedom, guided by SASS-E
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button
                 onClick={() => getMotivation.mutate()}
                 variant="outline"

@@ -213,7 +213,7 @@ export default function Goals() {
                 Set targets, track progress, celebrate milestones
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button
                 variant="outline"
                 className="gap-2"
@@ -227,35 +227,35 @@ export default function Goals() {
                 <Sparkles className="h-4 w-4" />
                 Get AI Suggestions
               </Button>
+              <Dialog open={addGoalOpen} onOpenChange={(open) => {
+                setAddGoalOpen(open);
+                // Reset form when dialog closes
+                if (!open) {
+                  // Force re-render of form by closing and reopening
+                  setTimeout(() => {}, 0);
+                }
+              }}>
+                <DialogTrigger asChild>
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Goal
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Create Financial Goal</DialogTitle>
+                    <DialogDescription>
+                      Set a new financial target to work towards
+                    </DialogDescription>
+                  </DialogHeader>
+                  <AddGoalForm
+                    key={addGoalOpen ? 'open' : 'closed'}
+                    onSubmit={(data) => createGoal.mutate(data)}
+                    isSubmitting={createGoal.isPending}
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
-            <Dialog open={addGoalOpen} onOpenChange={(open) => {
-              setAddGoalOpen(open);
-              // Reset form when dialog closes
-              if (!open) {
-                // Force re-render of form by closing and reopening
-                setTimeout(() => {}, 0);
-              }
-            }}>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create Goal
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Create Financial Goal</DialogTitle>
-                  <DialogDescription>
-                    Set a new financial target to work towards
-                  </DialogDescription>
-                </DialogHeader>
-                <AddGoalForm
-                  key={addGoalOpen ? 'open' : 'closed'}
-                  onSubmit={(data) => createGoal.mutate(data)}
-                  isSubmitting={createGoal.isPending}
-                />
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
 
