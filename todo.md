@@ -3908,3 +3908,14 @@
 - [x] Update learningTiers array with Tier 7 article count
 - [ ] Test Tier 8 locking/unlocking
 - [ ] Save checkpoint
+
+## Build Tier 8: Legacy & Impact
+- [x] Create 8 Tier 8 article topics and outlines (estate planning, wills/trusts, wealth transfer, philanthropy, charitable giving, legacy building, family governance, impact investing)
+- [x] Write all 8 Tier 8 articles with comprehensive content
+- [x] Create 5-question quizzes for each of the 8 articles (40 questions total)
+- [x] Create 10-question Tier 8 Mastery Assessment
+- [x] Insert all Tier 8 articles into database
+- [x] Insert all Tier 8 quizzes into database
+- [x] Insert Tier 8 assessment into database
+- [x] Update learningTiers array with Tier 8 information
+- [ ] Test Tier 8 content and save final checkpoint
