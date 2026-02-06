@@ -3783,3 +3783,26 @@
 - [x] Update LearnFinance page to lock Tier 3 content until Tier 2 assessment passed - isTier3Locked logic added
 - [x] Add visual lock indicator for Tier 3 in sidebar navigation - "Pass Tier 2 Assessment" message
 - [ ] Test full progression: Complete all Tier 2 quizzes → Unlock Tier 2 assessment → Pass assessment → Unlock Tier 3
+
+## Build Tier 3: Growing Wealth Content
+- [x] Create 12 Tier 3 article topics and outlines
+- [x] Write full content for Introduction to Investing article
+- [x] Write full content for Stock Market Basics article
+- [x] Write full content for Bonds and Fixed Income article
+- [x] Write full content for Mutual Funds vs ETFs article
+- [x] Write full content for Index Fund Investing article
+- [x] Write full content for Diversification Strategies article
+- [x] Write full content for Asset Allocation article
+- [x] Write full content for Risk vs Return article
+- [x] Write full content for Dollar-Cost Averaging article
+- [x] Write full content for Tax-Advantaged Accounts article
+- [x] Write full content for Rebalancing Your Portfolio article
+- [x] Write full content for Long-Term Investment Mindset article
+- [x] Create 5-question quiz for each of the 12 articles (60 questions total)
+- [x] Create 10-question Tier 3 Mastery Assessment
+- [x] Insert all Tier 3 articles into database - 12 articles inserted successfully
+- [x] Insert all Tier 3 quizzes into database - 12 quizzes (60 questions) inserted successfully
+- [x] Insert Tier 3 assessment into database - 10 questions inserted successfully
+- [ ] Test Tier 3 article display and navigation
+- [ ] Test Tier 3 quiz functionality
+- [ ] Test Tier 3 assessment unlock and submission
