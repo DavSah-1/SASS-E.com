@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import ArticleQuiz from "@/components/ArticleQuiz";
+import { RetirementCalculator } from "@/components/learn-finance/RetirementCalculator";
+import { DebtPayoffSimulator } from "@/components/learn-finance/DebtPayoffSimulator";
 
 export default function ArticleReader() {
   const [, params] = useRoute("/learn-finance/article/:slug");
@@ -145,6 +147,18 @@ export default function ArticleReader() {
 
               {/* Article Content */}
               <ReactMarkdown>{article.content}</ReactMarkdown>
+
+              {/* Interactive Calculator (if applicable) */}
+              {article.slug === "retirement-savings-calculator" && (
+                <div className="my-8 not-prose">
+                  <RetirementCalculator />
+                </div>
+              )}
+              {article.slug === "debt-payoff-simulator" && (
+                <div className="my-8 not-prose">
+                  <DebtPayoffSimulator />
+                </div>
+              )}
 
               {/* Article Quiz */}
               <ArticleQuiz articleId={article.id} />

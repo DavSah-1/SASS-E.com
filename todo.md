@@ -3867,4 +3867,19 @@
 - [x] Insert all Tier 6 quizzes into database
 - [x] Insert Tier 6 assessment into database
 - [x] Implement Tier 6 → Tier 7 progression logic
-- [ ] Test Tier 6 content and save checkpoint
+- [x] Test Tier 6 content and save checkpoint
+
+## Embed Calculators into Article Pages
+- [x] Integrate RetirementCalculator component into retirement article page
+- [x] Integrate DebtPayoffSimulator component into debt payoff article page
+- [x] Test calculator embedding and save checkpoint
+
+## Build Tier 7: Behavioral Finance Content
+- [x] Create 7 Tier 7 article topics and outlines
+- [x] Write all 7 Tier 7 articles (psychology of money, cognitive biases, emotional spending, etc.)
+- [x] Create 5-question quizzes for each of the 7 articles (35 questions total)
+- [x] Create 10-question Tier 7 Mastery Assessment
+- [x] Insert all Tier 7 articles into database
+- [x] Insert all Tier 7 quizzes into database
+- [x] Insert Tier 7 assessment into database
+- [ ] Test Tier 7 content and save checkpoint
