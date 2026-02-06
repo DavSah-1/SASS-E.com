@@ -3852,4 +3852,19 @@
 - [x] Insert all Tier 5 quizzes into database
 - [x] Insert Tier 5 assessment into database
 - [x] Implement Tier 5 → Tier 6 progression logic
-- [ ] Test Tier 5 content and save checkpoint
+- [x] Test Tier 5 content and save checkpoint
+
+## Build Tier 6: Interactive Learning Content
+- [x] Create 2 Tier 6 article topics and outlines (Retirement Calculator, Debt Payoff Simulator)
+- [x] Write full content for Retirement Savings Calculator article
+- [x] Write full content for Debt Payoff Simulator article
+- [x] Build RetirementCalculator component with inputs and projections
+- [x] Build DebtPayoffSimulator component with snowball/avalanche comparison
+- [x] Create 5-question quiz for Retirement Calculator article
+- [x] Create 5-question quiz for Debt Payoff Simulator article
+- [x] Create 10-question Tier 6 Mastery Assessment
+- [x] Insert all Tier 6 articles into database
+- [x] Insert all Tier 6 quizzes into database
+- [x] Insert Tier 6 assessment into database
+- [x] Implement Tier 6 → Tier 7 progression logic
+- [ ] Test Tier 6 content and save checkpoint
