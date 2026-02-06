@@ -352,7 +352,8 @@ export default function LearnFinance() {
                   const isTier5Locked = tier.id === 5 && isAuthenticated && !tierProgression?.tier5Unlocked;
                   const isTier6Locked = tier.id === 6 && isAuthenticated && !tierProgression?.tier6Unlocked;
                   const isTier7Locked = tier.id === 7 && isAuthenticated && !tierProgression?.tier7Unlocked;
-                  const isLocked = isTier2Locked || isTier3Locked || isTier4Locked || isTier5Locked || isTier6Locked || isTier7Locked;
+                  const isTier8Locked = tier.id === 8 && isAuthenticated && !tierProgression?.tier8Unlocked;
+                  const isLocked = isTier2Locked || isTier3Locked || isTier4Locked || isTier5Locked || isTier6Locked || isTier7Locked || isTier8Locked;
                   
                   return (
                     <button
@@ -382,7 +383,7 @@ export default function LearnFinance() {
                             {isLocked && " 🔒"}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {isTier2Locked ? "Pass Tier 1 Assessment" : isTier3Locked ? "Pass Tier 2 Assessment" : isTier4Locked ? "Pass Tier 3 Assessment" : isTier5Locked ? "Pass Tier 4 Assessment" : isTier6Locked ? "Pass Tier 5 Assessment" : isTier7Locked ? "Pass Tier 6 Assessment" : `${tier.articles} articles`}
+                            {isTier2Locked ? "Pass Tier 1 Assessment" : isTier3Locked ? "Pass Tier 2 Assessment" : isTier4Locked ? "Pass Tier 3 Assessment" : isTier5Locked ? "Pass Tier 4 Assessment" : isTier6Locked ? "Pass Tier 5 Assessment" : isTier7Locked ? "Pass Tier 6 Assessment" : isTier8Locked ? "Pass Tier 7 Assessment" : `${tier.articles} articles`}
                           </div>
                         </div>
                         {selectedTier === tier.id && !isLocked && (

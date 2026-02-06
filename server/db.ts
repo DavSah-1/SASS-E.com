@@ -3641,3 +3641,138 @@ export async function removeConversationParticipant(conversationId: number, user
 
   return true;
 }
+
+// ==================== Learning Badge Functions ====================
+
+import { learningBadges, userLearningBadges, InsertUserLearningBadge } from "../drizzle/schema";
+
+/**
+ * Get all available learning badges
+ */
+export async function getAllLearningBadges() {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get badges: database not available");
+    return [];
+  }
+
+  const badges = await db.select().from(learningBadges);
+  return badges;
+}
+
+/**
+ * Get user's earned badges
+ */
+export async function getUserBadges(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user badges: database not available");
+    return [];
+  }
+
+  const earnedBadges = await db
+    .select({
+      badge: learningBadges,
+      earnedAt: userLearningBadges.earnedAt,
+    })
+    .from(userLearningBadges)
+    .innerJoin(learningBadges, eq(userLearningBadges.badgeId, learningBadges.id))
+    .where(eq(userLearningBadges.userId, userId))
+    .orderBy(desc(userLearningBadges.earnedAt));
+
+  return earnedBadges;
+}
+
+/**
+ * Award a badge to a user
+ */
+export async function awardBadge(userId: number, badgeId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot award badge: database not available");
+    return null;
+  }
+
+  try {
+    // Check if user already has this badge
+    const existing = await db
+      .select()
+      .from(userLearningBadges)
+      .where(and(eq(userLearningBadges.userId, userId), eq(userLearningBadges.badgeId, badgeId)))
+      .limit(1);
+
+    if (existing.length > 0) {
+      return null; // Already has this badge
+    }
+
+    // Award the badge
+    await db.insert(userLearningBadges).values({
+      userId,
+      badgeId,
+    });
+
+    // Return the badge details
+    const badge = await db
+      .select()
+      .from(learningBadges)
+      .where(eq(learningBadges.id, badgeId))
+      .limit(1);
+
+    return badge[0];
+  } catch (error) {
+    console.error("[Database] Failed to award badge:", error);
+    return null;
+  }
+}
+
+/**
+ * Check and award badges based on user's progress
+ * This function should be called after quiz/assessment submissions
+ */
+export async function checkAndAwardBadges(userId: number) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot check badges: database not available");
+    return [];
+  }
+
+  const newlyAwardedBadges: any[] = [];
+
+  try {
+    // Get all badge definitions
+    const allBadges = await getAllLearningBadges();
+    
+    // Get user's already earned badges
+    const earnedBadges = await getUserBadges(userId);
+    const earnedBadgeIds = earnedBadges.map(eb => eb.badge.id);
+
+    // Check each badge criteria
+    for (const badge of allBadges) {
+      // Skip if already earned
+      if (earnedBadgeIds.includes(badge.id)) {
+        continue;
+      }
+
+      const criteria = typeof badge.criteria === 'string' ? JSON.parse(badge.criteria) : badge.criteria;
+      let shouldAward = false;
+
+      // Check badge criteria (this will be expanded based on actual criteria types)
+      // For now, we'll implement basic checks
+      
+      // Note: Full implementation would require querying Supabase for article/quiz/assessment data
+      // This is a placeholder structure that should be expanded
+
+      if (shouldAward) {
+        const awardedBadge = await awardBadge(userId, badge.id);
+        if (awardedBadge) {
+          newlyAwardedBadges.push(awardedBadge);
+        }
+      }
+    }
+
+    return newlyAwardedBadges;
+  } catch (error) {
+    console.error("[Database] Failed to check and award badges:", error);
+    return [];
+  }
+}

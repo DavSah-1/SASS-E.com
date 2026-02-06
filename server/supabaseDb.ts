@@ -580,7 +580,7 @@ export async function submitQuizAttempt(
   answers: number[],
   score: number,
   passed: boolean
-): Promise<UserQuizAttempt> {
+): Promise<{ attempt: UserQuizAttempt; newBadges: Array<{ id: number; name: string; icon: string }> }> {
   const db = await getSupabaseDb();
   if (!db) {
     console.warn("[Supabase Database] Cannot submit quiz: database not available");
@@ -599,7 +599,18 @@ export async function submitQuizAttempt(
       })
       .returning();
     
-    return result[0];
+    // Check and award badges after quiz submission
+    let newBadges: Array<{ id: number; name: string; icon: string }> = [];
+    if (passed) {
+      try {
+        newBadges = await checkAndAwardBadges(userId);
+      } catch (badgeError) {
+        console.error("[Supabase Database] Failed to check badges after quiz:", badgeError);
+        // Don't throw - badge checking failure shouldn't fail quiz submission
+      }
+    }
+    
+    return { attempt: result[0], newBadges };
   } catch (error) {
     console.error("[Supabase Database] Failed to submit quiz:", error);
     throw error;
@@ -673,7 +684,7 @@ export async function submitTierAssessmentAttempt(
   answers: string[],
   score: number,
   passed: boolean
-): Promise<UserTierAssessmentAttempt> {
+): Promise<{ attempt: UserTierAssessmentAttempt; newBadges: Array<{ id: number; name: string; icon: string }> }> {
   const db = await getSupabaseDb();
   if (!db) {
     console.warn("[Supabase Database] Cannot submit tier assessment: database not available");
@@ -692,7 +703,18 @@ export async function submitTierAssessmentAttempt(
       })
       .returning();
     
-    return result[0];
+    // Check and award badges after tier assessment submission
+    let newBadges: Array<{ id: number; name: string; icon: string }> = [];
+    if (passed) {
+      try {
+        newBadges = await checkAndAwardBadges(userId);
+      } catch (badgeError) {
+        console.error("[Supabase Database] Failed to check badges after assessment:", badgeError);
+        // Don't throw - badge checking failure shouldn't fail assessment submission
+      }
+    }
+    
+    return { attempt: result[0], newBadges };
   } catch (error) {
     console.error("[Supabase Database] Failed to submit tier assessment:", error);
     throw error;
@@ -879,6 +901,9 @@ export async function getUserTierProgressionStatus(
   tier6QuizzesCompleted: boolean;
   tier6AssessmentPassed: boolean;
   tier7Unlocked: boolean;
+  tier7QuizzesCompleted: boolean;
+  tier7AssessmentPassed: boolean;
+  tier8Unlocked: boolean;
 }> {
   const db = await getSupabaseDb();
   if (!db) {
@@ -902,6 +927,9 @@ export async function getUserTierProgressionStatus(
       tier6QuizzesCompleted: false,
       tier6AssessmentPassed: false,
       tier7Unlocked: false,
+      tier7QuizzesCompleted: false,
+      tier7AssessmentPassed: false,
+      tier8Unlocked: false,
     };
   }
 
@@ -960,6 +988,15 @@ export async function getUserTierProgressionStatus(
     // Tier 7 is unlocked if Tier 6 assessment is passed
     const tier7Unlocked = tier6AssessmentPassed;
 
+    // Check if all Tier 7 quizzes are passed
+    const tier7QuizzesCompleted = await hasUserPassedAllTierQuizzes(userId, 7);
+
+    // Check if Tier 7 assessment is passed
+    const tier7AssessmentPassed = await hasUserPassedTierAssessment(userId, 7);
+
+    // Tier 8 is unlocked if Tier 7 assessment is passed
+    const tier8Unlocked = tier7AssessmentPassed;
+
     return {
       tier1QuizzesCompleted,
       tier1AssessmentPassed,
@@ -979,6 +1016,9 @@ export async function getUserTierProgressionStatus(
       tier6QuizzesCompleted,
       tier6AssessmentPassed,
       tier7Unlocked,
+      tier7QuizzesCompleted,
+      tier7AssessmentPassed,
+      tier8Unlocked,
     };
   } catch (error) {
     console.error("[Supabase Database] Failed to get tier progression:", error);
@@ -1001,6 +1041,9 @@ export async function getUserTierProgressionStatus(
       tier6QuizzesCompleted: false,
       tier6AssessmentPassed: false,
       tier7Unlocked: false,
+      tier7QuizzesCompleted: false,
+      tier7AssessmentPassed: false,
+      tier8Unlocked: false,
     };
   }
 }
@@ -1014,6 +1057,7 @@ export async function getUserLearnFinanceStats(
   completedArticles: number;
   totalArticles: number;
   passedQuizzes: number;
+  passedAssessments: number;
   currentTier: number;
   currentTierName: string;
   studyStreak: number;
@@ -1026,6 +1070,7 @@ export async function getUserLearnFinanceStats(
       completedArticles: 0,
       totalArticles: 10,
       passedQuizzes: 0,
+      passedAssessments: 0,
       currentTier: 1,
       currentTierName: "Tier 1: Foundational",
       studyStreak: 0,
@@ -1068,6 +1113,19 @@ export async function getUserLearnFinanceStats(
     
     const passedQuizzes = passedQuizzesData.length;
 
+    // Get user's passed tier assessments (distinct tier IDs with passed = true)
+    const passedAssessmentsData = await db
+      .selectDistinct({ tierId: userTierAssessmentAttempts.tierId })
+      .from(userTierAssessmentAttempts)
+      .where(
+        and(
+          eq(userTierAssessmentAttempts.userId, userId),
+          eq(userTierAssessmentAttempts.passed, "true")
+        )
+      );
+    
+    const passedAssessments = passedAssessmentsData.length;
+
     // Determine current tier based on progression
     let currentTier = 1;
     let currentTierName = "Tier 1: Foundational";
@@ -1091,6 +1149,7 @@ export async function getUserLearnFinanceStats(
       completedArticles,
       totalArticles,
       passedQuizzes,
+      passedAssessments,
       currentTier,
       currentTierName,
       studyStreak,
@@ -1102,6 +1161,7 @@ export async function getUserLearnFinanceStats(
       completedArticles: 0,
       totalArticles: 10,
       passedQuizzes: 0,
+      passedAssessments: 0,
       currentTier: 1,
       currentTierName: "Tier 1: Foundational",
       studyStreak: 0,
@@ -1202,43 +1262,133 @@ export async function awardBadge(userId: string, badgeId: number): Promise<boole
 /**
  * Check and award badges based on user progress
  */
-export async function checkAndAwardBadges(userId: string): Promise<number[]> {
+export async function checkAndAwardBadges(userId: string): Promise<Array<{ id: number; name: string; icon: string }>> {
   const db = await getSupabaseDb();
   if (!db) {
     return [];
   }
 
   try {
-    const stats = await getUserLearnFinanceStats(userId);
     const allBadges = await getAllBadges();
-    const earnedBadgeIds: number[] = [];
+    const earnedBadges = await getUserBadges(userId);
+    const earnedBadgeIds = earnedBadges.map(eb => eb.badgeId);
+    const newlyAwardedBadges: Array<{ id: number; name: string; icon: string }> = [];
+
+    // Get user's progress data
+    const completedArticles = await db.select().from(userLearningProgress)
+      .where(and(
+        eq(userLearningProgress.userId, userId),
+        eq(userLearningProgress.completed, 'true')
+      ));
+    
+    const passedQuizzes = await db.select().from(userQuizAttempts)
+      .where(and(
+        eq(userQuizAttempts.userId, userId),
+        eq(userQuizAttempts.passed, 'true')
+      ));
+    
+    const passedAssessments = await db.select().from(userTierAssessmentAttempts)
+      .where(and(
+        eq(userTierAssessmentAttempts.userId, userId),
+        eq(userTierAssessmentAttempts.passed, 'true')
+      ));
 
     for (const badge of allBadges) {
-      const criteria = JSON.parse(badge.criteria);
+      // Skip if already earned
+      if (earnedBadgeIds.includes(badge.id)) {
+        continue;
+      }
 
+      const criteria = JSON.parse(badge.criteria);
       let shouldAward = false;
 
-      // Check criteria
-      if (criteria.type === "articles_completed" && stats.completedArticles >= criteria.count) {
-        shouldAward = true;
-      } else if (criteria.type === "quizzes_passed" && stats.passedQuizzes >= criteria.count) {
-        shouldAward = true;
-      } else if (criteria.type === "study_streak" && stats.studyStreak >= criteria.days) {
-        shouldAward = true;
-      } else if (criteria.type === "tier_completed" && criteria.tier === 1) {
-        const tier1Passed = await hasUserPassedTierAssessment(userId, 1);
-        shouldAward = tier1Passed;
+      // Check different badge criteria types
+      switch (criteria.type) {
+        case 'article_completion':
+          shouldAward = completedArticles.length >= criteria.count;
+          break;
+
+        case 'quiz_passed':
+          shouldAward = passedQuizzes.length >= criteria.count;
+          break;
+
+        case 'perfect_quiz':
+          // Check if user has any quiz with 100% score
+          const perfectQuiz = passedQuizzes.find(q => {
+            // Assuming quiz has 5 questions
+            return q.score === 5;
+          });
+          shouldAward = !!perfectQuiz;
+          break;
+
+        case 'perfect_quiz_count':
+          const perfectQuizzes = passedQuizzes.filter(q => q.score === 5);
+          shouldAward = perfectQuizzes.length >= criteria.count;
+          break;
+
+        case 'tier_assessment_passed':
+          const tierPassed = passedAssessments.find(a => a.tierId === criteria.tier_id);
+          shouldAward = !!tierPassed;
+          break;
+
+        case 'assessments_passed':
+          // Count unique tier assessments passed
+          const uniqueTiers = new Set(passedAssessments.map(a => a.tierId));
+          shouldAward = uniqueTiers.size >= criteria.count;
+          break;
+
+        case 'all_tiers_completed':
+          // Check if user has passed all 7 tier assessments
+          const uniquePassedTiers = new Set(passedAssessments.map(a => a.tierId));
+          shouldAward = uniquePassedTiers.size >= 7;
+          break;
+
+        case 'quiz_retry_success':
+          // Check if user failed then passed the same quiz
+          const allQuizAttempts = await db.select().from(userQuizAttempts)
+            .where(eq(userQuizAttempts.userId, userId))
+            .orderBy(userQuizAttempts.createdAt);
+          
+          const articleAttempts = new Map<number, any[]>();
+          allQuizAttempts.forEach(attempt => {
+            if (!articleAttempts.has(attempt.articleId)) {
+              articleAttempts.set(attempt.articleId, []);
+            }
+            articleAttempts.get(attempt.articleId)!.push(attempt);
+          });
+          
+          for (const [articleId, attempts] of Array.from(articleAttempts.entries())) {
+            if (attempts.length >= 2) {
+              const hasFailed = attempts.some((a: any) => a.passed === 'false');
+              const hasPassed = attempts.some((a: any) => a.passed === 'true');
+              if (hasFailed && hasPassed) {
+                shouldAward = true;
+                break;
+              }
+            }
+          }
+          break;
+
+        case 'tier_speed':
+          // Check if user completed a tier in under specified days
+          // This would require tracking tier start/completion dates
+          // For now, skip this criteria
+          break;
       }
 
       if (shouldAward) {
         const awarded = await awardBadge(userId, badge.id);
         if (awarded) {
-          earnedBadgeIds.push(badge.id);
+          newlyAwardedBadges.push({
+            id: badge.id,
+            name: badge.name,
+            icon: badge.icon || '🏆'
+          });
         }
       }
     }
 
-    return earnedBadgeIds;
+    return newlyAwardedBadges;
   } catch (error) {
     console.error("[Supabase Database] Failed to check and award badges:", error);
     return [];
