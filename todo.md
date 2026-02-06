@@ -3962,4 +3962,8 @@
 ## Move Level Display to Learn Finance Page
 - [x] Remove level display from Home page
 - [x] Add level display to Learn Finance page above stats cards
+- [x] Test and save checkpoint
+
+## Update Level Display Text Format
+- [x] Change level display from "Level [Name]" to "Your current Personal Financial Skill is: [Name]"
 - [ ] Test and save checkpoint

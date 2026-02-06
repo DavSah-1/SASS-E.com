@@ -17,8 +17,11 @@ export function LevelDisplay({ level, overallProgress, variant = "full" }: Level
       <div className="flex items-center gap-3">
         <span className="text-4xl">{level.emoji}</span>
         <div>
-          <div className="text-lg font-bold text-yellow-200">
-            Level {level.name}
+          <div>
+            <p className="text-xs text-slate-400">Your current skill:</p>
+            <div className="text-lg font-bold text-yellow-200">
+              {level.name}
+            </div>
           </div>
           <div className="text-xs text-slate-300">{level.description}</div>
         </div>
@@ -35,13 +38,18 @@ export function LevelDisplay({ level, overallProgress, variant = "full" }: Level
 
           {/* Level Info */}
           <div className="flex-1">
-            <div className="flex items-baseline gap-2 mb-2">
-              <h3 className="text-2xl font-bold text-purple-200">
-                Level {level.name}
-              </h3>
-              <span className="text-sm text-slate-400">
-                ({overallProgress}% overall progress)
-              </span>
+            <div className="mb-2">
+              <p className="text-sm text-slate-300 mb-1">
+                Your current Personal Financial Skill is:
+              </p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-3xl font-bold text-purple-200">
+                  {level.name}
+                </h3>
+                <span className="text-sm text-slate-400">
+                  ({overallProgress}% overall progress)
+                </span>
+              </div>
             </div>
 
             <p className="text-slate-300 mb-4">{level.description}</p>
