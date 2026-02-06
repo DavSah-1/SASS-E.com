@@ -42,11 +42,48 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "wouter";
 import { HubSelectionModal } from "@/components/HubSelectionModal";
+import { LevelDisplay } from "@/components/learn-finance/LevelDisplay";
 import { CheckoutHubModal } from "@/components/CheckoutHubModal";
 import { useHubSelection } from "@/hooks/useHubSelection";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { savePlanSelection } from "@/lib/planSelection";
+
+function UserLevelSection() {
+  const { data: userStats, isLoading } = trpc.learnFinance.getUserStats.useQuery();
+
+  if (isLoading || !userStats) {
+    return null;
+  }
+
+  const { level, overallProgress } = userStats;
+
+  if (!level) {
+    return null;
+  }
+
+  return (
+    <div className="mt-16 max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+          Your Learn Finance Progress
+        </h2>
+        <p className="text-slate-300">
+          Keep learning to level up!
+        </p>
+      </div>
+      <LevelDisplay level={level} overallProgress={overallProgress} />
+      <div className="text-center mt-6">
+        <Button asChild size="lg" variant="outline" className="border-purple-500 text-purple-300 hover:bg-purple-900/50">
+          <Link href="/learn-finance">
+            <BookOpen className="mr-2 h-5 w-5" />
+            Continue Learning
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -197,6 +234,11 @@ export default function Home() {
             )}
           </div>
         </div>
+
+        {/* User Level Display (for authenticated users) */}
+        {isAuthenticated && (
+          <UserLevelSection />
+        )}
 
         {/* Money Hub Feature Highlight - PREMIUM SECTION */}
         <div className="mt-16 sm:mt-24">

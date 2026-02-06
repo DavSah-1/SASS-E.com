@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Award, BookOpen, CheckCircle2, Target, TrendingUp } from "lucide-react";
+import { LevelDisplay } from "@/components/learn-finance/LevelDisplay";
 import { Link } from "wouter";
 
 export default function LearnFinanceProgress() {
@@ -13,12 +14,7 @@ export default function LearnFinanceProgress() {
     undefined,
     { enabled: isAuthenticated }
   );
-  const { data: userBadges, isLoading: badgesLoading } = trpc.learnFinance.getUserBadges.useQuery(
-    undefined,
-    { enabled: isAuthenticated }
-  );
-
-  if (loading || statsLoading || badgesLoading) {
+  if (loading || statsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 flex items-center justify-center">
         <div className="text-white text-xl">Loading your progress...</div>
@@ -43,7 +39,8 @@ export default function LearnFinanceProgress() {
   const totalArticles = 65; // Total articles across all tiers (10+8+12+10+8+2+7+8)
   const passedQuizzes = userStats?.passedQuizzes || 0;
   const passedAssessments = userStats?.passedAssessments || 0;
-  const earnedBadges = userBadges || [];
+  const overallProgress = userStats?.overallProgress || 0;
+  const userLevel = userStats?.level;
 
   // Calculate tier-specific progress
   const tierProgress = [
@@ -116,13 +113,13 @@ export default function LearnFinanceProgress() {
           <Card className="bg-white/10 backdrop-blur-sm border-white/20">
             <CardHeader className="pb-3">
               <CardTitle className="text-white text-sm font-medium flex items-center gap-2">
-                <Award className="w-4 h-4" />
-                Badges Earned
+                <TrendingUp className="w-4 h-4" />
+                Current Level
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-white">{earnedBadges.length}</div>
-              <p className="text-purple-200 text-sm">achievements</p>
+              <div className="text-3xl font-bold text-white">{userLevel?.emoji} {userLevel?.name}</div>
+              <p className="text-purple-200 text-sm">{overallProgress}% progress</p>
             </CardContent>
           </Card>
         </div>
@@ -179,51 +176,12 @@ export default function LearnFinanceProgress() {
           </CardContent>
         </Card>
 
-        {/* Earned Badges */}
-        <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Award className="w-5 h-5" />
-              Your Badges
-            </CardTitle>
-            <CardDescription className="text-purple-200">
-              {earnedBadges.length > 0
-                ? `You've earned ${earnedBadges.length} badge${earnedBadges.length > 1 ? 's' : ''}!`
-                : "Complete quizzes and assessments to earn badges"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {earnedBadges.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {earnedBadges.map((badge: any) => (
-                  <div
-                    key={badge.id}
-                    className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center hover:bg-white/20 transition-colors"
-                  >
-                    <div className="text-4xl mb-2">{badge.badge.icon}</div>
-                    <h4 className="text-white font-medium text-sm mb-1">
-                      {badge.badge.name}
-                    </h4>
-                    <p className="text-purple-200 text-xs">
-                      {badge.badge.description}
-                    </p>
-                    <Badge 
-                      variant="secondary" 
-                      className="mt-2 bg-white/20 text-white text-xs"
-                    >
-                      {badge.badge.tier}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-purple-200">
-                <Award className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>No badges earned yet. Keep learning to unlock achievements!</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Current Level Display */}
+        {userLevel && (
+          <div className="mb-8">
+            <LevelDisplay level={userLevel} overallProgress={overallProgress} />
+          </div>
+        )}
       </div>
     </div>
   );

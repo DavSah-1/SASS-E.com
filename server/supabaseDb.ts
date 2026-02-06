@@ -2,6 +2,7 @@ import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { pgTable, text, timestamp, varchar, pgEnum, integer, jsonb } from "drizzle-orm/pg-core";
 import { eq, and } from "drizzle-orm";
+import { getUserLevel, type Level } from "../shared/levels";
 
 /**
  * Supabase Database Connection
@@ -1062,10 +1063,12 @@ export async function getUserLearnFinanceStats(
   currentTierName: string;
   studyStreak: number;
   overallProgress: number;
+  level: Level;
 }> {
   const db = await getSupabaseDb();
   if (!db) {
     console.warn("[Supabase Database] Cannot get user stats: database not available");
+    const level = getUserLevel(0);
     return {
       completedArticles: 0,
       totalArticles: 10,
@@ -1075,6 +1078,7 @@ export async function getUserLearnFinanceStats(
       currentTierName: "Tier 1: Foundational",
       studyStreak: 0,
       overallProgress: 0,
+      level,
     };
   }
 
@@ -1145,6 +1149,9 @@ export async function getUserLearnFinanceStats(
       ? Math.round((completedArticles / totalArticles) * 100)
       : 0;
 
+    // Calculate user's level based on overall progress
+    const level = getUserLevel(overallProgress);
+
     return {
       completedArticles,
       totalArticles,
@@ -1154,9 +1161,11 @@ export async function getUserLearnFinanceStats(
       currentTierName,
       studyStreak,
       overallProgress,
+      level,
     };
   } catch (error) {
     console.error("[Supabase Database] Failed to get user stats:", error);
+    const level = getUserLevel(0);
     return {
       completedArticles: 0,
       totalArticles: 10,
@@ -1166,6 +1175,7 @@ export async function getUserLearnFinanceStats(
       currentTierName: "Tier 1: Foundational",
       studyStreak: 0,
       overallProgress: 0,
+      level,
     };
   }
 }

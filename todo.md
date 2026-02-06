@@ -3947,4 +3947,14 @@
 - [x] Add prominent "View Progress" button to Learn Finance header
 - [x] Position button in stats section for visibility
 - [x] Link button to /learn-finance/progress
-- [ ] Test and save checkpoint
+- [x] Test and save checkpoint
+
+## Implement Level-Based Progression System
+- [x] Define 9 levels (Crap, Mud, Wood, Stone, Copper, Bronze, Silver, Gold, Platinum) with emojis
+- [x] Create level progression logic based on learning progress
+- [x] Update backend to calculate user's current level
+- [x] Create LevelDisplay component
+- [x] Update Learn Finance Progress page to show current level
+- [x] Add level display to main dashboard (Home page)
+- [x] Remove or repurpose old badge system
+- [ ] Test level progression and save checkpoint
