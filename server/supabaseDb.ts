@@ -870,6 +870,9 @@ export async function getUserTierProgressionStatus(
   tier3QuizzesCompleted: boolean;
   tier3AssessmentPassed: boolean;
   tier4Unlocked: boolean;
+  tier4QuizzesCompleted: boolean;
+  tier4AssessmentPassed: boolean;
+  tier5Unlocked: boolean;
 }> {
   const db = await getSupabaseDb();
   if (!db) {
@@ -884,6 +887,9 @@ export async function getUserTierProgressionStatus(
       tier3QuizzesCompleted: false,
       tier3AssessmentPassed: false,
       tier4Unlocked: false,
+      tier4QuizzesCompleted: false,
+      tier4AssessmentPassed: false,
+      tier5Unlocked: false,
     };
   }
 
@@ -915,6 +921,15 @@ export async function getUserTierProgressionStatus(
     // Tier 4 is unlocked if Tier 3 assessment is passed
     const tier4Unlocked = tier3AssessmentPassed;
 
+    // Check if all Tier 4 quizzes are passed
+    const tier4QuizzesCompleted = await hasUserPassedAllTierQuizzes(userId, 4);
+
+    // Check if Tier 4 assessment is passed
+    const tier4AssessmentPassed = await hasUserPassedTierAssessment(userId, 4);
+
+    // Tier 5 is unlocked if Tier 4 assessment is passed
+    const tier5Unlocked = tier4AssessmentPassed;
+
     return {
       tier1QuizzesCompleted,
       tier1AssessmentPassed,
@@ -925,6 +940,9 @@ export async function getUserTierProgressionStatus(
       tier3QuizzesCompleted,
       tier3AssessmentPassed,
       tier4Unlocked,
+      tier4QuizzesCompleted,
+      tier4AssessmentPassed,
+      tier5Unlocked,
     };
   } catch (error) {
     console.error("[Supabase Database] Failed to get tier progression:", error);
@@ -938,6 +956,9 @@ export async function getUserTierProgressionStatus(
       tier3QuizzesCompleted: false,
       tier3AssessmentPassed: false,
       tier4Unlocked: false,
+      tier4QuizzesCompleted: false,
+      tier4AssessmentPassed: false,
+      tier5Unlocked: false,
     };
   }
 }
