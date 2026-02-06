@@ -40,20 +40,21 @@ export default function LearnFinanceProgress() {
   }
 
   const completedArticles = userStats?.completedArticles || 0;
-  const totalArticles = 57; // Total articles across all tiers
+  const totalArticles = 65; // Total articles across all tiers (10+8+12+10+8+2+7+8)
   const passedQuizzes = userStats?.passedQuizzes || 0;
   const passedAssessments = userStats?.passedAssessments || 0;
   const earnedBadges = userBadges || [];
 
   // Calculate tier-specific progress
   const tierProgress = [
-    { tier: 1, name: "Financial Foundations", articles: 10, completed: 0 },
-    { tier: 2, name: "Building Wealth", articles: 12, completed: 0 },
-    { tier: 3, name: "Advanced Investing", articles: 7, completed: 0 },
-    { tier: 4, name: "Tax & Estate Planning", articles: 10, completed: 0 },
-    { tier: 5, name: "Life-Stage Planning", articles: 8, completed: 0 },
+    { tier: 1, name: "Foundational Literacy", articles: 10, completed: 0 },
+    { tier: 2, name: "Building Stability", articles: 8, completed: 0 },
+    { tier: 3, name: "Growing Wealth", articles: 12, completed: 0 },
+    { tier: 4, name: "Advanced Topics", articles: 10, completed: 0 },
+    { tier: 5, name: "Life-Stage Guides", articles: 8, completed: 0 },
     { tier: 6, name: "Interactive Learning", articles: 2, completed: 0 },
     { tier: 7, name: "Behavioral Finance", articles: 7, completed: 0 },
+    { tier: 8, name: "Legacy & Impact", articles: 8, completed: 0 },
   ];
 
   return (

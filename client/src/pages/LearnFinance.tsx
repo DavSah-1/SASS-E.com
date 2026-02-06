@@ -184,7 +184,7 @@ export default function LearnFinance() {
   const [searchQuery, setSearchQuery] = useState("");
   
   // Fetch real articles from database
-  const { data: articles, isLoading } = trpc.learnFinance.getArticles.useQuery();
+  const { data: articles, isLoading, error } = trpc.learnFinance.getArticles.useQuery();
 
   // Get user's tier progression status
   const { data: tierProgression } = trpc.learnFinance.getTierProgressionStatus.useQuery(
@@ -192,6 +192,39 @@ export default function LearnFinance() {
     { enabled: isAuthenticated }
   );
   
+  // Show loading state
+  if (isLoading) {
+    return (
+      <>
+        <Navigation />
+        <div className="min-h-screen bg-gradient-to-b from-orange-950/30 via-yellow-950/20 to-amber-950/30 flex items-center justify-center">
+          <div className="text-center">
+            <BookOpen className="w-12 h-12 mx-auto mb-4 animate-pulse text-yellow-500" />
+            <p className="text-slate-300 text-lg">Loading financial wisdom...</p>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <>
+        <Navigation />
+        <div className="min-h-screen bg-gradient-to-b from-orange-950/30 via-yellow-950/20 to-amber-950/30 flex items-center justify-center">
+          <div className="text-center max-w-md">
+            <h2 className="text-2xl font-bold text-yellow-200 mb-2">Oops! Something Went Wrong</h2>
+            <p className="text-slate-300 mb-4">Failed to load articles. Please try refreshing the page.</p>
+            <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+          </div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   // Use real articles or fallback to sample data
   const sampleArticles = articles?.map((article, index) => ({
     id: article.id,
