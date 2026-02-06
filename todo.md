@@ -3941,4 +3941,10 @@
 ## Fix React Hooks Error in LearnFinance
 - [x] Move all hooks to top of LearnFinance component before conditional returns
 - [x] Test fix and verify no hook order violations
-- [ ] Save checkpoint
+- [x] Save checkpoint
+
+## Add View Progress Button to Learn Finance Header
+- [x] Add prominent "View Progress" button to Learn Finance header
+- [x] Position button in stats section for visibility
+- [x] Link button to /learn-finance/progress
+- [ ] Test and save checkpoint

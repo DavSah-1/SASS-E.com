@@ -269,13 +269,24 @@ export default function LearnFinance() {
       <div className="bg-gradient-to-b from-yellow-900/40 via-orange-900/30 to-yellow-950/20 border-b border-yellow-500/30">
         <div className="container py-8">
           {/* Title and Subtitle */}
-          <div className="mb-6">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2 text-yellow-200">
-              Learn Finance
-            </h1>
-            <p className="text-slate-300">
-              Master personal finance with SASS-E's sarcastic yet straightforward approach
-            </p>
+          <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2 text-yellow-200">
+                Learn Finance
+              </h1>
+              <p className="text-slate-300">
+                Master personal finance with SASS-E's sarcastic yet straightforward approach
+              </p>
+            </div>
+            <Link href="/learn-finance/progress">
+              <Button 
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+              >
+                <TrendingUp className="h-5 w-5" />
+                View Progress
+              </Button>
+            </Link>
           </div>
 
           {/* Stats Row */}
