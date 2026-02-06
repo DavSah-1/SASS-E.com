@@ -3957,4 +3957,9 @@
 - [x] Update Learn Finance Progress page to show current level
 - [x] Add level display to main dashboard (Home page)
 - [x] Remove or repurpose old badge system
-- [ ] Test level progression and save checkpoint
+- [x] Test level progression and save checkpoint
+
+## Move Level Display to Learn Finance Page
+- [x] Remove level display from Home page
+- [x] Add level display to Learn Finance page above stats cards
+- [ ] Test and save checkpoint

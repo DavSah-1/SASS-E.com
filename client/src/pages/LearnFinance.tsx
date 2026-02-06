@@ -28,6 +28,7 @@ import { trpc } from "@/lib/trpc";
 import TierAssessment from "@/components/TierAssessment";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { LevelDisplay } from "@/components/learn-finance/LevelDisplay";
 
 // Learning tier structure
 const learningTiers = [
@@ -288,6 +289,13 @@ export default function LearnFinance() {
               </Button>
             </Link>
           </div>
+
+          {/* Level Display */}
+          {userStats?.level && (
+            <div className="mb-8">
+              <LevelDisplay level={userStats.level} overallProgress={userStats.overallProgress} />
+            </div>
+          )}
 
           {/* Stats Row */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
