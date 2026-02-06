@@ -191,9 +191,15 @@ export default function LearnFinance() {
     undefined,
     { enabled: isAuthenticated }
   );
+
+  // Fetch real user stats from backend (MUST be before conditional returns)
+  const { data: userStats, isLoading: statsLoading } = trpc.learnFinance.getUserStats.useQuery(
+    undefined,
+    { enabled: isAuthenticated }
+  );
   
   // Show loading state
-  if (isLoading) {
+  if (isLoading || statsLoading) {
     return (
       <>
         <Navigation />
@@ -245,12 +251,6 @@ export default function LearnFinance() {
     (searchQuery === "" || 
      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
      article.summary.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  // Fetch real user stats from backend
-  const { data: userStats, isLoading: statsLoading } = trpc.learnFinance.getUserStats.useQuery(
-    undefined,
-    { enabled: isAuthenticated }
   );
 
   // Use real data or fallback to defaults
