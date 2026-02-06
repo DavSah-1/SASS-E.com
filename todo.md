@@ -3774,3 +3774,12 @@
 - [ ] Test Tier 2 article display and navigation
 - [ ] Test Tier 2 quiz functionality
 - [ ] Test Tier 2 assessment unlock and submission
+
+## Tier 2 → Tier 3 Progression Logic
+- [x] Update backend to check if all Tier 2 article quizzes are passed - hasUserPassedAllTierQuizzes() now supports Tier 2
+- [x] Update getTierProgressionStatus to include Tier 2 and Tier 3 unlock status - added tier2QuizzesCompleted, tier2AssessmentPassed, tier3Unlocked
+- [x] Update TierAssessment component to show locked state for Tier 2 assessment - dynamic tier names and article counts
+- [x] Add visual lock indicator and message for locked Tier 2 Mastery Assessment - yellow-orange theme with lock icon
+- [x] Update LearnFinance page to lock Tier 3 content until Tier 2 assessment passed - isTier3Locked logic added
+- [x] Add visual lock indicator for Tier 3 in sidebar navigation - "Pass Tier 2 Assessment" message
+- [ ] Test full progression: Complete all Tier 2 quizzes → Unlock Tier 2 assessment → Pass assessment → Unlock Tier 3

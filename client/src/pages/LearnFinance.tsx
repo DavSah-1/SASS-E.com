@@ -344,26 +344,29 @@ export default function LearnFinance() {
                 {learningTiers.map((tier) => {
                   const Icon = tier.icon;
                   const isTier2 = tier.id === 2;
+                  const isTier3 = tier.id === 3;
                   const isTier2Locked = isTier2 && isAuthenticated && !tierProgression?.tier2Unlocked;
+                  const isTier3Locked = isTier3 && isAuthenticated && !tierProgression?.tier3Unlocked;
+                  const isLocked = isTier2Locked || isTier3Locked;
                   
                   return (
                     <button
                       key={tier.id}
                       onClick={() => {
-                        if (isTier2Locked) return; // Don't allow clicking locked tiers
+                        if (isLocked) return; // Don't allow clicking locked tiers
                         setSelectedTier(tier.id);
                       }}
                       className={`w-full text-left p-3 rounded-lg transition-all ${
                         selectedTier === tier.id
                           ? `${tier.bgColor} border-2 border-current ${tier.color}`
-                          : isTier2Locked
+                          : isLocked
                           ? "opacity-50 cursor-not-allowed"
                           : "hover:bg-muted"
                       }`}
-                      disabled={isTier2Locked}
+                      disabled={isLocked}
                     >
                       <div className="flex items-start gap-3">
-                        {isTier2Locked ? (
+                        {isLocked ? (
                           <Lock className="h-5 w-5 mt-0.5 flex-shrink-0 text-muted-foreground" />
                         ) : (
                           <Icon className={`h-5 w-5 mt-0.5 flex-shrink-0 ${tier.color}`} />
@@ -371,13 +374,13 @@ export default function LearnFinance() {
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-sm mb-1">
                             {tier.name}
-                            {isTier2Locked && " 🔒"}
+                            {isLocked && " 🔒"}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {isTier2Locked ? "Pass Tier 1 Assessment" : `${tier.articles} articles`}
+                            {isTier2Locked ? "Pass Tier 1 Assessment" : isTier3Locked ? "Pass Tier 2 Assessment" : `${tier.articles} articles`}
                           </div>
                         </div>
-                        {selectedTier === tier.id && !isTier2Locked && (
+                        {selectedTier === tier.id && !isLocked && (
                           <ChevronRight className="h-4 w-4 flex-shrink-0" />
                         )}
                       </div>

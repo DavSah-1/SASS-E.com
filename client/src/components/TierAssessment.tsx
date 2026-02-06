@@ -121,25 +121,40 @@ export default function TierAssessment({ tierId }: TierAssessmentProps) {
 
   // Show locked state if user hasn't passed all tier quizzes
   if (!allQuizzesPassed) {
+    const tierNames: Record<number, string> = {
+      1: "Tier 1: Foundational Literacy",
+      2: "Tier 2: Building Stability",
+      3: "Tier 3: Growing Wealth",
+    };
+    
+    const tierArticleCounts: Record<number, number> = {
+      1: 10,
+      2: 8,
+      3: 12,
+    };
+    
+    const tierName = tierNames[tierId] || `Tier ${tierId}`;
+    const articleCount = tierArticleCounts[tierId] || 10;
+    
     return (
-      <Card className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-pink-500/5">
+      <Card className="border-2 border-yellow-500/30 bg-gradient-to-br from-yellow-900/40 to-orange-900/40">
         <CardHeader>
           <div className="flex items-center gap-3 mb-2">
-            <Lock className="w-8 h-8 text-purple-500" />
-            <CardTitle>Tier 1 Mastery Assessment 🔒</CardTitle>
+            <Lock className="w-8 h-8 text-yellow-500" />
+            <CardTitle className="text-yellow-200">{tierName} Mastery Assessment 🔒</CardTitle>
           </div>
-          <CardDescription>
-            Complete and pass all 10 Tier 1 article quizzes to unlock this assessment.
+          <CardDescription className="text-slate-300">
+            Complete and pass all {articleCount} {tierName} article quizzes to unlock this assessment.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="p-6 bg-muted/50 rounded-lg text-center">
-            <Lock className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">Assessment Locked</h3>
-            <p className="text-muted-foreground mb-4">
-              You need to pass the quiz for each of the 10 Tier 1 articles before you can take this comprehensive assessment.
+          <div className="p-6 bg-black/30 backdrop-blur-sm rounded-lg text-center border border-yellow-500/20">
+            <Lock className="w-16 h-16 mx-auto mb-4 text-yellow-500/60" />
+            <h3 className="text-lg font-semibold mb-2 text-yellow-200">Assessment Locked</h3>
+            <p className="text-slate-300 mb-4">
+              You need to pass the quiz for each of the {articleCount} {tierName} articles before you can take this comprehensive assessment.
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-400">
               💡 Tip: Each article quiz requires 80% (4/5 correct) to pass. Review the articles and take the quizzes to unlock this assessment.
             </p>
           </div>

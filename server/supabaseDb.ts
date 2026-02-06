@@ -779,43 +779,76 @@ export async function hasUserPassedAllTierQuizzes(
   }
 
   try {
-    // For Tier 1: Get all published articles (currently all are Tier 1)
+    // Get articles for the specified tier
+    // Tier 1: slugs start with budgeting, zero-based, envelope, banking, credit-score, credit-report, good-debt, avalanche, compound, emergency-fund-basics
+    // Tier 2: slugs start with emergency-fund-fundamentals, types-of-insurance, retirement-account, employer-benefits, building-credit, debt-consolidation, savings-account, financial-goal
+    
+    let tierSlugs: string[] = [];
     if (tierId === 1) {
-      const allArticles = await db
-        .select()
-        .from(financeArticles)
-        .where(eq(financeArticles.published, "true"));
-      
-      if (allArticles.length === 0) {
-        return false;
-      }
+      tierSlugs = [
+        'budgeting-101',
+        'zero-based-budgeting',
+        'envelope-system',
+        'banking-basics',
+        'credit-score-fundamentals',
+        'reading-credit-report',
+        'good-vs-bad-debt',
+        'avalanche-vs-snowball',
+        'compound-interest',
+        'emergency-fund-basics'
+      ];
+    } else if (tierId === 2) {
+      tierSlugs = [
+        'emergency-fund-fundamentals',
+        'types-of-insurance',
+        'retirement-account-basics',
+        'employer-benefits',
+        'building-credit-history',
+        'debt-consolidation',
+        'savings-account-types',
+        'financial-goal-setting'
+      ];
+    } else {
+      // Unsupported tier
+      return false;
+    }
 
-      // Check if user has passed quiz for each article
-      for (const article of allArticles) {
-        const passedAttempts = await db
-          .select()
-          .from(userQuizAttempts)
-          .where(
-            and(
-              eq(userQuizAttempts.userId, userId),
-              eq(userQuizAttempts.articleId, article.id),
+    // Get all articles for this tier
+    const allArticles = await db
+      .select()
+      .from(financeArticles)
+      .where(eq(financeArticles.published, "true"));
+    
+    const tierArticles = allArticles.filter(article => 
+      tierSlugs.includes(article.slug)
+    );
+    
+    if (tierArticles.length === 0) {
+      return false;
+    }
+
+    // Check if user has passed quiz for each article in this tier
+    for (const article of tierArticles) {
+      const passedAttempts = await db
+        .select()
+        .from(userQuizAttempts)
+        .where(
+          and(
+            eq(userQuizAttempts.userId, userId),
+            eq(userQuizAttempts.articleId, article.id),
               eq(userQuizAttempts.passed, "true")
             )
           )
           .limit(1);
         
-        // If user hasn't passed this article's quiz, return false
-        if (passedAttempts.length === 0) {
-          return false;
-        }
+      // If user hasn't passed this article's quiz, return false
+      if (passedAttempts.length === 0) {
+        return false;
       }
-
-      // User has passed all quizzes in Tier 1
-      return true;
     }
 
-    // For other tiers: not implemented yet
-    return false;
+    // User has passed all quizzes in this tier
+    return true;
   } catch (error) {
     console.error("[Supabase Database] Failed to check tier quizzes:", error);
     return false;
@@ -831,6 +864,9 @@ export async function getUserTierProgressionStatus(
   tier1QuizzesCompleted: boolean;
   tier1AssessmentPassed: boolean;
   tier2Unlocked: boolean;
+  tier2QuizzesCompleted: boolean;
+  tier2AssessmentPassed: boolean;
+  tier3Unlocked: boolean;
 }> {
   const db = await getSupabaseDb();
   if (!db) {
@@ -839,6 +875,9 @@ export async function getUserTierProgressionStatus(
       tier1QuizzesCompleted: false,
       tier1AssessmentPassed: false,
       tier2Unlocked: false,
+      tier2QuizzesCompleted: false,
+      tier2AssessmentPassed: false,
+      tier3Unlocked: false,
     };
   }
 
@@ -852,10 +891,22 @@ export async function getUserTierProgressionStatus(
     // Tier 2 is unlocked if Tier 1 assessment is passed
     const tier2Unlocked = tier1AssessmentPassed;
 
+    // Check if all Tier 2 quizzes are passed
+    const tier2QuizzesCompleted = await hasUserPassedAllTierQuizzes(userId, 2);
+
+    // Check if Tier 2 assessment is passed
+    const tier2AssessmentPassed = await hasUserPassedTierAssessment(userId, 2);
+
+    // Tier 3 is unlocked if Tier 2 assessment is passed
+    const tier3Unlocked = tier2AssessmentPassed;
+
     return {
       tier1QuizzesCompleted,
       tier1AssessmentPassed,
       tier2Unlocked,
+      tier2QuizzesCompleted,
+      tier2AssessmentPassed,
+      tier3Unlocked,
     };
   } catch (error) {
     console.error("[Supabase Database] Failed to get tier progression:", error);
@@ -863,6 +914,9 @@ export async function getUserTierProgressionStatus(
       tier1QuizzesCompleted: false,
       tier1AssessmentPassed: false,
       tier2Unlocked: false,
+      tier2QuizzesCompleted: false,
+      tier2AssessmentPassed: false,
+      tier3Unlocked: false,
     };
   }
 }
