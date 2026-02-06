@@ -3966,4 +3966,4 @@
 
 ## Update Level Display Text Format
 - [x] Change level display from "Level [Name]" to "Your current Personal Financial Skill is: [Name]"
-- [ ] Test and save checkpoint
+- [x] Test and save checkpoint

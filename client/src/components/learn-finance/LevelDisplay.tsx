@@ -40,7 +40,7 @@ export function LevelDisplay({ level, overallProgress, variant = "full" }: Level
           <div className="flex-1">
             <div className="mb-2">
               <p className="text-sm text-slate-300 mb-1">
-                Your current Personal Financial Skill is:
+                Your current Personal Financial Knowledge is:
               </p>
               <div className="flex items-baseline gap-2">
                 <h3 className="text-3xl font-bold text-purple-200">
