@@ -345,9 +345,11 @@ export default function LearnFinance() {
                   const Icon = tier.icon;
                   const isTier2 = tier.id === 2;
                   const isTier3 = tier.id === 3;
+                  const isTier4 = tier.id === 4;
                   const isTier2Locked = isTier2 && isAuthenticated && !tierProgression?.tier2Unlocked;
                   const isTier3Locked = isTier3 && isAuthenticated && !tierProgression?.tier3Unlocked;
-                  const isLocked = isTier2Locked || isTier3Locked;
+                  const isTier4Locked = isTier4 && isAuthenticated && !tierProgression?.tier4Unlocked;
+                  const isLocked = isTier2Locked || isTier3Locked || isTier4Locked;
                   
                   return (
                     <button
@@ -377,7 +379,7 @@ export default function LearnFinance() {
                             {isLocked && " 🔒"}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {isTier2Locked ? "Pass Tier 1 Assessment" : isTier3Locked ? "Pass Tier 2 Assessment" : `${tier.articles} articles`}
+                            {isTier2Locked ? "Pass Tier 1 Assessment" : isTier3Locked ? "Pass Tier 2 Assessment" : isTier4Locked ? "Pass Tier 3 Assessment" : `${tier.articles} articles`}
                           </div>
                         </div>
                         {selectedTier === tier.id && !isLocked && (
