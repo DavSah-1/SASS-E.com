@@ -3835,3 +3835,21 @@
 - [x] Insert Tier 4 assessment into database - 10 questions inserted successfully
 - [x] Implement Tier 4 → Tier 5 progression logic - backend and frontend updated to support Tier 5 unlocking
 - [ ] Test Tier 4 content and save checkpoint
+
+## Build Tier 5: Life-Stage Financial Planning Content
+- [x] Create 8 Tier 5 article topics and outlines
+- [x] Write full content for Financial Planning in Your 20s article
+- [x] Write full content for Financial Planning in Your 30s article
+- [x] Write full content for Financial Planning in Your 40s article
+- [x] Write full content for Financial Planning in Your 50s article
+- [x] Write full content for Pre-Retirement Planning (60s) article
+- [x] Write full content for Retirement Transition Strategies article
+- [x] Write full content for Financial Planning for Parents article
+- [x] Write full content for Financial Planning for Couples article
+- [x] Create 5-question quiz for each of the 8 articles (40 questions total)
+- [x] Create 10-question Tier 5 Mastery Assessment
+- [x] Insert all Tier 5 articles into database
+- [x] Insert all Tier 5 quizzes into database
+- [x] Insert Tier 5 assessment into database
+- [x] Implement Tier 5 → Tier 6 progression logic
+- [ ] Test Tier 5 content and save checkpoint
