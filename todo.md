@@ -3985,3 +3985,12 @@
 - [x] Change Hubs dropdown from hover-based to click-based behavior
 - [x] Add click-outside detection to close dropdown when clicking elsewhere
 - [x] Close dropdown when user clicks a hub link
+
+## Language Learning Page Responsiveness Check
+- [x] Test desktop viewport (1920px, 1440px, 1024px)
+- [x] Test tablet viewport (768px, 834px)
+- [x] Test mobile viewport (375px, 414px, 390px)
+- [x] Fix stats cards grid layout (2 cols mobile, 3 cols tablet, 5 cols desktop)
+- [x] Fix feature cards grid (1 col mobile, 2 cols desktop)
+- [x] Re-test all viewports after fixes
+- [x] Ensure all features work properly on all screen sizes

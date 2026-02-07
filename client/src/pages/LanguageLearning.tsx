@@ -390,7 +390,7 @@ export default function LanguageLearning() {
           {progress && (
             <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
               <CardContent className="pt-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                   <div className="text-center">
                     <div className="flex items-center justify-center mb-2">
                       <Brain className="h-5 w-5 text-primary mr-2" />
@@ -444,7 +444,7 @@ export default function LanguageLearning() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
