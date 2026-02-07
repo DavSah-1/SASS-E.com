@@ -4008,3 +4008,12 @@
 - [x] Fix console.error at line 268 in languageTTS.ts
 - [x] Add 'synthesis-failed' to suppressed errors list
 - [x] Remove console.error, keep only console.warn for critical errors
+
+## Fix Practice Pronunciation Responsiveness
+- [x] Test Practice Pronunciation feature on Vocabulary tab
+- [x] Replace custom modal with shadcn Dialog component
+- [x] Add max-height constraint (90vh) with overflow scroll
+- [x] Make button layout responsive (stack on mobile)
+- [x] Make detailed scores grid responsive (1 col mobile, 2 cols desktop)
+- [x] Remove Card wrapper (Dialog provides container)
+- [x] Test across all viewports (mobile, tablet, desktop)

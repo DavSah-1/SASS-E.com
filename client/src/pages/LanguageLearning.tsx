@@ -3,6 +3,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { AnimatedTabs as Tabs, AnimatedTabsContent as TabsContent, AnimatedTabsList as TabsList, AnimatedTabsTrigger as TabsTrigger } from "@/components/AnimatedTabs";
@@ -953,17 +954,17 @@ export default function LanguageLearning() {
       </div>
 
       {/* Pronunciation Practice Modal */}
-      {showPronunciationPractice && currentFlashcard && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="max-w-2xl w-full">
+      <Dialog open={showPronunciationPractice} onOpenChange={setShowPronunciationPractice}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {currentFlashcard && (
             <PronunciationPractice
               word={currentFlashcard.word}
               languageCode={selectedLanguage}
               onClose={() => setShowPronunciationPractice(false)}
             />
-          </div>
-        </div>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
       <Footer />
     </div>
   );

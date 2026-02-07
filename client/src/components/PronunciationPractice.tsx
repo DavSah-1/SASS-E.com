@@ -316,8 +316,7 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
   };
 
   return (
-    <Card className="w-full">
-      <CardContent className="pt-6 space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
           <h3 className="text-2xl font-bold">Practice Pronunciation</h3>
@@ -388,7 +387,7 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
           )}
 
           {userRecording && !isProcessing && (
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 variant="outline"
                 onClick={playUserRecording}
@@ -420,7 +419,7 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
 
         {/* Waveform Comparison */}
         {userRecording && nativeWaveform.length > 0 && !isProcessing && (
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-x-auto">
             <WaveformDisplay
               waveform={nativeWaveform}
               color="#10b981"
@@ -446,7 +445,7 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
             </div>
 
             {/* Detailed Scores */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Pitch</span>
@@ -510,8 +509,7 @@ export function PronunciationPractice({ word, languageCode, onClose }: Pronuncia
             </Button>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }
 
