@@ -3980,3 +3980,8 @@
 
 ## Fix Navigation - Add Translation Hub
 - [x] Add Translation Hub to Hubs dropdown menu in Navigation component (between Wellness and Learning)
+
+## Change Hubs Dropdown to Click-Based
+- [x] Change Hubs dropdown from hover-based to click-based behavior
+- [x] Add click-outside detection to close dropdown when clicking elsewhere
+- [x] Close dropdown when user clicks a hub link

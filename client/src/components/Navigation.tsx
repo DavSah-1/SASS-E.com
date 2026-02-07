@@ -27,6 +27,7 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
   const [showHubsDropdown, setShowHubsDropdown] = React.useState(false);
+  const hubsDropdownRef = React.useRef<HTMLDivElement>(null);
   const { t, translate } = useLanguage();
   const isOnline = useOnlineStatus();
   const [, setLocation] = useLocation();
@@ -43,6 +44,23 @@ export function Navigation() {
     });
     setLocation("/");
   };
+
+  // Click-outside detection for Hubs dropdown
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (hubsDropdownRef.current && !hubsDropdownRef.current.contains(event.target as Node)) {
+        setShowHubsDropdown(false);
+      }
+    };
+
+    if (showHubsDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showHubsDropdown]);
 
   return (
     <nav className="sticky top-0 z-50 border-b border-purple-500/20 bg-slate-900/50 backdrop-blur">
@@ -66,27 +84,46 @@ export function Navigation() {
               {translate("Translate")}
             </a>
             {/* Hubs Dropdown */}
-            <div className="relative" onMouseEnter={() => setShowHubsDropdown(true)} onMouseLeave={() => setShowHubsDropdown(false)}>
-              <button className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+            <div className="relative" ref={hubsDropdownRef}>
+              <button 
+                onClick={() => setShowHubsDropdown(!showHubsDropdown)}
+                className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2"
+              >
                 <Grid className="h-4 w-4" />
                 {translate("Hubs")}
                 <ChevronDown className="h-3 w-3" />
               </button>
               {showHubsDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-slate-800 border border-purple-500/20 rounded-lg shadow-xl py-2">
-                  <a href="/hubs/money" className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors">
+                <div className="absolute top-full left-0 mt-2 w-48 bg-slate-800 border border-purple-500/20 rounded-lg shadow-xl py-2 z-50">
+                  <a 
+                    href="/hubs/money" 
+                    className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors"
+                    onClick={() => setShowHubsDropdown(false)}
+                  >
                     <Wallet className="h-4 w-4" />
                     {translate("Money Hub")}
                   </a>
-                  <a href="/hubs/wellness" className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors">
+                  <a 
+                    href="/hubs/wellness" 
+                    className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors"
+                    onClick={() => setShowHubsDropdown(false)}
+                  >
                     <Heart className="h-4 w-4" />
                     {translate("Wellness Hub")}
                   </a>
-                  <a href="/hubs/translate" className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors">
+                  <a 
+                    href="/hubs/translate" 
+                    className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors"
+                    onClick={() => setShowHubsDropdown(false)}
+                  >
                     <Languages className="h-4 w-4" />
                     {translate("Translation Hub")}
                   </a>
-                  <a href="/hubs/learning" className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors">
+                  <a 
+                    href="/hubs/learning" 
+                    className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors"
+                    onClick={() => setShowHubsDropdown(false)}
+                  >
                     <GraduationCap className="h-4 w-4" />
                     {translate("Learning Hub")}
                   </a>
