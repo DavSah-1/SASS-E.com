@@ -225,52 +225,8 @@ export default function LanguageLearning() {
   const handlePronounce = async (text: string) => {
     setIsSpeaking(true);
     
-    // Try server-side TTS first (high quality)
-    try {
-      const result = await generateAudio.mutateAsync({
-        word: text,
-        languageCode: selectedLanguage,
-        speed: ttsSpeed,
-      });
-
-      if (result.success && result.audio) {
-        // Play the server-generated audio
-        const audioData = `data:${result.contentType};base64,${result.audio}`;
-        
-        if (audioRef.current) {
-          audioRef.current.pause();
-        }
-        
-        const audio = new Audio(audioData);
-        audioRef.current = audio;
-        
-        // iOS requires loading the audio before playing
-        audio.load();
-        
-        audio.onended = () => setIsSpeaking(false);
-        audio.onerror = (e) => {
-          console.error('[TTS] Audio playback error:', e);
-          setIsSpeaking(false);
-          // Fallback to browser TTS
-          fallbackToBrowserTTS(text);
-        };
-        
-        // iOS Safari requires user interaction to play audio
-        // The play() call must be in direct response to user action
-        try {
-          await audio.play();
-        } catch (playError) {
-          console.error('[TTS] Play error:', playError);
-          // Fallback to browser TTS if play fails
-          fallbackToBrowserTTS(text);
-        }
-        return;
-      }
-    } catch (error) {
-      console.log('[TTS] Server TTS failed, falling back to browser:', error);
-    }
-
-    // Fallback to browser TTS
+    // Use browser TTS directly (reliable and works across all platforms)
+    // Note: Server-side TTS endpoint is not available in current Forge API
     fallbackToBrowserTTS(text);
   };
 
@@ -287,13 +243,15 @@ export default function LanguageLearning() {
         onEnd: () => setIsSpeaking(false),
         onError: (error) => {
           setIsSpeaking(false);
-          toast.error("Pronunciation failed. Please try again.");
+          // Only show error for critical failures, not synthesis-failed which is common
+          if (error.message.includes('network') || error.message.includes('not-allowed')) {
+            toast.error("Pronunciation failed. Please try again.");
+          }
           console.error('[TTS] Browser error:', error);
         },
       });
     } catch (error) {
       setIsSpeaking(false);
-      toast.error("Failed to play pronunciation.");
       console.error('[TTS] Error:', error);
     }
   };

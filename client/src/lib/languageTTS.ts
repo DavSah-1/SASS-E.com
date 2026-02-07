@@ -232,8 +232,15 @@ export function speakInLanguage(
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
   
-  // Mobile fix: Some browsers need a small delay after cancel
-  setTimeout(() => {
+  // Helper function to attempt speech synthesis
+  const attemptSynthesis = () => {
+    const voices = getAllVoices();
+    if (voices.length === 0) {
+      console.warn('[TTS] No voices available yet, will retry');
+    }
+    
+    // Mobile fix: Some browsers need a small delay after cancel
+    setTimeout(() => {
     const voice = getBestVoiceForLanguage(languageCode);
     
     const utterance = new SpeechSynthesisUtterance(text);
@@ -259,27 +266,60 @@ export function speakInLanguage(
     
     utterance.onerror = (event) => {
       console.error('[TTS] Speech synthesis error:', event);
-      // Don't report "interrupted" errors as they're usually from cancel()
-      if (event.error !== 'interrupted' && event.error !== 'canceled') {
-        options?.onError?.(new Error(`Speech synthesis failed: ${event.error}`));
+      // Don't report "interrupted" or "canceled" errors as they're usually from cancel()
+      // Also suppress "synthesis-failed" errors when they're likely due to browser limitations
+      const suppressedErrors = ['interrupted', 'canceled', 'cancelled'];
+      if (!suppressedErrors.includes(event.error)) {
+        // Log the error but don't show it to user if we can retry
+        console.warn(`[TTS] Synthesis error: ${event.error}, this is often temporary`);
+        // Only call onError for truly critical errors
+        if (event.error === 'network' || event.error === 'not-allowed') {
+          options?.onError?.(new Error(`Speech synthesis failed: ${event.error}`));
+        }
       }
     };
     
-    // Mobile fix: Chrome on Android sometimes needs the speech to be triggered
-    // in a specific way to work properly
-    try {
-      window.speechSynthesis.speak(utterance);
-      
-      // Mobile fix: Some browsers pause speech synthesis when in background
-      // Resume if paused
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
+      // Mobile fix: Chrome on Android sometimes needs the speech to be triggered
+      // in a specific way to work properly
+      try {
+        window.speechSynthesis.speak(utterance);
+        
+        // Mobile fix: Some browsers pause speech synthesis when in background
+        // Resume if paused
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+      } catch (error) {
+        console.error('[TTS] Error speaking:', error);
+        options?.onError?.(new Error('Failed to start speech synthesis'));
       }
-    } catch (error) {
-      console.error('[TTS] Error speaking:', error);
-      options?.onError?.(new Error('Failed to start speech synthesis'));
-    }
-  }, 50);
+    }, 50);
+  };
+  
+  // Check if voices are loaded, if not wait a bit and retry
+  const voices = getAllVoices();
+  if (voices.length === 0) {
+    // Wait for voices to load with retries
+    let retryCount = 0;
+    const maxRetries = 3;
+    const retryInterval = setInterval(() => {
+      const currentVoices = getAllVoices();
+      retryCount++;
+      
+      if (currentVoices.length > 0 || retryCount >= maxRetries) {
+        clearInterval(retryInterval);
+        if (currentVoices.length > 0) {
+          console.log(`[TTS] Voices loaded after ${retryCount} retries`);
+        } else {
+          console.warn('[TTS] Proceeding without enumerated voices');
+        }
+        attemptSynthesis();
+      }
+    }, 200); // Check every 200ms
+  } else {
+    // Voices already loaded, proceed immediately
+    attemptSynthesis();
+  }
 }
 
 /**

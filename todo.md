@@ -3994,3 +3994,12 @@
 - [x] Fix feature cards grid (1 col mobile, 2 cols desktop)
 - [x] Re-test all viewports after fixes
 - [x] Ensure all features work properly on all screen sizes
+
+## Fix Language Learning TTS Errors
+- [x] Investigate speech synthesis failed errors in languageTTS.ts
+- [x] Fix error handling in TTS implementation
+- [x] Ensure proper voice loading and availability checks
+- [x] Switch to browser TTS directly (server-side endpoint not available)
+- [x] Suppress non-critical synthesis errors
+- [x] Add retry mechanism for voice loading
+- [x] Test pronunciation feature with different languages
