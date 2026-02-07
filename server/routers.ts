@@ -22,6 +22,7 @@ import { translateChatRouter } from "./translateChatRouter";
 import { translationRouter as i18nRouter } from "./translationRouter";
 import { adminPinRouter } from "./adminPinRouter";
 import { learnFinanceRouter } from "./learnFinanceRouter";
+import { piperTTSRouter } from "./piperTTSRouter";
 import { toNumericId } from "./_core/dbWrapper";
 
 export const appRouter = router({
@@ -39,6 +40,7 @@ export const appRouter = router({
   translateChat: translateChatRouter,
   i18n: i18nRouter,
   learnFinance: learnFinanceRouter,
+  piperTTS: piperTTSRouter,
 
   subscription: router({
     selectHubs: protectedProcedure

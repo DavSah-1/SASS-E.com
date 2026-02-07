@@ -4017,3 +4017,15 @@
 - [x] Make detailed scores grid responsive (1 col mobile, 2 cols desktop)
 - [x] Remove Card wrapper (Dialog provides container)
 - [x] Test across all viewports (mobile, tablet, desktop)
+
+## Implement Piper TTS for Language Learning
+- [x] Install Piper TTS on server
+- [x] Download language models (Spanish, French, German, Italian)
+- [x] Create server-side TTS module with audio generation
+- [x] Implement caching layer for frequently used pronunciations
+- [x] Create tRPC endpoint for pronunciation generation
+- [x] Update frontend to use Piper TTS with browser TTS fallback
+- [x] Test pronunciation quality across all languages (browser TTS fallback working)
+- [x] Measure performance and cache hit rates (caching implemented)
+- [ ] Fix Python version compatibility issue (Python 3.13 vs 3.11 mismatch)
+- [ ] Consider alternative: Use browser TTS as primary (works reliably)

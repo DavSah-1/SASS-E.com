@@ -75,6 +75,7 @@ export default function LanguageLearning() {
 
   // Server-side TTS mutation for high-quality audio (must be declared before any conditional returns)
   const generateAudio = trpc.learning.generatePronunciationAudio.useMutation();
+  const piperTTSMutation = trpc.piperTTS.generatePronunciation.useMutation();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Save TTS speed to localStorage when it changes
@@ -226,9 +227,47 @@ export default function LanguageLearning() {
   const handlePronounce = async (text: string) => {
     setIsSpeaking(true);
     
-    // Use browser TTS directly (reliable and works across all platforms)
-    // Note: Server-side TTS endpoint is not available in current Forge API
-    fallbackToBrowserTTS(text);
+    try {
+      // Try Piper TTS first for high-quality pronunciation
+      const result = await piperTTSMutation.mutateAsync({
+        text,
+        language: selectedLanguage,
+        speed: ttsSpeed,
+      });
+
+      if (result.success && result.audio) {
+        // Convert base64 to audio and play
+        const audioData = atob(result.audio);
+        const arrayBuffer = new Uint8Array(audioData.length);
+        for (let i = 0; i < audioData.length; i++) {
+          arrayBuffer[i] = audioData.charCodeAt(i);
+        }
+        const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        
+        audio.onended = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(url);
+        };
+        
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          URL.revokeObjectURL(url);
+          // Fallback to browser TTS on playback error
+          fallbackToBrowserTTS(text);
+        };
+        
+        await audio.play();
+      } else {
+        // Fallback to browser TTS if Piper fails
+        fallbackToBrowserTTS(text);
+      }
+    } catch (error) {
+      console.warn('[TTS] Piper TTS failed, using browser fallback:', error);
+      // Fallback to browser TTS on any error
+      fallbackToBrowserTTS(text);
+    }
   };
 
   const fallbackToBrowserTTS = (text: string) => {
