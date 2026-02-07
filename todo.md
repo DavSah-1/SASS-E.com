@@ -4025,7 +4025,16 @@
 - [x] Implement caching layer for frequently used pronunciations
 - [x] Create tRPC endpoint for pronunciation generation
 - [x] Update frontend to use Piper TTS with browser TTS fallback
-- [x] Test pronunciation quality across all languages (browser TTS fallback working)
+- [x] Test pronunciation quality across all languages
 - [x] Measure performance and cache hit rates (caching implemented)
-- [ ] Fix Python version compatibility issue (Python 3.13 vs 3.11 mismatch)
-- [ ] Consider alternative: Use browser TTS as primary (works reliably)
+- [x] Fix Python version compatibility issue (resolved with venv + unset PYTHONPATH/PYTHONHOME)
+
+## Resolve Python Version Conflict for Piper TTS
+- [x] Uninstall current Piper TTS installation
+- [x] Reinstall Piper TTS using pip3.11 (Python 3.11 specific)
+- [x] Create Python 3.11 virtual environment for Piper
+- [x] Install Piper TTS in virtual environment
+- [x] Update shell wrapper to use venv Python
+- [x] Unset PYTHONPATH and PYTHONHOME in shell wrapper to prevent Python 3.13 interference
+- [x] Test Piper TTS script with venv
+- [x] Test pronunciation feature end-to-end with Piper voices (WORKING!)

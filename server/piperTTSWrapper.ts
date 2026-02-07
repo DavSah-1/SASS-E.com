@@ -10,7 +10,7 @@ import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const PIPER_SCRIPT = path.join(__dirname, 'piperTTS.py');
+const PIPER_SCRIPT = path.join(__dirname, 'piperTTS.sh');
 
 export interface TTSOptions {
   text: string;
@@ -33,8 +33,9 @@ export async function generateSpeech(options: TTSOptions): Promise<TTSResult> {
   const { text, language, speed = 1.0 } = options;
 
   return new Promise((resolve) => {
-    const args = [PIPER_SCRIPT, language, text, speed.toString()];
-    const python = spawn('python3.11', args, {
+    const args = [language, text, speed.toString()];
+    console.log('[Piper TTS Wrapper] Executing:', PIPER_SCRIPT, 'with args:', args);
+    const python = spawn(PIPER_SCRIPT, args, {
       cwd: path.dirname(PIPER_SCRIPT),
     });
 
@@ -87,7 +88,7 @@ export async function generateSpeech(options: TTSOptions): Promise<TTSResult> {
  */
 export async function getCacheStats(): Promise<any> {
   return new Promise((resolve) => {
-    const python = spawn('python3.11', [
+    const python = spawn(PIPER_SCRIPT, [
       '-c',
       `
 import sys
@@ -118,7 +119,7 @@ print(json.dumps(get_cache_stats()))
  */
 export async function clearCache(): Promise<number> {
   return new Promise((resolve) => {
-    const python = spawn('python3.11', [
+    const python = spawn(PIPER_SCRIPT, [
       '-c',
       `
 import sys

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.11
 """
 Piper TTS Module for Language Learning
 Provides high-quality text-to-speech synthesis with caching
