@@ -265,13 +265,12 @@ export function speakInLanguage(
     };
     
     utterance.onerror = (event) => {
-      console.error('[TTS] Speech synthesis error:', event);
       // Don't report "interrupted" or "canceled" errors as they're usually from cancel()
       // Also suppress "synthesis-failed" errors when they're likely due to browser limitations
-      const suppressedErrors = ['interrupted', 'canceled', 'cancelled'];
+      const suppressedErrors = ['interrupted', 'canceled', 'cancelled', 'synthesis-failed'];
       if (!suppressedErrors.includes(event.error)) {
-        // Log the error but don't show it to user if we can retry
-        console.warn(`[TTS] Synthesis error: ${event.error}, this is often temporary`);
+        // Log only for debugging critical errors
+        console.warn(`[TTS] Synthesis error: ${event.error}`);
         // Only call onError for truly critical errors
         if (event.error === 'network' || event.error === 'not-allowed') {
           options?.onError?.(new Error(`Speech synthesis failed: ${event.error}`));
