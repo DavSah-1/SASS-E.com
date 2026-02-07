@@ -82,6 +82,10 @@ export function Navigation() {
                     <Heart className="h-4 w-4" />
                     {translate("Wellness Hub")}
                   </a>
+                  <a href="/hubs/translate" className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors">
+                    <Languages className="h-4 w-4" />
+                    {translate("Translation Hub")}
+                  </a>
                   <a href="/hubs/learning" className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors">
                     <GraduationCap className="h-4 w-4" />
                     {translate("Learning Hub")}
@@ -198,6 +202,14 @@ export function Navigation() {
               >
                 <Heart className="h-5 w-5" />
                 <span>{translate("Wellness Hub")}</span>
+              </a>
+              <a
+                href="/hubs/translate"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2 pl-6"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Languages className="h-5 w-5" />
+                <span>{translate("Translation Hub")}</span>
               </a>
               <a
                 href="/hubs/learning"

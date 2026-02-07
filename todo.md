@@ -3977,3 +3977,6 @@
 - [x] Update navbar to show Hubs with dropdown/submenu
 - [x] Update all internal links and route references
 - [x] Test all routes and ensure nothing breaks
+
+## Fix Navigation - Add Translation Hub
+- [x] Add Translation Hub to Hubs dropdown menu in Navigation component (between Wellness and Learning)
