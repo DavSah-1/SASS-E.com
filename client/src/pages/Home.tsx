@@ -184,7 +184,7 @@ export default function Home() {
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 w-full sm:w-auto border-green-500 text-green-300 hover:bg-green-900/50">
-                  <Link href="/money">
+                  <Link href="/hubs/money">
                     <DollarSign className="mr-2 h-5 w-5" />
                     {t("Money Hub")}
                   </Link>
@@ -310,7 +310,7 @@ export default function Home() {
 
                 <div className="text-center">
             <Button asChild size="lg" className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-8 py-6 text-lg">
-              <Link href="/money">
+              <Link href="/hubs/money">
                       {t("Explore Money Hub")}
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
@@ -433,7 +433,7 @@ export default function Home() {
 
                 <div className="text-center">
                   <Button asChild size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold px-8 py-6 text-lg">
-                    <Link href="/wellness">
+                    <Link href="/hubs/wellness">
                       Explore Wellness Hub
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>

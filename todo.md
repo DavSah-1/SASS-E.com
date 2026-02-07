@@ -3967,3 +3967,13 @@
 ## Update Level Display Text Format
 - [x] Change level display from "Level [Name]" to "Your current Personal Financial Skill is: [Name]"
 - [x] Test and save checkpoint
+
+## Navigation Reorganization
+- [x] Create /hubs landing page
+- [x] Move /money to /hubs/money
+- [x] Move /wellness to /hubs/wellness
+- [x] Move /translate-app to /hubs/translate
+- [x] Move /specialised-learning to /hubs/learning
+- [x] Update navbar to show Hubs with dropdown/submenu
+- [x] Update all internal links and route references
+- [x] Test all routes and ensure nothing breaks

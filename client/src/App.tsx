@@ -30,6 +30,7 @@ import LearnFinance from "./pages/LearnFinance";
 import LearnFinanceProgress from "./pages/LearnFinanceProgress";
 import ArticleReader from "./pages/ArticleReader";
 import Wellness from "./pages/Wellness";
+import Hubs from "./pages/Hubs";
 import WellnessDemo from "./pages/WellnessDemo";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -63,22 +64,28 @@ function Router() {
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/math-curriculum"} component={MathCurriculum} />
       <Route path={"/science-lab"} component={ScienceLab} />
-      <Route path={"/specialized-learning"} component={SpecializedLearning} />
-      <Route path={"/wellness"} component={Wellness} />
+      <Route path={"/hubs"} component={Hubs} />
+      <Route path={"/hubs/learning"} component={SpecializedLearning} />
+      <Route path={"/hubs/wellness"} component={Wellness} />
       <Route path={"/wellness-demo"} component={WellnessDemo} />
       <Route path={"/terms"} component={Terms} />
       <Route path={"/privacy"} component={Privacy} />
       <Route path={"/pricing"} component={Pricing} />
       <Route path={"/subscription/success"} component={SubscriptionSuccess} />
-      {/* Redirect old wellbeing route to wellness */}
-      <Route path={"/wellbeing"}>{() => { window.location.href = "/wellness"; return null; }}</Route>
+      {/* Redirect old routes to new hub structure */}
+      <Route path={"/wellbeing"}>{() => { window.location.href = "/hubs/wellness"; return null; }}</Route>
+      <Route path={"/wellness"}>{() => { window.location.href = "/hubs/wellness"; return null; }}</Route>
+      <Route path={"/money"}>{() => { window.location.href = "/hubs/money"; return null; }}</Route>
+      <Route path={"/translate-app"}>{() => { window.location.href = "/hubs/translate"; return null; }}</Route>
+      <Route path={"/specialized-learning"}>{() => { window.location.href = "/hubs/learning"; return null; }}</Route>
       <Route path={"/profile"} component={Profile} />
-      <Route path={"/money"} component={Money} />
+      <Route path={"/hubs/money"} component={Money} />
       <Route path={"/money-demo"} component={MoneyDemo} />
-      {/* Redirect old routes to Money page with tab parameter */}
-      <Route path={"/budget"}>{() => { window.location.href = "/money?tab=budget"; return null; }}</Route>
-      <Route path={"/debt-coach"}>{() => { window.location.href = "/money?tab=debts"; return null; }}</Route>
-      <Route path={"/goals"}>{() => { window.location.href = "/money?tab=goals"; return null; }}</Route>
+      <Route path={"/hubs/translate"} component={Translation} />
+      {/* Redirect old routes to Money hub with tab parameter */}
+      <Route path={"/budget"}>{() => { window.location.href = "/hubs/money?tab=budget"; return null; }}</Route>
+      <Route path={"/debt-coach"}>{() => { window.location.href = "/hubs/money?tab=debts"; return null; }}</Route>
+      <Route path={"/goals"}>{() => { window.location.href = "/hubs/money?tab=goals"; return null; }}</Route>
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

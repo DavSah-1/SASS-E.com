@@ -601,7 +601,7 @@ export default function Learning() {
             {/* View All Button */}
             <div className="mt-6 text-center">
               <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">
-                <a href="/specialized-learning">
+                <a href="/hubs/learning">
                   View All Learning Paths
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>

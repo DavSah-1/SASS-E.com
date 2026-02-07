@@ -51,7 +51,7 @@ export default function TranslateLanding() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             {isAuthenticated ? (
               <Button asChild size="lg" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-6 text-lg">
-                <Link href="/translate-app">
+                <Link href="/hubs/translate">
                   Start Translating
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
@@ -327,7 +327,7 @@ export default function TranslateLanding() {
             <CardContent>
               {isAuthenticated ? (
                 <Button asChild size="lg" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-6 text-lg">
-                  <Link href="/translate-app">
+                  <Link href="/hubs/translate">
                     Start Translating Now
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>

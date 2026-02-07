@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff, AlertCircle, DollarSign } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff, AlertCircle, DollarSign, ChevronDown, Grid } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -26,6 +26,7 @@ export function Navigation() {
   const { isInstallable, isInstalled, installApp } = usePWA();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
+  const [showHubsDropdown, setShowHubsDropdown] = React.useState(false);
   const { t, translate } = useLanguage();
   const isOnline = useOnlineStatus();
   const [, setLocation] = useLocation();
@@ -60,18 +61,34 @@ export function Navigation() {
               <GraduationCap className="h-4 w-4" />
               {translate("Learning")}
             </a>
-            <a href={isAuthenticated ? "/translate-app" : "/translate"} className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+            <a href={isAuthenticated ? "/hubs/translate" : "/translate"} className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Languages className="h-4 w-4" />
               {translate("Translate")}
             </a>
-            <a href="/money" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-              <Wallet className="h-4 w-4" />
-              {translate("Money")}
-            </a>
-            <a href="/wellness" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-              <Heart className="h-4 w-4" />
-              {translate("Wellness")}
-            </a>
+            {/* Hubs Dropdown */}
+            <div className="relative" onMouseEnter={() => setShowHubsDropdown(true)} onMouseLeave={() => setShowHubsDropdown(false)}>
+              <button className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+                <Grid className="h-4 w-4" />
+                {translate("Hubs")}
+                <ChevronDown className="h-3 w-3" />
+              </button>
+              {showHubsDropdown && (
+                <div className="absolute top-full left-0 mt-2 w-48 bg-slate-800 border border-purple-500/20 rounded-lg shadow-xl py-2">
+                  <a href="/hubs/money" className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors">
+                    <Wallet className="h-4 w-4" />
+                    {translate("Money Hub")}
+                  </a>
+                  <a href="/hubs/wellness" className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors">
+                    <Heart className="h-4 w-4" />
+                    {translate("Wellness Hub")}
+                  </a>
+                  <a href="/hubs/learning" className="flex items-center gap-3 px-4 py-2 text-slate-300 hover:text-purple-400 hover:bg-slate-700/50 transition-colors">
+                    <GraduationCap className="h-4 w-4" />
+                    {translate("Learning Hub")}
+                  </a>
+                </div>
+              )}
+            </div>
             <a href="/pricing" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
               {translate("Pricing")}
@@ -153,29 +170,44 @@ export function Navigation() {
               <span>{translate("Learning")}</span>
             </a>
             <a
-              href={isAuthenticated ? "/translate-app" : "/translate"}
+              href={isAuthenticated ? "/hubs/translate" : "/translate"}
               className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               <Languages className="h-5 w-5" />
               <span>{translate("Translate")}</span>
             </a>
-            <a
-              href="/money"
-              className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Wallet className="h-5 w-5" />
-              <span>{translate("Money")}</span>
-            </a>
-            <a
-              href="/wellness"
-              className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Heart className="h-5 w-5" />
-              <span>{translate("Wellness")}</span>
-            </a>
+            {/* Hubs Section */}
+            <div className="border-t border-purple-500/20 pt-3 mt-3">
+              <div className="flex items-center gap-2 text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                <Grid className="h-4 w-4" />
+                {translate("Hubs")}
+              </div>
+              <a
+                href="/hubs/money"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2 pl-6"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Wallet className="h-5 w-5" />
+                <span>{translate("Money Hub")}</span>
+              </a>
+              <a
+                href="/hubs/wellness"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2 pl-6"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Heart className="h-5 w-5" />
+                <span>{translate("Wellness Hub")}</span>
+              </a>
+              <a
+                href="/hubs/learning"
+                className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2 pl-6"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <GraduationCap className="h-5 w-5" />
+                <span>{translate("Learning Hub")}</span>
+              </a>
+            </div>
             <a
               href="/pricing"
               className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
