@@ -600,17 +600,34 @@ export default function LanguageLearning() {
 
                         {/* Translation (revealed on flip) */}
                         {showAnswer && (
-                          <div className="space-y-4 animate-in fade-in duration-300">
-                            <div className="p-4 bg-primary/10 rounded-lg">
-                              <p className="text-2xl font-semibold">{currentFlashcard.translation}</p>
+                          <div className="space-y-6 animate-in fade-in duration-300">
+                            {/* Word Section */}
+                            <div className="p-4 border-2 border-primary/20 rounded-lg bg-primary/5 space-y-3">
+                              <h3 className="text-xs font-semibold text-primary uppercase tracking-wide">Word</h3>
+                              <div className="p-3 bg-background rounded-md">
+                                <p className="text-2xl font-semibold">{currentFlashcard.translation}</p>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  (window as any).currentPracticeSentence = null;
+                                  setShowPronunciationPractice(true);
+                                }}
+                                className="w-full gap-2"
+                              >
+                                <Mic className="h-3 w-3" />
+                                Practice Word Pronunciation
+                              </Button>
                             </div>
 
+                            {/* Sentence Section */}
                             {currentFlashcard.exampleSentence && (
-                              <div className="text-left space-y-3">
-                                <p className="text-sm font-medium">Example Sentence:</p>
-                                <div className="p-3 bg-muted rounded-lg space-y-2">
+                              <div className="p-4 border-2 border-secondary/20 rounded-lg bg-secondary/5 space-y-3">
+                                <h3 className="text-xs font-semibold text-secondary-foreground uppercase tracking-wide">Example in Context</h3>
+                                <div className="p-3 bg-background rounded-md space-y-2">
                                   <div className="flex items-start gap-2">
-                                    <p className="text-sm italic flex-1">{currentFlashcard.exampleSentence}</p>
+                                    <p className="text-base italic flex-1">{currentFlashcard.exampleSentence}</p>
                                     <Button
                                       variant="ghost"
                                       size="icon"
@@ -623,22 +640,21 @@ export default function LanguageLearning() {
                                     </Button>
                                   </div>
                                   {currentFlashcard.exampleTranslation && (
-                                    <p className="text-xs text-muted-foreground">{currentFlashcard.exampleTranslation}</p>
+                                    <p className="text-sm text-muted-foreground">{currentFlashcard.exampleTranslation}</p>
                                   )}
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                      // Store sentence for pronunciation practice
-                                      (window as any).currentPracticeSentence = currentFlashcard.exampleSentence;
-                                      setShowPronunciationPractice(true);
-                                    }}
-                                    className="w-full gap-2 mt-2"
-                                  >
-                                    <Mic className="h-3 w-3" />
-                                    Practice Sentence Pronunciation
-                                  </Button>
                                 </div>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    (window as any).currentPracticeSentence = currentFlashcard.exampleSentence;
+                                    setShowPronunciationPractice(true);
+                                  }}
+                                  className="w-full gap-2"
+                                >
+                                  <Mic className="h-3 w-3" />
+                                  Practice Sentence Pronunciation
+                                </Button>
                               </div>
                             )}
 

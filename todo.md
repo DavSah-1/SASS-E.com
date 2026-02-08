@@ -4047,3 +4047,9 @@
 - [x] Add Practice Pronunciation button for sentences
 - [x] Ensure pronunciation analysis works for full sentences
 - [x] Test responsiveness on mobile/tablet (inherits Dialog responsiveness from previous fix)
+
+## Reorganize Vocabulary Flashcard Layout for Better UX
+- [x] Separate word section and sentence section into distinct visual areas
+- [x] Add clear visual separation (borders, spacing, background colors)
+- [x] Ensure both sections have their own TTS and Practice buttons
+- [x] Test responsiveness on mobile/tablet (tested and working)
