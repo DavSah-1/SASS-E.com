@@ -4038,3 +4038,12 @@
 - [x] Unset PYTHONPATH and PYTHONHOME in shell wrapper to prevent Python 3.13 interference
 - [x] Test Piper TTS script with venv
 - [x] Test pronunciation feature end-to-end with Piper voices (WORKING!)
+
+## Add Example Sentences to Vocabulary Flashcards
+- [x] Analyze current vocabulary data structure in LanguageLearning.tsx
+- [x] Verified example sentences already exist in database
+- [x] Update flashcard UI to display sentences below words
+- [x] Add TTS button for sentence pronunciation
+- [x] Add Practice Pronunciation button for sentences
+- [x] Ensure pronunciation analysis works for full sentences
+- [x] Test responsiveness on mobile/tablet (inherits Dialog responsiveness from previous fix)
