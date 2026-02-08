@@ -4053,3 +4053,11 @@
 - [x] Add clear visual separation (borders, spacing, background colors)
 - [x] Ensure both sections have their own TTS and Practice buttons
 - [x] Test responsiveness on mobile/tablet (tested and working)
+
+## Remove Show Answer Button - Make Vocabulary Content Immediately Visible
+- [x] Remove Show Answer button from vocabulary flashcards
+- [x] Remove showAnswer state logic
+- [x] Make word translation visible immediately
+- [x] Make example sentence visible immediately
+- [x] Make all TTS and Practice buttons visible immediately
+- [x] Test flashcard functionality

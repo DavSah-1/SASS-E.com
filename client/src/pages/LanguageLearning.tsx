@@ -55,7 +55,7 @@ export default function LanguageLearning() {
   }, [loading, languageHubAccess.isLoading, languageHubAccess.allowed, isAuthenticated]);
   const [activeTab, setActiveTab] = useState("overview");
   const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
+  // Show answer removed - all content visible by default
   const [grammarTopic, setGrammarTopic] = useState("");
   const [grammarExplanation, setGrammarExplanation] = useState<any>(null);
   const [isGeneratingGrammar, setIsGeneratingGrammar] = useState(false);
@@ -112,7 +112,7 @@ export default function LanguageLearning() {
       toast.success(data.message);
       refetchFlashcards();
       refetchProgress();
-      setShowAnswer(false);
+      // Show answer state removed
       setCurrentFlashcardIndex((prev) => prev + 1);
     },
   });
@@ -562,7 +562,7 @@ export default function LanguageLearning() {
                       size="sm"
                       onClick={() => {
                         setCurrentFlashcardIndex(0);
-                        setShowAnswer(false);
+                        // Show answer state removed
                       }}
                     >
                       <RotateCcw className="h-4 w-4 mr-2" />
@@ -598,8 +598,8 @@ export default function LanguageLearning() {
                           </Badge>
                         </div>
 
-                        {/* Translation (revealed on flip) */}
-                        {showAnswer && (
+                        {/* Translation (always visible) */}
+                       {true && (
                           <div className="space-y-6 animate-in fade-in duration-300">
                             {/* Word Section */}
                             <div className="p-4 border-2 border-primary/20 rounded-lg bg-primary/5 space-y-3">
@@ -684,31 +684,23 @@ export default function LanguageLearning() {
                           </div>
 
                           <div className="flex gap-4 justify-center">
-                            {!showAnswer ? (
-                              <Button onClick={() => setShowAnswer(true)} size="lg" className="w-full max-w-xs">
-                                Show Answer
-                              </Button>
-                            ) : (
-                              <>
-                                <Button
-                                  onClick={() => handleFlashcardResponse(false)}
-                                  variant="outline"
-                                  size="lg"
-                                  className="flex-1"
-                                >
-                                  <XCircle className="mr-2 h-5 w-5" />
-                                  Didn't Know
-                                </Button>
-                                <Button
-                                  onClick={() => handleFlashcardResponse(true)}
-                                  size="lg"
-                                  className="flex-1"
-                                >
-                                  <CheckCircle2 className="mr-2 h-5 w-5" />
-                                  Got It!
-                                </Button>
-                              </>
-                            )}
+                            <Button
+                              onClick={() => handleFlashcardResponse(false)}
+                              variant="outline"
+                              size="lg"
+                              className="flex-1"
+                            >
+                              <XCircle className="mr-2 h-5 w-5" />
+                              Didn't Know
+                            </Button>
+                            <Button
+                              onClick={() => handleFlashcardResponse(true)}
+                              size="lg"
+                              className="flex-1"
+                            >
+                              <CheckCircle2 className="mr-2 h-5 w-5" />
+                              Got It!
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -724,7 +716,7 @@ export default function LanguageLearning() {
                       </p>
                       <Button onClick={() => {
                         setCurrentFlashcardIndex(0);
-                        setShowAnswer(false);
+                        // Show answer state removed
                       }}>
                         Review Again
                       </Button>
