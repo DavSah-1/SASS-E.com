@@ -32,8 +32,8 @@ import { initializeSpeechSynthesis, speakInLanguage, stopSpeech, isTTSAvailableF
 import { PronunciationPractice } from "@/components/PronunciationPractice";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
 import { useLocation } from "wouter";
 
 export default function LanguageLearning() {
@@ -42,17 +42,17 @@ export default function LanguageLearning() {
   const [selectedLanguage, setSelectedLanguage] = useState<string>("es");
   
   // Hub access control
-  const languageHubAccess = useFeatureAccess("specialized_hub", "language_learning");
+  const hubAccess = useHubAccess("language_learning");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
-  // Hub access control - show upgrade prompt if no access
+  // Check hub access and show modal if needed
   useEffect(() => {
-    if (!loading && !languageHubAccess.isLoading && isAuthenticated) {
-      if (!languageHubAccess.allowed) {
-        // Could redirect or show upgrade prompt
-        // For now, we'll show an upgrade prompt at the top of the page
-      }
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
     }
-  }, [loading, languageHubAccess.isLoading, languageHubAccess.allowed, isAuthenticated]);
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
+  
+
   const [activeTab, setActiveTab] = useState("overview");
   const [currentFlashcardIndex, setCurrentFlashcardIndex] = useState(0);
   // Show answer removed - all content visible by default
@@ -374,15 +374,7 @@ export default function LanguageLearning() {
             </div>
           </div>
 
-          {/* Upgrade Prompt if no access */}
-          {!languageHubAccess.allowed && !languageHubAccess.isLoading && languageHubAccess.upgradeRequired && (
-            <div className="mb-6">
-              <UpgradePrompt
-                featureName="Language Learning Hub"
-                reason={languageHubAccess.reason}
-              />
-            </div>
-          )}
+
 
           {/* Progress Overview */}
           {progress && (
@@ -1043,6 +1035,16 @@ export default function LanguageLearning() {
         </DialogContent>
       </Dialog>
       <Footer />
+      
+      {/* Hub Access Modal */}
+      <HubUpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="language_learning"
+        hubName="Language Learning Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
     </div>
   );
 }

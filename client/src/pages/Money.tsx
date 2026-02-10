@@ -42,8 +42,8 @@ import DebtCoach from "./DebtCoach";
 import Goals from "./Goals";
 import { BudgetAlerts } from "@/components/BudgetAlerts";
 import { FinancialInsights } from "@/components/FinancialInsights";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
 
 // Wrapper to hide navigation in embedded context
 const BudgetTab = () => {
@@ -75,19 +75,16 @@ export default function Money() {
   const { translate: t } = useLanguage();
   const [location, setLocation] = useLocation();
   
-  // Hub access control - only check for authenticated users
-  const moneyHubAccess = useFeatureAccess("specialized_hub", "money_hub", { enabled: isAuthenticated });
+  // Hub access control
+  const hubAccess = useHubAccess("money_hub");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Hub access control - only redirect authenticated users without access
-  // Wait for access check to complete before redirecting
-  // Owner bypass happens on backend, so we need to wait for the response
+  // Check hub access and show modal if needed
   useEffect(() => {
-    if (!loading && !moneyHubAccess.isLoading && isAuthenticated && moneyHubAccess.allowed === false) {
-      // Only redirect if explicitly denied (not undefined/loading)
-      toast.error("You don't have access to Money Hub. Please upgrade your plan.");
-      setLocation('/pricing');
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
     }
-  }, [loading, moneyHubAccess.isLoading, moneyHubAccess.allowed, isAuthenticated, setLocation]);
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
   
   // Read tab from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -859,6 +856,16 @@ export default function Money() {
         </Tabs>
       </div>
       <Footer />
+      
+      {/* Hub Access Modal */}
+      <HubUpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="money_hub"
+        hubName="Money Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
     </div>
   );
 }

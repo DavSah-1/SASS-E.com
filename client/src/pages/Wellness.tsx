@@ -48,10 +48,10 @@ import { WorkoutLibrary } from "@/components/WorkoutLibrary";
 import { WearableDevices } from "@/components/WearableDevices";
 import { WellnessOnboarding } from "@/components/WellnessOnboarding";
 import { CoachingDashboard } from "@/components/CoachingDashboard";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
-import { useLocation } from "wouter";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
 import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 export default function Wellness() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -60,19 +60,16 @@ export default function Wellness() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   
-  // Hub access control - only check for authenticated users
-  const wellnessHubAccess = useFeatureAccess("specialized_hub", "wellness", { enabled: isAuthenticated });
+  // Hub access control
+  const hubAccess = useHubAccess("wellness");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
-  // Hub access control - only redirect authenticated users without access
-  // Wait for access check to complete before redirecting
-  // Owner bypass happens on backend, so we need to wait for the response
+  // Check hub access and show modal if needed
   useEffect(() => {
-    if (!loading && !wellnessHubAccess.isLoading && isAuthenticated && wellnessHubAccess.allowed === false) {
-      // Only redirect if explicitly denied (not undefined/loading)
-      toast.error("You don't have access to Wellness Hub. Please upgrade your plan.");
-      setLocation('/pricing');
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
     }
-  }, [loading, wellnessHubAccess.isLoading, wellnessHubAccess.allowed, isAuthenticated, setLocation]);
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
 
   // Fitness state
   const [workoutTitle, setWorkoutTitle] = useState("");
@@ -1334,6 +1331,16 @@ export default function Wellness() {
         />
       )}
       <Footer />
+      
+      {/* Hub Access Modal */}
+      <HubUpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="wellness"
+        hubName="Wellness Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
     </div>
   );
 }

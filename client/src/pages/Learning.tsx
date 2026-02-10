@@ -14,7 +14,9 @@ import { Navigation } from "@/components/Navigation";
 import { Link } from "wouter";
 import { Footer } from "@/components/Footer";
 import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
+import { useEffect } from "react";
 
 export default function Learning() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -32,6 +34,17 @@ export default function Learning() {
   const studyGuideMutation = trpc.learning.generateStudyGuide.useMutation();
   const quizMutation = trpc.learning.generateQuiz.useMutation();
   const submitQuizMutation = trpc.learning.submitQuizAttempt.useMutation();
+  
+  // Hub access control
+  const hubAccess = useHubAccess("math_tutor");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // Check hub access and show modal if needed
+  useEffect(() => {
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
+    }
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
   
   // Access control - only check for authenticated users
   const learningAccess = useFeatureAccess("verified_learning", undefined, { enabled: isAuthenticated });
@@ -471,15 +484,7 @@ export default function Learning() {
             </p>
           </div>
 
-          {/* Upgrade Prompt if limit reached */}
-          {!learningAccess.allowed && !learningAccess.isLoading && learningAccess.upgradeRequired && (
-            <UpgradePrompt
-              featureName="Verified Learning"
-              currentUsage={learningAccess.currentUsage}
-              limit={learningAccess.limit}
-              reason={learningAccess.reason}
-            />
-          )}
+
 
           {/* Quick Learning Section */}
           <div className="mb-8">
@@ -954,6 +959,16 @@ export default function Learning() {
         </div>
       </div>
       <Footer />
+      
+      {/* Hub Access Modal */}
+      <HubUpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="math_tutor"
+        hubName="Math Tutor Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
     </div>
   );
 }
