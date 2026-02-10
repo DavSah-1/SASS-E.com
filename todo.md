@@ -4089,3 +4089,10 @@
 - [x] Add import confirmation and review step
 - [x] Test with sample CSV and OFX files
 - [x] Write unit tests for import functionality
+
+## Remove Duplicate Export Button
+- [x] Locate both Export buttons in Budget page
+- [x] Identify which Export button has format dropdown (CSV/PDF/Excel)
+- [x] Remove the standalone Export button without dropdown
+- [x] Test that format dropdown Export button still works
+- [x] Verify UI looks clean without duplicate button

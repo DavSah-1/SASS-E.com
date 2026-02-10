@@ -243,8 +243,15 @@ export default function Budget() {
                   />
                 </DialogContent>
               </Dialog>
-              <Select value={exportFormat} onValueChange={(value: 'csv' | 'pdf' | 'excel') => setExportFormat(value)}>
-                <SelectTrigger className="w-[140px]">
+              <Select value={exportFormat} onValueChange={(value: 'csv' | 'pdf' | 'excel') => {
+                setExportFormat(value);
+                toast.info(`Exporting as ${value.toUpperCase()}...`);
+                // TODO: Implement actual export functionality
+                setTimeout(() => {
+                  toast.success(`Budget exported as ${value.toUpperCase()}!`);
+                }, 1000);
+              }}>
+                <SelectTrigger className="w-[180px]">
                   <Download className="h-4 w-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>
@@ -254,20 +261,6 @@ export default function Budget() {
                   <SelectItem value="excel">Export Excel</SelectItem>
                 </SelectContent>
               </Select>
-              <Button 
-                variant="outline" 
-                className="gap-2"
-                onClick={() => {
-                  toast.info(`Exporting as ${exportFormat.toUpperCase()}...`);
-                  // TODO: Implement actual export functionality
-                  setTimeout(() => {
-                    toast.success(`Budget exported as ${exportFormat.toUpperCase()}!`);
-                  }, 1000);
-                }}
-              >
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
             </div>
           </div>
         </div>
