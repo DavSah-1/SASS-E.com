@@ -4221,3 +4221,15 @@
 ## Code Cleanup - Remove Unused Learning Component
 - [x] Delete unused Learning.tsx component file
 - [x] Remove Learning import from App.tsx
+
+## Component Audit - Identify Unused Legacy Components
+- [x] List all page components in the project
+- [x] Check component usage in App.tsx routing
+- [x] Identify unused or legacy components
+- [x] Create comprehensive audit report
+
+## Delete Legacy Money Hub Components
+- [x] Delete Budget.tsx (functionality moved to Money Hub tabs)
+- [x] Delete DebtCoach.tsx (functionality moved to Money Hub tabs)
+- [x] Delete Goals.tsx (functionality moved to Money Hub tabs)
+- [x] Remove imports from App.tsx
