@@ -10,6 +10,7 @@ import { APP_LOGO, APP_TITLE } from "@/const";
 import { getPlanSelection, clearPlanSelection } from "@/lib/planSelection";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { EmbeddedCheckoutModal } from "@/components/EmbeddedCheckoutModal";
 
 export default function SignUp() {
   const [, navigate] = useLocation();
@@ -19,12 +20,21 @@ export default function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pendingPlan, setPendingPlan] = useState<ReturnType<typeof getPlanSelection>>(null);
+  const [checkoutClientSecret, setCheckoutClientSecret] = useState<string | null>(null);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
   const createCheckout = trpc.subscription.createCheckoutSession.useMutation({
     onSuccess: (data) => {
-      // Don't clear plan selection yet - we'll need it after payment
-      window.open(data.url, '_blank');
-      toast.success("Opening Stripe checkout...");
+      // For embedded mode, open modal with clientSecret
+      if (data.clientSecret) {
+        setCheckoutClientSecret(data.clientSecret);
+        setIsCheckoutModalOpen(true);
+        toast.success("Opening checkout...");
+      } else if (data.url) {
+        // Fallback to hosted mode if no clientSecret
+        window.open(data.url, '_blank');
+        toast.success("Opening Stripe checkout...");
+      }
     },
     onError: (error) => {
       toast.error(error.message || "Failed to create checkout session");
@@ -74,7 +84,7 @@ export default function SignUp() {
     }
 
     try {
-      // Create checkout session with credentials
+      // Create embedded checkout session with credentials
       // The webhook will create the account after successful payment
       createCheckout.mutate({
         tier: pendingPlan.tier,
@@ -82,6 +92,7 @@ export default function SignUp() {
         selectedHubs: pendingPlan.selectedHubs,
         email,
         password,
+        uiMode: "embedded", // Use embedded mode for in-app checkout
       });
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -227,6 +238,18 @@ export default function SignUp() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Embedded Checkout Modal */}
+      {checkoutClientSecret && (
+        <EmbeddedCheckoutModal
+          clientSecret={checkoutClientSecret}
+          isOpen={isCheckoutModalOpen}
+          onClose={() => {
+            setIsCheckoutModalOpen(false);
+            // Optionally navigate to success page or show completion message
+          }}
+        />
+      )}
     </div>
   );
 }

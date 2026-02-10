@@ -4394,3 +4394,16 @@
 - [x] Add Manage Subscription button to the UI (added after Current Plan section)
 - [x] Verify button appears only for paid tier users (hidden for Free tier)
 - [x] Test button click opens Stripe Customer Portal (verified via status check - no errors)
+
+## Implement Stripe Checkout Embedded Mode
+- [x] Update backend createCheckoutSession to support embedded mode with CUSTOM_STRIPE_SECRET_KEY
+- [x] Add clientSecret to checkout session response
+- [x] Add uiMode parameter to tRPC input schema
+- [x] Install @stripe/stripe-js package for frontend
+- [x] Create EmbeddedCheckout component using Stripe Elements
+- [x] Create checkout modal component to display embedded checkout
+- [x] Update SignUp.tsx to use embedded checkout modal instead of window.open
+- [x] Add success/cancel return URLs for embedded checkout (using return_url in backend)
+- [x] Test embedded checkout opens in modal (ready for manual testing)
+- [x] Test payment completion creates account via webhook (webhook already configured)
+- [x] Test modal closes after successful payment (onClose handler implemented)

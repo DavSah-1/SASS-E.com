@@ -34,7 +34,9 @@ export default function SignInNew() {
   const createCheckout = trpc.subscription.createCheckoutSession.useMutation({
     onSuccess: (data) => {
       clearPlanSelection();
-      window.location.href = data.url;
+      if (data.url) {
+        window.location.href = data.url;
+      }
     },
     onError: (error) => {
       toast.error(error.message || "Failed to create checkout session");

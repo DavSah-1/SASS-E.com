@@ -16,6 +16,7 @@ export interface CreateCheckoutSessionParams {
   password?: string; // For creating account after payment
   successUrl: string;
   cancelUrl: string;
+  uiMode?: "hosted" | "embedded"; // Default: hosted (redirect), embedded (in-app modal)
 }
 
 /**
@@ -31,8 +32,8 @@ export interface CreateCheckoutSessionParams {
  */
 export async function createCheckoutSession(
   params: CreateCheckoutSessionParams
-): Promise<{ sessionId: string; url: string }> {
-  const { userId, userEmail, tier, billingPeriod, selectedHubs, password, successUrl, cancelUrl } = params;
+): Promise<{ sessionId: string; url?: string; clientSecret?: string }> {
+  const { userId, userEmail, tier, billingPeriod, selectedHubs, password, successUrl, cancelUrl, uiMode = "hosted" } = params;
 
   // Get the Stripe Price ID for this tier/period combination
   const priceId = getStripePriceId(tier, billingPeriod);
@@ -63,7 +64,7 @@ export async function createCheckoutSession(
   }
 
   // Create the Checkout Session
-  const session = await stripe.checkout.sessions.create({
+  const sessionConfig: any = {
     mode: "subscription",
     customer_email: userEmail,
     line_items: [
@@ -77,20 +78,39 @@ export async function createCheckoutSession(
       metadata,
     },
     metadata,
-    success_url: successUrl,
-    cancel_url: cancelUrl,
     allow_promotion_codes: true,
     billing_address_collection: "auto",
-  });
-
-  if (!session.url) {
-    throw new Error("Failed to create checkout session: no URL returned");
-  }
-
-  return {
-    sessionId: session.id,
-    url: session.url,
   };
+  
+  // Add UI mode specific config
+  if (uiMode === "embedded") {
+    sessionConfig.ui_mode = "embedded";
+    sessionConfig.return_url = successUrl; // Embedded mode uses return_url instead of success_url/cancel_url
+  } else {
+    sessionConfig.success_url = successUrl;
+    sessionConfig.cancel_url = cancelUrl;
+  }
+  
+  const session = await stripe.checkout.sessions.create(sessionConfig);
+
+  // For embedded mode, return clientSecret; for hosted mode, return URL
+  if (uiMode === "embedded") {
+    if (!session.client_secret) {
+      throw new Error("Failed to create embedded checkout session: no client secret returned");
+    }
+    return {
+      sessionId: session.id,
+      clientSecret: session.client_secret,
+    };
+  } else {
+    if (!session.url) {
+      throw new Error("Failed to create checkout session: no URL returned");
+    }
+    return {
+      sessionId: session.id,
+      url: session.url,
+    };
+  }
 }
 
 /**

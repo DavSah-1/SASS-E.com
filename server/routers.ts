@@ -234,6 +234,7 @@ export const appRouter = router({
         selectedHubs: z.array(z.string()).optional(),
         email: z.string().email().optional(), // For unauthenticated users
         password: z.string().min(6).optional(), // For unauthenticated users
+        uiMode: z.enum(["hosted", "embedded"]).optional(), // Default: hosted
       }))
       .mutation(async ({ ctx, input }) => {
         const { createCheckoutSession } = await import("./stripe/checkout");
@@ -263,6 +264,7 @@ export const appRouter = router({
           selectedHubs: input.selectedHubs,
           successUrl: `${baseUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${baseUrl}/pricing`,
+          uiMode: input.uiMode || "hosted",
         };
         
         // Add userId if authenticated
