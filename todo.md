@@ -4221,3 +4221,14 @@
 ## Code Cleanup - Remove Unused Learning Component
 - [x] Delete unused Learning.tsx component file
 - [x] Remove Learning import from App.tsx
+
+## Refactor Wellness Hub to Match Money Hub Architecture
+- [x] Create FitnessTracker.tsx component (extract from Wellness.tsx)
+- [x] Create NutritionTracker.tsx component (extract from Wellness.tsx)
+- [x] Create MentalWellness.tsx component (extract from Wellness.tsx)
+- [x] Create HealthMetrics.tsx component (extract from Wellness.tsx)
+- [x] Create WellnessOverview.tsx component (extract from Wellness.tsx)
+- [x] Refactor Wellness.tsx to embed components in tabs (like Money.tsx embeds Budget/DebtCoach/Goals)
+- [ ] Add direct URL routes for wellness features with tab redirects
+- [ ] Test all wellness tabs with real data
+- [ ] Verify navigation hiding in embedded components
