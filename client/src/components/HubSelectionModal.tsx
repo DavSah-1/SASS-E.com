@@ -27,12 +27,10 @@ interface HubSelectionModalProps {
 }
 
 const HUB_ICONS: Record<SpecializedHub, any> = {
-  language_learning: BookOpen,
-  math_tutor: Calculator,
-  science_labs: Beaker,
-  translation_hub: Languages,
-  money_hub: DollarSign,
+  money: DollarSign,
   wellness: Heart,
+  translation_hub: Languages,
+  learning: Calculator,
 };
 
 export function HubSelectionModal({ 

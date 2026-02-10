@@ -4137,3 +4137,9 @@
 - [ ] Test Starter tier (1 hub selection)
 - [ ] Test Pro tier (2 hub selection)
 - [ ] Test Ultimate tier (all 4 hubs included)
+
+## Fix TypeScript Errors - Old Hub ID References
+- [x] Update server/routers.ts to use new hub IDs (money, wellness, translation_hub, learning)
+- [x] Remove or update ScienceLab.tsx references to old hub IDs
+- [x] Search and replace all old hub IDs: science_labs, math_tutor, language_learning, money_hub
+- [x] Verify TypeScript compilation passes with no errors

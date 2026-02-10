@@ -24,7 +24,7 @@ import MoneyDemo from "./pages/MoneyDemo";
 import Goals from "./pages/Goals";
 import MathTutor from "./pages/MathTutor";
 import MathCurriculum from "./pages/MathCurriculum";
-import ScienceLab from "./pages/ScienceLab";
+
 import SpecializedLearning from "./pages/SpecializedLearning";
 import LearnFinance from "./pages/LearnFinance";
 import LearnFinanceProgress from "./pages/LearnFinanceProgress";
@@ -63,7 +63,7 @@ function Router() {
 
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/math-curriculum"} component={MathCurriculum} />
-      <Route path={"/science-lab"} component={ScienceLab} />
+
       <Route path={"/hubs"} component={Hubs} />
       <Route path={"/hubs/learning"} component={SpecializedLearning} />
       <Route path={"/hubs/wellness"} component={Wellness} />

@@ -49,7 +49,7 @@ export const appRouter = router({
   subscription: router({
     selectHubs: protectedProcedure
       .input(z.object({
-        hubs: z.array(z.enum(["language_learning", "math_tutor", "science_labs", "translation_hub", "money_hub", "wellness"])),
+        hubs: z.array(z.enum(["money", "wellness", "translation_hub", "learning"])),
       }))
       .mutation(async ({ ctx, input }) => {
         const { updateUserHubSelection } = await import("./db");
@@ -109,7 +109,7 @@ export const appRouter = router({
     checkAccess: protectedProcedure
       .input(z.object({
         featureType: z.enum(["voice_assistant", "iot_device", "verified_learning", "math_tutor", "translate", "image_ocr", "specialized_hub"]),
-        specializedHub: z.enum(["language_learning", "math_tutor", "science_labs", "translation_hub", "money_hub", "wellness"]).optional(),
+        specializedHub: z.enum(["money", "wellness", "translation_hub", "learning"]).optional(),
       }))
       .query(async ({ ctx, input }) => {
         const { checkFeatureAccess } = await import("./accessControl");
