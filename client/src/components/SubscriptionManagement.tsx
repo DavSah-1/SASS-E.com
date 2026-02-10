@@ -54,6 +54,7 @@ export function SubscriptionManagement() {
   const [showDowngradeModal, setShowDowngradeModal] = useState(false);
   const [pendingTier, setPendingTier] = useState<"starter" | "pro" | "ultimate" | null>(null);
   const createCheckoutMutation = trpc.subscription.createCheckoutSession.useMutation();
+  const createPortalMutation = trpc.subscription.createCustomerPortalSession.useMutation();
   
   // Update selectedPeriod when subscriptionInfo loads
   useEffect(() => {
@@ -183,9 +184,17 @@ export function SubscriptionManagement() {
     }
   };
   
-  const handleManageSubscription = () => {
-    // TODO: Implement Stripe customer portal
-    toast.info("Subscription management coming soon");
+  const handleManageSubscription = async () => {
+    try {
+      const result = await createPortalMutation.mutateAsync();
+      if (result.url) {
+        window.open(result.url, '_blank');
+        toast.success("Opening Stripe Customer Portal...");
+      }
+    } catch (error: any) {
+      console.error('Failed to open Customer Portal:', error);
+      toast.error(error.message || "Failed to open Customer Portal. Please try again.");
+    }
   };
   
   // Calculate savings

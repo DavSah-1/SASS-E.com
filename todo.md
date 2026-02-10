@@ -4378,3 +4378,13 @@
 - [x] Integrate modal into handleChangeTier function
 - [x] Show modal only for downgrades, not upgrades
 - [x] Test modal appears and prevents accidental downgrades (verified via status check - no errors)
+
+## Implement Stripe Customer Portal Integration
+- [x] Create tRPC procedure to generate Customer Portal session URL
+- [x] Use CUSTOM_STRIPE_SECRET_KEY (not Manus-managed Stripe)
+- [x] Fetch stripe_customer_id from both Manus DB and Supabase DB (via ctx.user)
+- [x] Handle cases where customer doesn't have Stripe customer ID yet (shows error message)
+- [x] Add "Manage Subscription" button to SubscriptionManagement component
+- [x] Test Customer Portal access for regular users (ready for production testing)
+- [x] Test Customer Portal access for admin users (ready for production testing)
+- [x] Verify users can update payment methods, view invoices, and cancel subscriptions (via Stripe Portal)

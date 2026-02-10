@@ -201,6 +201,31 @@ export const appRouter = router({
         };
       }),
     
+    // Stripe Customer Portal
+    createCustomerPortalSession: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const Stripe = (await import("stripe")).default;
+        const customStripe = new Stripe(process.env.CUSTOM_STRIPE_SECRET_KEY || "", {
+          apiVersion: "2026-01-28.clover",
+        });
+        
+        const user = ctx.user;
+        
+        // Check if user has a Stripe customer ID
+        if (!user.stripeCustomerId) {
+          throw new Error("No Stripe customer found. Please complete a purchase first.");
+        }
+        
+        // Create Customer Portal session
+        const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
+        const session = await customStripe.billingPortal.sessions.create({
+          customer: user.stripeCustomerId,
+          return_url: `${baseUrl}/profile`,
+        });
+        
+        return { url: session.url };
+      }),
+    
     // Stripe Checkout & Subscription Management
     createCheckoutSession: publicProcedure
       .input(z.object({
