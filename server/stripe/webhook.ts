@@ -186,6 +186,7 @@ async function handleCheckoutSessionCompleted(
     subscriptionTier: tier,
     subscriptionStatus: subscription.status as any,
     billingPeriod: billingPeriod,
+    subscriptionPeriod: billingPeriod, // Save to subscriptionPeriod field for trial duration calculation
     trialDays: effectiveTrialDays,
     currentPeriodStart: currentPeriodStart ? new Date(currentPeriodStart * 1000) : null,
     currentPeriodEnd: currentPeriodEnd ? new Date(currentPeriodEnd * 1000) : null,

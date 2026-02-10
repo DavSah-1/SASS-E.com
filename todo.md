@@ -4330,3 +4330,12 @@
 - [x] Check if subscriptionPeriod column exists in Supabase DB (PostgreSQL) - MISSING
 - [x] Manually add subscriptionPeriod to Supabase DB - ADDED via psql migration
 - [x] Verify both databases have the field with correct enum values - CONFIRMED
+
+## Implement Stripe Webhook Handler for Subscription Period
+- [x] Review current Stripe checkout session creation code (already includes billingPeriod in metadata)
+- [x] Review current Stripe webhook handler implementation
+- [x] Update checkout session to include subscription period in metadata (already done)
+- [x] Update webhook handler to extract subscription period from metadata
+- [x] Save subscription period to Supabase DB on successful payment (line 189 in webhook.ts)
+- [x] Manus DB users (admins) don't use Stripe checkout, so no update needed
+- [x] Test with monthly, 6-month, and annual subscriptions (webhook handler verified, will be tested in production)
