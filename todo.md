@@ -4273,3 +4273,23 @@
 - [x] Add trial countdown display in hub pages
 - [x] Push database migration (pnpm db:push)
 - [ ] Test trial start, access, and expiration flows
+
+## Priority 2: Fix Supabase Usage Tracking
+- [x] Create dailyUsage table in database schema for tracking feature usage
+- [x] Add userId, featureType, usageCount, usageDate fields
+- [x] Implement incrementUsage procedure in server/db.ts
+- [x] Implement getTodayUsage procedure in server/db.ts
+- [x] Update accessControl.ts to track usage for Supabase users
+- [ ] Add usage tracking to voice chat, translation, and learning features
+- [ ] Test daily limit enforcement (5 voice chats, 5 translations, etc.)
+- [x] Add usage reset logic (daily at midnight)
+
+## Priority 3: Add Trial Management UI
+- [x] Create TrialStatus component to show active trials
+- [ ] Add trial countdown display in hub pages (e.g., "3 days remaining")
+- [ ] Create user dashboard section for active trials
+- [ ] Add trial expiration notification system
+- [ ] Create "Convert Trial to Paid" CTA button
+- [ ] Add trial history tracking (which hubs were trialed)
+- [ ] Display trial benefits and upgrade prompts
+- [ ] Test trial UI with Free tier user account

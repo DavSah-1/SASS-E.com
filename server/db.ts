@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, gte, isNull, like, lt, lte, or, sql } from "drizzle-orm";
+import { and, desc, eq, gt, gte, isNull, like, lte, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   conversations, 
@@ -95,8 +95,11 @@ import {
   topicQuizResults,
   practiceSessions,
   hubTrials,
-  InsertHubTrial,
   HubTrial,
+  InsertHubTrial,
+  dailyUsage,
+  DailyUsage,
+  InsertDailyUsage,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -4006,6 +4009,128 @@ export async function convertTrial(
     return true;
   } catch (error) {
     console.error("[Database] Failed to convert trial:", error);
+    return false;
+  }
+}
+
+
+/**
+ * Get or create today's usage record for a user
+ */
+export async function getTodayUsage(userId: number): Promise<DailyUsage | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get today's usage: database not available");
+    return null;
+  }
+
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const existing = await db
+      .select()
+      .from(dailyUsage)
+      .where(
+        and(
+          eq(dailyUsage.userId, userId),
+          gte(dailyUsage.date, today)
+        )
+      )
+      .limit(1);
+
+    if (existing.length > 0) {
+      return existing[0];
+    }
+
+    // Create new record for today
+    const [newRecord] = await db
+      .insert(dailyUsage)
+      .values({
+        userId,
+        date: today,
+        voiceAssistantCount: 0,
+        verifiedLearningCount: 0,
+        mathTutorCount: 0,
+        translateCount: 0,
+        imageOcrCount: 0,
+      });
+
+    const created = await db
+      .select()
+      .from(dailyUsage)
+      .where(eq(dailyUsage.id, newRecord.insertId))
+      .limit(1);
+
+    return created[0] || null;
+  } catch (error) {
+    console.error("[Database] Failed to get today's usage:", error);
+    return null;
+  }
+}
+
+/**
+ * Increment usage count for a specific feature
+ */
+export async function incrementUsage(
+  userId: number,
+  featureType: "voice_chat" | "translation" | "image_translation" | "learning_session"
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot increment usage: database not available");
+    return false;
+  }
+
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Get or create today's record
+    let usage = await getTodayUsage(userId);
+    if (!usage) {
+      return false;
+    }
+
+    // Increment the appropriate counter based on feature type
+    if (featureType === "voice_chat") {
+      await db
+        .update(dailyUsage)
+        .set({
+          voiceAssistantCount: sql`${dailyUsage.voiceAssistantCount} + 1`,
+          updatedAt: new Date(),
+        })
+        .where(eq(dailyUsage.id, usage.id));
+    } else if (featureType === "translation") {
+      await db
+        .update(dailyUsage)
+        .set({
+          translateCount: sql`${dailyUsage.translateCount} + 1`,
+          updatedAt: new Date(),
+        })
+        .where(eq(dailyUsage.id, usage.id));
+    } else if (featureType === "image_translation") {
+      await db
+        .update(dailyUsage)
+        .set({
+          imageOcrCount: sql`${dailyUsage.imageOcrCount} + 1`,
+          updatedAt: new Date(),
+        })
+        .where(eq(dailyUsage.id, usage.id));
+    } else if (featureType === "learning_session") {
+      await db
+        .update(dailyUsage)
+        .set({
+          verifiedLearningCount: sql`${dailyUsage.verifiedLearningCount} + 1`,
+          updatedAt: new Date(),
+        })
+        .where(eq(dailyUsage.id, usage.id));
+    }
+
+    console.log(`[Database] Incremented ${featureType} usage for user ${userId}`);
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to increment usage:", error);
     return false;
   }
 }

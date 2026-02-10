@@ -1886,3 +1886,5 @@ export const hubTrials = mysqlTable("hub_trials", {
 
 export type HubTrial = typeof hubTrials.$inferSelect;
 export type InsertHubTrial = typeof hubTrials.$inferInsert;
+
+

@@ -172,10 +172,25 @@ async function getCurrentUsage(user: UnifiedUser, featureType: FeatureType): Pro
     return extractUsageFromRecord(usageRecords[0], featureType);
   }
 
-  // For Supabase users, query Supabase DB
-  // Note: You'll need to create a dailyUsage table in Supabase DB as well
-  // For now, return 0 (no usage tracking for Supabase users yet)
-  return 0;
+  // For Supabase users, use the same dailyUsage table
+  // All users (Manus and Supabase) share the same database
+  const db = await getDb();
+  if (!db) return 0;
+
+  const userId = typeof user.id === "number" ? user.id : parseInt(String(user.id));
+  const usageRecords = await db
+    .select()
+    .from(dailyUsage)
+    .where(
+      and(
+        eq(dailyUsage.userId, userId),
+        gte(dailyUsage.date, today)
+      )
+    )
+    .limit(1);
+
+  if (usageRecords.length === 0) return 0;
+  return extractUsageFromRecord(usageRecords[0], featureType);
 }
 
 /**
