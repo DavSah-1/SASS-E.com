@@ -3820,8 +3820,12 @@ export async function checkAndAwardBadges(userId: number) {
 // ============================================================================
 
 /**
- * Start a 5-day free trial for a specialized hub
- * Free tier users can trial each hub once
+ * Start a free trial for a specialized hub with dynamic duration
+ * Trial duration depends on subscription tier and period:
+ * - Free: 5 days (all periods)
+ * - Starter/Pro Monthly: 5 days
+ * - Starter/Pro 6-Month: 10 days
+ * - Starter/Pro Annual: 20 days
  */
 export async function startHubTrial(
   userId: number,
@@ -3846,10 +3850,37 @@ export async function startHubTrial(
       return null;
     }
 
-    // Calculate expiration date (5 days from now)
+    // Get user's subscription tier and period to calculate trial duration
+    const userRecords = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (userRecords.length === 0) {
+      console.warn(`[Database] User ${userId} not found`);
+      return null;
+    }
+
+    const user = userRecords[0];
+    const tier = user.subscriptionTier || "free";
+    const period = user.subscriptionPeriod || "monthly";
+
+    // Calculate trial duration based on tier and subscription period
+    let trialDays = 5; // Default for Free tier and monthly subscriptions
+    
+    if (tier === "starter" || tier === "pro") {
+      if (period === "six_month") {
+        trialDays = 10;
+      } else if (period === "annual") {
+        trialDays = 20;
+      }
+    }
+
+    // Calculate expiration date
     const startedAt = new Date();
     const expiresAt = new Date(startedAt);
-    expiresAt.setDate(expiresAt.getDate() + 5);
+    expiresAt.setDate(expiresAt.getDate() + trialDays);
 
     // Create trial record
     const trialData: InsertHubTrial = {
@@ -3869,7 +3900,7 @@ export async function startHubTrial(
       .where(and(eq(hubTrials.userId, userId), eq(hubTrials.hubId, hubId)))
       .limit(1);
 
-    console.log(`[Database] Started 5-day trial for user ${userId} on ${hubId}`);
+    console.log(`[Database] Started ${trialDays}-day trial for user ${userId} on ${hubId} (tier: ${tier}, period: ${period})`);
     return createdTrial[0] || null;
   } catch (error) {
     console.error("[Database] Failed to start hub trial:", error);

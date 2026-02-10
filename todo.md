@@ -4311,3 +4311,15 @@
 - [x] Check trial system interaction with Starter tier
 - [x] Verify daily usage limits for Starter tier
 - [x] FIXED: Starter/Pro users can now trial non-selected hubs
+
+## Implement Extended Trial Durations for Starter/Pro Tiers
+- [x] Add subscriptionPeriod field to users table schema (monthly, six_month, annual)
+- [x] Push database migration for subscriptionPeriod field
+- [x] Update trial creation logic to calculate duration based on tier + subscription period
+- [x] Update getActiveTrial to handle variable trial durations (no changes needed - already works)
+- [x] Update useHubAccess hook to display correct trial duration (already shows dynamic days)
+- [x] Update accessControl.ts backend logic for extended trials (no changes needed - uses getActiveTrial)
+- [x] Update pricing page footnotes to show extended trial benefits
+- [x] Test trial duration: Starter monthly (5 days), 6-month (10 days), annual (20 days)
+- [x] Test trial duration: Pro monthly (5 days), 6-month (10 days), annual (20 days)
+- [x] Verify Free tier remains at 5 days regardless of subscription

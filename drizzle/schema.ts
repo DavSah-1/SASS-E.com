@@ -23,6 +23,7 @@ export const users = mysqlTable("users", {
   preferredCurrency: varchar("preferredCurrency", { length: 3 }).default("USD"),
   subscriptionTier: mysqlEnum("subscriptionTier", ["free", "starter", "pro", "ultimate"]).default("free").notNull(),
   subscriptionStatus: mysqlEnum("subscriptionStatus", ["active", "inactive", "trial"]).default("inactive").notNull(),
+  subscriptionPeriod: mysqlEnum("subscriptionPeriod", ["monthly", "six_month", "annual"]).default("monthly"),
   subscriptionExpiresAt: timestamp("subscriptionExpiresAt"),
   selectedSpecializedHubs: text("selectedSpecializedHubs"), // JSON array of selected hubs for Starter/Pro tiers
   hubsSelectedAt: timestamp("hubsSelectedAt"), // Timestamp when user selected their hubs (locks until subscription ends)

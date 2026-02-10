@@ -171,7 +171,7 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       { name: "Priority Support", value: "–", notIncluded: true },
     ],
     ctaButton: "Choose Starter",
-    footnote: "²Permanently select 1 Hub for full access • Other hubs: 5-day trial only • Upgrading users retain existing access",
+    footnote: "²Permanently select 1 Hub for full access • Other hubs: 5-day trials (monthly), 10-day trials (6-month), 20-day trials (annual) • Upgrading users retain existing access",
   },
   pro: {
     name: "Pro",
@@ -208,7 +208,7 @@ export const PRICING_TIERS: Record<SubscriptionTier, TierFeatures> = {
       { name: "Priority Support", value: "✓", included: true },
     ],
     ctaButton: "Choose Pro",
-    footnote: "²Permanently select 2 Hubs for full access • Other hubs: 5-day trial only • Upgrading users retain existing access",
+    footnote: "²Permanently select 2 Hubs for full access • Other hubs: 5-day trials (monthly), 10-day trials (6-month), 20-day trials (annual) • Upgrading users retain existing access",
     popular: true,
   },
   ultimate: {

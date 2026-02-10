@@ -288,6 +288,13 @@
       "when": 1770736620147,
       "tag": "0040_gray_leo",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1770740097505,
+      "tag": "0041_parallel_warhawk",
+      "breakpoints": true
     }
   ]
 }
