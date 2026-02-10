@@ -37,39 +37,38 @@ import {
   FileText,
 } from "lucide-react";
 import { getLoginUrl } from "@/const";
-
+import Budget from "./Budget";
+import DebtCoach from "./DebtCoach";
+import Goals from "./Goals";
 import { BudgetAlerts } from "@/components/BudgetAlerts";
 import { FinancialInsights } from "@/components/FinancialInsights";
 import { useHubAccess } from "@/hooks/useHubAccess";
 import { HubUpgradeModal } from "@/components/HubUpgradeModal";
 
-// Tab content components
-function BudgetTab() {
-  // Budget functionality is now integrated directly in this tab
+// Wrapper to hide navigation in embedded context
+const BudgetTab = () => {
   return (
-    <div className="p-6">
-      <p className="text-muted-foreground">Budget tab content coming soon...</p>
+    <div className="[&_.min-h-screen]:min-h-0 [&_nav]:hidden">
+      <Budget />
     </div>
   );
-}
+};
 
-function DebtCoachTab() {
-  // Debt coach functionality is now integrated directly in this tab
+const DebtCoachTab = () => {
   return (
-    <div className="p-6">
-      <p className="text-muted-foreground">Debt coach tab content coming soon...</p>
+    <div className="[&_.min-h-screen]:min-h-0 [&_nav]:hidden">
+      <DebtCoach />
     </div>
   );
-}
+};
 
-function GoalsTab() {
-  // Goals functionality is now integrated directly in this tab
+const GoalsTab = () => {
   return (
-    <div className="p-6">
-      <p className="text-muted-foreground">Goals tab content coming soon...</p>
+    <div className="[&_.min-h-screen]:min-h-0 [&_nav]:hidden">
+      <Goals />
     </div>
   );
-}
+};
 
 export default function Money() {
   const { user, isAuthenticated, loading } = useAuth();
