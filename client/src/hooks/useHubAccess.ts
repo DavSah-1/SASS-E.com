@@ -1,4 +1,5 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import type { SpecializedHub } from "@shared/pricing";
 
 export interface HubAccessResult {
@@ -7,17 +8,33 @@ export interface HubAccessResult {
   requiresUpgrade: boolean;
   currentTier: string;
   isAdmin: boolean;
+  trialDaysRemaining?: number;
+  canStartTrial?: boolean;
+  trialStatus?: "active" | "expired" | "never_started";
 }
 
 /**
  * Hook to check if the current user has access to a specialized hub
  * Respects admin bypass (admin users have unlimited access)
+ * Supports 5-day free trials for Free tier users
  * 
- * @param hubId - The specialized hub identifier (e.g., "money_hub", "language_learning")
- * @returns HubAccessResult with access status and reason
+ * @param hubId - The specialized hub identifier (e.g., "money", "wellness")
+ * @returns HubAccessResult with access status, trial info, and reason
  */
 export function useHubAccess(hubId: SpecializedHub): HubAccessResult {
   const { user, isAuthenticated } = useAuth();
+
+  // Hub ID is already in correct format from SpecializedHub type
+  const backendHubId = hubId as "money" | "wellness" | "translation_hub" | "learning";
+
+  // Query trial status for Free tier users
+  const { data: trialStatus } = trpc.subscription.getHubTrialStatus.useQuery(
+    { hubId: backendHubId },
+    { 
+      enabled: isAuthenticated && user?.subscriptionTier === "free",
+      refetchOnWindowFocus: false,
+    }
+  );
 
   // Not authenticated - no access
   if (!isAuthenticated || !user) {
@@ -55,14 +72,35 @@ export function useHubAccess(hubId: SpecializedHub): HubAccessResult {
     };
   }
 
-  // Free tier - no permanent hub access (trials only)
+  // Free tier - check for active trial
   if (tier === "free") {
+    if (trialStatus?.hasActiveTrial && trialStatus.trial) {
+      const expiresAt = new Date(trialStatus.trial.expiresAt);
+      const now = new Date();
+      const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+      return {
+        hasAccess: true,
+        reason: `Trial active (${daysRemaining} day${daysRemaining > 1 ? "s" : ""} remaining)`,
+        requiresUpgrade: false,
+        currentTier: tier,
+        isAdmin: false,
+        trialDaysRemaining: daysRemaining,
+        trialStatus: "active",
+      };
+    }
+
+    // No active trial - check if can start one
     return {
       hasAccess: false,
-      reason: "Free tier requires upgrade for hub access",
+      reason: trialStatus?.canStartTrial 
+        ? "Start your 5-day free trial" 
+        : "Trial expired - upgrade to continue",
       requiresUpgrade: true,
       currentTier: tier,
       isAdmin: false,
+      canStartTrial: trialStatus?.canStartTrial ?? false,
+      trialStatus: trialStatus?.canStartTrial ? "never_started" : "expired",
     };
   }
 

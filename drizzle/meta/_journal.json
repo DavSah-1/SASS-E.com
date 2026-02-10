@@ -281,6 +281,13 @@
       "when": 1769688944921,
       "tag": "0039_chief_brood",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "5",
+      "when": 1770736620147,
+      "tag": "0040_gray_leo",
+      "breakpoints": true
     }
   ]
 }

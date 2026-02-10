@@ -94,6 +94,9 @@ import {
   topicProgress,
   topicQuizResults,
   practiceSessions,
+  hubTrials,
+  InsertHubTrial,
+  HubTrial,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -3805,5 +3808,204 @@ export async function checkAndAwardBadges(userId: number) {
   } catch (error) {
     console.error("[Database] Failed to check and award badges:", error);
     return [];
+  }
+}
+
+
+// ============================================================================
+// Hub Trial Management Functions
+// ============================================================================
+
+/**
+ * Start a 5-day free trial for a specialized hub
+ * Free tier users can trial each hub once
+ */
+export async function startHubTrial(
+  userId: number,
+  hubId: "money" | "wellness" | "translation_hub" | "learning"
+): Promise<HubTrial | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot start hub trial: database not available");
+    return null;
+  }
+
+  try {
+    // Check if user already has a trial for this hub
+    const existingTrial = await db
+      .select()
+      .from(hubTrials)
+      .where(and(eq(hubTrials.userId, userId), eq(hubTrials.hubId, hubId)))
+      .limit(1);
+
+    if (existingTrial.length > 0) {
+      console.warn(`[Database] User ${userId} already has a trial for ${hubId}`);
+      return null;
+    }
+
+    // Calculate expiration date (5 days from now)
+    const startedAt = new Date();
+    const expiresAt = new Date(startedAt);
+    expiresAt.setDate(expiresAt.getDate() + 5);
+
+    // Create trial record
+    const trialData: InsertHubTrial = {
+      userId,
+      hubId,
+      status: "active",
+      startedAt,
+      expiresAt,
+    };
+
+    await db.insert(hubTrials).values(trialData);
+
+    // Fetch and return the created trial
+    const createdTrial = await db
+      .select()
+      .from(hubTrials)
+      .where(and(eq(hubTrials.userId, userId), eq(hubTrials.hubId, hubId)))
+      .limit(1);
+
+    console.log(`[Database] Started 5-day trial for user ${userId} on ${hubId}`);
+    return createdTrial[0] || null;
+  } catch (error) {
+    console.error("[Database] Failed to start hub trial:", error);
+    return null;
+  }
+}
+
+/**
+ * Get active trial for a specific hub
+ * Returns null if no active trial exists
+ */
+export async function getActiveTrial(
+  userId: number,
+  hubId: "money" | "wellness" | "translation_hub" | "learning"
+): Promise<HubTrial | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get active trial: database not available");
+    return null;
+  }
+
+  try {
+    const trials = await db
+      .select()
+      .from(hubTrials)
+      .where(
+        and(
+          eq(hubTrials.userId, userId),
+          eq(hubTrials.hubId, hubId),
+          eq(hubTrials.status, "active")
+        )
+      )
+      .limit(1);
+
+    if (trials.length === 0) {
+      return null;
+    }
+
+    const trial = trials[0];
+    const now = new Date();
+
+    // Check if trial has expired
+    if (trial.expiresAt < now) {
+      // Mark as expired
+      await db
+        .update(hubTrials)
+        .set({ status: "expired", updatedAt: new Date() })
+        .where(eq(hubTrials.id, trial.id));
+
+      return null;
+    }
+
+    return trial;
+  } catch (error) {
+    console.error("[Database] Failed to get active trial:", error);
+    return null;
+  }
+}
+
+/**
+ * Get all trials for a user (active and expired)
+ */
+export async function getUserTrials(userId: number): Promise<HubTrial[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user trials: database not available");
+    return [];
+  }
+
+  try {
+    const trials = await db
+      .select()
+      .from(hubTrials)
+      .where(eq(hubTrials.userId, userId));
+
+    return trials;
+  } catch (error) {
+    console.error("[Database] Failed to get user trials:", error);
+    return [];
+  }
+}
+
+/**
+ * Check if user can start a trial for a hub
+ * Returns false if they've already used their trial
+ */
+export async function canStartTrial(
+  userId: number,
+  hubId: "money" | "wellness" | "translation_hub" | "learning"
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot check trial eligibility: database not available");
+    return false;
+  }
+
+  try {
+    const existingTrials = await db
+      .select()
+      .from(hubTrials)
+      .where(and(eq(hubTrials.userId, userId), eq(hubTrials.hubId, hubId)))
+      .limit(1);
+
+    // Can start trial if no previous trial exists
+    return existingTrials.length === 0;
+  } catch (error) {
+    console.error("[Database] Failed to check trial eligibility:", error);
+    return false;
+  }
+}
+
+/**
+ * Mark trial as converted (user upgraded to paid tier)
+ */
+export async function convertTrial(
+  userId: number,
+  hubId: "money" | "wellness" | "translation_hub" | "learning"
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot convert trial: database not available");
+    return false;
+  }
+
+  try {
+    await db
+      .update(hubTrials)
+      .set({ status: "converted", updatedAt: new Date() })
+      .where(
+        and(
+          eq(hubTrials.userId, userId),
+          eq(hubTrials.hubId, hubId)
+        )
+      );
+
+    console.log(`[Database] Converted trial for user ${userId} on ${hubId}`);
+    return true;
+  } catch (error) {
+    console.error("[Database] Failed to convert trial:", error);
+    return false;
   }
 }

@@ -1868,3 +1868,21 @@ export const userLearningBadges = mysqlTable("user_learning_badges", {
 
 export type UserLearningBadge = typeof userLearningBadges.$inferSelect;
 export type InsertUserLearningBadge = typeof userLearningBadges.$inferInsert;
+
+/**
+ * Hub Trials table - tracks 5-day free trials for specialized hubs
+ * Free tier users can trial each hub once for 5 days
+ */
+export const hubTrials = mysqlTable("hub_trials", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  hubId: mysqlEnum("hubId", ["money", "wellness", "translation_hub", "learning"]).notNull(),
+  status: mysqlEnum("status", ["active", "expired", "converted"]).default("active").notNull(),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type HubTrial = typeof hubTrials.$inferSelect;
+export type InsertHubTrial = typeof hubTrials.$inferInsert;

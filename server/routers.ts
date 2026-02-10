@@ -134,6 +134,56 @@ export const appRouter = router({
         return await getUsageStats(ctx.user);
       }),
     
+    // Hub Trial Management
+    startHubTrial: protectedProcedure
+      .input(z.object({
+        hubId: z.enum(["money", "wellness", "translation_hub", "learning"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { startHubTrial, canStartTrial } = await import("./db");
+        
+        // Check if user is Free tier
+        if (ctx.user.subscriptionTier !== "free") {
+          throw new Error("Trials are only available for Free tier users");
+        }
+        
+        // Check if user can start trial
+        const eligible = await canStartTrial(toNumericId(ctx.user.numericId), input.hubId);
+        if (!eligible) {
+          throw new Error("You have already used your trial for this hub");
+        }
+        
+        const trial = await startHubTrial(toNumericId(ctx.user.numericId), input.hubId);
+        if (!trial) {
+          throw new Error("Failed to start trial");
+        }
+        
+        return { success: true, trial };
+      }),
+    
+    getHubTrialStatus: protectedProcedure
+      .input(z.object({
+        hubId: z.enum(["money", "wellness", "translation_hub", "learning"]),
+      }))
+      .query(async ({ ctx, input }) => {
+        const { getActiveTrial, canStartTrial } = await import("./db");
+        
+        const activeTrial = await getActiveTrial(toNumericId(ctx.user.numericId), input.hubId);
+        const canStart = await canStartTrial(toNumericId(ctx.user.numericId), input.hubId);
+        
+        return {
+          hasActiveTrial: !!activeTrial,
+          trial: activeTrial,
+          canStartTrial: canStart,
+        };
+      }),
+    
+    getUserTrials: protectedProcedure
+      .query(async ({ ctx }) => {
+        const { getUserTrials } = await import("./db");
+        return await getUserTrials(toNumericId(ctx.user.numericId));
+      }),
+    
     // Stripe Checkout & Subscription Management
     createCheckoutSession: publicProcedure
       .input(z.object({

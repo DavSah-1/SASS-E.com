@@ -53,10 +53,21 @@ export async function checkFeatureAccess(
       return { allowed: true, limit: "unlimited" };
     }
     
+    // Free tier: check for active trial
     if (hubsCount === 0) {
+      const { getActiveTrial } = await import("./db");
+      const activeTrial = await getActiveTrial(user.numericId, specializedHub);
+      
+      if (activeTrial) {
+        return {
+          allowed: true,
+          reason: "Active trial",
+        };
+      }
+      
       return {
         allowed: false,
-        reason: `${specializedHub} requires at least Starter tier`,
+        reason: `${specializedHub} requires at least Starter tier or active trial`,
         upgradeRequired: true,
       };
     }

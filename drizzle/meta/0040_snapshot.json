@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "5c0163d7-3749-489f-bbc2-f4f8b10d89af",
-  "prevId": "d1b2412c-1b2a-456e-abcb-60ebadd724fa",
+  "id": "be6403e9-63cb-4eef-b16e-7ec74b52520c",
+  "prevId": "5c0163d7-3749-489f-bbc2-f4f8b10d89af",
   "tables": {
     "budget_alerts": {
       "name": "budget_alerts",
@@ -3222,6 +3222,84 @@
       "compositePrimaryKeys": {
         "health_metrics_id": {
           "name": "health_metrics_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "hub_trials": {
+      "name": "hub_trials",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "hubId": {
+          "name": "hubId",
+          "type": "enum('money','wellness','translation_hub','learning')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "enum('active','expired','converted')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'active'"
+        },
+        "startedAt": {
+          "name": "startedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "hub_trials_id": {
+          "name": "hub_trials_id",
           "columns": [
             "id"
           ]
