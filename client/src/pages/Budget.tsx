@@ -28,6 +28,7 @@ import { getLoginUrl } from "@/const";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { SpendingTrendsChart } from "@/components/money-hub/SpendingTrendsChart";
 import { BudgetTemplates } from "@/components/money-hub/BudgetTemplates";
+import { TransactionImport } from "@/components/TransactionImport";
 import { RecurringTransactions } from "@/components/money-hub/RecurringTransactions";
 import { GoalProgressTracker } from "@/components/money-hub/GoalProgressTracker";
 import { ReceiptScanner } from "@/components/money-hub/ReceiptScanner";
@@ -194,6 +195,13 @@ export default function Budget() {
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
+              <TransactionImport
+                onImportComplete={() => {
+                  refetchTransactions();
+                  refetchCategories();
+                  refetchSummary();
+                }}
+              />
               <Dialog open={addCategoryOpen} onOpenChange={setAddCategoryOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="gap-2">

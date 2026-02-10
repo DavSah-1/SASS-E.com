@@ -1442,6 +1442,37 @@ export async function createBudgetTransaction(transaction: InsertBudgetTransacti
 }
 
 /**
+ * Find duplicate transaction
+ */
+export async function findDuplicateTransaction(
+  userId: number,
+  date: string,
+  amount: number,
+  description: string
+) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot find duplicate transaction: database not available");
+    return null;
+  }
+
+  const result = await db
+    .select()
+    .from(budgetTransactions)
+    .where(
+      and(
+        eq(budgetTransactions.userId, userId),
+        eq(budgetTransactions.transactionDate, new Date(date)),
+        eq(budgetTransactions.amount, amount),
+        eq(budgetTransactions.description, description)
+      )
+    )
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+/**
  * Get budget transactions for a user with optional filters
  */
 export async function getUserBudgetTransactions(

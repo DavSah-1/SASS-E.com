@@ -2097,6 +2097,32 @@ export async function createBudgetTransaction(
   }
 }
 
+export async function findDuplicateTransaction(
+  ctx: DbContext,
+  userId: number,
+  date: string,
+  amount: number,
+  description: string
+) {
+  if (ctx.user.role === "admin") {
+    return await db.findDuplicateTransaction(userId, date, amount, description);
+  } else {
+    const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    const { data, error } = await supabase
+      .from('budget_transactions')
+      .select('*')
+      .eq('user_id', String(ctx.user.id))
+      .eq('transaction_date', date)
+      .eq('amount', amount)
+      .eq('description', description)
+      .limit(1)
+      .maybeSingle();
+    
+    if (error) handleSupabaseError(error, 'findDuplicateTransaction');
+    return data;
+  }
+}
+
 export async function getUserBudgetTransactions(
   ctx: DbContext,
   userId: number,

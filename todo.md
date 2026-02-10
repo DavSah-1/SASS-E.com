@@ -4076,3 +4076,16 @@
 - [x] Remove or properly redirect /money route
 - [x] Test /hubs/money page loads correctly
 - [x] Verify all Money Hub features work
+
+## Bank Transaction Import Feature
+- [x] Install CSV and OFX parsing libraries (papaparse)
+- [x] Create backend tRPC procedure for parsing uploaded files
+- [x] Implement CSV parser with column mapping
+- [x] Implement OFX parser for standard bank formats
+- [x] Add transaction deduplication logic
+- [x] Create import preview UI component
+- [x] Add file upload interface in Budget page
+- [x] Implement category auto-detection
+- [x] Add import confirmation and review step
+- [x] Test with sample CSV and OFX files
+- [x] Write unit tests for import functionality
