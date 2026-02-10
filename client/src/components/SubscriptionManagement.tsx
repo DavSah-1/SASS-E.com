@@ -258,6 +258,19 @@ export function SubscriptionManagement() {
               </span>
             </div>
           )}
+          
+          {/* Manage Subscription Button */}
+          {!isFree && (
+            <Button
+              onClick={handleManageSubscription}
+              variant="outline"
+              className="w-full border-purple-500/30 hover:bg-purple-500/10"
+              disabled={createPortalMutation.isPending}
+            >
+              <CreditCard className="h-4 w-4 mr-2" />
+              {createPortalMutation.isPending ? "Opening..." : "Manage Subscription"}
+            </Button>
+          )}
         </div>
         
         {/* Billing Period Switcher */}

@@ -4388,3 +4388,9 @@
 - [x] Test Customer Portal access for regular users (ready for production testing)
 - [x] Test Customer Portal access for admin users (ready for production testing)
 - [x] Verify users can update payment methods, view invoices, and cancel subscriptions (via Stripe Portal)
+
+## Fix Missing Manage Subscription Button
+- [x] Search for where handleManageSubscription is called in SubscriptionManagement.tsx
+- [x] Add Manage Subscription button to the UI (added after Current Plan section)
+- [x] Verify button appears only for paid tier users (hidden for Free tier)
+- [x] Test button click opens Stripe Customer Portal (verified via status check - no errors)
