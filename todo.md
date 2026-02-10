@@ -4323,3 +4323,10 @@
 - [x] Test trial duration: Starter monthly (5 days), 6-month (10 days), annual (20 days)
 - [x] Test trial duration: Pro monthly (5 days), 6-month (10 days), annual (20 days)
 - [x] Verify Free tier remains at 5 days regardless of subscription
+
+## Verify subscriptionPeriod Field in Both Databases
+- [x] Check if subscriptionPeriod column exists in Manus DB (MySQL/TiDB) - MISSING
+- [x] Manually add subscriptionPeriod to Manus DB - ADDED via ALTER TABLE
+- [x] Check if subscriptionPeriod column exists in Supabase DB (PostgreSQL) - MISSING
+- [x] Manually add subscriptionPeriod to Supabase DB - ADDED via psql migration
+- [x] Verify both databases have the field with correct enum values - CONFIRMED

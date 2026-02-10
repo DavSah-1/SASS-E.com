@@ -28,6 +28,13 @@ export const billingPeriodEnum = pgEnum("billing_period", [
   "annual",
 ]);
 
+// Define the subscription period enum (matches Manus DB naming)
+export const subscriptionPeriodEnum = pgEnum("subscription_period", [
+  "monthly",
+  "six_month",
+  "annual",
+]);
+
 // Define the subscription status enum
 export const subscriptionStatusEnum = pgEnum("subscription_status", [
   "active",
@@ -67,6 +74,7 @@ export const supabaseUsers = pgTable("users", {
   stripeSubscriptionId: text("stripe_subscription_id"),
   subscriptionStatus: subscriptionStatusEnum("subscription_status").default("trialing"),
   billingPeriod: billingPeriodEnum("billing_period").default("monthly"),
+  subscriptionPeriod: subscriptionPeriodEnum("subscription_period").default("monthly"),
   
   // Trial tracking fields
   trialDays: integer("trial_days").default(5).notNull(), // 5 for monthly, 7 for 6-month/annual

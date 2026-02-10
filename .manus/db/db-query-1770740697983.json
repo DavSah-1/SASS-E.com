@@ -1,0 +1,17 @@
+{
+  "query": "SELECT COLUMN_NAME, DATA_TYPE, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT \nFROM INFORMATION_SCHEMA.COLUMNS \nWHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'subscriptionPeriod';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SELECT COLUMN_NAME, DATA_TYPE, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT \nFROM INFORMATION_SCHEMA.COLUMNS \nWHERE TABLE_NAME = 'users' AND COLUMN_NAME = 'subscriptionPeriod';",
+  "rows": [
+    {
+      "COLUMN_NAME": "subscriptionPeriod",
+      "DATA_TYPE": "enum",
+      "COLUMN_TYPE": "enum('monthly','six_month','annual')",
+      "IS_NULLABLE": "YES",
+      "COLUMN_DEFAULT": "monthly"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\tDATA_TYPE\tCOLUMN_TYPE\tIS_NULLABLE\tCOLUMN_DEFAULT\nsubscriptionPeriod\tenum\tenum('monthly','six_month','annual')\tYES\tmonthly\n",
+  "stderr": "",
+  "execution_time_ms": 67
+}
