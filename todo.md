@@ -4194,3 +4194,22 @@
 
 ## Bug Fix - Breadcrumb Component Nested Anchor Tags
 - [x] Fix Breadcrumb component to remove nested <a> tags (wouter's Link already renders <a>, don't wrap it)
+
+## Access Control Audit for /hubs/* Pages
+- [x] Review authentication requirements for all hub pages
+- [x] Review tier-based access control for Money Hub (/hubs/money)
+- [x] Review tier-based access control for Wellness Hub (/hubs/wellness)
+- [x] Review tier-based access control for Translation Hub (/hubs/translate)
+- [x] Review tier-based access control for Learning Hub (/hubs/learning)
+- [x] Review access control for learning sub-pages (finance, math, language, science)
+- [x] Verify admin bypass functionality works correctly
+- [x] Verify upgrade modal/prompt displays for users without access
+- [x] Fix missing access controls in SpecializedLearning.tsx (Learning Hub landing)
+- [x] Fix missing access controls in LearnFinance.tsx
+- [x] Add tier check to MathTutor.tsx
+- [x] Add tier check to LanguageLearning.tsx
+- [x] Add tier check to ScienceLab.tsx
+- [ ] Test unauthenticated user access (should be blocked/redirected)
+- [ ] Test authenticated user with correct tier (should have access)
+- [ ] Test authenticated user without correct tier (should see upgrade prompt)
+- [ ] Test admin user access (should bypass all restrictions)

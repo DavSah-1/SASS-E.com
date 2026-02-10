@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
 import { Beaker, FlaskConical, Microscope, AlertTriangle, CheckCircle2, Clock, Target, BookOpen } from "lucide-react";
 import { LabNotebook } from "@/components/LabNotebook";
 import { PreLabQuiz } from "@/components/PreLabQuiz";
@@ -21,13 +23,21 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 
 export default function ScienceLab() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const [location, setLocation] = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<"physics" | "chemistry" | "biology" | "all">("all");
   
-  // Science Lab is freely accessible - no hub access control needed
+  // Hub access control
+  const hubAccess = useHubAccess("learning");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
-
+  // Check hub access and show modal if needed
+  useEffect(() => {
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
+    }
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
+  
   const [selectedDifficulty, setSelectedDifficulty] = useState<"beginner" | "intermediate" | "advanced" | "all">("all");
   const [selectedExperiment, setSelectedExperiment] = useState<any>(null);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -163,6 +173,16 @@ export default function ScienceLab() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
       <Navigation />
+      
+      {/* Hub Upgrade Modal */}
+      <HubUpgradeModal 
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="learning"
+        hubName="Learning Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
 
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb Navigation */}

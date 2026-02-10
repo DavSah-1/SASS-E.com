@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,9 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { LevelDisplay } from "@/components/learn-finance/LevelDisplay";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
+import { getLoginUrl } from "@/const";
 
 // Learning tier structure
 const learningTiers = [
@@ -181,7 +184,18 @@ function BadgesDisplay() {
 }
 
 export default function LearnFinance() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
+  
+  // Hub access control
+  const hubAccess = useHubAccess("learning");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // Check hub access and show modal if needed
+  useEffect(() => {
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
+    }
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
   const [selectedTier, setSelectedTier] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -263,9 +277,46 @@ export default function LearnFinance() {
   const studyStreak = userStats?.studyStreak ?? 0;
   const overallProgress = userStats?.overallProgress ?? 0;
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-orange-950/30 via-yellow-950/20 to-amber-950/30 flex items-center justify-center">
+        <p className="text-white text-lg">Loading...</p>
+      </div>
+    );
+  }
+
+  // Authentication check
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-orange-950/30 via-yellow-950/20 to-amber-950/30">
+        <Navigation />
+        <div className="container mx-auto py-16 px-4 text-center">
+          <h2 className="text-3xl font-bold text-yellow-200 mb-4">Learn Finance Access Required</h2>
+          <p className="text-slate-300 mb-8">Please sign in to access the Learn Finance learning path.</p>
+          <Button asChild size="lg" className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white">
+            <a href={getLoginUrl()}>Sign In to Continue</a>
+          </Button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <>
       <Navigation />
+      
+      {/* Hub Upgrade Modal */}
+      <HubUpgradeModal 
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="learning"
+        hubName="Learning Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
+      
       <div className="min-h-screen bg-gradient-to-b from-orange-950/30 via-yellow-950/20 to-amber-950/30">
       {/* Compact Header with Stats */}
       <div className="bg-gradient-to-b from-yellow-900/40 via-orange-900/30 to-yellow-950/20 border-b border-yellow-500/30">

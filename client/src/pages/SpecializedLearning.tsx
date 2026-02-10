@@ -6,6 +6,9 @@ import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
+import { useEffect, useState } from "react";
 import {
   BookOpen,
   Calculator,
@@ -21,7 +24,18 @@ import {
 import { Footer } from "@/components/Footer";
 
 export default function SpecializedLearning() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
+  
+  // Hub access control
+  const hubAccess = useHubAccess("learning");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // Check hub access and show modal if needed
+  useEffect(() => {
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
+    }
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
 
   // Fetch progress data for all 4 learning paths
   const { data: financeStats } = trpc.learnFinance.getUserStats.useQuery(
@@ -116,9 +130,45 @@ export default function SpecializedLearning() {
       )
     : 0;
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <p className="text-white text-lg">Loading...</p>
+      </div>
+    );
+  }
+
+  // Authentication check
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <Navigation />
+        <div className="container mx-auto py-16 px-4 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Learning Hub Access Required</h2>
+          <p className="text-slate-300 mb-8">Please sign in to access the Learning Hub and all learning paths.</p>
+          <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">
+            <a href={getLoginUrl()}>Sign In to Continue</a>
+          </Button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Navigation />
+      
+      {/* Hub Upgrade Modal */}
+      <HubUpgradeModal 
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="learning"
+        hubName="Learning Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
 
       <div className="container mx-auto py-16 px-4">
         {/* Header */}

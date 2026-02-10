@@ -17,6 +17,8 @@ import { Footer } from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
 
 interface Step {
   stepNumber: number;
@@ -915,7 +917,18 @@ export function QuizModal({ topicName, category, onClose }: { topicName: string;
 }
 
 export default function MathTutor() {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
+  
+  // Hub access control
+  const hubAccess = useHubAccess("learning");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // Check hub access and show modal if needed
+  useEffect(() => {
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
+    }
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
   const [problemText, setProblemText] = useState("");
   const [topic, setTopic] = useState("");
   const [solution, setSolution] = useState<Solution | null>(null);
@@ -1049,6 +1062,16 @@ export default function MathTutor() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Navigation />
+      
+      {/* Hub Upgrade Modal */}
+      <HubUpgradeModal 
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="learning"
+        hubName="Learning Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
       
       <div className="container mx-auto px-4 py-8 sm:py-12">
         {/* Breadcrumb Navigation */}

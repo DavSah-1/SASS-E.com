@@ -33,11 +33,24 @@ import { PronunciationPractice } from "@/components/PronunciationPractice";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Breadcrumb } from "@/components/Breadcrumb";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
 
 
 export default function LanguageLearning() {
   const { user, isAuthenticated, loading } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState<string>("es");
+  
+  // Hub access control
+  const hubAccess = useHubAccess("learning");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // Check hub access and show modal if needed
+  useEffect(() => {
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
+    }
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
   
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -327,6 +340,16 @@ export default function LanguageLearning() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Navigation */}
       <Navigation />
+      
+      {/* Hub Upgrade Modal */}
+      <HubUpgradeModal 
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="learning"
+        hubName="Learning Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
       <div className="container mx-auto py-4 sm:py-8 px-4 max-w-7xl">
         {/* Breadcrumb Navigation */}
         <Breadcrumb 
