@@ -4370,3 +4370,11 @@
 - [x] Remove !isAdmin condition from tier change buttons
 - [x] Keep !isAdmin only for the main "Upgrade" button (still hidden for admins)
 - [x] Test that admin users can see and use all upgrade/downgrade options (verified via status check)
+
+## Add Downgrade Confirmation Modal
+- [x] Create confirmation dialog component with warning messages
+- [x] List consequences of downgrade (feature loss, trial resets, hub access changes)
+- [x] Add "Cancel" and "Confirm Downgrade" buttons
+- [x] Integrate modal into handleChangeTier function
+- [x] Show modal only for downgrades, not upgrades
+- [x] Test modal appears and prevents accidental downgrades (verified via status check - no errors)

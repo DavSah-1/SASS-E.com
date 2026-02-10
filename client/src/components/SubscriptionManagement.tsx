@@ -2,9 +2,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { CreditCard, Calendar, Zap, TrendingUp, Clock, CheckCircle2, XCircle, AlertCircle, ArrowUpCircle, ArrowDownCircle, RefreshCw } from "lucide-react";
+import { CreditCard, Calendar, Zap, TrendingUp, Clock, CheckCircle2, XCircle, AlertCircle, ArrowUpCircle, ArrowDownCircle, RefreshCw, AlertTriangle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
@@ -43,6 +51,8 @@ export function SubscriptionManagement() {
   const { data: subscriptionInfo, isLoading } = trpc.subscription.getSubscriptionInfo.useQuery();
   const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "six_month" | "annual">("monthly");
   const [isChangingPeriod, setIsChangingPeriod] = useState(false);
+  const [showDowngradeModal, setShowDowngradeModal] = useState(false);
+  const [pendingTier, setPendingTier] = useState<"starter" | "pro" | "ultimate" | null>(null);
   const createCheckoutMutation = trpc.subscription.createCheckoutSession.useMutation();
   
   // Update selectedPeriod when subscriptionInfo loads
@@ -99,7 +109,24 @@ export function SubscriptionManagement() {
     toast.info("Redirecting to pricing page...");
   };
   
+  const isDowngrade = (newTier: "free" | "starter" | "pro" | "ultimate") => {
+    const tierOrder = { free: 0, starter: 1, pro: 2, ultimate: 3 };
+    return tierOrder[newTier] < tierOrder[tier as keyof typeof tierOrder];
+  };
+  
   const handleChangeTier = async (newTier: "starter" | "pro" | "ultimate") => {
+    // Check if this is a downgrade
+    if (isDowngrade(newTier)) {
+      setPendingTier(newTier);
+      setShowDowngradeModal(true);
+      return;
+    }
+    
+    // Proceed with upgrade
+    await proceedWithTierChange(newTier);
+  };
+  
+  const proceedWithTierChange = async (newTier: "starter" | "pro" | "ultimate") => {
     try {
       const result = await createCheckoutMutation.mutateAsync({
         tier: newTier,
@@ -115,6 +142,19 @@ export function SubscriptionManagement() {
       console.error('Failed to create checkout session:', error);
       toast.error("Failed to start checkout. Please try again.");
     }
+  };
+  
+  const confirmDowngrade = async () => {
+    if (pendingTier) {
+      setShowDowngradeModal(false);
+      await proceedWithTierChange(pendingTier);
+      setPendingTier(null);
+    }
+  };
+  
+  const cancelDowngrade = () => {
+    setShowDowngradeModal(false);
+    setPendingTier(null);
   };
   
   const handleChangePeriod = async (newPeriod: "monthly" | "six_month" | "annual") => {
@@ -156,6 +196,7 @@ export function SubscriptionManagement() {
   };
   
   return (
+    <>
     <Card className="bg-slate-800/50 border-purple-500/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-white">
@@ -444,5 +485,57 @@ export function SubscriptionManagement() {
         )}
       </CardContent>
     </Card>
+    
+    {/* Downgrade Confirmation Modal */}
+    <Dialog open={showDowngradeModal} onOpenChange={setShowDowngradeModal}>
+      <DialogContent className="bg-slate-800 border-red-500/30 text-white">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-red-400">
+            <AlertTriangle className="h-5 w-5" />
+            Confirm Subscription Downgrade
+          </DialogTitle>
+          <DialogDescription className="text-slate-300">
+            You are about to downgrade from <span className="font-semibold text-white">{TIER_NAMES[tier as keyof typeof TIER_NAMES]}</span> to <span className="font-semibold text-white">{pendingTier && TIER_NAMES[pendingTier]}</span>.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 space-y-2">
+            <h4 className="font-semibold text-red-400 flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              Warning: This action will result in:
+            </h4>
+            <ul className="text-sm text-slate-300 space-y-1 ml-6 list-disc">
+              <li>Loss of access to premium features</li>
+              <li>Reduced daily usage limits</li>
+              <li>Fewer hub selections available</li>
+              <li>Shorter trial durations on non-selected hubs</li>
+              <li>All active trials will be reset</li>
+            </ul>
+          </div>
+          
+          <p className="text-sm text-slate-400">
+            Your current subscription will remain active until the end of your billing period, then the new plan will take effect.
+          </p>
+        </div>
+        
+        <DialogFooter className="gap-2">
+          <Button
+            variant="outline"
+            onClick={cancelDowngrade}
+            className="border-slate-600 hover:bg-slate-700"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={confirmDowngrade}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            Confirm Downgrade
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
