@@ -59,7 +59,7 @@ export default function LearnFinanceProgress() {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/learn-finance">
+          <Link href="/hubs/learning/finance">
             <Button variant="ghost" className="text-white hover:bg-white/10 mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Learn Finance

@@ -50,11 +50,11 @@ function Router() {
       <Route path={"/assistant"} component={VoiceAssistant} />
       <Route path={"/devices"} component={IoTDevices} />
       <Route path={"/learning"} component={Learning} />
-      <Route path={"/learn-finance"} component={LearnFinance} />
-      <Route path={"/learn-finance/progress"} component={LearnFinanceProgress} />
-      <Route path={"/learn-finance/article/:slug"} component={ArticleReader} />
+      <Route path={"/hubs/learning/finance"} component={LearnFinance} />
+      <Route path={"/hubs/learning/finance/progress"} component={LearnFinanceProgress} />
+      <Route path={"/hubs/learning/finance/article/:slug"} component={ArticleReader} />
       <Route path={"/learning-demo"} component={LearningDemo} />
-      <Route path={"/language-learning"} component={LanguageLearning} />
+      <Route path={"/hubs/learning/language"} component={LanguageLearning} />
       <Route path={"/translate"} component={TranslateLanding} />
       <Route path={"/translate-app"} component={Translation} />
       <Route path={"/translate-demo"} component={TranslateDemo} />
@@ -62,9 +62,9 @@ function Router() {
       <Route path={"/sign-in"} component={SignIn} />
       <Route path={"/sign-up"} component={SignUp} />
 
-      <Route path={"/math-tutor"} component={MathTutor} />
-      <Route path={"/math-curriculum"} component={MathCurriculum} />
-      <Route path={"/science-lab"} component={ScienceLab} />
+      <Route path={"/hubs/learning/math"} component={MathTutor} />
+      <Route path={"/hubs/learning/math/curriculum"} component={MathCurriculum} />
+      <Route path={"/hubs/learning/science"} component={ScienceLab} />
 
       <Route path={"/hubs"} component={Hubs} />
       <Route path={"/hubs/learning"} component={SpecializedLearning} />
@@ -84,6 +84,14 @@ function Router() {
       <Route path={"/money"}>{() => { window.location.href = "/hubs/money"; return null; }}</Route>
       <Route path={"/translate-app"}>{() => { window.location.href = "/hubs/translate"; return null; }}</Route>
       <Route path={"/specialized-learning"}>{() => { window.location.href = "/hubs/learning"; return null; }}</Route>
+      {/* Redirect old learning routes to new nested structure */}
+      <Route path={"/learn-finance"}>{() => { window.location.href = "/hubs/learning/finance"; return null; }}</Route>
+      <Route path={"/learn-finance/progress"}>{() => { window.location.href = "/hubs/learning/finance/progress"; return null; }}</Route>
+      <Route path={"/learn-finance/article/:slug"}>{(params) => { window.location.href = `/hubs/learning/finance/article/${params.slug}`; return null; }}</Route>
+      <Route path={"/math-tutor"}>{() => { window.location.href = "/hubs/learning/math"; return null; }}</Route>
+      <Route path={"/math-curriculum"}>{() => { window.location.href = "/hubs/learning/math/curriculum"; return null; }}</Route>
+      <Route path={"/language-learning"}>{() => { window.location.href = "/hubs/learning/language"; return null; }}</Route>
+      <Route path={"/science-lab"}>{() => { window.location.href = "/hubs/learning/science"; return null; }}</Route>
       {/* Redirect old routes to Money hub with tab parameter */}
       <Route path={"/budget"}>{() => { window.location.href = "/hubs/money?tab=budget"; return null; }}</Route>
       <Route path={"/debt-coach"}>{() => { window.location.href = "/hubs/money?tab=debts"; return null; }}</Route>

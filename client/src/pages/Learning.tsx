@@ -536,7 +536,7 @@ export default function Learning() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Math Tutor Path */}
               <a
-                href="/math-tutor"
+                href="/hubs/learning/math"
                 className="block p-6 bg-gradient-to-br from-blue-900/40 to-cyan-900/40 hover:from-blue-800/50 hover:to-cyan-800/50 border-2 border-blue-500/30 hover:border-blue-400/60 rounded-xl transition-all group"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -553,7 +553,7 @@ export default function Learning() {
 
               {/* Languages Path */}
               <a
-                href="/language-learning"
+                href="/hubs/learning/language"
                 className="block p-6 bg-gradient-to-br from-purple-900/40 to-pink-900/40 hover:from-purple-800/50 hover:to-pink-800/50 border-2 border-purple-500/30 hover:border-purple-400/60 rounded-xl transition-all group"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -570,7 +570,7 @@ export default function Learning() {
 
               {/* Science Lab Path */}
               <a
-                href="/science-lab"
+                href="/hubs/learning/science"
                 className="block p-6 bg-gradient-to-br from-green-900/40 to-emerald-900/40 hover:from-green-800/50 hover:to-emerald-800/50 border-2 border-green-500/30 hover:border-green-400/60 rounded-xl transition-all group"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -587,7 +587,7 @@ export default function Learning() {
 
               {/* Learn Finance Path */}
               <a
-                href="/learn-finance"
+                href="/hubs/learning/finance"
                 className="block p-6 bg-gradient-to-br from-yellow-900/40 to-orange-900/40 hover:from-yellow-800/50 hover:to-orange-800/50 border-2 border-yellow-500/30 hover:border-yellow-400/60 rounded-xl transition-all group"
               >
                 <div className="flex items-start justify-between mb-4">

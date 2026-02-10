@@ -4161,3 +4161,22 @@
 - [x] Copy Learn Finance card to /hubs/learning page
 - [x] Position Learn Finance card to the left of Math Tutor, Language Learning, Science Lab
 - [x] Test card navigation and layout
+
+## Reorganize Learning Routes Under /hubs/learning
+- [x] Update App.tsx routes: /learn-finance → /hubs/learning/finance
+- [x] Update App.tsx routes: /math-tutor → /hubs/learning/math
+- [x] Update App.tsx routes: /language-learning → /hubs/learning/language
+- [x] Update App.tsx routes: /science-lab → /hubs/learning/science
+- [ ] Update card links in SpecializedLearning.tsx (/hubs/learning page)
+- [ ] Search and update all internal references to old routes
+- [x] Add redirects from old routes to new routes in App.tsx
+- [ ] Test all 4 new routes work correctly
+- [ ] Test all redirects work correctly
+
+## Route Reorganization - Learning Routes Nested Under /hubs/learning
+- [x] Update App.tsx route definitions to change /learn-finance → /hubs/learning/finance, /math-tutor → /hubs/learning/math, /language-learning → /hubs/learning/language, /science-lab → /hubs/learning/science
+- [x] Add redirects from old routes to new routes for backward compatibility
+- [x] Update card links in Learning.tsx to point to new nested routes
+- [x] Update internal route references in LearnFinance.tsx
+- [x] Update internal route references in LearnFinanceProgress.tsx
+- [x] Search codebase for any remaining references to old route paths

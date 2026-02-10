@@ -19,7 +19,7 @@ import { RetirementCalculator } from "@/components/learn-finance/RetirementCalcu
 import { DebtPayoffSimulator } from "@/components/learn-finance/DebtPayoffSimulator";
 
 export default function ArticleReader() {
-  const [, params] = useRoute("/learn-finance/article/:slug");
+  const [, params] = useRoute("/hubs/learning/finance/article/:slug");
   const slug = params?.slug || "";
 
   const [readingProgress, setReadingProgress] = useState(0);
@@ -91,7 +91,7 @@ export default function ArticleReader() {
           <p className="text-muted-foreground mb-4">
             The article you're looking for doesn't exist.
           </p>
-          <Link href="/learn-finance">
+          <Link href="/hubs/learning/finance">
             <Button>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Learn Finance
@@ -115,7 +115,7 @@ export default function ArticleReader() {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/learn-finance">
+            <Link href="/hubs/learning/finance">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Learn Finance
@@ -218,7 +218,7 @@ export default function ArticleReader() {
                     {relatedArticles.map((related) => (
                       <Link
                         key={related.id}
-                        href={`/learn-finance/article/${related.slug}`}
+                        href={`/hubs/learning/finance/article/${related.slug}`}
                       >
                         <div className="p-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
                           <h4 className="font-medium text-sm mb-1 line-clamp-2">

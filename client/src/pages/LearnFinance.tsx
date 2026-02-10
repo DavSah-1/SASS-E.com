@@ -279,7 +279,7 @@ export default function LearnFinance() {
                 Master personal finance with SASS-E's sarcastic yet straightforward approach
               </p>
             </div>
-            <Link href="/learn-finance/progress">
+            <Link href="/hubs/learning/finance/progress">
               <Button 
                 size="lg"
                 className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
@@ -515,7 +515,7 @@ export default function LearnFinance() {
             {/* Articles Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredArticles.map((article) => (
-                <Link key={article.id} href={`/learn-finance/article/${article.slug}`}>
+                <Link key={article.id} href={`/hubs/learning/finance/article/${article.slug}`}>
                   <Card className="hover:shadow-lg transition-shadow cursor-pointer group bg-gradient-to-br from-yellow-900/10 to-orange-900/10 border-yellow-500/20 hover:border-yellow-400/40">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
