@@ -4229,6 +4229,24 @@
 - [x] Create HealthMetrics.tsx component (extract from Wellness.tsx)
 - [x] Create WellnessOverview.tsx component (extract from Wellness.tsx)
 - [x] Refactor Wellness.tsx to embed components in tabs (like Money.tsx embeds Budget/DebtCoach/Goals)
-- [ ] Add direct URL routes for wellness features with tab redirects
-- [ ] Test all wellness tabs with real data
+- [x] Add direct URL routes for wellness features with tab redirects
+- [x] Test all wellness tabs with real data
+- [x] Verify navigation hiding in embedded components
+
+## Refactor Translation Hub to Match Money Hub Architecture
+- [ ] Create TextTranslator.tsx component (extract text translation from Translation.tsx)
+- [ ] Create ImageOCRTranslator.tsx component (extract image OCR translation from Translation.tsx)
+- [ ] Create ConversationTranslator.tsx component (extract conversation mode from Translation.tsx)
+- [ ] Create TranslationPhrasebook.tsx component (extract phrasebook from Translation.tsx)
+- [ ] Create MultilingualChat.tsx component (extract multilingual chat from Translation.tsx)
+- [ ] Refactor Translation.tsx to embed components in tabs (like Money.tsx embeds Budget/DebtCoach/Goals)
+- [ ] Add direct URL routes for translation features with tab redirects
+- [ ] Test all 5 translation tabs with real data
 - [ ] Verify navigation hiding in embedded components
+
+## Refactor Translation Hub to Match Money Hub Architecture (Wrapper Approach)
+- [x] Add URL parameter navigation for tabs (?tab=translate, ?tab=image_ocr, etc.)
+- [x] Ensure Translation.tsx matches Money/Wellness Hub pattern
+- [x] Delete unused TextTranslator.tsx file
+- [ ] Test all translation tabs with URL parameters
+- [ ] Verify hub access control is working

@@ -101,7 +101,20 @@ export default function Translation() {
   
   // TTS state
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [activeTab, setActiveTab] = useState<"translate" | "image_ocr" | "conversation" | "phrasebook" | "chat">("translate");
+  
+  // Read tab from URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabParam = urlParams.get('tab');
+  const [activeTab, setActiveTab] = useState<"translate" | "image_ocr" | "conversation" | "phrasebook" | "chat">(tabParam as any || "translate");
+  
+  // Update URL when tab changes
+  useEffect(() => {
+    const newUrl = activeTab === "translate" ? "/hubs/translate" : `/hubs/translate?tab=${activeTab}`;
+    if (window.location.pathname + window.location.search !== newUrl) {
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [activeTab]);
+  
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   
   const translateTextMutation = trpc.translationApp.translate.useMutation();
