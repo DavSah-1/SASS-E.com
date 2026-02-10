@@ -4155,3 +4155,9 @@
 - [x] Add ScienceLab route to App.tsx
 - [x] Remove /science-lab redirect from App.tsx
 - [x] Test /science-lab page loads correctly
+
+## Add Learn Finance Card to /hubs/learning Page
+- [x] Read Learn Finance card structure from /learning page
+- [x] Copy Learn Finance card to /hubs/learning page
+- [x] Position Learn Finance card to the left of Math Tutor, Language Learning, Science Lab
+- [x] Test card navigation and layout

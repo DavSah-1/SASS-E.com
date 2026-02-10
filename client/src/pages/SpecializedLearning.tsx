@@ -118,7 +118,24 @@ export default function SpecializedLearning() {
           <h2 className="text-3xl font-bold text-purple-400 mb-6 text-center">🎯 Featured Learning Experiences</h2>
           <p className="text-slate-300 mb-8 text-center max-w-2xl mx-auto">Interactive learning with structured lessons and hands-on practice</p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* Learn Finance Card */}
+            <a
+              href="/learn-finance"
+              className="block p-6 bg-gradient-to-br from-yellow-900/40 to-orange-900/40 hover:from-yellow-800/50 hover:to-orange-800/50 border-2 border-yellow-500/30 hover:border-yellow-400/60 rounded-xl transition-all group"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-5xl">💰</div>
+                <ArrowRight className="h-6 w-6 text-yellow-400 group-hover:text-yellow-300 transition-colors" />
+              </div>
+              <h3 className="text-2xl font-bold text-yellow-200 mb-3 group-hover:text-yellow-100">Learn Finance</h3>
+              <p className="text-sm text-slate-300 mb-4">Master personal finance with practical lessons on budgeting, investing, and building wealth for everyday life</p>
+              <div className="flex items-center text-sm text-yellow-400 font-semibold">
+                <span>Start Learning</span>
+                <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+              </div>
+            </a>
+
             {/* Math Tutor Card */}
             <a
               href="/math-tutor"
