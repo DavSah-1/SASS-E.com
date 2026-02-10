@@ -27,11 +27,11 @@ export function useHubAccess(hubId: SpecializedHub): HubAccessResult {
   // Hub ID is already in correct format from SpecializedHub type
   const backendHubId = hubId as "money" | "wellness" | "translation_hub" | "learning";
 
-  // Query trial status for Free tier users
+  // Query trial status for all non-Ultimate users (Free, Starter, Pro can all use trials)
   const { data: trialStatus } = trpc.subscription.getHubTrialStatus.useQuery(
     { hubId: backendHubId },
     { 
-      enabled: isAuthenticated && user?.subscriptionTier === "free",
+      enabled: isAuthenticated && user?.subscriptionTier !== "ultimate",
       refetchOnWindowFocus: false,
     }
   );
@@ -115,13 +115,34 @@ export function useHubAccess(hubId: SpecializedHub): HubAccessResult {
     };
   }
 
-  // Hub not selected
+  // Hub not selected - check for active trial (Starter/Pro can trial non-selected hubs)
+  if (trialStatus?.hasActiveTrial && trialStatus.trial) {
+    const expiresAt = new Date(trialStatus.trial.expiresAt);
+    const now = new Date();
+    const daysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    return {
+      hasAccess: true,
+      reason: `Trial active (${daysRemaining} day${daysRemaining > 1 ? "s" : ""} remaining)`,
+      requiresUpgrade: false,
+      currentTier: tier,
+      isAdmin: false,
+      trialDaysRemaining: daysRemaining,
+      trialStatus: "active",
+    };
+  }
+
+  // No trial - offer to start one or upgrade
   const maxHubs = tier === "starter" ? 1 : tier === "pro" ? 2 : 0;
   return {
     hasAccess: false,
-    reason: `You haven't selected this hub. Your ${tier} plan allows ${maxHubs} hub${maxHubs > 1 ? "s" : ""}.`,
+    reason: trialStatus?.canStartTrial 
+      ? `Start your 5-day free trial for ${hubId}` 
+      : `Trial expired. Your ${tier} plan allows ${maxHubs} hub${maxHubs > 1 ? "s" : ""}. Upgrade or select this hub.`,
     requiresUpgrade: true,
     currentTier: tier,
     isAdmin: false,
+    canStartTrial: trialStatus?.canStartTrial ?? false,
+    trialStatus: trialStatus?.canStartTrial ? "never_started" : "expired",
   };
 }

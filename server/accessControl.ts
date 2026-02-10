@@ -53,37 +53,41 @@ export async function checkFeatureAccess(
       return { allowed: true, limit: "unlimited" };
     }
     
-    // Free tier: check for active trial
+    // Check if user has selected this hub (Starter/Pro)
+    const selectedHubs = user.selectedSpecializedHubs || [];
+    
+    if (selectedHubs.includes(specializedHub)) {
+      return {
+        allowed: true,
+        reason: "Hub is in your selected hubs",
+      };
+    }
+
+    // Hub not selected - check for active trial (Free, Starter, Pro can all trial)
+    const { getActiveTrial } = await import("./db");
+    const activeTrial = await getActiveTrial(user.numericId, specializedHub);
+    
+    if (activeTrial) {
+      return {
+        allowed: true,
+        reason: "Active trial",
+      };
+    }
+    
+    // No trial and not selected - deny access
     if (hubsCount === 0) {
-      const { getActiveTrial } = await import("./db");
-      const activeTrial = await getActiveTrial(user.numericId, specializedHub);
-      
-      if (activeTrial) {
-        return {
-          allowed: true,
-          reason: "Active trial",
-        };
-      }
-      
       return {
         allowed: false,
         reason: `${specializedHub} requires at least Starter tier or active trial`,
         upgradeRequired: true,
       };
     }
-
-    // Check if user has selected this hub
-    const selectedHubs = user.selectedSpecializedHubs || [];
     
-    if (!selectedHubs.includes(specializedHub)) {
-      return {
-        allowed: false,
-        reason: `You haven't selected ${specializedHub}. Please select it in your subscription settings.`,
-        upgradeRequired: true,
-      };
-    }
-
-    return { allowed: true };
+    return {
+      allowed: false,
+      reason: `You haven't selected ${specializedHub}. Start a 5-day trial or select it in your subscription settings.`,
+      upgradeRequired: true,
+    };
   }
 
   // Check daily usage limits for other features
