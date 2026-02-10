@@ -82,6 +82,7 @@ function Router() {
       <Route path={"/money"}>{() => { window.location.href = "/hubs/money"; return null; }}</Route>
       <Route path={"/translate-app"}>{() => { window.location.href = "/hubs/translate"; return null; }}</Route>
       <Route path={"/specialized-learning"}>{() => { window.location.href = "/hubs/learning"; return null; }}</Route>
+      <Route path={"/science-lab"}>{() => { window.location.href = "/hubs/learning"; return null; }}</Route>
       {/* Redirect old routes to Money hub with tab parameter */}
       <Route path={"/budget"}>{() => { window.location.href = "/hubs/money?tab=budget"; return null; }}</Route>
       <Route path={"/debt-coach"}>{() => { window.location.href = "/hubs/money?tab=debts"; return null; }}</Route>

@@ -4143,3 +4143,9 @@
 - [x] Remove or update ScienceLab.tsx references to old hub IDs
 - [x] Search and replace all old hub IDs: science_labs, math_tutor, language_learning, money_hub
 - [x] Verify TypeScript compilation passes with no errors
+
+## Fix /science-lab Route 404 Error
+- [x] Check for links or references pointing to /science-lab
+- [x] Decide whether to restore ScienceLab page or redirect to another hub
+- [x] Implement fix (restore or redirect)
+- [x] Test /science-lab route returns proper page or redirect
