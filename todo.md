@@ -4149,3 +4149,9 @@
 - [x] Decide whether to restore ScienceLab page or redirect to another hub
 - [x] Implement fix (restore or redirect)
 - [x] Test /science-lab route returns proper page or redirect
+
+## Restore ScienceLab.tsx Page
+- [x] Recreate ScienceLab.tsx page file
+- [x] Add ScienceLab route to App.tsx
+- [x] Remove /science-lab redirect from App.tsx
+- [x] Test /science-lab page loads correctly

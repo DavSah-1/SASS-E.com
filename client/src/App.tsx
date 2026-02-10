@@ -24,6 +24,7 @@ import MoneyDemo from "./pages/MoneyDemo";
 import Goals from "./pages/Goals";
 import MathTutor from "./pages/MathTutor";
 import MathCurriculum from "./pages/MathCurriculum";
+import ScienceLab from "./pages/ScienceLab";
 
 import SpecializedLearning from "./pages/SpecializedLearning";
 import LearnFinance from "./pages/LearnFinance";
@@ -63,6 +64,7 @@ function Router() {
 
       <Route path={"/math-tutor"} component={MathTutor} />
       <Route path={"/math-curriculum"} component={MathCurriculum} />
+      <Route path={"/science-lab"} component={ScienceLab} />
 
       <Route path={"/hubs"} component={Hubs} />
       <Route path={"/hubs/learning"} component={SpecializedLearning} />
@@ -82,7 +84,6 @@ function Router() {
       <Route path={"/money"}>{() => { window.location.href = "/hubs/money"; return null; }}</Route>
       <Route path={"/translate-app"}>{() => { window.location.href = "/hubs/translate"; return null; }}</Route>
       <Route path={"/specialized-learning"}>{() => { window.location.href = "/hubs/learning"; return null; }}</Route>
-      <Route path={"/science-lab"}>{() => { window.location.href = "/hubs/learning"; return null; }}</Route>
       {/* Redirect old routes to Money hub with tab parameter */}
       <Route path={"/budget"}>{() => { window.location.href = "/hubs/money?tab=budget"; return null; }}</Route>
       <Route path={"/debt-coach"}>{() => { window.location.href = "/hubs/money?tab=debts"; return null; }}</Route>
