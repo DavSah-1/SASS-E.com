@@ -15,12 +15,10 @@ interface HubUpgradeModalProps {
 }
 
 const HUB_ICONS: Record<SpecializedHub, string> = {
-  language_learning: "🌍",
-  math_tutor: "🔢",
-  science_labs: "🔬",
-  translation_hub: "🌐",
+  money: "💰",
   wellness: "🧘",
-  money_hub: "💰",
+  translation_hub: "🌐",
+  learning: "🔢",
 };
 
 export function HubUpgradeModal({ open, onClose, hubId, hubName, currentTier, reason }: HubUpgradeModalProps) {

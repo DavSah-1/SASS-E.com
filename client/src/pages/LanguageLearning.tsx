@@ -32,25 +32,11 @@ import { initializeSpeechSynthesis, speakInLanguage, stopSpeech, isTTSAvailableF
 import { PronunciationPractice } from "@/components/PronunciationPractice";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
-import { useHubAccess } from "@/hooks/useHubAccess";
-import { HubUpgradeModal } from "@/components/HubUpgradeModal";
-import { useLocation } from "wouter";
+
 
 export default function LanguageLearning() {
   const { user, isAuthenticated, loading } = useAuth();
-  const [location, setLocation] = useLocation();
   const [selectedLanguage, setSelectedLanguage] = useState<string>("es");
-  
-  // Hub access control
-  const hubAccess = useHubAccess("language_learning");
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  
-  // Check hub access and show modal if needed
-  useEffect(() => {
-    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
-      setShowUpgradeModal(true);
-    }
-  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
   
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -1035,16 +1021,6 @@ export default function LanguageLearning() {
         </DialogContent>
       </Dialog>
       <Footer />
-      
-      {/* Hub Access Modal */}
-      <HubUpgradeModal
-        open={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        hubId="language_learning"
-        hubName="Language Learning Hub"
-        currentTier={hubAccess.currentTier}
-        reason={hubAccess.reason || ""}
-      />
     </div>
   );
 }

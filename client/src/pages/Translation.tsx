@@ -14,6 +14,8 @@ import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
+import { useHubAccess } from "@/hooks/useHubAccess";
+import { HubUpgradeModal } from "@/components/HubUpgradeModal";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getLoginUrl } from "@/const";
 import { Phrasebook } from "@/components/Phrasebook";
@@ -24,6 +26,17 @@ import { useEffect } from "react";
 
 export default function Translation() {
   const { user, isAuthenticated, loading } = useAuth();
+  
+  // Hub access control
+  const hubAccess = useHubAccess("translation_hub");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  // Check hub access and show modal if needed
+  useEffect(() => {
+    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
+      setShowUpgradeModal(true);
+    }
+  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
   
   // Text translation state
   const [textInput, setTextInput] = useState("");
@@ -803,6 +816,15 @@ export default function Translation() {
       </main>
       
       <Footer />
+      
+      <HubUpgradeModal 
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        hubId="translation_hub"
+        hubName="Translation Hub"
+        currentTier={hubAccess.currentTier}
+        reason={hubAccess.reason || ""}
+      />
     </div>
   );
 }

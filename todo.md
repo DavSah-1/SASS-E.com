@@ -4127,3 +4127,13 @@
 - [x] Add tier gating to Learning Hub (Math Tutor) page
 - [x] Test hub access with different tier levels
 - [x] Test admin bypass for hub access
+
+## Update Specialized Hub Selection to 4 Actual Hubs
+- [x] Remove 5 unbuilt hubs from shared/hubs.ts (Language Learning, Career Mentor, Creative Writing, Coding Assistant, Study Companion)
+- [x] Update shared/hubs.ts to only include 4 actual hubs (Money, Wellness, Translation, Learning)
+- [x] Ensure hub IDs match actual page routes
+- [ ] Verify hub access checking works for all 4 hubs
+- [ ] Test hub selection modal shows only 4 hubs
+- [ ] Test Starter tier (1 hub selection)
+- [ ] Test Pro tier (2 hub selection)
+- [ ] Test Ultimate tier (all 4 hubs included)

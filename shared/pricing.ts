@@ -4,7 +4,7 @@
  */
 
 export type SubscriptionTier = "free" | "starter" | "pro" | "ultimate";
-export type SpecializedHub = "language_learning" | "math_tutor" | "science_labs" | "translation_hub" | "money_hub" | "wellness";
+export type SpecializedHub = "money" | "wellness" | "translation_hub" | "learning";
 
 export interface TierLimits {
   voiceChats: number | "unlimited";
@@ -77,35 +77,25 @@ export interface TierFeatures {
 }
 
 export const SPECIALIZED_HUBS: Record<SpecializedHub, { name: string; description: string; icon: string }> = {
-  language_learning: {
-    name: "Language Hub",
-    description: "10 languages, 3,450 vocabulary words, interactive exercises",
-    icon: "🌍",
-  },
-  math_tutor: {
-    name: "Learning Hub",
-    description: "Math tutor with step-by-step problem solving",
-    icon: "🔢",
-  },
-  science_labs: {
-    name: "Science Labs",
-    description: "30+ virtual experiments across Physics, Chemistry, Biology",
-    icon: "🔬",
-  },
-  translation_hub: {
-    name: "Translation Hub",
-    description: "Real-time translation, Image OCR, conversation mode",
-    icon: "🌐",
+  money: {
+    name: "Money Hub",
+    description: "Budget tracking, debt coach, financial goals with AI insights",
+    icon: "💰",
   },
   wellness: {
     name: "Wellness Hub",
     description: "Fitness, nutrition, mental health, and wellness tracking",
     icon: "🧘",
   },
-  money_hub: {
-    name: "Money Hub",
-    description: "Budget tracking, debt coach, financial goals with AI insights",
-    icon: "💰",
+  translation_hub: {
+    name: "Translation Hub",
+    description: "Real-time translation, Image OCR, conversation mode",
+    icon: "🌐",
+  },
+  learning: {
+    name: "Learning Hub",
+    description: "Math tutor with step-by-step problem solving",
+    icon: "🔢",
   },
 };
 

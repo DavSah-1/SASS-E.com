@@ -36,7 +36,7 @@ export default function Learning() {
   const submitQuizMutation = trpc.learning.submitQuizAttempt.useMutation();
   
   // Hub access control
-  const hubAccess = useHubAccess("math_tutor");
+  const hubAccess = useHubAccess("learning");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
   // Check hub access and show modal if needed
@@ -964,7 +964,7 @@ export default function Learning() {
       <HubUpgradeModal
         open={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        hubId="math_tutor"
+        hubId="learning"
         hubName="Math Tutor Hub"
         currentTier={hubAccess.currentTier}
         reason={hubAccess.reason || ""}

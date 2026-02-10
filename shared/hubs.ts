@@ -17,34 +17,21 @@ export interface SpecializedHub {
 
 export const SPECIALIZED_HUBS: SpecializedHub[] = [
   {
-    id: "language_learning",
-    name: "Language Learning",
-    icon: "🌍",
-    description: "Master any language with AI-powered lessons, vocabulary building, and pronunciation practice",
+    id: "money",
+    name: "Money Hub",
+    icon: "💰",
+    description: "Smart financial planning, budgeting, debt management, and investment guidance",
     features: [
-      "10+ languages supported",
-      "Vocabulary flashcards with spaced repetition",
-      "Grammar explanations with examples",
-      "Interactive exercises and quizzes",
-      "Progress tracking and achievements"
+      "Budget planning and tracking",
+      "Transaction import (CSV/OFX)",
+      "Debt management plans",
+      "Savings goal tracking",
+      "Financial health score"
     ]
   },
   {
-    id: "math_tutor",
-    name: "Math Tutor",
-    icon: "🔢",
-    description: "Get step-by-step math help from algebra to calculus with verified explanations",
-    features: [
-      "Step-by-step problem solving",
-      "Visual explanations with diagrams",
-      "Practice problems generator",
-      "Concept explanations",
-      "Homework help"
-    ]
-  },
-  {
-    id: "wellness_coach",
-    name: "Wellness Coach",
+    id: "wellness",
+    name: "Wellness Hub",
     icon: "💪",
     description: "Personalized fitness, nutrition, and mental wellness guidance",
     features: [
@@ -56,68 +43,29 @@ export const SPECIALIZED_HUBS: SpecializedHub[] = [
     ]
   },
   {
-    id: "money_advisor",
-    name: "Money Advisor",
-    icon: "💰",
-    description: "Smart financial planning, budgeting, and investment guidance",
+    id: "translation_hub",
+    name: "Translation Hub",
+    icon: "🌍",
+    description: "Real-time translation with voice support across 10+ languages",
     features: [
-      "Budget planning and tracking",
-      "Investment strategy advice",
-      "Debt management plans",
-      "Savings goal tracking",
-      "Financial literacy education"
+      "10+ languages supported",
+      "Voice-to-voice translation",
+      "Text translation with context",
+      "Bilingual display",
+      "Cultural context notes"
     ]
   },
   {
-    id: "career_mentor",
-    name: "Career Mentor",
-    icon: "💼",
-    description: "Resume building, interview prep, and career advancement strategies",
-    features: [
-      "Resume and cover letter review",
-      "Interview preparation",
-      "Career path planning",
-      "Salary negotiation tips",
-      "Professional networking advice"
-    ]
-  },
-  {
-    id: "creative_writing",
-    name: "Creative Writing",
-    icon: "✍️",
-    description: "Enhance your writing with AI-powered feedback, brainstorming, and editing",
-    features: [
-      "Story and plot development",
-      "Character creation assistance",
-      "Grammar and style feedback",
-      "Writer's block solutions",
-      "Genre-specific guidance"
-    ]
-  },
-  {
-    id: "coding_assistant",
-    name: "Coding Assistant",
-    icon: "💻",
-    description: "Debug code, learn programming concepts, and get project guidance",
-    features: [
-      "Code debugging and optimization",
-      "Algorithm explanations",
-      "Best practices guidance",
-      "Project architecture advice",
-      "Multiple language support"
-    ]
-  },
-  {
-    id: "study_companion",
-    name: "Study Companion",
+    id: "learning",
+    name: "Learning Hub",
     icon: "📚",
-    description: "Verified learning with fact-checking, study guides, and quiz generation",
+    description: "Math tutoring, verified learning with fact-checking, and study guides",
     features: [
+      "Step-by-step math problem solving",
       "Automatic fact-checking",
       "Study guide generation",
       "Interactive quizzes",
-      "Source citations",
-      "Learning progress tracking"
+      "Source citations"
     ]
   }
 ];
@@ -131,6 +79,10 @@ export function getHubsByIds(hubIds: string[]): SpecializedHub[] {
 }
 
 export function validateHubSelection(tier: string, selectedHubs: string[]): { valid: boolean; error?: string } {
+  if (tier === "free") {
+    return { valid: true }; // Free tier gets no hubs
+  }
+  
   if (tier === "starter" && selectedHubs.length !== 1) {
     return { valid: false, error: "Starter tier requires exactly 1 hub" };
   }

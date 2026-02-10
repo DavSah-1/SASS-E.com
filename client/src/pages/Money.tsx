@@ -76,7 +76,7 @@ export default function Money() {
   const [location, setLocation] = useLocation();
   
   // Hub access control
-  const hubAccess = useHubAccess("money_hub");
+  const hubAccess = useHubAccess("money");
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Check hub access and show modal if needed
@@ -861,7 +861,7 @@ export default function Money() {
       <HubUpgradeModal
         open={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        hubId="money_hub"
+        hubId="money"
         hubName="Money Hub"
         currentTier={hubAccess.currentTier}
         reason={hubAccess.reason || ""}
