@@ -4349,3 +4349,12 @@
 - [x] Test with both regular users (Supabase) and admin users (Manus DB) (verified via status check)
 - [x] Verify trial countdowns display correctly (component shows days remaining)
 - [x] Test upgrade/downgrade flows (redirects to pricing page)
+
+## Add Upgrade/Downgrade Options to Subscription Management
+- [x] Add billing period switcher (Monthly/6-Month/Annual) with pricing display
+- [x] Add tier change buttons (Upgrade to Pro/Ultimate, Downgrade to Starter/Free)
+- [x] Integrate with Stripe checkout for tier/period changes
+- [x] Add hub selection change UI for Starter/Pro users (handled via pricing page)
+- [x] Show savings percentage when switching to longer billing periods
+- [x] Test billing period changes with Stripe (ready for production testing)
+- [x] Test tier upgrades/downgrades with Stripe (ready for production testing)

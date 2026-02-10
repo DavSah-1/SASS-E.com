@@ -2,7 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { CreditCard, Calendar, Zap, TrendingUp, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { CreditCard, Calendar, Zap, TrendingUp, Clock, CheckCircle2, XCircle, AlertCircle, ArrowUpCircle, ArrowDownCircle, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
@@ -82,14 +84,70 @@ export function SubscriptionManagement() {
     return expiresAt <= new Date();
   }) || [];
   
+  const [selectedPeriod, setSelectedPeriod] = useState(subscriptionPeriod || "monthly");
+  const [isChangingPeriod, setIsChangingPeriod] = useState(false);
+  
+  const createCheckoutMutation = trpc.subscription.createCheckoutSession.useMutation();
+  
   const handleUpgrade = () => {
     setLocation("/pricing");
     toast.info("Redirecting to pricing page...");
   };
   
+  const handleChangeTier = async (newTier: "starter" | "pro" | "ultimate") => {
+    try {
+      const result = await createCheckoutMutation.mutateAsync({
+        tier: newTier,
+        billingPeriod: selectedPeriod as "monthly" | "six_month" | "annual",
+        selectedHubs: selectedHubs || [],
+      });
+      
+      if (result.url) {
+        window.open(result.url, '_blank');
+        toast.success(`Redirecting to checkout for ${TIER_NAMES[newTier]} plan...`);
+      }
+    } catch (error) {
+      console.error('Failed to create checkout session:', error);
+      toast.error("Failed to start checkout. Please try again.");
+    }
+  };
+  
+  const handleChangePeriod = async (newPeriod: "monthly" | "six_month" | "annual") => {
+    if (isFree) {
+      toast.error("Please upgrade to a paid plan first");
+      return;
+    }
+    
+    setIsChangingPeriod(true);
+    try {
+      const result = await createCheckoutMutation.mutateAsync({
+        tier: tier as "starter" | "pro" | "ultimate",
+        billingPeriod: newPeriod,
+        selectedHubs: selectedHubs || [],
+      });
+      
+      if (result.url) {
+        window.open(result.url, '_blank');
+        toast.success(`Switching to ${PERIOD_NAMES[newPeriod]} billing...`);
+      }
+    } catch (error) {
+      console.error('Failed to change billing period:', error);
+      toast.error("Failed to change billing period. Please try again.");
+    } finally {
+      setIsChangingPeriod(false);
+    }
+  };
+  
   const handleManageSubscription = () => {
     // TODO: Implement Stripe customer portal
     toast.info("Subscription management coming soon");
+  };
+  
+  // Calculate savings
+  const getSavings = (period: string) => {
+    if (period === "six_month") return "17%";
+    if (period === "annual") return "33%";
+    return "0%";
   };
   
   return (
@@ -146,6 +204,106 @@ export function SubscriptionManagement() {
             </div>
           )}
         </div>
+        
+        {/* Billing Period Switcher */}
+        {!isFree && !isAdmin && (
+          <div className="space-y-3 bg-slate-700/30 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h4 className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4" />
+                  Change Billing Period
+                </h4>
+                <p className="text-xs text-slate-400">
+                  Switch to a longer period for extended trial durations
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Select
+                value={selectedPeriod}
+                onValueChange={(value) => setSelectedPeriod(value as "monthly" | "six_month" | "annual")}
+                disabled={isChangingPeriod}
+              >
+                <SelectTrigger className="bg-slate-700/50 border-purple-500/30 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-purple-500/30">
+                  <SelectItem value="monthly" className="text-white hover:bg-slate-700">
+                    Monthly (5-day trials)
+                  </SelectItem>
+                  <SelectItem value="six_month" className="text-white hover:bg-slate-700">
+                    6-Month (10-day trials) - Save 17%
+                  </SelectItem>
+                  <SelectItem value="annual" className="text-white hover:bg-slate-700">
+                    Annual (20-day trials) - Save 33%
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={() => handleChangePeriod(selectedPeriod as "monthly" | "six_month" | "annual")}
+                disabled={isChangingPeriod || selectedPeriod === subscriptionPeriod}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                {isChangingPeriod ? "Processing..." : "Apply Change"}
+              </Button>
+            </div>
+            {selectedPeriod !== subscriptionPeriod && getSavings(selectedPeriod) !== "0%" && (
+              <div className="text-xs text-green-400 flex items-center gap-1">
+                <TrendingUp className="h-3 w-3" />
+                Save {getSavings(selectedPeriod)} with {PERIOD_NAMES[selectedPeriod as keyof typeof PERIOD_NAMES]} billing
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Tier Change Options */}
+        {!isAdmin && !isUltimate && (
+          <div className="space-y-3 bg-slate-700/30 p-4 rounded-lg">
+            <h4 className="text-sm font-medium text-slate-300">Change Plan Tier</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {tier !== "starter" && tier !== "free" && (
+                <Button
+                  onClick={() => handleChangeTier("starter")}
+                  variant="outline"
+                  className="bg-slate-700 text-slate-100 hover:bg-slate-600 border-slate-600"
+                  disabled={createCheckoutMutation.isPending}
+                >
+                  <ArrowDownCircle className="h-4 w-4 mr-2" />
+                  Downgrade to Starter
+                </Button>
+              )}
+              {tier === "free" && (
+                <Button
+                  onClick={() => handleChangeTier("starter")}
+                  className="bg-blue-600 hover:bg-blue-700"
+                  disabled={createCheckoutMutation.isPending}
+                >
+                  <ArrowUpCircle className="h-4 w-4 mr-2" />
+                  Upgrade to Starter
+                </Button>
+              )}
+              {tier !== "pro" && (
+                <Button
+                  onClick={() => handleChangeTier("pro")}
+                  className="bg-purple-600 hover:bg-purple-700"
+                  disabled={createCheckoutMutation.isPending}
+                >
+                  <ArrowUpCircle className="h-4 w-4 mr-2" />
+                  {tier === "starter" ? "Upgrade" : "Switch"} to Pro
+                </Button>
+              )}
+              <Button
+                onClick={() => handleChangeTier("ultimate")}
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600"
+                disabled={createCheckoutMutation.isPending}
+              >
+                <ArrowUpCircle className="h-4 w-4 mr-2" />
+                Upgrade to Ultimate
+              </Button>
+            </div>
+          </div>
+        )}
         
         {/* Selected Hubs */}
         {!isUltimate && (
