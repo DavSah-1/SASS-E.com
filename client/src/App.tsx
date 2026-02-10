@@ -10,7 +10,7 @@ import { TwoFactorGuard } from "./components/TwoFactorGuard";
 import Home from "./pages/Home";
 import VoiceAssistant from "./pages/VoiceAssistant";
 import IoTDevices from "./pages/IoTDevices";
-import Learning from "./pages/Learning";
+
 import LearningDemo from "./pages/LearningDemo";
 import LanguageLearning from "./pages/LanguageLearning";
 import Translation from "./pages/Translation";

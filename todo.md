@@ -4217,3 +4217,7 @@
 ## Bug Fix - /learning Route Error
 - [x] Fix routing for /learning path (should redirect to /hubs/learning)
 - [x] Ensure all old learning routes properly redirect to new nested structure
+
+## Code Cleanup - Remove Unused Learning Component
+- [x] Delete unused Learning.tsx component file
+- [x] Remove Learning import from App.tsx
