@@ -32,6 +32,7 @@ import { initializeSpeechSynthesis, speakInLanguage, stopSpeech, isTTSAvailableF
 import { PronunciationPractice } from "@/components/PronunciationPractice";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 
 export default function LanguageLearning() {
@@ -327,6 +328,15 @@ export default function LanguageLearning() {
       {/* Navigation */}
       <Navigation />
       <div className="container mx-auto py-4 sm:py-8 px-4 max-w-7xl">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb 
+          items={[
+            { label: "Learning Hub", href: "/hubs/learning" },
+            { label: "Language Learning" }
+          ]}
+          className="mb-6"
+        />
+        
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">

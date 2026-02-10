@@ -11,6 +11,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Beaker, FlaskConical, Microscope, AlertTriangle, CheckCircle2, Clock, Target, BookOpen } from "lucide-react";
 import { LabNotebook } from "@/components/LabNotebook";
 import { PreLabQuiz } from "@/components/PreLabQuiz";
@@ -164,6 +165,15 @@ export default function ScienceLab() {
       <Navigation />
 
       <div className="container mx-auto px-4 py-8">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb 
+          items={[
+            { label: "Learning Hub", href: "/hubs/learning" },
+            { label: "Science Lab" }
+          ]}
+          className="mb-6"
+        />
+        
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">

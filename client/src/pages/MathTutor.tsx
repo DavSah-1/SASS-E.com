@@ -14,6 +14,7 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 
@@ -1050,6 +1051,15 @@ export default function MathTutor() {
       <Navigation />
       
       <div className="container mx-auto px-4 py-8 sm:py-12">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb 
+          items={[
+            { label: "Learning Hub", href: "/hubs/learning" },
+            { label: "Math Tutor" }
+          ]}
+          className="mb-6"
+        />
+        
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-4" style={{ height: "70px" }}>

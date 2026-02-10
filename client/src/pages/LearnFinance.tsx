@@ -29,6 +29,7 @@ import TierAssessment from "@/components/TierAssessment";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { LevelDisplay } from "@/components/learn-finance/LevelDisplay";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 // Learning tier structure
 const learningTiers = [
@@ -269,6 +270,15 @@ export default function LearnFinance() {
       {/* Compact Header with Stats */}
       <div className="bg-gradient-to-b from-yellow-900/40 via-orange-900/30 to-yellow-950/20 border-b border-yellow-500/30">
         <div className="container py-8">
+          {/* Breadcrumb Navigation */}
+          <Breadcrumb 
+            items={[
+              { label: "Learning Hub", href: "/hubs/learning" },
+              { label: "Learn Finance" }
+            ]}
+            className="mb-6"
+          />
+          
           {/* Title and Subtitle */}
           <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
