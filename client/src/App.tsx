@@ -67,21 +67,21 @@ function Router() {
       <Route path={"/hubs"} component={Hubs} />
       <Route path={"/hubs/learning"} component={SpecializedLearning} />
       <Route path={"/hubs/wellness"} component={Wellness} />
+      <Route path={"/hubs/money"} component={Money} />
+      <Route path={"/hubs/translate"} component={Translation} />
       <Route path={"/wellness-demo"} component={WellnessDemo} />
+      <Route path={"/money-demo"} component={MoneyDemo} />
       <Route path={"/terms"} component={Terms} />
       <Route path={"/privacy"} component={Privacy} />
       <Route path={"/pricing"} component={Pricing} />
       <Route path={"/subscription/success"} component={SubscriptionSuccess} />
+      <Route path={"/profile"} component={Profile} />
       {/* Redirect old routes to new hub structure */}
       <Route path={"/wellbeing"}>{() => { window.location.href = "/hubs/wellness"; return null; }}</Route>
       <Route path={"/wellness"}>{() => { window.location.href = "/hubs/wellness"; return null; }}</Route>
       <Route path={"/money"}>{() => { window.location.href = "/hubs/money"; return null; }}</Route>
       <Route path={"/translate-app"}>{() => { window.location.href = "/hubs/translate"; return null; }}</Route>
       <Route path={"/specialized-learning"}>{() => { window.location.href = "/hubs/learning"; return null; }}</Route>
-      <Route path={"/profile"} component={Profile} />
-      <Route path={"/hubs/money"} component={Money} />
-      <Route path={"/money-demo"} component={MoneyDemo} />
-      <Route path={"/hubs/translate"} component={Translation} />
       {/* Redirect old routes to Money hub with tab parameter */}
       <Route path={"/budget"}>{() => { window.location.href = "/hubs/money?tab=budget"; return null; }}</Route>
       <Route path={"/debt-coach"}>{() => { window.location.href = "/hubs/money?tab=debts"; return null; }}</Route>

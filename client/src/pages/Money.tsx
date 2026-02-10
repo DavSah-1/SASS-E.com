@@ -96,7 +96,7 @@ export default function Money() {
   
   // Update URL when tab changes
   useEffect(() => {
-    const newUrl = activeTab === "overview" ? "/money" : `/money?tab=${activeTab}`;
+    const newUrl = activeTab === "overview" ? "/hubs/money" : `/hubs/money?tab=${activeTab}`;
     if (window.location.pathname + window.location.search !== newUrl) {
       window.history.replaceState({}, '', newUrl);
     }
