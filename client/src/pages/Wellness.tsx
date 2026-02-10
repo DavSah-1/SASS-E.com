@@ -17,6 +17,7 @@ import MentalWellness from "./MentalWellness";
 import HealthMetrics from "./HealthMetrics";
 import { useHubAccess } from "@/hooks/useHubAccess";
 import { HubUpgradeModal } from "@/components/HubUpgradeModal";
+import { TrialStatus } from "@/components/TrialStatus";
 
 // Wrapper components to hide navigation in embedded context
 const WellnessOverviewTab = () => {
@@ -109,6 +110,17 @@ export default function Wellness() {
       <Navigation />
       
       <main className="flex-1 container py-8">
+        {/* Trial Status Banner */}
+        {hubAccess.trialStatus === "active" && hubAccess.trialDaysRemaining !== undefined && (
+          <div className="mb-6">
+            <TrialStatus
+              hubName="Wellness Hub"
+              daysRemaining={hubAccess.trialDaysRemaining}
+              expiresAt={new Date(Date.now() + hubAccess.trialDaysRemaining * 24 * 60 * 60 * 1000)}
+            />
+          </div>
+        )}
+
         <div className="mb-8 text-center">
           <div className="inline-flex items-center gap-2 mb-4">
             <Badge className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 py-1.5">

@@ -8,6 +8,7 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useHubAccess } from "@/hooks/useHubAccess";
 import { HubUpgradeModal } from "@/components/HubUpgradeModal";
+import { TrialStatus } from "@/components/TrialStatus";
 import { useEffect, useState } from "react";
 import {
   BookOpen,
@@ -171,6 +172,17 @@ export default function SpecializedLearning() {
       />
 
       <div className="container mx-auto py-16 px-4">
+        {/* Trial Status Banner */}
+        {hubAccess.trialStatus === "active" && hubAccess.trialDaysRemaining !== undefined && (
+          <div className="mb-6">
+            <TrialStatus
+              hubName="Learning Hub"
+              daysRemaining={hubAccess.trialDaysRemaining}
+              expiresAt={new Date(Date.now() + hubAccess.trialDaysRemaining * 24 * 60 * 60 * 1000)}
+            />
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-block mb-4 px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full">

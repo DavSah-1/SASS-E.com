@@ -44,6 +44,7 @@ import { BudgetAlerts } from "@/components/BudgetAlerts";
 import { FinancialInsights } from "@/components/FinancialInsights";
 import { useHubAccess } from "@/hooks/useHubAccess";
 import { HubUpgradeModal } from "@/components/HubUpgradeModal";
+import { TrialStatus } from "@/components/TrialStatus";
 
 // Wrapper to hide navigation in embedded context
 const BudgetTab = () => {
@@ -469,6 +470,17 @@ export default function Money() {
       <Navigation />
       
       <div className="container mx-auto py-8 px-4 max-w-7xl">
+        {/* Trial Status Banner */}
+        {hubAccess.trialStatus === "active" && hubAccess.trialDaysRemaining !== undefined && (
+          <div className="mb-6">
+            <TrialStatus
+              hubName="Money Hub"
+              daysRemaining={hubAccess.trialDaysRemaining}
+              expiresAt={new Date(Date.now() + hubAccess.trialDaysRemaining * 24 * 60 * 60 * 1000)}
+            />
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{height: '50px'}}>

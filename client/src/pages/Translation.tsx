@@ -16,6 +16,7 @@ import { Footer } from "@/components/Footer";
 import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
 import { useHubAccess } from "@/hooks/useHubAccess";
 import { HubUpgradeModal } from "@/components/HubUpgradeModal";
+import { TrialStatus } from "@/components/TrialStatus";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getLoginUrl } from "@/const";
 import { Phrasebook } from "@/components/Phrasebook";
@@ -401,6 +402,17 @@ export default function Translation() {
       
       <main className="flex-1 container py-8">
         <div className="max-w-4xl mx-auto space-y-6">
+          {/* Trial Status Banner */}
+          {hubAccess.trialStatus === "active" && hubAccess.trialDaysRemaining !== undefined && (
+            <div className="mb-6">
+              <TrialStatus
+                hubName="Translation Hub"
+                daysRemaining={hubAccess.trialDaysRemaining}
+                expiresAt={new Date(Date.now() + hubAccess.trialDaysRemaining * 24 * 60 * 60 * 1000)}
+              />
+            </div>
+          )}
+
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="flex items-center justify-center gap-3">

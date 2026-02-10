@@ -4293,3 +4293,11 @@
 - [ ] Add trial history tracking (which hubs were trialed)
 - [ ] Display trial benefits and upgrade prompts
 - [ ] Test trial UI with Free tier user account
+
+## Integrate TrialStatus Component into Hub Pages
+- [x] Add TrialStatus component to Money Hub (Money.tsx)
+- [x] Add TrialStatus component to Wellness Hub (Wellness.tsx)
+- [x] Add TrialStatus component to Translation Hub (Translation.tsx)
+- [x] Add TrialStatus component to Learning Hub (SpecializedLearning.tsx)
+- [ ] Test trial countdown display with active trial
+- [ ] Verify countdown updates correctly
