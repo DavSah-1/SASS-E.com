@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { CreditCard, Calendar, Zap, TrendingUp, Clock, CheckCircle2, XCircle, AlertCircle, ArrowUpCircle, ArrowDownCircle, RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
@@ -37,10 +37,20 @@ const HUB_NAMES = {
 };
 
 export function SubscriptionManagement() {
+  // All hooks must be called at the top before any conditional returns
   const { translate: t } = useLanguage();
   const [, setLocation] = useLocation();
-  
   const { data: subscriptionInfo, isLoading } = trpc.subscription.getSubscriptionInfo.useQuery();
+  const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "six_month" | "annual">("monthly");
+  const [isChangingPeriod, setIsChangingPeriod] = useState(false);
+  const createCheckoutMutation = trpc.subscription.createCheckoutSession.useMutation();
+  
+  // Update selectedPeriod when subscriptionInfo loads
+  useEffect(() => {
+    if (subscriptionInfo?.subscriptionPeriod) {
+      setSelectedPeriod(subscriptionInfo.subscriptionPeriod as "monthly" | "six_month" | "annual");
+    }
+  }, [subscriptionInfo?.subscriptionPeriod]);
   
   if (isLoading) {
     return (
@@ -83,11 +93,6 @@ export function SubscriptionManagement() {
     const expiresAt = new Date(t.expiresAt);
     return expiresAt <= new Date();
   }) || [];
-  
-  const [selectedPeriod, setSelectedPeriod] = useState(subscriptionPeriod || "monthly");
-  const [isChangingPeriod, setIsChangingPeriod] = useState(false);
-  
-  const createCheckoutMutation = trpc.subscription.createCheckoutSession.useMutation();
   
   const handleUpgrade = () => {
     setLocation("/pricing");
