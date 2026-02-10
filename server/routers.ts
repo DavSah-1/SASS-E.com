@@ -24,6 +24,7 @@ import { adminPinRouter } from "./adminPinRouter";
 import { learnFinanceRouter } from "./learnFinanceRouter";
 import { piperTTSRouter } from "./piperTTSRouter";
 import { transactionImportRouter } from "./transactionImportRouter";
+import { budgetExportRouter } from "./budgetExportRouter";
 import { toNumericId } from "./_core/dbWrapper";
 
 export const appRouter = router({
@@ -43,6 +44,7 @@ export const appRouter = router({
   learnFinance: learnFinanceRouter,
   piperTTS: piperTTSRouter,
   transactionImport: transactionImportRouter,
+  budgetExport: budgetExportRouter,
 
   subscription: router({
     selectHubs: protectedProcedure

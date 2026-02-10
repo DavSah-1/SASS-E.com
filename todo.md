@@ -4096,3 +4096,13 @@
 - [x] Remove the standalone Export button without dropdown
 - [x] Test that format dropdown Export button still works
 - [x] Verify UI looks clean without duplicate button
+
+## Implement Real Export Functionality
+- [x] Install Excel generation library (exceljs)
+- [x] Create backend tRPC procedure for CSV export
+- [x] Create backend tRPC procedure for PDF export
+- [x] Create backend tRPC procedure for Excel export
+- [x] Update frontend to call export procedures and trigger downloads
+- [x] Test CSV export with real transaction data
+- [x] Test PDF export with formatted layout
+- [x] Test Excel export with proper formatting

@@ -43,6 +43,11 @@ export default function Budget() {
   const [addTransactionOpen, setAddTransactionOpen] = useState(false);
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<'csv' | 'pdf' | 'excel'>('csv');
+  
+  // Export mutations
+  const exportCSV = trpc.budgetExport.exportCSV.useMutation();
+  const exportExcel = trpc.budgetExport.exportExcel.useMutation();
+  const exportPDF = trpc.budgetExport.exportPDF.useMutation();
 
   // Fetch data
   const { data: categories, refetch: refetchCategories } = trpc.budget.getCategories.useQuery(
@@ -243,13 +248,61 @@ export default function Budget() {
                   />
                 </DialogContent>
               </Dialog>
-              <Select value={exportFormat} onValueChange={(value: 'csv' | 'pdf' | 'excel') => {
+              <Select value={exportFormat} onValueChange={async (value: 'csv' | 'pdf' | 'excel') => {
                 setExportFormat(value);
                 toast.info(`Exporting as ${value.toUpperCase()}...`);
-                // TODO: Implement actual export functionality
-                setTimeout(() => {
+                
+                try {
+                  let result;
+                  
+                  if (value === 'csv') {
+                    result = await exportCSV.mutateAsync({});
+                    // Create and download CSV file
+                    const blob = new Blob([result.content], { type: result.mimeType });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = result.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                  } else if (value === 'excel') {
+                    result = await exportExcel.mutateAsync({});
+                    // Decode base64 and download Excel file
+                    const byteCharacters = atob(result.content);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                      byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: result.mimeType });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = result.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                  } else if (value === 'pdf') {
+                    result = await exportPDF.mutateAsync({});
+                    // Open PDF HTML in new window for printing
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow) {
+                      printWindow.document.write(result.content);
+                      printWindow.document.close();
+                      setTimeout(() => {
+                        printWindow.print();
+                      }, 250);
+                    }
+                  }
+                  
                   toast.success(`Budget exported as ${value.toUpperCase()}!`);
-                }, 1000);
+                } catch (error) {
+                  console.error('Export error:', error);
+                  toast.error(`Failed to export as ${value.toUpperCase()}`);
+                }
               }}>
                 <SelectTrigger className="w-[180px]">
                   <Download className="h-4 w-4 mr-2" />
