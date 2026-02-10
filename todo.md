@@ -4209,7 +4209,11 @@
 - [x] Add tier check to MathTutor.tsx
 - [x] Add tier check to LanguageLearning.tsx
 - [x] Add tier check to ScienceLab.tsx
-- [ ] Test unauthenticated user access (should be blocked/redirected)
-- [ ] Test authenticated user with correct tier (should have access)
-- [ ] Test authenticated user without correct tier (should see upgrade prompt)
-- [ ] Test admin user access (should bypass all restrictions)
+- [x] Test unauthenticated user access (should be blocked/redirected)
+- [x] Test authenticated user with correct tier (should have access)
+- [x] Test authenticated user without correct tier (should see upgrade prompt)
+- [x] Test admin user access (should bypass all restrictions)
+
+## Bug Fix - /learning Route Error
+- [x] Fix routing for /learning path (should redirect to /hubs/learning)
+- [x] Ensure all old learning routes properly redirect to new nested structure
