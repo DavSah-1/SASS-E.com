@@ -4061,3 +4061,10 @@
 - [x] Make example sentence visible immediately
 - [x] Make all TTS and Practice buttons visible immediately
 - [x] Test flashcard functionality
+
+## Restore Piper TTS After Sandbox Reset
+- [x] Recreate Python 3.11 virtual environment at /home/ubuntu/piper-venv/
+- [x] Install Piper TTS in virtual environment
+- [x] Download voice models for Spanish, French, German, Italian
+- [x] Test TTS synthesis functionality
+- [x] Verify pronunciation practice features work correctly

@@ -82,8 +82,9 @@ def generate_speech(text: str, language: str, speed: float = 1.0) -> Optional[by
     try:
         # Generate audio using piper
         # Piper outputs to stdout, we capture it
+        piper_bin = "/home/ubuntu/piper-venv/bin/piper"
         cmd = [
-            "piper",
+            piper_bin,
             "--model", str(model_file),
             "--output_raw",
         ]
