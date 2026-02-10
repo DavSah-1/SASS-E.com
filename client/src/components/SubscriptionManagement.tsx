@@ -211,7 +211,7 @@ export function SubscriptionManagement() {
         </div>
         
         {/* Billing Period Switcher */}
-        {!isFree && !isAdmin && (
+        {!isFree && (
           <div className="space-y-3 bg-slate-700/30 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -263,7 +263,7 @@ export function SubscriptionManagement() {
         )}
         
         {/* Tier Change Options */}
-        {!isAdmin && !isUltimate && (
+        {!isUltimate && (
           <div className="space-y-3 bg-slate-700/30 p-4 rounded-lg">
             <h4 className="text-sm font-medium text-slate-300">Change Plan Tier</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">

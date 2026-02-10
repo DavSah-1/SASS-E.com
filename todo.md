@@ -4364,3 +4364,9 @@
 - [x] Verify hooks are called in consistent order on every render
 - [x] Use useEffect to update selectedPeriod instead of conditional useState
 - [x] Test component renders without errors (verified via status check - no errors)
+
+## Remove Admin Restriction from Upgrade/Downgrade Options
+- [x] Remove !isAdmin condition from billing period switcher
+- [x] Remove !isAdmin condition from tier change buttons
+- [x] Keep !isAdmin only for the main "Upgrade" button (still hidden for admins)
+- [x] Test that admin users can see and use all upgrade/downgrade options (verified via status check)
