@@ -4191,3 +4191,6 @@
 - [x] Add progress tracking cards for all 4 learning paths on hub landing page
 - [x] Add visual indicators for completion status on each learning path
 - [x] Add quick access cards linking to each learning path from hub page
+
+## Bug Fix - Breadcrumb Component Nested Anchor Tags
+- [x] Fix Breadcrumb component to remove nested <a> tags (wouter's Link already renders <a>, don't wrap it)

@@ -14,11 +14,11 @@ interface BreadcrumbProps {
 export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
   return (
     <nav aria-label="Breadcrumb" className={`flex items-center gap-2 text-sm ${className}`}>
-      {/* Home icon */}
+      {/* Home icon - Link already renders <a>, don't wrap it */}
       <Link href="/">
-        <a className="text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1">
+        <span className="text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1 cursor-pointer">
           <Home className="h-4 w-4" />
-        </a>
+        </span>
       </Link>
       
       {items.map((item, index) => {
@@ -29,9 +29,9 @@ export function Breadcrumb({ items, className = "" }: BreadcrumbProps) {
             <ChevronRight className="h-4 w-4 text-slate-500" />
             {item.href && !isLast ? (
               <Link href={item.href}>
-                <a className="text-slate-400 hover:text-slate-200 transition-colors">
+                <span className="text-slate-400 hover:text-slate-200 transition-colors cursor-pointer">
                   {item.label}
-                </a>
+                </span>
               </Link>
             ) : (
               <span className={isLast ? "text-slate-200 font-medium" : "text-slate-400"}>
