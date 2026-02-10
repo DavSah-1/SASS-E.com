@@ -33,6 +33,7 @@ export interface UnifiedUser {
   stripeSubscriptionId?: string | null;
   subscriptionStatus?: "active" | "canceled" | "past_due" | "unpaid" | "trialing" | null;
   billingPeriod?: "monthly" | "six_month" | "annual" | null;
+  subscriptionPeriod?: "monthly" | "six_month" | "annual" | null;
   trialDays?: number;
   currentPeriodStart?: Date | null;
   currentPeriodEnd?: Date | null;
@@ -90,6 +91,7 @@ export function normalizeManusUser(user: any): UnifiedUser {
     loginMethod: user.loginMethod || null,
     staySignedIn: user.staySignedIn || false,
     twoFactorEnabled: user.twoFactorEnabled || false,
+    subscriptionPeriod: user.subscriptionPeriod || null,
     createdAt: user.createdAt,
     lastSignedIn: user.lastSignedIn,
   };
@@ -118,6 +120,7 @@ export function normalizeSupabaseUser(user: any): UnifiedUser {
     stripeSubscriptionId: user.stripeSubscriptionId || user.stripe_subscription_id || null,
     subscriptionStatus: user.subscriptionStatus || user.subscription_status || null,
     billingPeriod: user.billingPeriod || user.billing_period || null,
+    subscriptionPeriod: user.subscriptionPeriod || user.subscription_period || null,
     trialDays: user.trialDays || user.trial_days || 5,
     currentPeriodStart: user.currentPeriodStart || user.current_period_start || null,
     currentPeriodEnd: user.currentPeriodEnd || user.current_period_end || null,

@@ -10,6 +10,7 @@ import { useCurrency, CURRENCY_LIST, CurrencyCode } from "@/contexts/CurrencyCon
 import { Language, getLanguageName, getLanguageFlag } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { User, Globe, Activity, TrendingUp, MessageSquare, DollarSign, Shield, Lock, Key, Copy, Check } from "lucide-react";
+import { SubscriptionManagement } from "@/components/SubscriptionManagement";
 import { useState, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -263,6 +264,9 @@ export default function Profile() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Subscription Management */}
+          <SubscriptionManagement />
 
           {/* Language Preference */}
           <Card className="bg-slate-800/50 border-purple-500/20">

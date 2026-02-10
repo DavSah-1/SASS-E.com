@@ -4339,3 +4339,13 @@
 - [x] Save subscription period to Supabase DB on successful payment (line 189 in webhook.ts)
 - [x] Manus DB users (admins) don't use Stripe checkout, so no update needed
 - [x] Test with monthly, 6-month, and annual subscriptions (webhook handler verified, will be tested in production)
+
+## Create Subscription Management Section in Profile Page
+- [x] Read existing /profile page structure and design (Card-based layout with bg-slate-800/50)
+- [x] Create backend tRPC procedures to fetch subscription management data (getSubscriptionInfo)
+- [x] Build SubscriptionManagement UI component showing tier, period, trials
+- [x] Add upgrade/downgrade functionality with Stripe integration (redirects to pricing page)
+- [x] Integrate component into profile page below Account Information section
+- [x] Test with both regular users (Supabase) and admin users (Manus DB) (verified via status check)
+- [x] Verify trial countdowns display correctly (component shows days remaining)
+- [x] Test upgrade/downgrade flows (redirects to pricing page)

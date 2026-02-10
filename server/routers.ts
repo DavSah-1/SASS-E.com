@@ -184,6 +184,23 @@ export const appRouter = router({
         return await getUserTrials(toNumericId(ctx.user.numericId));
       }),
     
+    // Get complete subscription information for profile page
+    getSubscriptionInfo: protectedProcedure
+      .query(async ({ ctx }) => {
+        const { getUserTrials } = await import("./db");
+        const trials = await getUserTrials(toNumericId(ctx.user.numericId));
+        
+        return {
+          tier: ctx.user.subscriptionTier || "free",
+          subscriptionPeriod: ctx.user.subscriptionPeriod || "monthly",
+          selectedHubs: ctx.user.selectedSpecializedHubs || [],
+          subscriptionExpiresAt: ctx.user.subscriptionExpiresAt,
+          hubsSelectedAt: ctx.user.hubsSelectedAt,
+          trials: trials,
+          role: ctx.user.role,
+        };
+      }),
+    
     // Stripe Checkout & Subscription Management
     createCheckoutSession: publicProcedure
       .input(z.object({
