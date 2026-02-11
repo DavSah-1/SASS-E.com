@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
-import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff, AlertCircle, DollarSign, ChevronDown, Grid } from "lucide-react";
+import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Languages, User, Wallet, Heart, LogOut, WifiOff, AlertCircle, DollarSign, ChevronDown, Grid, Plug } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -104,6 +104,17 @@ export function Navigation() {
               </TooltipTrigger>
               <TooltipContent>
                 <p>{translate("Translate")}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a href="/devices" className={`text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2 relative ${location === '/devices' ? 'text-purple-400 after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-purple-400' : ''}`}>
+                  <Plug className="h-4 w-4" />
+                  <span className="hidden">{translate("IoT Devices")}</span>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{translate("IoT Devices")}</p>
               </TooltipContent>
             </Tooltip>
             {/* Hubs Dropdown */}
@@ -247,6 +258,14 @@ export function Navigation() {
             >
               <Languages className="h-5 w-5" />
               <span>{translate("Translate")}</span>
+            </a>
+            <a
+              href="/devices"
+              className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Plug className="h-5 w-5" />
+              <span>{translate("IoT Devices")}</span>
             </a>
             {/* Hubs Section */}
             <div className="border-t border-purple-500/20 pt-3 mt-3">

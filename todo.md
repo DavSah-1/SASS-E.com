@@ -4482,3 +4482,10 @@
 - [x] Add active state styling (underline or highlight) to current page link
 - [x] Apply active indicator to Home, Learning, Translate, Pricing, and Hubs
 - [x] Test active indicators across all pages
+
+## Add IoT Devices Link to Navbar
+- [x] Add IoT Devices link with Plug icon between Translate and Hubs in desktop navbar
+- [x] Wrap with Tooltip showing "IoT Devices"
+- [x] Add active page indicator for /devices route
+- [x] Add to mobile navigation menu with full text label
+- [x] Test navigation and active states
