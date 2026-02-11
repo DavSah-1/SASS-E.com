@@ -75,7 +75,7 @@ export function Navigation() {
             <a href="/" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center" title="Home">
               <HomeIcon className="h-4 w-4" />
             </a>
-            <a href="/learning" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+            <a href="/specialized-learning" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <GraduationCap className="h-4 w-4" />
               {translate("Learning")}
             </a>
@@ -203,7 +203,7 @@ export function Navigation() {
               <span>{translate("Home")}</span>
             </a>
             <a
-              href="/learning"
+              href="/specialized-learning"
               className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >

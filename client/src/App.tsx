@@ -49,7 +49,8 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/assistant"} component={VoiceAssistant} />
       <Route path={"/devices"} component={IoTDevices} />
-      <Route path={"/learning"} component={SpecializedLearning} />
+      <Route path={"/specialized-learning"} component={SpecializedLearning} />
+      <Route path={"/learning"}>{() => { window.location.href = "/hubs/learning"; return null; }}</Route>
       <Route path={"/hubs/learning/finance"} component={LearnFinance} />
       <Route path={"/hubs/learning/finance/progress"} component={LearnFinanceProgress} />
       <Route path={"/hubs/learning/finance/article/:slug"} component={ArticleReader} />

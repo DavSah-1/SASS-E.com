@@ -4419,3 +4419,9 @@
 - [x] Update Learning link to route to /learning (already links to /learning)
 - [x] Verify /learning route exists in App.tsx (changed from redirect to direct component)
 - [x] Test navbar link navigation (ready for testing)
+
+## Change Learning Navbar Link to /specialized-learning
+- [x] Update Navigation.tsx desktop Learning link to /specialized-learning
+- [x] Update Navigation.tsx mobile Learning link to /specialized-learning
+- [x] Add or verify /specialized-learning route in App.tsx (added new route)
+- [x] Test navbar link navigation (ready for testing)
