@@ -79,7 +79,7 @@ export function Navigation() {
               <GraduationCap className="h-4 w-4" />
               {translate("Learning")}
             </a>
-            <a href={isAuthenticated ? "/hubs/translate" : "/translate"} className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
+            <a href="/translator" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Languages className="h-4 w-4" />
               {translate("Translate")}
             </a>
@@ -211,7 +211,7 @@ export function Navigation() {
               <span>{translate("Learning")}</span>
             </a>
             <a
-              href={isAuthenticated ? "/hubs/translate" : "/translate"}
+              href="/translator"
               className="flex items-center gap-3 text-slate-300 hover:text-purple-400 transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >

@@ -14,6 +14,7 @@ import IoTDevices from "./pages/IoTDevices";
 import LearningDemo from "./pages/LearningDemo";
 import LanguageLearning from "./pages/LanguageLearning";
 import Translation from "./pages/Translation";
+import Translator from "./pages/Translator";
 import TranslateLanding from "./pages/TranslateLanding";
 import TranslateDemo from "./pages/TranslateDemo";
 import Profile from "./pages/Profile";
@@ -59,6 +60,7 @@ function Router() {
       <Route path={"/learning-demo"} component={LearningDemo} />
       <Route path={"/hubs/learning/language"} component={LanguageLearning} />
       <Route path={"/translate"} component={TranslateLanding} />
+      <Route path={"/translator"} component={Translator} />
       <Route path={"/translate-app"} component={Translation} />
       <Route path={"/translate-demo"} component={TranslateDemo} />
       <Route path={"/auth-test"} component={AuthTest} />

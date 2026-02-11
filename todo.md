@@ -4438,3 +4438,9 @@
 - [x] Find Specialized Learning Paths section location
 - [x] Move section to bottom of page
 - [x] Test page layout after reordering
+
+## Create New Translator Route
+- [x] Copy Translation.tsx content to new Translator.tsx file
+- [x] Add /translator route in App.tsx
+- [x] Update navbar Translate link to point to /translator
+- [x] Test /translator route renders correctly
