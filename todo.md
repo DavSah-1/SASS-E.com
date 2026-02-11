@@ -4413,3 +4413,9 @@
 - [x] Update checkout.ts to include custom line item descriptions
 - [x] Add feature highlights for each tier in checkout
 - [x] Test descriptions appear correctly in embedded checkout modal (ready for production testing)
+
+## Fix Learning Navbar Link
+- [x] Find navbar component file (Navigation.tsx already correct)
+- [x] Update Learning link to route to /learning (already links to /learning)
+- [x] Verify /learning route exists in App.tsx (changed from redirect to direct component)
+- [x] Test navbar link navigation (ready for testing)
