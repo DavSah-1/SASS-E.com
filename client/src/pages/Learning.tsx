@@ -528,91 +528,6 @@ export default function Learning() {
             </Card>
           </div>
 
-          {/* Specialized Learning Paths Section */}
-          <div className="mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">🎯 Specialized Learning Paths</h2>
-            <p className="text-slate-300 mb-6">{translate("Dedicated learning experiences with structured lessons and interactive practice")}</p>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Math Tutor Path */}
-              <a
-                href="/hubs/learning/math"
-                className="block p-6 bg-gradient-to-br from-blue-900/40 to-cyan-900/40 hover:from-blue-800/50 hover:to-cyan-800/50 border-2 border-blue-500/30 hover:border-blue-400/60 rounded-xl transition-all group"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="text-4xl">🧮</div>
-                  <ExternalLink className="h-5 w-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
-                </div>
-                <h3 className="text-xl font-bold text-blue-200 mb-2 group-hover:text-blue-100">Math Tutor</h3>
-                <p className="text-sm text-slate-300 mb-3">Step-by-step problem solving with detailed explanations across all math topics</p>
-                <div className="flex items-center text-xs text-blue-400 font-semibold">
-                  <span>Start Solving</span>
-                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
-                </div>
-              </a>
-
-              {/* Languages Path */}
-              <a
-                href="/hubs/learning/language"
-                className="block p-6 bg-gradient-to-br from-purple-900/40 to-pink-900/40 hover:from-purple-800/50 hover:to-pink-800/50 border-2 border-purple-500/30 hover:border-purple-400/60 rounded-xl transition-all group"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="text-4xl">🌍</div>
-                  <ExternalLink className="h-5 w-5 text-purple-400 group-hover:text-purple-300 transition-colors" />
-                </div>
-                <h3 className="text-xl font-bold text-purple-200 mb-2 group-hover:text-purple-100">Language Learning</h3>
-                <p className="text-sm text-slate-300 mb-3">Master new languages with interactive conversations, vocabulary practice, and cultural insights</p>
-                <div className="flex items-center text-xs text-purple-400 font-semibold">
-                  <span>Start Learning</span>
-                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
-                </div>
-              </a>
-
-              {/* Science Lab Path */}
-              <a
-                href="/hubs/learning/science"
-                className="block p-6 bg-gradient-to-br from-green-900/40 to-emerald-900/40 hover:from-green-800/50 hover:to-emerald-800/50 border-2 border-green-500/30 hover:border-green-400/60 rounded-xl transition-all group"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="text-4xl">🧪</div>
-                  <ExternalLink className="h-5 w-5 text-green-400 group-hover:text-green-300 transition-colors" />
-                </div>
-                <h3 className="text-xl font-bold text-green-200 mb-2 group-hover:text-green-100">Science Lab</h3>
-                <p className="text-sm text-slate-300 mb-3">Virtual experiments in physics, chemistry, and biology with step-by-step procedures and AI feedback</p>
-                <div className="flex items-center text-xs text-green-400 font-semibold">
-                  <span>Start Experimenting</span>
-                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
-                </div>
-              </a>
-
-              {/* Learn Finance Path */}
-              <a
-                href="/hubs/learning/finance"
-                className="block p-6 bg-gradient-to-br from-yellow-900/40 to-orange-900/40 hover:from-yellow-800/50 hover:to-orange-800/50 border-2 border-yellow-500/30 hover:border-yellow-400/60 rounded-xl transition-all group"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="text-4xl">💰</div>
-                  <ExternalLink className="h-5 w-5 text-yellow-400 group-hover:text-yellow-300 transition-colors" />
-                </div>
-                <h3 className="text-xl font-bold text-yellow-200 mb-2 group-hover:text-yellow-100">Learn Finance</h3>
-                <p className="text-sm text-slate-300 mb-3">Master personal finance with practical lessons on budgeting, investing, and building wealth for everyday life</p>
-                <div className="flex items-center text-xs text-yellow-400 font-semibold">
-                  <span>Start Learning</span>
-                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
-                </div>
-              </a>
-            </div>
-            
-            {/* View All Button */}
-            <div className="mt-6 text-center">
-              <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">
-                <a href="/hubs/learning">
-                  View All Learning Paths
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
-            </div>
-          </div>
 
           {/* Question Input */}
           <Card className="bg-slate-800/50 border-purple-500/20">
@@ -957,6 +872,92 @@ export default function Learning() {
             </Card>
           )}
         </div>
+
+          {/* Specialized Learning Paths Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-purple-400 mb-2">🎯 Specialized Learning Paths</h2>
+            <p className="text-slate-300 mb-6">{translate("Dedicated learning experiences with structured lessons and interactive practice")}</p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Math Tutor Path */}
+              <a
+                href="/hubs/learning/math"
+                className="block p-6 bg-gradient-to-br from-blue-900/40 to-cyan-900/40 hover:from-blue-800/50 hover:to-cyan-800/50 border-2 border-blue-500/30 hover:border-blue-400/60 rounded-xl transition-all group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-4xl">🧮</div>
+                  <ExternalLink className="h-5 w-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                </div>
+                <h3 className="text-xl font-bold text-blue-200 mb-2 group-hover:text-blue-100">Math Tutor</h3>
+                <p className="text-sm text-slate-300 mb-3">Step-by-step problem solving with detailed explanations across all math topics</p>
+                <div className="flex items-center text-xs text-blue-400 font-semibold">
+                  <span>Start Solving</span>
+                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+                </div>
+              </a>
+
+              {/* Languages Path */}
+              <a
+                href="/hubs/learning/language"
+                className="block p-6 bg-gradient-to-br from-purple-900/40 to-pink-900/40 hover:from-purple-800/50 hover:to-pink-800/50 border-2 border-purple-500/30 hover:border-purple-400/60 rounded-xl transition-all group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-4xl">🌍</div>
+                  <ExternalLink className="h-5 w-5 text-purple-400 group-hover:text-purple-300 transition-colors" />
+                </div>
+                <h3 className="text-xl font-bold text-purple-200 mb-2 group-hover:text-purple-100">Language Learning</h3>
+                <p className="text-sm text-slate-300 mb-3">Master new languages with interactive conversations, vocabulary practice, and cultural insights</p>
+                <div className="flex items-center text-xs text-purple-400 font-semibold">
+                  <span>Start Learning</span>
+                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+                </div>
+              </a>
+
+              {/* Science Lab Path */}
+              <a
+                href="/hubs/learning/science"
+                className="block p-6 bg-gradient-to-br from-green-900/40 to-emerald-900/40 hover:from-green-800/50 hover:to-emerald-800/50 border-2 border-green-500/30 hover:border-green-400/60 rounded-xl transition-all group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-4xl">🧪</div>
+                  <ExternalLink className="h-5 w-5 text-green-400 group-hover:text-green-300 transition-colors" />
+                </div>
+                <h3 className="text-xl font-bold text-green-200 mb-2 group-hover:text-green-100">Science Lab</h3>
+                <p className="text-sm text-slate-300 mb-3">Virtual experiments in physics, chemistry, and biology with step-by-step procedures and AI feedback</p>
+                <div className="flex items-center text-xs text-green-400 font-semibold">
+                  <span>Start Experimenting</span>
+                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+                </div>
+              </a>
+
+              {/* Learn Finance Path */}
+              <a
+                href="/hubs/learning/finance"
+                className="block p-6 bg-gradient-to-br from-yellow-900/40 to-orange-900/40 hover:from-yellow-800/50 hover:to-orange-800/50 border-2 border-yellow-500/30 hover:border-yellow-400/60 rounded-xl transition-all group"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="text-4xl">💰</div>
+                  <ExternalLink className="h-5 w-5 text-yellow-400 group-hover:text-yellow-300 transition-colors" />
+                </div>
+                <h3 className="text-xl font-bold text-yellow-200 mb-2 group-hover:text-yellow-100">Learn Finance</h3>
+                <p className="text-sm text-slate-300 mb-3">Master personal finance with practical lessons on budgeting, investing, and building wealth for everyday life</p>
+                <div className="flex items-center text-xs text-yellow-400 font-semibold">
+                  <span>Start Learning</span>
+                  <span className="ml-2 group-hover:ml-3 transition-all">→</span>
+                </div>
+              </a>
+            </div>
+            
+            {/* View All Button */}
+            <div className="mt-6 text-center">
+              <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">
+                <a href="/hubs/learning">
+                  View All Learning Paths
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
+              </Button>
+            </div>
+          </div>
       </div>
       <Footer />
       

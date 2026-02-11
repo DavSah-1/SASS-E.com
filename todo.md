@@ -4432,3 +4432,9 @@
 - [x] Add /learn route in App.tsx
 - [x] Update navbar Learning link to /learn
 - [x] Test /learn route renders correctly (verified via status check - no errors)
+
+## Move Specialized Learning Paths Section to Bottom
+- [x] Read Learning.tsx to identify section structure
+- [x] Find Specialized Learning Paths section location
+- [x] Move section to bottom of page
+- [x] Test page layout after reordering
