@@ -65,6 +65,7 @@ export const iotDevices = mysqlTable("iot_devices", {
   deviceId: varchar("deviceId", { length: 128 }).notNull().unique(),
   deviceName: varchar("deviceName", { length: 255 }).notNull(),
   deviceType: mysqlEnum("deviceType", ["light", "thermostat", "plug", "switch", "sensor", "lock", "camera", "speaker", "other"]).notNull(),
+  room: varchar("room", { length: 128 }).default("Uncategorized"),
   manufacturer: varchar("manufacturer", { length: 128 }),
   model: varchar("model", { length: 128 }),
   status: mysqlEnum("status", ["online", "offline", "error"]).default("offline").notNull(),

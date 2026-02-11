@@ -4489,3 +4489,13 @@
 - [x] Add active page indicator for /devices route
 - [x] Add to mobile navigation menu with full text label
 - [x] Test navigation and active states
+
+## Add Room Grouping Feature to IoT Devices Page
+- [x] Update database schema to add room field to iot_devices table
+- [x] Add room selection to Add Device form
+- [x] Update backend queries to support room grouping
+- [x] Create collapsible room sections in UI
+- [x] Add room headers with device counts
+- [ ] Implement bulk control options for each room
+- [ ] Add ability to rename/manage rooms
+- [x] Test room grouping functionality

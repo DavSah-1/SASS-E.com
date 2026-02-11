@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
-import { Lightbulb, Thermometer, Plug, Power, Trash2, Plus } from "lucide-react";
+import { Lightbulb, Thermometer, Plug, Power, Trash2, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 
@@ -23,6 +23,7 @@ export default function IoTDevices() {
   const [showAddDevice, setShowAddDevice] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [voiceCommand, setVoiceCommand] = useState("");
+  const [collapsedRooms, setCollapsedRooms] = useState<Set<string>>(new Set());
 
   const { data: devices, refetch } = trpc.iot.listDevices.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -68,6 +69,7 @@ export default function IoTDevices() {
       deviceId: formData.get("deviceId") as string,
       deviceName: formData.get("deviceName") as string,
       deviceType: formData.get("deviceType") as any,
+      room: formData.get("room") as string || "Uncategorized",
       manufacturer: formData.get("manufacturer") as string,
       model: formData.get("model") as string,
       connectionType: formData.get("connectionType") as any,
@@ -81,6 +83,28 @@ export default function IoTDevices() {
       },
     });
   };
+
+  const toggleRoom = (room: string) => {
+    const newCollapsed = new Set(collapsedRooms);
+    if (newCollapsed.has(room)) {
+      newCollapsed.delete(room);
+    } else {
+      newCollapsed.add(room);
+    }
+    setCollapsedRooms(newCollapsed);
+  };
+
+  // Group devices by room
+  const devicesByRoom = devices?.reduce((acc, device) => {
+    const room = device.room || "Uncategorized";
+    if (!acc[room]) {
+      acc[room] = [];
+    }
+    acc[room].push(device);
+    return acc;
+  }, {} as Record<string, typeof devices>);
+
+  const rooms = devicesByRoom ? Object.keys(devicesByRoom).sort() : [];
 
   const handleControlDevice = () => {
     if (!selectedDevice || !voiceCommand) {
@@ -244,6 +268,15 @@ export default function IoTDevices() {
                     </Select>
                   </div>
                   <div>
+                    <Label htmlFor="room" className="text-white">Room</Label>
+                    <Input
+                      id="room"
+                      name="room"
+                      placeholder="e.g., Living Room, Bedroom"
+                      className="bg-purple-900/50 border-purple-700 text-white placeholder:text-purple-400"
+                    />
+                  </div>
+                  <div>
                     <Label htmlFor="connectionType" className="text-white">Connection Type</Label>
                     <Select name="connectionType" required>
                       <SelectTrigger className="bg-purple-900/50 border-purple-700 text-white">
@@ -305,53 +338,91 @@ export default function IoTDevices() {
           </Card>
         )}
 
-        {/* Devices Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {devices?.map((device) => (
-            <Card key={device.deviceId} className="bg-purple-950/50 border-purple-700">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="text-purple-400">{getDeviceIcon(device.deviceType)}</div>
-                    <CardTitle className="text-white">{device.deviceName}</CardTitle>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => deleteDeviceMutation.mutate({ deviceId: device.deviceId })}
-                    className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                <CardDescription className="text-purple-300">
-                  {device.manufacturer} {device.model}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between text-purple-200">
-                    <span>Status:</span>
-                    <span className={device.status === "online" ? "text-green-400" : "text-gray-400"}>
-                      {device.status}
+        {/* Devices by Room */}
+        <div className="space-y-4">
+          {rooms.map((room) => {
+            const roomDevices = devicesByRoom?.[room] || [];
+            const isCollapsed = collapsedRooms.has(room);
+            const onlineCount = roomDevices.filter((d: any) => d.status === "online").length;
+            
+            return (
+              <div key={room} className="bg-purple-950/30 border border-purple-700 rounded-lg overflow-hidden">
+                {/* Room Header */}
+                <button
+                  onClick={() => toggleRoom(room)}
+                  className="w-full px-4 py-3 flex items-center justify-between bg-purple-900/40 hover:bg-purple-900/60 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    {isCollapsed ? (
+                      <ChevronRight className="h-5 w-5 text-purple-400" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-purple-400" />
+                    )}
+                    <h3 className="text-xl font-semibold text-white">{room}</h3>
+                    <span className="text-sm text-purple-300">
+                      {roomDevices.length} {roomDevices.length === 1 ? "device" : "devices"}
+                      {onlineCount > 0 && (
+                        <span className="text-green-400 ml-2">• {onlineCount} online</span>
+                      )}
                     </span>
                   </div>
-                  <div className="flex justify-between text-purple-200">
-                    <span>Type:</span>
-                    <span>{device.deviceType}</span>
-                  </div>
-                  {device.state?.power && (
-                    <div className="flex justify-between text-purple-200">
-                      <span>Power:</span>
-                      <span className={device.state.power === "on" ? "text-green-400" : "text-gray-400"}>
-                        {device.state.power}
-                      </span>
+                </button>
+                
+                {/* Room Devices Grid */}
+                {!isCollapsed && (
+                  <div className="p-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      {roomDevices.map((device: any) => (
+                        <Card key={device.deviceId} className="bg-purple-950/50 border-purple-700">
+                          <CardHeader>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="text-purple-400">{getDeviceIcon(device.deviceType)}</div>
+                                <CardTitle className="text-white text-base">{device.deviceName}</CardTitle>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => deleteDeviceMutation.mutate({ deviceId: device.deviceId })}
+                                className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <CardDescription className="text-purple-300">
+                              {device.manufacturer} {device.model}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between text-purple-200">
+                                <span>Status:</span>
+                                <span className={device.status === "online" ? "text-green-400" : "text-gray-400"}>
+                                  {device.status}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-purple-200">
+                                <span>Type:</span>
+                                <span>{device.deviceType}</span>
+                              </div>
+                              {device.state?.power && (
+                                <div className="flex justify-between text-purple-200">
+                                  <span>Power:</span>
+                                  <span className={device.state.power === "on" ? "text-green-400" : "text-gray-400"}>
+                                    {device.state.power}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {devices?.length === 0 && (
