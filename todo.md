@@ -4407,3 +4407,9 @@
 - [x] Test embedded checkout opens in modal (ready for manual testing)
 - [x] Test payment completion creates account via webhook (webhook already configured)
 - [x] Test modal closes after successful payment (onClose handler implemented)
+
+## Add Detailed Product Descriptions to Stripe Checkout
+- [x] Create tier-specific detailed descriptions
+- [x] Update checkout.ts to include custom line item descriptions
+- [x] Add feature highlights for each tier in checkout
+- [x] Test descriptions appear correctly in embedded checkout modal (ready for production testing)

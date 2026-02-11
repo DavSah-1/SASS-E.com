@@ -7,6 +7,30 @@
 import { stripe } from "./client";
 import { getStripePriceId, getTrialDays } from "./products";
 
+/**
+ * Get detailed product description for Stripe checkout
+ */
+function getProductDescription(tier: string, billingPeriod: string): string {
+  const descriptions: Record<string, Record<string, string>> = {
+    starter: {
+      monthly: "Choose 1 Hub permanently • 5-day trials on other hubs • 10 voice chats/day • Perfect for students",
+      six_month: "Choose 1 Hub permanently • 10-day trials on other hubs • 10 voice chats/day • Save 27%",
+      annual: "Choose 1 Hub permanently • 20-day trials on other hubs • 10 voice chats/day • Save 33%"
+    },
+    pro: {
+      monthly: "Choose 2 Hubs permanently • 5-day trials on others hubs • Unlimited voice chats • AI Coach included",
+      six_month: "Choose 2 Hubs permanently • 10-day trials on others hubs • Unlimited voice chats • Save 17%",
+      annual: "Choose 2 Hubs permanently • 20-day trials on others hubs • Unlimited voice chats • Save 33%"
+    },
+    ultimate: {
+      monthly: "All 4 Hubs included • Everything unlimited • Priority support • AI Coach included",
+      six_month: "All 4 Hubs included • Everything unlimited • Priority support • Save 17%",
+      annual: "All 4 Hubs included • Everything unlimited • Priority support • Save 33%"
+    }
+  };
+  return descriptions[tier]?.[billingPeriod] || "";
+}
+
 export interface CreateCheckoutSessionParams {
   userId?: string; // Optional for unauthenticated users
   userEmail: string;
@@ -71,6 +95,7 @@ export async function createCheckoutSession(
       {
         price: priceId,
         quantity: 1,
+        description: getProductDescription(tier, billingPeriod),
       },
     ],
     subscription_data: {
