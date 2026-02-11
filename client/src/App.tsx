@@ -27,6 +27,7 @@ import MathCurriculum from "./pages/MathCurriculum";
 import ScienceLab from "./pages/ScienceLab";
 
 import SpecializedLearning from "./pages/SpecializedLearning";
+import Learning from "./pages/Learning";
 import LearnFinance from "./pages/LearnFinance";
 import LearnFinanceProgress from "./pages/LearnFinanceProgress";
 import ArticleReader from "./pages/ArticleReader";
@@ -49,6 +50,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/assistant"} component={VoiceAssistant} />
       <Route path={"/devices"} component={IoTDevices} />
+      <Route path={"/learn"} component={Learning} />
       <Route path={"/specialized-learning"} component={SpecializedLearning} />
       <Route path={"/learning"}>{() => { window.location.href = "/hubs/learning"; return null; }}</Route>
       <Route path={"/hubs/learning/finance"} component={LearnFinance} />

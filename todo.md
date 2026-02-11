@@ -4425,3 +4425,10 @@
 - [x] Update Navigation.tsx mobile Learning link to /specialized-learning
 - [x] Add or verify /specialized-learning route in App.tsx (added new route)
 - [x] Test navbar link navigation (ready for testing)
+
+## Create /learn Route for Learning.tsx
+- [x] Find Learning.tsx component in pages directory (restored from git history)
+- [x] Import Learning component in App.tsx
+- [x] Add /learn route in App.tsx
+- [x] Update navbar Learning link to /learn
+- [x] Test /learn route renders correctly (verified via status check - no errors)
