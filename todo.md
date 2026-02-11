@@ -4468,3 +4468,17 @@
 - [x] Update Pricing link to show only icon on desktop/tablet
 - [x] Keep mobile navigation unchanged with text label
 - [x] Test responsive behavior
+
+## Add Hover Tooltips to Icon-Only Navbar Links
+- [x] Import Tooltip components from Radix UI
+- [x] Wrap Home link with Tooltip showing "Home"
+- [x] Wrap Learning link with Tooltip showing "Learning"
+- [x] Wrap Translate link with Tooltip showing "Translate"
+- [x] Wrap Pricing link with Tooltip showing "Pricing"
+- [x] Test tooltips appear on hover
+
+## Implement Active Page Indicators in Navbar
+- [x] Detect current page/route in Navigation component
+- [x] Add active state styling (underline or highlight) to current page link
+- [x] Apply active indicator to Home, Learning, Translate, Pricing, and Hubs
+- [x] Test active indicators across all pages

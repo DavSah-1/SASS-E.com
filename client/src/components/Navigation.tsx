@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { usePWA } from "@/hooks/usePWA";
@@ -23,6 +24,7 @@ import { toast } from "sonner";
 
 export function Navigation() {
   const { user, isAuthenticated, logout } = useAuth();
+  const [location] = useLocation();
   const { isInstallable, isInstalled, installApp } = usePWA();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = React.useState(false);
@@ -72,22 +74,43 @@ export function Navigation() {
           </span>
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-4 lg:gap-6 ml-4 lg:ml-8">
-            <a href="/" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center" title="Home">
-              <HomeIcon className="h-4 w-4" />
-            </a>
-            <a href="/learn" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-              <GraduationCap className="h-4 w-4" />
-              <span className="hidden">{translate("Learning")}</span>
-            </a>
-            <a href="/translator" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-              <Languages className="h-4 w-4" />
-              <span className="hidden">{translate("Translate")}</span>
-            </a>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a href="/" className={`text-slate-300 hover:text-purple-400 transition-colors flex items-center relative ${location === '/' ? 'text-purple-400 after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-purple-400' : ''}`}>
+                  <HomeIcon className="h-4 w-4" />
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{translate("Home")}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a href="/learn" className={`text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2 relative ${location === '/learn' ? 'text-purple-400 after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-purple-400' : ''}`}>
+                  <GraduationCap className="h-4 w-4" />
+                  <span className="hidden">{translate("Learning")}</span>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{translate("Learning")}</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a href="/translator" className={`text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2 relative ${location === '/translator' || location.startsWith('/translator?') ? 'text-purple-400 after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-purple-400' : ''}`}>
+                  <Languages className="h-4 w-4" />
+                  <span className="hidden">{translate("Translate")}</span>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{translate("Translate")}</p>
+              </TooltipContent>
+            </Tooltip>
             {/* Hubs Dropdown */}
             <div className="relative" ref={hubsDropdownRef}>
               <button 
                 onClick={() => setShowHubsDropdown(!showHubsDropdown)}
-                className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2"
+                className={`text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2 relative ${location.startsWith('/hubs/') ? 'text-purple-400 after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-purple-400' : ''}`}
               >
                 <Grid className="h-4 w-4" />
                 {translate("Hubs")}
@@ -130,10 +153,17 @@ export function Navigation() {
                 </div>
               )}
             </div>
-            <a href="/pricing" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              <span className="hidden">{translate("Pricing")}</span>
-            </a>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <a href="/pricing" className={`text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2 relative ${location === '/pricing' ? 'text-purple-400 after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-purple-400' : ''}`}>
+                  <DollarSign className="h-4 w-4" />
+                  <span className="hidden">{translate("Pricing")}</span>
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{translate("Pricing")}</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
