@@ -110,7 +110,7 @@ export default function Translator() {
   
   // Update URL when tab changes
   useEffect(() => {
-    const newUrl = activeTab === "translate" ? "/hubs/translate" : `/hubs/translate?tab=${activeTab}`;
+    const newUrl = activeTab === "translate" ? "/translator" : `/translator?tab=${activeTab}`;
     if (window.location.pathname + window.location.search !== newUrl) {
       window.history.replaceState({}, '', newUrl);
     }

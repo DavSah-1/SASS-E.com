@@ -4444,3 +4444,8 @@
 - [x] Add /translator route in App.tsx
 - [x] Update navbar Translate link to point to /translator
 - [x] Test /translator route renders correctly
+
+## Fix Translator.tsx Redirect Issue
+- [x] Update URL handling in Translator.tsx to use /translator instead of /hubs/translate
+- [x] Test tab switching stays on /translator route
+- [x] Verify no unwanted redirects occur
