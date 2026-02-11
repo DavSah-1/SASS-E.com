@@ -14,10 +14,6 @@ import { SUPPORTED_LANGUAGES } from "@/lib/languages";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
-import { useHubAccess } from "@/hooks/useHubAccess";
-import { HubUpgradeModal } from "@/components/HubUpgradeModal";
-import { TrialStatus } from "@/components/TrialStatus";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { getLoginUrl } from "@/const";
 import { Phrasebook } from "@/components/Phrasebook";
 import ConversationMode from "@/components/ConversationMode";
@@ -27,17 +23,6 @@ import { useEffect } from "react";
 
 export default function Translator() {
   const { user, isAuthenticated, loading } = useAuth();
-  
-  // Hub access control
-  const hubAccess = useHubAccess("translation_hub");
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  
-  // Check hub access and show modal if needed
-  useEffect(() => {
-    if (!loading && isAuthenticated && !hubAccess.hasAccess && !hubAccess.isAdmin) {
-      setShowUpgradeModal(true);
-    }
-  }, [loading, isAuthenticated, hubAccess.hasAccess, hubAccess.isAdmin]);
   
   // Text translation state
   const [textInput, setTextInput] = useState("");
@@ -402,17 +387,6 @@ export default function Translator() {
       
       <main className="flex-1 container py-8">
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* Trial Status Banner */}
-          {hubAccess.trialStatus === "active" && hubAccess.trialDaysRemaining !== undefined && (
-            <div className="mb-6">
-              <TrialStatus
-                hubName="Translation Hub"
-                daysRemaining={hubAccess.trialDaysRemaining}
-                expiresAt={new Date(Date.now() + hubAccess.trialDaysRemaining * 24 * 60 * 60 * 1000)}
-              />
-            </div>
-          )}
-
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="flex items-center justify-center gap-3">
@@ -421,24 +395,6 @@ export default function Translator() {
             </div>
             <p className="text-slate-300">Translate text or images between languages</p>
           </div>
-          
-          {/* Upgrade Prompts if limits reached */}
-          {!translateAccess.allowed && !translateAccess.isLoading && translateAccess.upgradeRequired && activeTab === "translate" && (
-            <UpgradePrompt
-              featureName="Translation"
-              currentUsage={translateAccess.currentUsage}
-              limit={translateAccess.limit}
-              reason={translateAccess.reason}
-            />
-          )}
-          {!imageOcrAccess.allowed && !imageOcrAccess.isLoading && imageOcrAccess.upgradeRequired && activeTab === "image_ocr" && (
-            <UpgradePrompt
-              featureName="Image OCR"
-              currentUsage={imageOcrAccess.currentUsage}
-              limit={imageOcrAccess.limit}
-              reason={imageOcrAccess.reason}
-            />
-          )}
           
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "translate" | "image_ocr" | "conversation" | "phrasebook" | "chat")} className="w-full">
@@ -841,15 +797,6 @@ export default function Translator() {
       </main>
       
       <Footer />
-      
-      <HubUpgradeModal 
-        open={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        hubId="translation_hub"
-        hubName="Translation Hub"
-        currentTier={hubAccess.currentTier}
-        reason={hubAccess.reason || ""}
-      />
     </div>
   );
 }

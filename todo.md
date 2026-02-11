@@ -4449,3 +4449,11 @@
 - [x] Update URL handling in Translator.tsx to use /translator instead of /hubs/translate
 - [x] Test tab switching stays on /translator route
 - [x] Verify no unwanted redirects occur
+
+## Remove Hub Access Restrictions from Translator.tsx
+- [x] Remove useHubAccess hook and related imports
+- [x] Remove hub access check useEffect
+- [x] Remove HubUpgradeModal component and state
+- [x] Remove TrialStatus banner
+- [x] Keep Translation.tsx (/hubs/translate) restrictions unchanged
+- [x] Test /translator page is accessible to all users
