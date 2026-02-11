@@ -77,11 +77,11 @@ export function Navigation() {
             </a>
             <a href="/learn" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <GraduationCap className="h-4 w-4" />
-              {translate("Learning")}
+              <span className="hidden">{translate("Learning")}</span>
             </a>
             <a href="/translator" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <Languages className="h-4 w-4" />
-              {translate("Translate")}
+              <span className="hidden">{translate("Translate")}</span>
             </a>
             {/* Hubs Dropdown */}
             <div className="relative" ref={hubsDropdownRef}>

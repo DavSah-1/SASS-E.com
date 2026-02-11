@@ -4457,3 +4457,9 @@
 - [x] Remove TrialStatus banner
 - [x] Keep Translation.tsx (/hubs/translate) restrictions unchanged
 - [x] Test /translator page is accessible to all users
+
+## Remove Text Labels from Learning and Translate Navbar Links (Desktop/Tablet)
+- [x] Update Learning link to show only icon on desktop/tablet
+- [x] Update Translate link to show only icon on desktop/tablet
+- [x] Keep mobile navigation unchanged with text labels
+- [x] Test responsive behavior across screen sizes
