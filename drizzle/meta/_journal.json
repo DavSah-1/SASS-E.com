@@ -281,27 +281,6 @@
       "when": 1769688944921,
       "tag": "0039_chief_brood",
       "breakpoints": true
-    },
-    {
-      "idx": 40,
-      "version": "5",
-      "when": 1770736620147,
-      "tag": "0040_gray_leo",
-      "breakpoints": true
-    },
-    {
-      "idx": 41,
-      "version": "5",
-      "when": 1770740097505,
-      "tag": "0041_parallel_warhawk",
-      "breakpoints": true
-    },
-    {
-      "idx": 42,
-      "version": "5",
-      "when": 1770825048700,
-      "tag": "0042_mixed_iron_man",
-      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE iot_devices ADD COLUMN IF NOT EXISTS room VARCHAR(128) DEFAULT 'Uncategorized';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute ALTER TABLE iot_devices ADD COLUMN IF NOT EXISTS room VARCHAR(128) DEFAULT 'Uncategorized';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 578
+}
