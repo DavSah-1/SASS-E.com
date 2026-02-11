@@ -185,11 +185,20 @@ export async function addIoTDevice(
       .from('iot_devices')
       .insert({
         user_id: String(ctx.user.id),
+        device_id: device.deviceId,
         device_name: device.deviceName,
         device_type: device.deviceType,
+        room: device.room || 'Uncategorized',
+        manufacturer: device.manufacturer,
+        model: device.model,
         status: device.status || 'offline',
-        location: device.location,
-        added_at: device.addedAt || new Date(),
+        state: device.state || '{}',
+        capabilities: device.capabilities || '{}',
+        connection_type: device.connectionType,
+        connection_config: device.connectionConfig || '{}',
+        last_seen: null,
+        created_at: new Date(),
+        updated_at: new Date(),
       })
       .select()
       .single();
@@ -211,10 +220,29 @@ export async function getUserIoTDevices(
       .from('iot_devices')
       .select('*')
       .eq('user_id', String(ctx.user.id))
-      .order('added_at', { ascending: false });
+      .order('created_at', { ascending: false });
     
     if (error) handleSupabaseError(error, 'getUserIoTDevices');
-    return data || [];
+    
+    // Map Supabase snake_case fields to camelCase for consistency
+    return (data || []).map((device: any) => ({
+      id: device.id,
+      userId: parseInt(device.user_id),
+      deviceId: device.device_id,
+      deviceName: device.device_name,
+      deviceType: device.device_type,
+      room: device.room,
+      manufacturer: device.manufacturer,
+      model: device.model,
+      status: device.status,
+      state: device.state,
+      capabilities: device.capabilities,
+      connectionType: device.connection_type,
+      connectionConfig: device.connection_config,
+      lastSeen: device.last_seen,
+      createdAt: device.created_at,
+      updatedAt: device.updated_at,
+    }));
   }
 }
 
@@ -229,7 +257,7 @@ export async function getIoTDeviceById(
     const { data, error } = await supabase
       .from('iot_devices')
       .select('*')
-      .eq('id', String(deviceId))
+      .eq('device_id', deviceId)
       .eq('user_id', String(ctx.user.id))
       .single();
     
@@ -237,7 +265,27 @@ export async function getIoTDeviceById(
       if (error.code === 'PGRST116') return undefined;
       handleSupabaseError(error, 'getIoTDeviceById');
     }
-    return data;
+    
+    // Map Supabase snake_case fields to camelCase for consistency
+    if (!data) return undefined;
+    return {
+      id: data.id,
+      userId: parseInt(data.user_id),
+      deviceId: data.device_id,
+      deviceName: data.device_name,
+      deviceType: data.device_type,
+      room: data.room,
+      manufacturer: data.manufacturer,
+      model: data.model,
+      status: data.status,
+      state: data.state,
+      capabilities: data.capabilities,
+      connectionType: data.connection_type,
+      connectionConfig: data.connection_config,
+      lastSeen: data.last_seen,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
   }
 }
 
@@ -254,10 +302,11 @@ export async function updateIoTDeviceState(
     const { data, error } = await supabase
       .from('iot_devices')
       .update({ 
+        state,
         status,
-        last_updated: new Date()
+        updated_at: new Date()
       })
-      .eq('id', String(deviceId))
+      .eq('device_id', deviceId)
       .eq('user_id', String(ctx.user.id))
       .select()
       .single();
@@ -278,7 +327,7 @@ export async function deleteIoTDevice(
     const { error } = await supabase
       .from('iot_devices')
       .delete()
-      .eq('id', String(deviceId))
+      .eq('device_id', deviceId)
       .eq('user_id', String(ctx.user.id));
     
     if (error) handleSupabaseError(error, 'deleteIoTDevice');
@@ -296,10 +345,13 @@ export async function saveIoTCommand(
     const { data, error } = await supabase
       .from('iot_command_history')
       .insert({
+        user_id: String(ctx.user.id),
         device_id: command.deviceId,
         command: command.command,
+        parameters: command.parameters || '{}',
         status: command.status || 'pending',
-        executed_at: command.executedAt || new Date(),
+        error_message: command.errorMessage,
+        executed_at: new Date(),
       })
       .select()
       .single();
@@ -321,12 +373,24 @@ export async function getDeviceCommandHistory(
     const { data, error } = await supabase
       .from('iot_command_history')
       .select('*')
-      .eq('device_id', String(deviceId))
+      .eq('device_id', deviceId)
+      .eq('user_id', String(ctx.user.id))
       .order('executed_at', { ascending: false })
       .limit(limit);
     
     if (error) handleSupabaseError(error, 'getDeviceCommandHistory');
-    return data || [];
+    
+    // Map Supabase snake_case fields to camelCase for consistency
+    return (data || []).map((cmd: any) => ({
+      id: cmd.id,
+      userId: parseInt(cmd.user_id),
+      deviceId: cmd.device_id,
+      command: cmd.command,
+      parameters: cmd.parameters,
+      status: cmd.status,
+      errorMessage: cmd.error_message,
+      executedAt: cmd.executed_at,
+    }));
   }
 }
 

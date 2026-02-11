@@ -4499,3 +4499,13 @@
 - [ ] Implement bulk control options for each room
 - [ ] Add ability to rename/manage rooms
 - [x] Test room grouping functionality
+
+## Verify IoT Devices Database Routing for Admin/User Separation
+- [x] Audit IoT router procedures (listDevices, addDevice, controlDevice, deleteDevice)
+- [x] Check if dbRoleAware is used correctly for database routing
+- [x] Verify Admin users access Manus DB for IoT devices
+- [x] Verify regular Users access Supabase DB with RLS
+- [x] Fix any routing issues found (field mapping, missing fields)
+- [x] Test all IoT operations as Admin user
+- [x] Test all IoT operations as regular User
+- [x] Document database routing implementation
