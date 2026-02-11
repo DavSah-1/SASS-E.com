@@ -132,7 +132,7 @@ export function Navigation() {
             </div>
             <a href="/pricing" className="text-slate-300 hover:text-purple-400 transition-colors flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
-              {translate("Pricing")}
+              <span className="hidden">{translate("Pricing")}</span>
             </a>
           </div>
         </div>

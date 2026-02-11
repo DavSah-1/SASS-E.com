@@ -4463,3 +4463,8 @@
 - [x] Update Translate link to show only icon on desktop/tablet
 - [x] Keep mobile navigation unchanged with text labels
 - [x] Test responsive behavior across screen sizes
+
+## Remove Text Label from Pricing Navbar Link (Desktop/Tablet)
+- [x] Update Pricing link to show only icon on desktop/tablet
+- [x] Keep mobile navigation unchanged with text label
+- [x] Test responsive behavior
