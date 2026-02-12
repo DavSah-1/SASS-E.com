@@ -31,10 +31,11 @@ import { toNumericId } from "./_core/dbWrapper";
 import { cleanupOldAudioFiles, cleanupByStorageLimit, getStorageStats } from "./services/audioCleanup";
 import { getCacheStats, cacheClear } from "./services/cache";
 import { metrics, logApiUsage, logError } from "./utils/metrics";
-import { systemLogs, performanceMetrics, errorLogs, apiUsageLogs } from "../drizzle/schema";
+import { systemLogs, performanceMetrics, errorLogs, apiUsageLogs, auditLogs } from "../drizzle/schema";
 import { and, gte, lte, like, eq, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { getSupabaseClient, getSupabaseAdminClient } from "./supabaseClient";
+import { logAuditAction, getIpAddress } from "./utils/auditLog";
 import { cleanupLogs } from "../drizzle/schema";
 import { desc } from "drizzle-orm";
 import {
@@ -446,12 +447,30 @@ export const appRouter = router({
 
           const supabase = getSupabaseAdminClient();
           
+          // Get target user info for audit log
+          const { data: targetUser } = await supabase
+            .from('users')
+            .select('email')
+            .eq('id', input.userId)
+            .single();
+
           const { error } = await supabase
             .from('users')
             .update({ role: input.role })
             .eq('id', input.userId);
 
           if (error) throw error;
+
+          // Log audit action
+          await logAuditAction({
+            adminId: ctx.user.id,
+            adminEmail: ctx.user.email,
+            actionType: "role_change",
+            targetUserId: input.userId,
+            targetUserEmail: targetUser?.email,
+            details: { newRole: input.role },
+            ipAddress: getIpAddress(ctx.req),
+          });
 
           return { success: true, message: `User role updated to ${input.role}` };
         } catch (error: any) {
@@ -471,9 +490,29 @@ export const appRouter = router({
             throw new Error("Unauthorized: Admin access required");
           }
 
+          const supabase = getSupabaseAdminClient();
+          
+          // Get target user info for audit log
+          const { data: targetUser } = await supabase
+            .from('users')
+            .select('email')
+            .eq('id', input.userId)
+            .single();
+
           // TODO: Add suspended field to users table schema
-          // For now, we'll just return success
+          // For now, we'll just log the action
           console.log(`[Admin] User ${input.userId} suspension status: ${input.suspended}`);
+
+          // Log audit action
+          await logAuditAction({
+            adminId: ctx.user.id,
+            adminEmail: ctx.user.email,
+            actionType: "user_suspend",
+            targetUserId: input.userId,
+            targetUserEmail: targetUser?.email,
+            details: { suspended: input.suspended },
+            ipAddress: getIpAddress(ctx.req),
+          });
 
           return { 
             success: true, 
@@ -497,12 +536,29 @@ export const appRouter = router({
 
           const supabase = getSupabaseAdminClient();
           
+          // Get target user info for audit log
+          const { data: targetUser } = await supabase
+            .from('users')
+            .select('email')
+            .eq('id', input.userId)
+            .single();
+
           const { error } = await supabase
             .from('users')
             .delete()
             .eq('id', input.userId);
 
           if (error) throw error;
+
+          // Log audit action
+          await logAuditAction({
+            adminId: ctx.user.id,
+            adminEmail: ctx.user.email,
+            actionType: "user_delete",
+            targetUserId: input.userId,
+            targetUserEmail: targetUser?.email,
+            ipAddress: getIpAddress(ctx.req),
+          });
 
           return { success: true, message: "User deleted successfully" };
         } catch (error: any) {
@@ -521,11 +577,30 @@ export const appRouter = router({
             throw new Error("Unauthorized: Admin access required");
           }
 
+          const supabase = getSupabaseAdminClient();
+          
+          // Get target user info for audit log
+          const { data: targetUser } = await supabase
+            .from('users')
+            .select('email')
+            .eq('id', input.userId)
+            .single();
+
           // Generate temporary password
           const tempPassword = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12).toUpperCase();
 
           // TODO: Implement password reset logic with Supabase Auth
           console.log(`[Admin] Generated temporary password for user ${input.userId}`);
+
+          // Log audit action
+          await logAuditAction({
+            adminId: ctx.user.id,
+            adminEmail: ctx.user.email,
+            actionType: "password_reset",
+            targetUserId: input.userId,
+            targetUserEmail: targetUser?.email,
+            ipAddress: getIpAddress(ctx.req),
+          });
 
           return { 
             success: true, 
@@ -570,6 +645,121 @@ export const appRouter = router({
         } catch (error: any) {
           console.error("[Admin Get User Activity] Error:", error);
           throw new Error(`Failed to get user activity: ${error.message}`);
+        }
+      }),
+
+    getAuditLogs: protectedProcedure
+      .input(z.object({
+        limit: z.number().default(50),
+        offset: z.number().default(0),
+        actionType: z.string().optional(),
+        adminId: z.number().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const db = await getDb();
+          if (!db) {
+            throw new Error("Database not available");
+          }
+
+          // Build where conditions
+          const conditions = [];
+          
+          if (input.actionType) {
+            conditions.push(eq(auditLogs.actionType, input.actionType));
+          }
+          
+          if (input.adminId) {
+            conditions.push(eq(auditLogs.adminId, input.adminId));
+          }
+          
+          if (input.startDate) {
+            conditions.push(gte(auditLogs.createdAt, new Date(input.startDate)));
+          }
+          
+          if (input.endDate) {
+            conditions.push(lte(auditLogs.createdAt, new Date(input.endDate)));
+          }
+
+          // Get audit logs with pagination
+          const logs = await db
+            .select()
+            .from(auditLogs)
+            .where(conditions.length > 0 ? and(...conditions) : undefined)
+            .orderBy(desc(auditLogs.createdAt))
+            .limit(input.limit)
+            .offset(input.offset);
+
+          // Get total count
+          const [{ count }] = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(auditLogs)
+            .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+          return {
+            logs,
+            total: count,
+          };
+        } catch (error: any) {
+          console.error("[Admin Get Audit Logs] Error:", error);
+          throw new Error(`Failed to get audit logs: ${error.message}`);
+        }
+      }),
+
+    exportAuditLogs: protectedProcedure
+      .input(z.object({
+        actionType: z.string().optional(),
+        adminId: z.number().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const db = await getDb();
+          if (!db) {
+            throw new Error("Database not available");
+          }
+
+          // Build where conditions (same as getAuditLogs)
+          const conditions = [];
+          
+          if (input.actionType) {
+            conditions.push(eq(auditLogs.actionType, input.actionType));
+          }
+          
+          if (input.adminId) {
+            conditions.push(eq(auditLogs.adminId, input.adminId));
+          }
+          
+          if (input.startDate) {
+            conditions.push(gte(auditLogs.createdAt, new Date(input.startDate)));
+          }
+          
+          if (input.endDate) {
+            conditions.push(lte(auditLogs.createdAt, new Date(input.endDate)));
+          }
+
+          // Get all matching audit logs (no pagination for export)
+          const logs = await db
+            .select()
+            .from(auditLogs)
+            .where(conditions.length > 0 ? and(...conditions) : undefined)
+            .orderBy(desc(auditLogs.createdAt));
+
+          return { logs };
+        } catch (error: any) {
+          console.error("[Admin Export Audit Logs] Error:", error);
+          throw new Error(`Failed to export audit logs: ${error.message}`);
         }
       }),
   }),

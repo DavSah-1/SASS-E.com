@@ -2056,3 +2056,26 @@ export const apiUsageLogs = mysqlTable("api_usage_logs", {
 
 export type ApiUsageLog = typeof apiUsageLogs.$inferSelect;
 export type InsertApiUsageLog = typeof apiUsageLogs.$inferInsert;
+
+/**
+ * Audit Logs table for tracking admin actions
+ */
+export const auditLogs = mysqlTable("audit_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  adminId: int("adminId").notNull(), // Admin user ID who performed the action
+  adminEmail: varchar("adminEmail", { length: 320 }), // Admin email for reference
+  actionType: varchar("actionType", { length: 100 }).notNull(), // 'role_change', 'user_delete', 'password_reset', 'cache_clear', 'manual_cleanup', 'user_suspend'
+  targetUserId: int("targetUserId"), // Target user ID (for user-related actions)
+  targetUserEmail: varchar("targetUserEmail", { length: 320 }), // Target user email
+  details: text("details"), // JSON string with action details
+  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 or IPv6
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  adminIdIdx: index("idx_audit_logs_adminId").on(table.adminId),
+  actionTypeIdx: index("idx_audit_logs_actionType").on(table.actionType),
+  targetUserIdIdx: index("idx_audit_logs_targetUserId").on(table.targetUserId),
+  createdAtIdx: index("idx_audit_logs_createdAt").on(table.createdAt),
+}));
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;

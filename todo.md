@@ -4811,3 +4811,49 @@
 - [ ] Test admin panel section visibility (admin-only)
 - [ ] Test user management operations
 - [ ] Save checkpoint
+
+## Phase 17: Activity Audit Log & Breadcrumb Navigation
+
+### Database Schema
+- [x] Create audit_logs table with columns: id, admin_id, admin_email, action_type, target_user_id, target_user_email, details, ip_address, created_at
+- [x] Run database migration
+
+### Audit Logging Middleware
+- [x] Create audit logging utility function
+- [x] Add audit logging to updateUserRole endpoint
+- [x] Add audit logging to deleteUser endpoint
+- [x] Add audit logging to resetUserPassword endpoint
+- [x] Add audit logging to suspendUser endpoint
+- [x] Add audit logging to cache clear endpoint
+- [x] Add audit logging to manual cleanup endpoint
+
+### Backend Endpoints
+- [x] Create getAuditLogs endpoint with pagination
+- [x] Add filtering by action type
+- [x] Add filtering by date range
+- [x] Add filtering by admin user
+- [x] Create exportAuditLogs endpoint for CSV export
+
+### Audit Log Page UI
+- [ ] Create AuditLog.tsx page component
+- [ ] Add audit log table with all columns
+- [ ] Add action type filter dropdown
+- [ ] Add date range picker
+- [ ] Add admin user filter
+- [ ] Add pagination controls
+- [ ] Add CSV export button
+- [ ] Add route to App.tsx
+
+### Breadcrumb Navigation
+- [ ] Create Breadcrumb.tsx component
+- [ ] Add breadcrumb to AdminDashboard (/profile/admin)
+- [ ] Add breadcrumb to MonitoringDashboard (/profile/monitoring)
+- [ ] Add breadcrumb to UserManagement (/profile/admin/users)
+- [ ] Add breadcrumb to AuditLog (/profile/admin/audit)
+
+### Testing & Deployment
+- [ ] Test audit logging for all admin actions
+- [ ] Test audit log filtering and pagination
+- [ ] Test CSV export functionality
+- [ ] Test breadcrumb navigation on all pages
+- [ ] Save checkpoint
