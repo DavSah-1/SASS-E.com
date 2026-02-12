@@ -999,7 +999,8 @@ If verified knowledge base information is provided above, use that as your prima
     getDeviceStatus: protectedProcedure
       .input(z.object({ deviceId: z.string() }))
       .query(async ({ ctx, input }) => {
-        const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
+        try {
+          const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
         if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
@@ -1009,26 +1010,34 @@ If verified knowledge base information is provided above, use that as your prima
           state: device.state ? JSON.parse(device.state) : {},
           capabilities: device.capabilities ? JSON.parse(device.capabilities) : {},
         };
+        } catch (error) {
+          handleError(error, 'IoT Get Device Status');
+        }
       }),
 
     // Delete a device
     deleteDevice: protectedProcedure
       .input(z.object({ deviceId: z.string() }))
       .mutation(async ({ ctx, input }) => {
-        const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
+        try {
+          const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
         if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
 
         await dbRoleAware.deleteIoTDevice(ctx, input.deviceId);
         return { success: true, message: "Device deleted successfully" };
+        } catch (error) {
+          handleError(error, 'IoT Delete Device');
+        }
       }),
 
     // Get command history for a device
     getCommandHistory: protectedProcedure
       .input(z.object({ deviceId: z.string() }))
       .query(async ({ ctx, input }) => {
-        const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
+        try {
+          const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
         if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
@@ -1038,6 +1047,9 @@ If verified knowledge base information is provided above, use that as your prima
           ...cmd,
           parameters: cmd.parameters ? JSON.parse(cmd.parameters) : {},
         }));
+        } catch (error) {
+          handleError(error, 'IoT Get Command History');
+        }
       }),
   }),
 
@@ -1266,24 +1278,33 @@ If verified knowledge base information is provided above, use that as your prima
 
     // Get user's learning history
     getHistory: protectedProcedure.query(async ({ ctx }) => {
-      const sessions = await dbRoleAware.getUserLearningSessions(ctx, ctx.user.numericId, 50);
-      return sessions;
+      try {
+        const sessions = await dbRoleAware.getUserLearningSessions(ctx, ctx.user.numericId, 50);
+        return sessions;
+      } catch (error) {
+        handleError(error, 'Learning Get History');
+      }
     }),
 
     // Get fact-check results for a session
     getFactChecks: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ ctx, input }) => {
-        const factChecks = await dbRoleAware.getFactCheckResultsBySession(ctx, input.sessionId);
-        return factChecks;
+        try {
+          const factChecks = await dbRoleAware.getFactCheckResultsBySession(ctx, input.sessionId);
+          return factChecks;
+        } catch (error) {
+          handleError(error, 'Learning Get Fact Checks');
+        }
       }),
 
     // Generate study guide from explanation
     generateStudyGuide: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        // Get the learning session
-        const sessions = await dbRoleAware.getUserLearningSessions(ctx, ctx.user.numericId, 100);
+        try {
+          // Get the learning session
+          const sessions = await dbRoleAware.getUserLearningSessions(ctx, ctx.user.numericId, 100);
         const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
@@ -1366,6 +1387,9 @@ Maintain a ${personalityDesc} tone while being educational.`;
         });
 
         return studyGuide;
+        } catch (error) {
+          handleError(error, 'Learning Generate Study Guide');
+        }
       }),
 
     // Generate quiz from explanation
@@ -1375,8 +1399,9 @@ Maintain a ${personalityDesc} tone while being educational.`;
         questionCount: z.number().min(3).max(10).default(5),
       }))
       .mutation(async ({ ctx, input }) => {
-        // Get the learning session
-        const sessions = await dbRoleAware.getUserLearningSessions(ctx, ctx.user.numericId, 100);
+        try {
+          // Get the learning session
+          const sessions = await dbRoleAware.getUserLearningSessions(ctx, ctx.user.numericId, 100);
         const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
@@ -1486,6 +1511,9 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
           quizId,
           questions: quiz.questions,
         };
+        } catch (error) {
+          handleError(error, 'Learning Generate Quiz');
+        }
       }),
 
     // Analyze pronunciation using AI
