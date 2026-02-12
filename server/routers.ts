@@ -53,59 +53,67 @@ export const appRouter = router({
         hubs: z.array(z.enum(["money", "wellness", "translation_hub", "learning"])),
       }))
       .mutation(async ({ ctx, input }) => {
-        const { updateUserHubSelection } = await import("./db");
-        const { checkFeatureAccess } = await import("./accessControl");
-        
-        // Check if user can change hubs
-        const user = ctx.user;
-        if (user.hubsSelectedAt && user.subscriptionExpiresAt) {
-          const now = new Date();
-          const expiresAt = new Date(user.subscriptionExpiresAt);
+        try {
+          const { updateUserHubSelection } = await import("./db");
+          const { checkFeatureAccess } = await import("./accessControl");
           
-          // If subscription hasn't expired yet, prevent changes
-          if (now < expiresAt) {
-            throw new Error("Your hub selection is locked until your subscription ends");
+          // Check if user can change hubs
+          const user = ctx.user;
+          if (user.hubsSelectedAt && user.subscriptionExpiresAt) {
+            const now = new Date();
+            const expiresAt = new Date(user.subscriptionExpiresAt);
+            
+            // If subscription hasn't expired yet, prevent changes
+            if (now < expiresAt) {
+              throw new Error("Your hub selection is locked until your subscription ends");
+            }
           }
+          
+          // Validate hub count based on tier
+          const maxHubs = user.subscriptionTier === "starter" ? 1 : user.subscriptionTier === "pro" ? 2 : 6;
+          if (input.hubs.length > maxHubs) {
+            throw new Error(`You can only select ${maxHubs} hub${maxHubs > 1 ? 's' : ''} with your ${user.subscriptionTier} plan`);
+          }
+          
+          await updateUserHubSelection(toNumericId(ctx.user.numericId), input.hubs);
+          return { success: true, hubs: input.hubs };
+        } catch (error) {
+          handleError(error, 'Subscription Select Hubs');
         }
-        
-        // Validate hub count based on tier
-        const maxHubs = user.subscriptionTier === "starter" ? 1 : user.subscriptionTier === "pro" ? 2 : 6;
-        if (input.hubs.length > maxHubs) {
-          throw new Error(`You can only select ${maxHubs} hub${maxHubs > 1 ? 's' : ''} with your ${user.subscriptionTier} plan`);
-        }
-        
-        await updateUserHubSelection(toNumericId(ctx.user.numericId), input.hubs);
-        return { success: true, hubs: input.hubs };
       }),
     canChangeHubs: protectedProcedure
       .query(async ({ ctx }) => {
-        const user = ctx.user;
-        
-        // Owner can always change (check by role)
-        if (user.role === "admin") {
-          return { canChange: true, reason: "Owner access" };
-        }
-        
-        // If no hubs selected yet, can change
-        if (!user.hubsSelectedAt) {
-          return { canChange: true, reason: "No hubs selected yet" };
-        }
-        
-        // Check if subscription has expired
-        if (user.subscriptionExpiresAt) {
-          const now = new Date();
-          const expiresAt = new Date(user.subscriptionExpiresAt);
+        try {
+          const user = ctx.user;
           
-          if (now >= expiresAt) {
-            return { canChange: true, reason: "Subscription expired" };
+          // Owner can always change (check by role)
+          if (user.role === "admin") {
+            return { canChange: true, reason: "Owner access" };
           }
+          
+          // If no hubs selected yet, can change
+          if (!user.hubsSelectedAt) {
+            return { canChange: true, reason: "No hubs selected yet" };
+          }
+          
+          // Check if subscription has expired
+          if (user.subscriptionExpiresAt) {
+            const now = new Date();
+            const expiresAt = new Date(user.subscriptionExpiresAt);
+            
+            if (now >= expiresAt) {
+              return { canChange: true, reason: "Subscription expired" };
+            }
+          }
+          
+          return { 
+            canChange: false, 
+            reason: "Hub selection is locked until subscription ends",
+            lockedUntil: user.subscriptionExpiresAt 
+          };
+        } catch (error) {
+          handleError(error, 'Subscription Can Change Hubs');
         }
-        
-        return { 
-          canChange: false, 
-          reason: "Hub selection is locked until subscription ends",
-          lockedUntil: user.subscriptionExpiresAt 
-        };
       }),
     checkAccess: protectedProcedure
       .input(z.object({
@@ -113,26 +121,38 @@ export const appRouter = router({
         specializedHub: z.enum(["money", "wellness", "translation_hub", "learning"]).optional(),
       }))
       .query(async ({ ctx, input }) => {
-        const { checkFeatureAccess } = await import("./accessControl");
-        return await checkFeatureAccess(
-          ctx.user,
-          input.featureType,
-          input.specializedHub
-        );
+        try {
+          const { checkFeatureAccess } = await import("./accessControl");
+          return await checkFeatureAccess(
+            ctx.user,
+            input.featureType,
+            input.specializedHub
+          );
+        } catch (error) {
+          handleError(error, 'Subscription Check Access');
+        }
       }),
     recordUsage: protectedProcedure
       .input(z.object({
         featureType: z.enum(["voice_assistant", "iot_device", "verified_learning", "math_tutor", "translate", "image_ocr", "specialized_hub"]),
       }))
       .mutation(async ({ ctx, input }) => {
-        const { recordUsage } = await import("./accessControl");
-        await recordUsage(ctx.user, input.featureType);
-        return { success: true };
+        try {
+          const { recordUsage } = await import("./accessControl");
+          await recordUsage(ctx.user, input.featureType);
+          return { success: true };
+        } catch (error) {
+          handleError(error, 'Subscription Record Usage');
+        }
       }),
     getUsageStats: protectedProcedure
       .query(async ({ ctx }) => {
-        const { getUsageStats } = await import("./accessControl");
-        return await getUsageStats(ctx.user);
+        try {
+          const { getUsageStats } = await import("./accessControl");
+          return await getUsageStats(ctx.user);
+        } catch (error) {
+          handleError(error, 'Subscription Get Usage Stats');
+        }
       }),
     
     // Hub Trial Management
@@ -141,25 +161,29 @@ export const appRouter = router({
         hubId: z.enum(["money", "wellness", "translation_hub", "learning"]),
       }))
       .mutation(async ({ ctx, input }) => {
-        const { startHubTrial, canStartTrial } = await import("./db");
-        
-        // Check if user is Free tier
-        if (ctx.user.subscriptionTier !== "free") {
-          throw new Error("Trials are only available for Free tier users");
+        try {
+          const { startHubTrial, canStartTrial } = await import("./db");
+          
+          // Check if user is Free tier
+          if (ctx.user.subscriptionTier !== "free") {
+            throw new Error("Trials are only available for Free tier users");
+          }
+          
+          // Check if user can start trial
+          const eligible = await canStartTrial(toNumericId(ctx.user.numericId), input.hubId);
+          if (!eligible) {
+            throw new Error("You have already used your trial for this hub");
+          }
+          
+          const trial = await startHubTrial(toNumericId(ctx.user.numericId), input.hubId);
+          if (!trial) {
+            throw new Error("Failed to start trial");
+          }
+          
+          return { success: true, trial };
+        } catch (error) {
+          handleError(error, 'Subscription Start Hub Trial');
         }
-        
-        // Check if user can start trial
-        const eligible = await canStartTrial(toNumericId(ctx.user.numericId), input.hubId);
-        if (!eligible) {
-          throw new Error("You have already used your trial for this hub");
-        }
-        
-        const trial = await startHubTrial(toNumericId(ctx.user.numericId), input.hubId);
-        if (!trial) {
-          throw new Error("Failed to start trial");
-        }
-        
-        return { success: true, trial };
       }),
     
     getHubTrialStatus: protectedProcedure
@@ -167,64 +191,79 @@ export const appRouter = router({
         hubId: z.enum(["money", "wellness", "translation_hub", "learning"]),
       }))
       .query(async ({ ctx, input }) => {
-        const { getActiveTrial, canStartTrial } = await import("./db");
-        
-        const activeTrial = await getActiveTrial(toNumericId(ctx.user.numericId), input.hubId);
-        const canStart = await canStartTrial(toNumericId(ctx.user.numericId), input.hubId);
-        
-        return {
-          hasActiveTrial: !!activeTrial,
-          trial: activeTrial,
-          canStartTrial: canStart,
-        };
-      }),
-    
+        try {
+          const { getActiveTrial, canStartTrial } = await import("./db");
+          
+          const activeTrial = await getActiveTrial(toNumericId(ctx.user.numericId), input.hubId);
+          const canStart = await canStartTrial(toNumericId(ctx.user.numericId), input.hubId);
+          
+          return {
+            hasActiveTrial: !!activeTrial,
+            trial: activeTrial,
+            canStartTrial: canStart,
+          };
+        } catch (error) {
+          handleError(error, 'Subscription Get Hub Trial Status');
+        }
+      }),   
     getUserTrials: protectedProcedure
       .query(async ({ ctx }) => {
-        const { getUserTrials } = await import("./db");
-        return await getUserTrials(toNumericId(ctx.user.numericId));
+        try {
+          const { getUserTrials } = await import("./db");
+          return await getUserTrials(toNumericId(ctx.user.numericId));
+        } catch (error) {
+          handleError(error, 'Subscription Get User Trials');
+        }
       }),
     
     // Get complete subscription information for profile page
     getSubscriptionInfo: protectedProcedure
       .query(async ({ ctx }) => {
-        const { getUserTrials } = await import("./db");
-        const trials = await getUserTrials(toNumericId(ctx.user.numericId));
-        
-        return {
-          tier: ctx.user.subscriptionTier || "free",
-          subscriptionPeriod: ctx.user.subscriptionPeriod || "monthly",
-          selectedHubs: ctx.user.selectedSpecializedHubs || [],
-          subscriptionExpiresAt: ctx.user.subscriptionExpiresAt,
-          hubsSelectedAt: ctx.user.hubsSelectedAt,
-          trials: trials,
-          role: ctx.user.role,
-        };
+        try {
+          const { getUserTrials } = await import("./db");
+          const trials = await getUserTrials(toNumericId(ctx.user.numericId));
+          
+          return {
+            tier: ctx.user.subscriptionTier || "free",
+            subscriptionPeriod: ctx.user.subscriptionPeriod || "monthly",
+            selectedHubs: ctx.user.selectedSpecializedHubs || [],
+            subscriptionExpiresAt: ctx.user.subscriptionExpiresAt,
+            hubsSelectedAt: ctx.user.hubsSelectedAt,
+            trials: trials,
+            role: ctx.user.role,
+          };
+        } catch (error) {
+          handleError(error, 'Subscription Get Subscription Info');
+        }
       }),
     
     // Stripe Customer Portal
     createCustomerPortalSession: protectedProcedure
       .mutation(async ({ ctx }) => {
-        const Stripe = (await import("stripe")).default;
-        const customStripe = new Stripe(process.env.CUSTOM_STRIPE_SECRET_KEY || "", {
-          apiVersion: "2026-01-28.clover",
-        });
-        
-        const user = ctx.user;
-        
-        // Check if user has a Stripe customer ID
-        if (!user.stripeCustomerId) {
-          throw new Error("No Stripe customer found. Please complete a purchase first.");
+        try {
+          const Stripe = (await import("stripe")).default;
+          const customStripe = new Stripe(process.env.CUSTOM_STRIPE_SECRET_KEY || "", {
+            apiVersion: "2026-01-28.clover",
+          });
+          
+          const user = ctx.user;
+          
+          // Check if user has a Stripe customer ID
+          if (!user.stripeCustomerId) {
+            throw new Error("No Stripe customer found. Please complete a purchase first.");
+          }
+          
+          // Create Customer Portal session
+          const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
+          const session = await customStripe.billingPortal.sessions.create({
+            customer: user.stripeCustomerId,
+            return_url: `${baseUrl}/profile`,
+          });
+          
+          return { url: session.url };
+        } catch (error) {
+          handleError(error, 'Subscription Create Customer Portal Session');
         }
-        
-        // Create Customer Portal session
-        const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
-        const session = await customStripe.billingPortal.sessions.create({
-          customer: user.stripeCustomerId,
-          return_url: `${baseUrl}/profile`,
-        });
-        
-        return { url: session.url };
       }),
     
     // Stripe Checkout & Subscription Management
@@ -238,147 +277,167 @@ export const appRouter = router({
         uiMode: z.enum(["hosted", "embedded"]).optional(), // Default: hosted
       }))
       .mutation(async ({ ctx, input }) => {
-        const { createCheckoutSession } = await import("./stripe/checkout");
-        
-        // Validate hub selection based on tier
-        if (input.tier === "starter" && (!input.selectedHubs || input.selectedHubs.length !== 1)) {
-          throw new Error("Starter tier requires exactly 1 hub selection");
+        try {
+          const { createCheckoutSession } = await import("./stripe/checkout");
+          
+          // Validate hub selection based on tier
+          if (input.tier === "starter" && (!input.selectedHubs || input.selectedHubs.length !== 1)) {
+            throw new Error("Starter tier requires exactly 1 hub selection");
+          }
+          if (input.tier === "pro" && (!input.selectedHubs || input.selectedHubs.length !== 2)) {
+            throw new Error("Pro tier requires exactly 2 hub selections");
+          }
+          
+          // Get user email (from authenticated user or input)
+          const userEmail = ctx.user?.email || input.email || "";
+          const userId = ctx.user?.id ? String(ctx.user.id) : undefined;
+          
+          if (!userEmail) {
+            throw new Error("Email is required for checkout");
+          }
+          
+          // Create checkout session
+          const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
+          const sessionParams: any = {
+            userEmail,
+            tier: input.tier,
+            billingPeriod: input.billingPeriod,
+            selectedHubs: input.selectedHubs,
+            successUrl: `${baseUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancelUrl: `${baseUrl}/pricing`,
+            uiMode: input.uiMode || "hosted",
+          };
+          
+          // Add userId if authenticated
+          if (userId) {
+            sessionParams.userId = userId;
+          }
+          
+          // Add password if provided (for new users)
+          if (input.password) {
+            sessionParams.password = input.password;
+          }
+          
+          const session = await createCheckoutSession(sessionParams);
+          
+          return session;
+        } catch (error) {
+          handleError(error, 'Subscription Create Checkout Session');
         }
-        if (input.tier === "pro" && (!input.selectedHubs || input.selectedHubs.length !== 2)) {
-          throw new Error("Pro tier requires exactly 2 hub selections");
-        }
-        
-        // Get user email (from authenticated user or input)
-        const userEmail = ctx.user?.email || input.email || "";
-        const userId = ctx.user?.id ? String(ctx.user.id) : undefined;
-        
-        if (!userEmail) {
-          throw new Error("Email is required for checkout");
-        }
-        
-        // Create checkout session
-        const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
-        const sessionParams: any = {
-          userEmail,
-          tier: input.tier,
-          billingPeriod: input.billingPeriod,
-          selectedHubs: input.selectedHubs,
-          successUrl: `${baseUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${baseUrl}/pricing`,
-          uiMode: input.uiMode || "hosted",
-        };
-        
-        // Add userId if authenticated
-        if (userId) {
-          sessionParams.userId = userId;
-        }
-        
-        // Add password if provided (for new users)
-        if (input.password) {
-          sessionParams.password = input.password;
-        }
-        
-        const session = await createCheckoutSession(sessionParams);
-        
-        return session;
       }),
     
     getCurrent: protectedProcedure
       .query(async ({ ctx }) => {
-        const user = ctx.user;
-        
-        return {
-          tier: user.subscriptionTier || "free",
-          status: user.subscriptionStatus || null,
-          billingPeriod: user.billingPeriod || null,
-          currentPeriodStart: user.currentPeriodStart || null,
-          currentPeriodEnd: user.currentPeriodEnd || null,
-          cancelAtPeriodEnd: user.cancelAtPeriodEnd || null,
-          trialDays: user.trialDays || 5,
-          selectedHubs: user.selectedSpecializedHubs || [],
-          stripeCustomerId: user.stripeCustomerId || null,
-        };
+        try {
+          const user = ctx.user;
+          
+          return {
+            tier: user.subscriptionTier || "free",
+            status: user.subscriptionStatus || null,
+            billingPeriod: user.billingPeriod || null,
+            currentPeriodStart: user.currentPeriodStart || null,
+            currentPeriodEnd: user.currentPeriodEnd || null,
+            cancelAtPeriodEnd: user.cancelAtPeriodEnd || null,
+            trialDays: user.trialDays || 5,
+            selectedHubs: user.selectedSpecializedHubs || [],
+            stripeCustomerId: user.stripeCustomerId || null,
+          };
+        } catch (error) {
+          handleError(error, 'Subscription Get Current');
+        }
       }),
     
     cancel: protectedProcedure
       .mutation(async ({ ctx }) => {
-        const { stripe } = await import("./stripe/client");
-        const { updateSupabaseUser } = await import("./supabaseDb");
-        
-        const user = ctx.user;
-        
-        if (!user.stripeSubscriptionId) {
-          throw new Error("No active subscription found");
+        try {
+          const { stripe } = await import("./stripe/client");
+          const { updateSupabaseUser } = await import("./supabaseDb");
+          
+          const user = ctx.user;
+          
+          if (!user.stripeSubscriptionId) {
+            throw new Error("No active subscription found");
+          }
+          
+          // Update Stripe subscription to cancel at period end
+          await stripe.subscriptions.update(user.stripeSubscriptionId, {
+            cancel_at_period_end: true,
+          });
+          
+          // Update database
+          await updateSupabaseUser({
+            id: String(user.id),
+            cancelAtPeriodEnd: "free", // Will downgrade to free tier
+            updatedAt: new Date(),
+          });
+          
+          return { 
+            success: true, 
+            message: "Subscription will be canceled at the end of the billing period" 
+          };
+        } catch (error) {
+          handleError(error, 'Subscription Cancel');
         }
-        
-        // Update Stripe subscription to cancel at period end
-        await stripe.subscriptions.update(user.stripeSubscriptionId, {
-          cancel_at_period_end: true,
-        });
-        
-        // Update database
-        await updateSupabaseUser({
-          id: String(user.id),
-          cancelAtPeriodEnd: "free", // Will downgrade to free tier
-          updatedAt: new Date(),
-        });
-        
-        return { 
-          success: true, 
-          message: "Subscription will be canceled at the end of the billing period" 
-        };
       }),
     
     reactivate: protectedProcedure
       .mutation(async ({ ctx }) => {
-        const { stripe } = await import("./stripe/client");
-        const { updateSupabaseUser } = await import("./supabaseDb");
-        
-        const user = ctx.user;
-        
-        if (!user.stripeSubscriptionId) {
-          throw new Error("No subscription found");
+        try {
+          const { stripe } = await import("./stripe/client");
+          const { updateSupabaseUser } = await import("./supabaseDb");
+          
+          const user = ctx.user;
+          
+          if (!user.stripeSubscriptionId) {
+            throw new Error("No subscription found");
+          }
+          
+          if (!user.cancelAtPeriodEnd) {
+            throw new Error("Subscription is not scheduled for cancellation");
+          }
+          
+          // Update Stripe subscription to continue
+          await stripe.subscriptions.update(user.stripeSubscriptionId, {
+            cancel_at_period_end: false,
+          });
+          
+          // Update database
+          await updateSupabaseUser({
+            id: String(user.id),
+            cancelAtPeriodEnd: null,
+            updatedAt: new Date(),
+          });
+          
+          return { 
+            success: true, 
+            message: "Subscription reactivated successfully" 
+          };
+        } catch (error) {
+          handleError(error, 'Subscription Reactivate');
         }
-        
-        if (!user.cancelAtPeriodEnd) {
-          throw new Error("Subscription is not scheduled for cancellation");
-        }
-        
-        // Update Stripe subscription to continue
-        await stripe.subscriptions.update(user.stripeSubscriptionId, {
-          cancel_at_period_end: false,
-        });
-        
-        // Update database
-        await updateSupabaseUser({
-          id: String(user.id),
-          cancelAtPeriodEnd: null,
-          updatedAt: new Date(),
-        });
-        
-        return { 
-          success: true, 
-          message: "Subscription reactivated successfully" 
-        };
       }),
     
     createPortalSession: protectedProcedure
       .mutation(async ({ ctx }) => {
-        const { createPortalSession } = await import("./stripe/checkout");
-        
-        const user = ctx.user;
-        
-        if (!user.stripeCustomerId) {
-          throw new Error("No Stripe customer found. Please subscribe first.");
+        try {
+          const { createPortalSession } = await import("./stripe/checkout");
+          
+          const user = ctx.user;
+          
+          if (!user.stripeCustomerId) {
+            throw new Error("No Stripe customer found. Please subscribe first.");
+          }
+          
+          const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
+          const session = await createPortalSession(
+            user.stripeCustomerId,
+            `${baseUrl}/account/subscription`
+          );
+          
+          return session;
+        } catch (error) {
+          handleError(error, 'Subscription Create Portal Session');
         }
-        
-        const baseUrl = process.env.VITE_FRONTEND_URL || "http://localhost:3000";
-        const session = await createPortalSession(
-          user.stripeCustomerId,
-          `${baseUrl}/account/subscription`
-        );
-        
-        return session;
       }),
   }),
 
@@ -394,136 +453,164 @@ export const appRouter = router({
     setLanguage: protectedProcedure
       .input(z.object({ language: z.string().length(2).or(z.string().length(5)) }))
       .mutation(async ({ ctx, input }) => {
-        const { updateUserLanguage } = await import("./db");
-        await updateUserLanguage(ctx.user.numericId, input.language);
-        return { success: true, language: input.language };
+        try {
+          const { updateUserLanguage } = await import("./db");
+          await updateUserLanguage(ctx.user.numericId, input.language);
+          return { success: true, language: input.language };
+        } catch (error) {
+          handleError(error, 'Auth Set Language');
+        }
       }),
     setStaySignedIn: protectedProcedure
       .input(z.object({ staySignedIn: z.boolean() }))
       .mutation(async ({ ctx, input }) => {
-        const { updateUserStaySignedIn } = await import("./db");
-        await updateUserStaySignedIn(ctx.user.numericId, input.staySignedIn);
-        return { success: true, staySignedIn: input.staySignedIn };
+        try {
+          const { updateUserStaySignedIn } = await import("./db");
+          await updateUserStaySignedIn(ctx.user.numericId, input.staySignedIn);
+          return { success: true, staySignedIn: input.staySignedIn };
+        } catch (error) {
+          handleError(error, 'Auth Set Stay Signed In');
+        }
       }),
     generate2FASecret: protectedProcedure
       .mutation(async ({ ctx }) => {
-        const speakeasy = await import("speakeasy");
-        const QRCode = await import("qrcode");
-        
-        const secret = speakeasy.default.generateSecret({
-          name: `SASS-E (${ctx.user.email || ctx.user.name || 'User'})`,
-          issuer: 'SASS-E',
-        });
-        
-        const qrCodeUrl = await QRCode.default.toDataURL(secret.otpauth_url!);
-        
-        return {
-          secret: secret.base32,
-          qrCode: qrCodeUrl,
-        };
+        try {
+          const speakeasy = await import("speakeasy");
+          const QRCode = await import("qrcode");
+          
+          const secret = speakeasy.default.generateSecret({
+            name: `SASS-E (${ctx.user.email || ctx.user.name || 'User'})`,
+            issuer: 'SASS-E',
+          });
+          
+          const qrCodeUrl = await QRCode.default.toDataURL(secret.otpauth_url!);
+          
+          return {
+            secret: secret.base32,
+            qrCode: qrCodeUrl,
+          };
+        } catch (error) {
+          handleError(error, 'Auth Generate 2FA Secret');
+        }
       }),
     enable2FA: protectedProcedure
       .input(z.object({ secret: z.string(), token: z.string() }))
       .mutation(async ({ ctx, input }) => {
-        const speakeasy = await import("speakeasy");
-        const { enable2FA, generateBackupCodes } = await import("./db");
-        
-        const verified = speakeasy.default.totp.verify({
-          secret: input.secret,
-          encoding: 'base32',
-          token: input.token,
-        });
-        
-        if (!verified) {
-          throw new Error('Invalid verification code');
+        try {
+          const speakeasy = await import("speakeasy");
+          const { enable2FA, generateBackupCodes } = await import("./db");
+          
+          const verified = speakeasy.default.totp.verify({
+            secret: input.secret,
+            encoding: 'base32',
+            token: input.token,
+          });
+          
+          if (!verified) {
+            throw new Error('Invalid verification code');
+          }
+          
+          const backupCodes = generateBackupCodes();
+          await enable2FA(ctx.user.numericId, input.secret, backupCodes);
+          
+          return { success: true, backupCodes };
+        } catch (error) {
+          handleError(error, 'Auth Enable 2FA');
         }
-        
-        const backupCodes = generateBackupCodes();
-        await enable2FA(ctx.user.numericId, input.secret, backupCodes);
-        
-        return { success: true, backupCodes };
       }),
     disable2FA: protectedProcedure
       .input(z.object({ token: z.string() }))
       .mutation(async ({ ctx, input }) => {
-        const speakeasy = await import("speakeasy");
-        const { getUserById, disable2FA } = await import("./db");
-        
-        const user = await getUserById(ctx.user.numericId);
-        if (!user?.twoFactorSecret) {
-          throw new Error('2FA is not enabled');
+        try {
+          const speakeasy = await import("speakeasy");
+          const { getUserById, disable2FA } = await import("./db");
+          
+          const user = await getUserById(ctx.user.numericId);
+          if (!user?.twoFactorSecret) {
+            throw new Error('2FA is not enabled');
+          }
+          
+          const verified = speakeasy.default.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: 'base32',
+            token: input.token,
+          });
+          
+          if (!verified) {
+            throw new Error('Invalid verification code');
+          }
+          
+          await disable2FA(ctx.user.numericId);
+          return { success: true };
+        } catch (error) {
+          handleError(error, 'Auth Disable 2FA');
         }
-        
-        const verified = speakeasy.default.totp.verify({
-          secret: user.twoFactorSecret,
-          encoding: 'base32',
-          token: input.token,
-        });
-        
-        if (!verified) {
-          throw new Error('Invalid verification code');
-        }
-        
-        await disable2FA(ctx.user.numericId);
-        return { success: true };
       }),
     regenerateBackupCodes: protectedProcedure
       .input(z.object({ token: z.string() }))
       .mutation(async ({ ctx, input }) => {
-        const speakeasy = await import("speakeasy");
-        const { getUserById, updateBackupCodes, generateBackupCodes } = await import("./db");
-        
-        const user = await getUserById(ctx.user.numericId);
-        if (!user?.twoFactorSecret) {
-          throw new Error('2FA is not enabled');
+        try {
+          const speakeasy = await import("speakeasy");
+          const { getUserById, updateBackupCodes, generateBackupCodes } = await import("./db");
+          
+          const user = await getUserById(ctx.user.numericId);
+          if (!user?.twoFactorSecret) {
+            throw new Error('2FA is not enabled');
+          }
+          
+          const verified = speakeasy.default.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: 'base32',
+            token: input.token,
+          });
+          
+          if (!verified) {
+            throw new Error('Invalid verification code');
+          }
+          
+          const backupCodes = generateBackupCodes();
+          await updateBackupCodes(ctx.user.numericId, backupCodes);
+          
+          return { success: true, backupCodes };
+        } catch (error) {
+          handleError(error, 'Auth Regenerate Backup Codes');
         }
-        
-        const verified = speakeasy.default.totp.verify({
-          secret: user.twoFactorSecret,
-          encoding: 'base32',
-          token: input.token,
-        });
-        
-        if (!verified) {
-          throw new Error('Invalid verification code');
-        }
-        
-        const backupCodes = generateBackupCodes();
-        await updateBackupCodes(ctx.user.numericId, backupCodes);
-        
-        return { success: true, backupCodes };
       }),
     verify2FACode: protectedProcedure
       .input(z.object({ token: z.string() }))
       .mutation(async ({ ctx, input }) => {
-        const speakeasy = await import("speakeasy");
-        const { getUserById, useBackupCode } = await import("./db");
-        
-        const user = await getUserById(ctx.user.numericId);
-        if (!user?.twoFactorSecret) {
-          throw new Error('2FA is not enabled');
-        }
-        
-        // Try TOTP verification first
-        const verified = speakeasy.default.totp.verify({
-          secret: user.twoFactorSecret,
-          encoding: 'base32',
-          token: input.token,
-        });
-        
-        if (verified) {
-          return { success: true };
-        }
-        
-        // Try backup code if TOTP failed
-        if (user.backupCodes) {
-          const backupCodeUsed = await useBackupCode(ctx.user.numericId, input.token);
-          if (backupCodeUsed) {
-            return { success: true, usedBackupCode: true };
+        try {
+          const speakeasy = await import("speakeasy");
+          const { getUserById, useBackupCode } = await import("./db");
+          
+          const user = await getUserById(ctx.user.numericId);
+          if (!user?.twoFactorSecret) {
+            throw new Error('2FA is not enabled');
           }
+          
+          // Try TOTP verification first
+          const verified = speakeasy.default.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: 'base32',
+            token: input.token,
+          });
+          
+          if (verified) {
+            return { success: true };
+          }
+          
+          // Try backup code if TOTP failed
+          if (user.backupCodes) {
+            const backupCodeUsed = await useBackupCode(ctx.user.numericId, input.token);
+            if (backupCodeUsed) {
+              return { success: true, usedBackupCode: true };
+            }
+          }
+          
+          throw new Error('Invalid verification code');
+        } catch (error) {
+          handleError(error, 'Auth Verify 2FA Code');
         }
-        
-        throw new Error('Invalid verification code');
       }),
   }),
 
@@ -1532,7 +1619,8 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const userProfile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
+        try {
+          const userProfile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -1631,6 +1719,9 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           feedback,
           tips,
         };
+        } catch (error) {
+          handleError(error, 'Language Learning Analyze Pronunciation');
+        }
       }),
 
     // Generate pronunciation audio using server-side TTS
@@ -1641,31 +1732,35 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         speed: z.number().min(0.5).max(1.5).default(0.85),
       }))
       .mutation(async ({ input }) => {
-        const { generatePronunciation } = await import("./_core/textToSpeech");
-        
         try {
-          const result = await generatePronunciation(
-            input.word,
-            input.languageCode,
-            input.speed
-          );
+          const { generatePronunciation } = await import("./_core/textToSpeech");
           
-          // Convert buffer to base64 for transmission
-          const base64Audio = result.audioBuffer.toString('base64');
-          
-          return {
-            success: true,
-            audio: base64Audio,
-            contentType: result.contentType,
-          };
+          try {
+            const result = await generatePronunciation(
+              input.word,
+              input.languageCode,
+              input.speed
+            );
+            
+            // Convert buffer to base64 for transmission
+            const base64Audio = result.audioBuffer.toString('base64');
+            
+            return {
+              success: true,
+              audio: base64Audio,
+              contentType: result.contentType,
+            };
+          } catch (error) {
+            console.error('[TTS] Error generating pronunciation:', error);
+            return {
+              success: false,
+              error: error instanceof Error ? error.message : 'Failed to generate audio',
+              audio: null,
+              contentType: null,
+            };
+          }
         } catch (error) {
-          console.error('[TTS] Error generating pronunciation:', error);
-          return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Failed to generate audio',
-            audio: null,
-            contentType: null,
-          };
+          handleError(error, 'Language Learning Generate Pronunciation Audio');
         }
       }),
 
@@ -1676,46 +1771,50 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         answers: z.array(z.number()),
       }))
       .mutation(async ({ ctx, input }) => {
-        // Get user's quizzes to find the one being attempted
-        const userQuizzes = await dbRoleAware.getUserQuizzes(ctx, ctx.user.numericId);
-        const quiz = userQuizzes.find(q => q.id === input.quizId);
-        
-        if (!quiz) {
-          throw new Error('Quiz not found');
-        }
-
-        // Parse quiz questions to check answers
-        const questions = JSON.parse(quiz.questions);
-        let correctCount = 0;
-        
-        // Convert numeric answer indices to letters (0 -> 'A', 1 -> 'B', etc.)
-        const answerMap = ['A', 'B', 'C', 'D'];
-        
-        input.answers.forEach((answerIndex, questionIndex) => {
-          const answerLetter = answerMap[answerIndex];
-          if (questions[questionIndex] && answerLetter === questions[questionIndex].correctAnswer) {
-            correctCount++;
+        try {
+          // Get user's quizzes to find the one being attempted
+          const userQuizzes = await dbRoleAware.getUserQuizzes(ctx, ctx.user.numericId);
+          const quiz = userQuizzes.find(q => q.id === input.quizId);
+          
+          if (!quiz) {
+            throw new Error('Quiz not found');
           }
-        });
 
-        const score = Math.round((correctCount / questions.length) * 100);
+          // Parse quiz questions to check answers
+          const questions = JSON.parse(quiz.questions);
+          let correctCount = 0;
+          
+          // Convert numeric answer indices to letters (0 -> 'A', 1 -> 'B', etc.)
+          const answerMap = ['A', 'B', 'C', 'D'];
+          
+          input.answers.forEach((answerIndex, questionIndex) => {
+            const answerLetter = answerMap[answerIndex];
+            if (questions[questionIndex] && answerLetter === questions[questionIndex].correctAnswer) {
+              correctCount++;
+            }
+          });
 
-        await dbRoleAware.saveQuizAttempt(ctx, {
-          quizId: input.quizId,
-          userId: ctx.user.numericId,
-          answers: JSON.stringify(input.answers),
-          score,
-          correctAnswers: correctCount,
-          totalQuestions: questions.length,
-          timeSpent: 0,
-        });
+          const score = Math.round((correctCount / questions.length) * 100);
 
-        return {
-          score,
-          correctAnswers: correctCount,
-          totalQuestions: questions.length,
-          passed: score >= 70,
-        };
+          await dbRoleAware.saveQuizAttempt(ctx, {
+            quizId: input.quizId,
+            userId: ctx.user.numericId,
+            answers: JSON.stringify(input.answers),
+            score,
+            correctAnswers: correctCount,
+            totalQuestions: questions.length,
+            timeSpent: 0,
+          });
+
+          return {
+            score,
+            correctAnswers: correctCount,
+            totalQuestions: questions.length,
+            passed: score >= 70,
+          };
+        } catch (error) {
+          handleError(error, 'Language Learning Submit Quiz Attempt');
+        }
       }),
   }),
 
@@ -1724,36 +1823,52 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     getNotifications: protectedProcedure
       .input(z.object({ includeRead: z.boolean().default(false) }).optional())
       .query(async ({ ctx, input }) => {
-        const notifications = await dbRoleAware.getUserNotifications(ctx, ctx.user.numericId, input?.includeRead || false);
-        
-        // Parse JSON fields for each notification
-        return notifications.map(notif => ({
-          ...notif,
-          oldVersion: JSON.parse(notif.oldVersion),
-          newVersion: JSON.parse(notif.newVersion),
-        }));
+        try {
+          const notifications = await dbRoleAware.getUserNotifications(ctx, ctx.user.numericId, input?.includeRead || false);
+          
+          // Parse JSON fields for each notification
+          return notifications.map(notif => ({
+            ...notif,
+            oldVersion: JSON.parse(notif.oldVersion),
+            newVersion: JSON.parse(notif.newVersion),
+          }));
+        } catch (error) {
+          handleError(error, 'Notifications Get Notifications');
+        }
       }),
     
     // Get unread notification count
     getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
-      const count = await dbRoleAware.getUnreadNotificationCount(ctx, ctx.user.numericId);
-      return { count };
+      try {
+        const count = await dbRoleAware.getUnreadNotificationCount(ctx, ctx.user.numericId);
+        return { count };
+      } catch (error) {
+        handleError(error, 'Notifications Get Unread Count');
+      }
     }),
     
     // Mark notification as read
     markAsRead: protectedProcedure
       .input(z.object({ notificationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        await dbRoleAware.markNotificationAsRead(ctx, input.notificationId, ctx.user.numericId);
-        return { success: true };
+        try {
+          await dbRoleAware.markNotificationAsRead(ctx, input.notificationId, ctx.user.numericId);
+          return { success: true };
+        } catch (error) {
+          handleError(error, 'Notifications Mark As Read');
+        }
       }),
     
     // Dismiss notification
     dismiss: protectedProcedure
       .input(z.object({ notificationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        await dbRoleAware.dismissNotification(ctx, input.notificationId, ctx.user.numericId);
-        return { success: true };
+        try {
+          await dbRoleAware.dismissNotification(ctx, input.notificationId, ctx.user.numericId);
+          return { success: true };
+        } catch (error) {
+          handleError(error, 'Notifications Dismiss');
+        }
       }),
   }),
 
@@ -2015,11 +2130,15 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const { saveTranslation } = await import("./db");
-        return await saveTranslation({
-          userId: ctx.user.numericId,
-          ...input,
-        });
+        try {
+          const { saveTranslation } = await import("./db");
+          return await saveTranslation({
+            userId: ctx.user.numericId,
+            ...input,
+          });
+        } catch (error) {
+          handleError(error, 'Translation Save Translation');
+        }
       }),
 
     getSavedTranslations: protectedProcedure
@@ -2029,22 +2148,34 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .query(async ({ ctx, input }) => {
-        const { getSavedTranslations } = await import("./db");
-        return await getSavedTranslations(ctx.user.numericId, input.categoryId);
+        try {
+          const { getSavedTranslations } = await import("./db");
+          return await getSavedTranslations(ctx.user.numericId, input.categoryId);
+        } catch (error) {
+          handleError(error, 'Translation Get Saved Translations');
+        }
       }),
 
     deleteSavedTranslation: protectedProcedure
       .input(z.object({ translationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        const { deleteSavedTranslation } = await import("./db");
-        return await deleteSavedTranslation(input.translationId, ctx.user.numericId);
+        try {
+          const { deleteSavedTranslation } = await import("./db");
+          return await deleteSavedTranslation(input.translationId, ctx.user.numericId);
+        } catch (error) {
+          handleError(error, 'Translation Delete Saved Translation');
+        }
       }),
 
     toggleFavorite: protectedProcedure
       .input(z.object({ translationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        const { toggleTranslationFavorite } = await import("./db");
-        return await toggleTranslationFavorite(input.translationId, ctx.user.numericId);
+        try {
+          const { toggleTranslationFavorite } = await import("./db");
+          return await toggleTranslationFavorite(input.translationId, ctx.user.numericId);
+        } catch (error) {
+          handleError(error, 'Translation Toggle Favorite');
+        }
       }),
 
     updateCategory: protectedProcedure
@@ -2055,12 +2186,16 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const { updateTranslationCategory } = await import("./db");
-        return await updateTranslationCategory(
-          input.translationId,
-          ctx.user.numericId,
-          input.categoryId
-        );
+        try {
+          const { updateTranslationCategory } = await import("./db");
+          return await updateTranslationCategory(
+            input.translationId,
+            ctx.user.numericId,
+            input.categoryId
+          );
+        } catch (error) {
+          handleError(error, 'Translation Update Category');
+        }
       }),
 
     // Category management
@@ -2072,28 +2207,44 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const { createTranslationCategory } = await import("./db");
-        return await createTranslationCategory({
-          userId: ctx.user.numericId,
-          ...input,
-        });
+        try {
+          const { createTranslationCategory } = await import("./db");
+          return await createTranslationCategory({
+            userId: ctx.user.numericId,
+            ...input,
+          });
+        } catch (error) {
+          handleError(error, 'Translation Create Category');
+        }
       }),
 
     getCategories: protectedProcedure.query(async ({ ctx }) => {
-      const { getTranslationCategories } = await import("./db");
-      return await getTranslationCategories(ctx.user.numericId);
+      try {
+        const { getTranslationCategories } = await import("./db");
+        return await getTranslationCategories(ctx.user.numericId);
+      } catch (error) {
+        handleError(error, 'Translation Get Categories');
+      }
     }),
 
     deleteCategory: protectedProcedure
       .input(z.object({ categoryId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        const { deleteTranslationCategory } = await import("./db");
-        return await deleteTranslationCategory(input.categoryId, ctx.user.numericId);
+        try {
+          const { deleteTranslationCategory } = await import("./db");
+          return await deleteTranslationCategory(input.categoryId, ctx.user.numericId);
+        } catch (error) {
+          handleError(error, 'Translation Delete Category');
+        }
       }),
 
     getFrequentTranslations: protectedProcedure.query(async ({ ctx }) => {
-      const { getFrequentTranslations } = await import("./db");
-      return await getFrequentTranslations(ctx.user.numericId);
+      try {
+        const { getFrequentTranslations } = await import("./db");
+        return await getFrequentTranslations(ctx.user.numericId);
+      } catch (error) {
+        handleError(error, 'Translation Get Frequent Translations');
+      }
     }),
 
     // Conversation mode endpoints
@@ -2106,26 +2257,38 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const sessionId = await dbRoleAware.createConversationSession(ctx, 
-          ctx.user.numericId,
-          input.title,
-          input.language1,
-          input.language2
-        );
-        return { sessionId };
+        try {
+          const sessionId = await dbRoleAware.createConversationSession(ctx, 
+            ctx.user.numericId,
+            input.title,
+            input.language1,
+            input.language2
+          );
+          return { sessionId };
+        } catch (error) {
+          handleError(error, 'Translation Create Conversation');
+        }
       }),
 
     getConversations: protectedProcedure.query(async ({ ctx }) => {
-      return await dbRoleAware.getUserConversationSessions(ctx, ctx.user.numericId);
+      try {
+        return await dbRoleAware.getUserConversationSessions(ctx, ctx.user.numericId);
+      } catch (error) {
+        handleError(error, 'Translation Get Conversations');
+      }
     }),
 
     getConversation: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ ctx, input }) => {
-        const session = await dbRoleAware.getConversationSession(ctx, input.sessionId, ctx.user.numericId);
-        if (!session) throw new Error("Conversation not found");
-        const messages = await dbRoleAware.getConversationMessages(ctx, input.sessionId);
-        return { session, messages };
+        try {
+          const session = await dbRoleAware.getConversationSession(ctx, input.sessionId, ctx.user.numericId);
+          if (!session) throw new Error("Conversation not found");
+          const messages = await dbRoleAware.getConversationMessages(ctx, input.sessionId);
+          return { session, messages };
+        } catch (error) {
+          handleError(error, 'Translation Get Conversation');
+        }
       }),
 
     sendMessage: protectedProcedure
@@ -2138,48 +2301,55 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        // Get the conversation session to determine target language
-        const session = await dbRoleAware.getConversationSession(ctx, input.sessionId, ctx.user.numericId);
-        if (!session) throw new Error("Conversation not found");
+        try {
+          // Get the conversation session to determine target language
+          const session = await dbRoleAware.getConversationSession(ctx, input.sessionId, ctx.user.numericId);
+          if (!session) throw new Error("Conversation not found");
 
-        // Determine target language (translate to the other language)
-        const targetLanguage = input.language === session.language1 ? session.language2 : session.language1;
+          // Determine target language (translate to the other language)
+          const targetLanguage = input.language === session.language1 ? session.language2 : session.language1;
 
-        // Translate the message
-        const translationPrompt = `Translate the following text from ${input.language} to ${targetLanguage}. Provide only the direct translation without any additional commentary.\n\nText: "${input.messageText}"`;
-        
-        const response = await invokeLLM({
-          messages: [
-            { role: "system", content: "You are a professional translation assistant. Provide accurate, direct translations without adding any commentary." },
-            { role: "user", content: translationPrompt },
-          ],
-        });
+          // Translate the message
+          const translationPrompt = `Translate the following text from ${input.language} to ${targetLanguage}. Provide only the direct translation without any additional commentary.\n\nText: "${input.messageText}"`;
+          
+          const response = await invokeLLM({
+            messages: [
+              { role: "system", content: "You are a professional translation assistant. Provide accurate, direct translations without adding any commentary." },
+              { role: "user", content: translationPrompt },
+            ],
+          });
 
-        const translatedContent = response.choices[0].message.content;
-        const translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
+          const translatedContent = response.choices[0].message.content;
+          const translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
+          // Save the message
+          const messageId = await dbRoleAware.addConversationMessage(ctx, 
+            input.sessionId,
+            input.messageText,
+            translatedText,
+            input.language,
+            input.sender
+          );
 
-        // Save the message
-        const messageId = await dbRoleAware.addConversationMessage(ctx, 
-          input.sessionId,
-          input.messageText,
-          translatedText,
-          input.language,
-          input.sender
-        );
-
-        return {
-          messageId,
-          originalText: input.messageText,
-          translatedText,
-          language: input.language,
-          targetLanguage,
-        };
+          return {
+            messageId,
+            originalText: input.messageText,
+            translatedText,
+            language: input.language,
+            targetLanguage,
+          };
+        } catch (error) {
+          handleError(error, 'Translation Send Message');
+        }
       }),
 
     deleteConversation: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ ctx, input }) => {
-        return await dbRoleAware.deleteConversationSession(ctx, input.sessionId, ctx.user.numericId);
+        try {
+          return await dbRoleAware.deleteConversationSession(ctx, input.sessionId, ctx.user.numericId);
+        } catch (error) {
+          handleError(error, 'Translation Delete Conversation');
+        }
       }),
 
     saveConversationToPhrasebook: protectedProcedure
