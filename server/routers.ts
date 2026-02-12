@@ -1768,8 +1768,9 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        // Simple direct translation without personality
-        const translationPrompt = `Translate the following text from ${input.sourceLanguage} to ${input.targetLanguage}. Provide only the direct translation without any additional commentary, explanation, or personality.\n\nText: "${input.text}"`;
+        try {
+          // Simple direct translation without personality
+          const translationPrompt = `Translate the following text from ${input.sourceLanguage} to ${input.targetLanguage}. Provide only the direct translation without any additional commentary, explanation, or personality.\n\nText: "${input.text}"`;
 
         const response = await invokeLLM({
           messages: [
@@ -1787,6 +1788,9 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           sourceLanguage: input.sourceLanguage,
           targetLanguage: input.targetLanguage,
         };
+        } catch (error) {
+          handleError(error, 'Translation Translate');
+        }
       }),
 
     // Translate user message only (no response generation)
@@ -1799,8 +1803,9 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        // Simple translation: just translate the user's message from input language to output language
-        let translatedMessage = input.message;
+        try {
+          // Simple translation: just translate the user's message from input language to output language
+          let translatedMessage = input.message;
         
         // Only translate if languages are different
         if (input.inputLanguage.toLowerCase() !== input.outputLanguage.toLowerCase()) {
@@ -1824,6 +1829,9 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           inputLanguage: input.inputLanguage,
           outputLanguage: input.outputLanguage,
         };
+        } catch (error) {
+          handleError(error, 'Translation Chat With Translation');
+        }
       }),
 
     // Translate text from image (OCR + translation)
@@ -1836,7 +1844,8 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        // Step 1: Extract text from image using LLM vision
+        try {
+          // Step 1: Extract text from image using LLM vision
         const extractionSchema = input.includePositions ? {
           type: "object",
           properties: {
@@ -1988,6 +1997,9 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
             translatedText,
             targetLanguage: input.targetLanguage,
           };
+        }
+        } catch (error) {
+          handleError(error, 'Translation Translate Image');
         }
       }),
 

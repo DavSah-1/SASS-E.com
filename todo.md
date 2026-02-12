@@ -4531,3 +4531,12 @@
 - [ ] Verify all error messages maintain Bob's sarcastic personality
 - [ ] Verify graceful degradation works (continues without search when search fails)
 - [ ] Save checkpoint after full implementation and testing
+
+## Complete Phase 1: Wrap Remaining Router Procedures
+- [x] Wrap translation router core procedures with error handling (translate, chatWithTranslation, translateImage)
+- [ ] Wrap remaining translation procedures (saveTranslation, updateCategory, createCategory, etc.)
+- [ ] Wrap subscription router procedures with error handling
+- [ ] Wrap language learning router procedures with error handling (if any)
+- [ ] Wrap any other remaining router procedures with error handling
+- [ ] Verify all routers have comprehensive error handling
+- [ ] Test error scenarios across all routers
