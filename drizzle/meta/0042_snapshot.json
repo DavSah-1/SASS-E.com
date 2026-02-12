@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "0f500b24-c6be-4a02-8a92-c122460b177b",
-  "prevId": "6f8918db-8896-4fbf-8006-7b4a51c0b500",
+  "id": "c3063257-cdbb-4f47-b342-bfb79424a7df",
+  "prevId": "0f500b24-c6be-4a02-8a92-c122460b177b",
   "tables": {
     "budget_alerts": {
       "name": "budget_alerts",
@@ -385,7 +385,37 @@
           "default": "(now())"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_budget_transactions_userId": {
+          "name": "idx_budget_transactions_userId",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        },
+        "idx_budget_transactions_categoryId": {
+          "name": "idx_budget_transactions_categoryId",
+          "columns": [
+            "categoryId"
+          ],
+          "isUnique": false
+        },
+        "idx_budget_transactions_transactionDate": {
+          "name": "idx_budget_transactions_transactionDate",
+          "columns": [
+            "transactionDate"
+          ],
+          "isUnique": false
+        },
+        "idx_budget_transactions_userId_date": {
+          "name": "idx_budget_transactions_userId_date",
+          "columns": [
+            "userId",
+            "transactionDate"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "budget_transactions_id": {
@@ -937,7 +967,30 @@
           "default": "(now())"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_conversations_userId": {
+          "name": "idx_conversations_userId",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        },
+        "idx_conversations_createdAt": {
+          "name": "idx_conversations_createdAt",
+          "columns": [
+            "createdAt"
+          ],
+          "isUnique": false
+        },
+        "idx_conversations_userId_createdAt": {
+          "name": "idx_conversations_userId_createdAt",
+          "columns": [
+            "userId",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "conversations_id": {
@@ -2580,7 +2633,37 @@
           "default": "(now())"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_financial_goals_userId": {
+          "name": "idx_financial_goals_userId",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        },
+        "idx_financial_goals_status": {
+          "name": "idx_financial_goals_status",
+          "columns": [
+            "status"
+          ],
+          "isUnique": false
+        },
+        "idx_financial_goals_targetDate": {
+          "name": "idx_financial_goals_targetDate",
+          "columns": [
+            "targetDate"
+          ],
+          "isUnique": false
+        },
+        "idx_financial_goals_userId_status": {
+          "name": "idx_financial_goals_userId_status",
+          "columns": [
+            "userId",
+            "status"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "financial_goals_id": {
@@ -3422,7 +3505,37 @@
           "default": "(now())"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_iot_command_history_userId": {
+          "name": "idx_iot_command_history_userId",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        },
+        "idx_iot_command_history_deviceId": {
+          "name": "idx_iot_command_history_deviceId",
+          "columns": [
+            "deviceId"
+          ],
+          "isUnique": false
+        },
+        "idx_iot_command_history_executedAt": {
+          "name": "idx_iot_command_history_executedAt",
+          "columns": [
+            "executedAt"
+          ],
+          "isUnique": false
+        },
+        "idx_iot_command_history_userId_deviceId": {
+          "name": "idx_iot_command_history_userId_deviceId",
+          "columns": [
+            "userId",
+            "deviceId"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "iot_command_history_id": {
@@ -3556,7 +3669,37 @@
           "default": "(now())"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_iot_devices_userId": {
+          "name": "idx_iot_devices_userId",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        },
+        "idx_iot_devices_deviceId": {
+          "name": "idx_iot_devices_deviceId",
+          "columns": [
+            "deviceId"
+          ],
+          "isUnique": true
+        },
+        "idx_iot_devices_status": {
+          "name": "idx_iot_devices_status",
+          "columns": [
+            "status"
+          ],
+          "isUnique": false
+        },
+        "idx_iot_devices_userId_status": {
+          "name": "idx_iot_devices_userId_status",
+          "columns": [
+            "userId",
+            "status"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "iot_devices_id": {
@@ -5150,7 +5293,37 @@
           "default": "(now())"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_quiz_attempts_userId": {
+          "name": "idx_quiz_attempts_userId",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        },
+        "idx_quiz_attempts_quizId": {
+          "name": "idx_quiz_attempts_quizId",
+          "columns": [
+            "quizId"
+          ],
+          "isUnique": false
+        },
+        "idx_quiz_attempts_createdAt": {
+          "name": "idx_quiz_attempts_createdAt",
+          "columns": [
+            "createdAt"
+          ],
+          "isUnique": false
+        },
+        "idx_quiz_attempts_userId_quizId": {
+          "name": "idx_quiz_attempts_userId_quizId",
+          "columns": [
+            "userId",
+            "quizId"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "quiz_attempts_id": {
@@ -5222,6 +5395,90 @@
       "compositePrimaryKeys": {
         "quizzes_id": {
           "name": "quizzes_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "quota_usage": {
+      "name": "quota_usage",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "service": {
+          "name": "service",
+          "type": "enum('tavily','whisper','llm')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "period": {
+          "name": "period",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tier": {
+          "name": "tier",
+          "type": "enum('free','starter','pro','ultimate')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "resetAt": {
+          "name": "resetAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "quota_usage_id": {
+          "name": "quota_usage_id",
           "columns": [
             "id"
           ]
@@ -7784,7 +8041,36 @@
           "default": "(now())"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_users_supabaseId": {
+          "name": "idx_users_supabaseId",
+          "columns": [
+            "supabaseId"
+          ],
+          "isUnique": true
+        },
+        "idx_users_email": {
+          "name": "idx_users_email",
+          "columns": [
+            "email"
+          ],
+          "isUnique": false
+        },
+        "idx_users_subscriptionTier": {
+          "name": "idx_users_subscriptionTier",
+          "columns": [
+            "subscriptionTier"
+          ],
+          "isUnique": false
+        },
+        "idx_users_subscriptionStatus": {
+          "name": "idx_users_subscriptionStatus",
+          "columns": [
+            "subscriptionStatus"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "users_id": {

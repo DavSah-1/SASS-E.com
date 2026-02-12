@@ -1,4 +1,4 @@
-import { boolean, decimal, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, decimal, index, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * User table (Manus Database)
@@ -36,7 +36,12 @@ export const users = mysqlTable("users", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
-});
+}, (table) => ({
+  supabaseIdIdx: uniqueIndex("idx_users_supabaseId").on(table.supabaseId),
+  emailIdx: index("idx_users_email").on(table.email),
+  subscriptionTierIdx: index("idx_users_subscriptionTier").on(table.subscriptionTier),
+  subscriptionStatusIdx: index("idx_users_subscriptionStatus").on(table.subscriptionStatus),
+}));
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -51,7 +56,11 @@ export const conversations = mysqlTable("conversations", {
   assistantResponse: text("assistantResponse").notNull(),
   audioUrl: varchar("audioUrl", { length: 512 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("idx_conversations_userId").on(table.userId),
+  createdAtIdx: index("idx_conversations_createdAt").on(table.createdAt),
+  userIdCreatedAtIdx: index("idx_conversations_userId_createdAt").on(table.userId, table.createdAt),
+}));
 
 export type Conversation = typeof conversations.$inferSelect;
 export type InsertConversation = typeof conversations.$inferInsert;
@@ -76,7 +85,12 @@ export const iotDevices = mysqlTable("iot_devices", {
   lastSeen: timestamp("lastSeen"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("idx_iot_devices_userId").on(table.userId),
+  deviceIdIdx: uniqueIndex("idx_iot_devices_deviceId").on(table.deviceId),
+  statusIdx: index("idx_iot_devices_status").on(table.status),
+  userIdStatusIdx: index("idx_iot_devices_userId_status").on(table.userId, table.status),
+}));
 
 export type IoTDevice = typeof iotDevices.$inferSelect;
 export type InsertIoTDevice = typeof iotDevices.$inferInsert;
@@ -93,7 +107,12 @@ export const iotCommandHistory = mysqlTable("iot_command_history", {
   status: mysqlEnum("status", ["success", "failed", "pending"]).notNull(),
   errorMessage: text("errorMessage"),
   executedAt: timestamp("executedAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("idx_iot_command_history_userId").on(table.userId),
+  deviceIdIdx: index("idx_iot_command_history_deviceId").on(table.deviceId),
+  executedAtIdx: index("idx_iot_command_history_executedAt").on(table.executedAt),
+  userIdDeviceIdIdx: index("idx_iot_command_history_userId_deviceId").on(table.userId, table.deviceId),
+}));
 
 export type IoTCommandHistory = typeof iotCommandHistory.$inferSelect;
 export type InsertIoTCommandHistory = typeof iotCommandHistory.$inferInsert;
@@ -234,7 +253,12 @@ export const quizAttempts = mysqlTable("quiz_attempts", {
   timeSpent: int("timeSpent"), // Seconds
   answers: text("answers").notNull(), // JSON array of user answers
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("idx_quiz_attempts_userId").on(table.userId),
+  quizIdIdx: index("idx_quiz_attempts_quizId").on(table.quizId),
+  createdAtIdx: index("idx_quiz_attempts_createdAt").on(table.createdAt),
+  userIdQuizIdIdx: index("idx_quiz_attempts_userId_quizId").on(table.userId, table.quizId),
+}));
 
 export type QuizAttempt = typeof quizAttempts.$inferSelect;
 export type InsertQuizAttempt = typeof quizAttempts.$inferInsert;
@@ -598,7 +622,12 @@ export const budgetTransactions = mysqlTable("budget_transactions", {
   tags: varchar("tags", { length: 255 }), // Comma-separated tags for filtering
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("idx_budget_transactions_userId").on(table.userId),
+  categoryIdIdx: index("idx_budget_transactions_categoryId").on(table.categoryId),
+  transactionDateIdx: index("idx_budget_transactions_transactionDate").on(table.transactionDate),
+  userIdDateIdx: index("idx_budget_transactions_userId_date").on(table.userId, table.transactionDate),
+}));
 
 export type BudgetTransaction = typeof budgetTransactions.$inferSelect;
 export type InsertBudgetTransaction = typeof budgetTransactions.$inferInsert;
@@ -647,7 +676,12 @@ export const financialGoals = mysqlTable("financial_goals", {
   completedAt: timestamp("completedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("idx_financial_goals_userId").on(table.userId),
+  statusIdx: index("idx_financial_goals_status").on(table.status),
+  targetDateIdx: index("idx_financial_goals_targetDate").on(table.targetDate),
+  userIdStatusIdx: index("idx_financial_goals_userId_status").on(table.userId, table.status),
+}));
 
 export type FinancialGoal = typeof financialGoals.$inferSelect;
 export type InsertFinancialGoal = typeof financialGoals.$inferInsert;

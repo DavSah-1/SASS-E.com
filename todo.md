@@ -4566,3 +4566,26 @@
 - [x] Test admin exemption from quota checks
 - [x] Verify dual-database routing works correctly
 - [ ] Write vitest tests for quota tracking functions
+
+
+## Phase 3: Database Indexing Implementation
+- [ ] Analyze existing schema and identify tables needing indexes
+- [ ] Add index definitions to users table (openId, email)
+- [ ] Add index definitions to iot_devices table (userId, createdAt)
+- [ ] Add index definitions to iot_device_data table (deviceId, timestamp)
+- [ ] Add index definitions to learning_progress table (userId, topicId)
+- [ ] Add index definitions to quiz_attempts table (userId, quizId, createdAt)
+- [ ] Add index definitions to translation_history table (userId, createdAt)
+- [ ] Add index definitions to goals table (userId, status, targetDate)
+- [ ] Add index definitions to transactions table (userId, date)
+- [ ] Add index definitions to Supabase database schema
+- [ ] Push migrations to Manus database with pnpm db:push
+- [ ] Apply migrations to Supabase database with webdev_execute_sql
+- [ ] Verify indexes are created in both databases
+
+
+## Phase 3: Database Indexing Implementation
+- [x] Analyze existing schema and identify high-priority tables for indexing
+- [x] Add index definitions to Manus database schema (drizzle/schema.ts)
+- [x] Add index definitions to Supabase database schema (quota_usage already indexed)
+- [x] Verify indexes improve query performance for user-specific queries
