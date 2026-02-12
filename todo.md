@@ -5064,3 +5064,12 @@
 - [x] Identify spacing issue when tabs stack - No gap between grid rows
 - [x] Fix spacing - Added gap-2 to TabsList grid
 - [x] Test on mobile and save checkpoint
+
+## Phase 30: Fix TabsList Fixed Height Issue
+
+- [ ] Add h-auto to TabsList to override shadcn's fixed h-9 height
+- [ ] Test on mobile to verify tabs stack properly
+- [ ] Save checkpoint
+- [x] Add h-auto to TabsList to override shadcn's fixed h-9 height
+- [x] Test on mobile to verify tabs stack properly
+- [x] Save checkpoint

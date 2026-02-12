@@ -149,7 +149,7 @@ export default function MonitoringDashboard() {
         </div>
 
         {/* System Health Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">System Uptime</CardTitle>
@@ -198,7 +198,7 @@ export default function MonitoringDashboard() {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="performance" className="space-y-4 mb-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2 h-auto">
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="api-usage">API Usage</TabsTrigger>
             <TabsTrigger value="errors">Errors</TabsTrigger>
