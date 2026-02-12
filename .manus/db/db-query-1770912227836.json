@@ -1,0 +1,26 @@
+{
+  "query": "SHOW COLUMNS FROM users WHERE Field LIKE '%Id%' OR Field LIKE '%id%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute SHOW COLUMNS FROM users WHERE Field LIKE '%Id%' OR Field LIKE '%id%';",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int(11)",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "supabaseId",
+      "Type": "varchar(64)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint(11)\tNO\tPRI\tNULL\tauto_increment\nsupabaseId\tvarchar(64)\tNO\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

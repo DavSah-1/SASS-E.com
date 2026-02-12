@@ -4642,4 +4642,11 @@
 - [x] Add admin endpoint for manual cache clearing
 - [x] Update admin dashboard to show cache statistics
 - [x] Test caching with both Redis and in-memory fallback
+- [x] Save checkpoint
+
+## Phase 9: Fix Missing cleanup_logs Table Error
+
+- [x] Add cleanup_logs table definition to drizzle/schema.ts
+- [x] Run database migration with pnpm db:push
+- [x] Test admin dashboard to verify cleanup logs section works
 - [ ] Save checkpoint

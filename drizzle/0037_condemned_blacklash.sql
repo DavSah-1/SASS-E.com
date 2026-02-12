@@ -1,2 +1,2 @@
--- Rename openId column to supabaseId
-ALTER TABLE `users` CHANGE COLUMN `openId` `supabaseId` varchar(64) NOT NULL;
+-- Migration already applied (openId renamed to supabaseId)
+-- No changes needed

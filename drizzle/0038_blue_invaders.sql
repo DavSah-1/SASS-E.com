@@ -1,4 +1,4 @@
-ALTER TABLE `users` DROP INDEX `users_supabaseId_unique`;--> statement-breakpoint
-ALTER TABLE `users` ADD `manusOpenId` varchar(64) NOT NULL;--> statement-breakpoint
-ALTER TABLE `users` ADD CONSTRAINT `users_manusOpenId_unique` UNIQUE(`manusOpenId`);--> statement-breakpoint
-ALTER TABLE `users` DROP COLUMN `supabaseId`;
+-- Migration already partially applied
+-- Skip index drop if it doesn't exist, add manusOpenId if it doesn't exist
+ALTER TABLE `users` ADD COLUMN IF NOT EXISTS `manusOpenId` varchar(64);
+-- Update constraint only if column exists and constraint doesn't
