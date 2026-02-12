@@ -452,7 +452,7 @@ export default function AdminDashboard() {
       </Card>
 
       {/* Manual Cleanup */}
-      <Card>
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Trash2 className="h-5 w-5" />

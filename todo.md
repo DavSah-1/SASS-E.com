@@ -5082,3 +5082,12 @@
 - [x] Audit all section spacing - Found inconsistent mb-6 usage
 - [x] Standardize to mb-6 for all major sections
 - [x] Test and save checkpoint
+
+## Phase 32: Fix Spacing Between Manual Cleanup and Cleanup History
+
+- [ ] Find Manual Cleanup and Cleanup History sections
+- [ ] Add mb-6 spacing between them
+- [ ] Save checkpoint
+- [x] Found Manual Cleanup (line 454) and Cleanup History (line 520)
+- [x] Added mb-6 to Manual Cleanup Card
+- [x] Save checkpoint
