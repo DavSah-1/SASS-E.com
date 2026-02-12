@@ -1890,3 +1890,22 @@ export type HubTrial = typeof hubTrials.$inferSelect;
 export type InsertHubTrial = typeof hubTrials.$inferInsert;
 
 
+/**
+ * Quota Usage table for tracking API usage limits
+ * Tracks usage for Tavily searches, Whisper transcriptions, and LLM calls
+ * Supports subscription-tier-based limits (Free: 150, Starter: 300, Pro: 600, Ultimate: 1200)
+ */
+export const quotaUsage = mysqlTable("quota_usage", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  service: mysqlEnum("service", ["tavily", "whisper", "llm"]).notNull(),
+  count: int("count").default(0).notNull(),
+  period: varchar("period", { length: 7 }).notNull(), // Format: "YYYY-MM" for monthly tracking
+  tier: mysqlEnum("tier", ["free", "starter", "pro", "ultimate"]).notNull(),
+  resetAt: timestamp("resetAt").notNull(), // When the quota resets (first day of next month)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type QuotaUsage = typeof quotaUsage.$inferSelect;
+export type InsertQuotaUsage = typeof quotaUsage.$inferInsert;

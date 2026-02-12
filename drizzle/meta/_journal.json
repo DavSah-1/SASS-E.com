@@ -281,6 +281,20 @@
       "when": 1769688944921,
       "tag": "0039_chief_brood",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "5",
+      "when": 1770901220378,
+      "tag": "0040_numerous_true_believers",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1770901903113,
+      "tag": "0041_large_blue_shield",
+      "breakpoints": true
     }
   ]
 }

@@ -4547,3 +4547,22 @@
 - [x] Implement toast notifications for tRPC errors
 - [x] Test error notifications with different API failure scenarios
 - [x] Verify Bob's sarcastic error messages display correctly in toasts
+
+
+## Phase 2: Rate Limiting Implementation
+- [x] Create quota_usage table schema in drizzle/schema.ts
+- [x] Add RLS policies for quota_usage table (user database)
+- [x] Push database migrations with pnpm db:push
+- [x] Create quota tracking utilities (server/utils/quotaTracker.ts)
+- [x] Define subscription tier limits (Free: 150, Starter: 300, Pro: 600, Ultimate: 1200)
+- [x] Implement checkQuota() function with dual-database routing
+- [x] Implement incrementQuota() function with dual-database routing
+- [x] Implement getQuotaUsage() function for frontend display
+- [x] Add quota checks to Tavily search procedures
+- [x] Add quota checks to Whisper transcription procedures
+- [x] Add quota checks to LLM call procedures
+- [x] Create frontend quota display component
+- [x] Test rate limiting with different subscription tiers
+- [x] Test admin exemption from quota checks
+- [x] Verify dual-database routing works correctly
+- [ ] Write vitest tests for quota tracking functions

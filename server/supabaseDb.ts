@@ -44,6 +44,17 @@ export const subscriptionStatusEnum = pgEnum("subscription_status", [
   "trialing",
 ]);
 
+// Define the service enum for quota tracking
+export const serviceEnum = pgEnum("service", ["tavily", "whisper", "llm"]);
+
+// Define the tier enum for quota tracking (reusing subscription tiers)
+export const quotaTierEnum = pgEnum("quota_tier", [
+  "free",
+  "starter",
+  "pro",
+  "ultimate",
+]);
+
 // Supabase users table schema
 export const supabaseUsers = pgTable("users", {
   id: text("id").primaryKey(), // Supabase Auth user ID
@@ -1412,3 +1423,25 @@ export async function checkAndAwardBadges(userId: string): Promise<Array<{ id: n
     return [];
   }
 }
+
+
+/**
+ * Quota Usage table for tracking API usage limits (Supabase Database - Regular Users)
+ * Tracks usage for Tavily searches, Whisper transcriptions, and LLM calls
+ * Supports subscription-tier-based limits (Free: 150, Starter: 300, Pro: 600, Ultimate: 1200)
+ * RLS Policy: Users can only read/write their own quota records
+ */
+export const supabaseQuotaUsage = pgTable("quota_usage", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: text("user_id").notNull().references(() => supabaseUsers.id),
+  service: serviceEnum("service").notNull(),
+  count: integer("count").default(0).notNull(),
+  period: varchar("period", { length: 7 }).notNull(), // Format: "YYYY-MM" for monthly tracking
+  tier: quotaTierEnum("tier").notNull(),
+  resetAt: timestamp("reset_at").notNull(), // When the quota resets (first day of next month)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type SupabaseQuotaUsage = typeof supabaseQuotaUsage.$inferSelect;
+export type InsertSupabaseQuotaUsage = typeof supabaseQuotaUsage.$inferInsert;

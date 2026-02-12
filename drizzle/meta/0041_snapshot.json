@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "6f8918db-8896-4fbf-8006-7b4a51c0b500",
-  "prevId": "be6403e9-63cb-4eef-b16e-7ec74b52520c",
+  "id": "9eebe5b9-2db1-478a-aaf7-3e1c6674a27c",
+  "prevId": "0f500b24-c6be-4a02-8a92-c122460b177b",
   "tables": {
     "budget_alerts": {
       "name": "budget_alerts",
@@ -3473,6 +3473,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "room": {
+          "name": "room",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'Uncategorized'"
+        },
         "manufacturer": {
           "name": "manufacturer",
           "type": "varchar(128)",
@@ -5214,6 +5222,90 @@
       "compositePrimaryKeys": {
         "quizzes_id": {
           "name": "quizzes_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "quota_usage": {
+      "name": "quota_usage",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "service": {
+          "name": "service",
+          "type": "enum('tavily','whisper','llm')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "period": {
+          "name": "period",
+          "type": "varchar(7)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tier": {
+          "name": "tier",
+          "type": "enum('free','starter','pro','ultimate')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "resetAt": {
+          "name": "resetAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "quota_usage_id": {
+          "name": "quota_usage_id",
           "columns": [
             "id"
           ]

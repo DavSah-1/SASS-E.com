@@ -27,6 +27,12 @@ import { piperTTSRouter } from "./piperTTSRouter";
 import { transactionImportRouter } from "./transactionImportRouter";
 import { budgetExportRouter } from "./budgetExportRouter";
 import { toNumericId } from "./_core/dbWrapper";
+import {
+  searchWebWithQuota,
+  transcribeAudioWithQuota,
+  invokeLLMWithQuota,
+  getUserContextFromTRPC,
+} from "./utils/quotaAwareApi";
 
 export const appRouter = router({
   system: systemRouter,
@@ -439,6 +445,19 @@ export const appRouter = router({
           handleError(error, 'Subscription Create Portal Session');
         }
       }),
+    
+    // Get quota usage for all services
+    getQuotaUsage: protectedProcedure
+      .query(async ({ ctx }) => {
+        try {
+          const { getQuotaUsage } = await import("./utils/quotaTracker");
+          const userCtx = getUserContextFromTRPC(ctx);
+          const quotaUsage = await getQuotaUsage(userCtx);
+          return quotaUsage;
+        } catch (error) {
+          handleError(error, 'Subscription Get Quota Usage');
+        }
+      }),
   }),
 
   auth: router({
@@ -726,7 +745,8 @@ If verified knowledge base information is provided above, use that as your prima
         
         // Skip web search if we already have a verified fact
         if (needsWebSearch && !verifiedFact) {
-          const searchResults = await searchWeb(input.message, 3);
+          const userCtx = getUserContextFromTRPC(ctx);
+          const searchResults = await searchWebWithQuota(userCtx, input.message, 3);
           if (searchResults && searchResults.results.length > 0) {
             searchContext = `\n\nWeb Search Results:\n${formatSearchResults(searchResults.results)}`;
           }
@@ -747,7 +767,8 @@ If verified knowledge base information is provided above, use that as your prima
         // Add current user message
         messages.push({ role: "user", content: userMessage });
 
-        const response = await invokeLLM({ messages });
+        const userCtx = getUserContextFromTRPC(ctx);
+        const response = await invokeLLMWithQuota(userCtx, { messages });
 
         const messageContent = response.choices[0]?.message?.content;
         const assistantResponse = typeof messageContent === 'string' 
@@ -810,9 +831,10 @@ If verified knowledge base information is provided above, use that as your prima
           audioUrl: z.string(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         try {
-          const result = await transcribeAudio({
+          const userCtx = getUserContextFromTRPC(ctx);
+          const result = await transcribeAudioWithQuota(userCtx, {
             audioUrl: input.audioUrl,
             language: "en",
           });
@@ -1020,7 +1042,8 @@ If verified knowledge base information is provided above, use that as your prima
           // Use LLM to generate sarcastic response about not understanding
           const sarcasticPrompt = `You are Agent Bob. The user tried to control a ${device.deviceType} named "${device.deviceName}" with this command: "${input.command}". You couldn't understand what they want. Respond sarcastically about their unclear command while asking them to be more specific.`;
           
-          const response = await invokeLLM({
+          const userCtx = getUserContextFromTRPC(ctx);
+          const response = await invokeLLMWithQuota(userCtx, {
             messages: [{ role: "user", content: sarcasticPrompt }],
           });
 
@@ -1065,7 +1088,8 @@ If verified knowledge base information is provided above, use that as your prima
         // Generate sarcastic response from Bob
         const sarcasticPrompt = `You are Agent Bob. The user just controlled a ${device.deviceType} named "${device.deviceName}" with the command "${input.command}". The command ${result.success ? "succeeded" : "failed"}. Respond sarcastically about their IoT command while confirming what happened.`;
         
-        const bobResponse = await invokeLLM({
+        const userCtx = getUserContextFromTRPC(ctx);
+        const bobResponse = await invokeLLMWithQuota(userCtx, {
           messages: [{ role: "user", content: sarcasticPrompt }],
         });
 
@@ -1157,7 +1181,8 @@ If verified knowledge base information is provided above, use that as your prima
 
         // Step 1: Search for current information FIRST
         const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        const searchResults = await searchWeb(input.question, 5);
+        const userCtx = getUserContextFromTRPC(ctx);
+        const searchResults = await searchWebWithQuota(userCtx, input.question, 5);
         const searchContext = searchResults && searchResults.results.length > 0
           ? searchResults.results.map((r: any, i: number) => 
               `[${i+1}] ${r.title}\n${r.content}\nSource: ${r.url}`
@@ -1167,7 +1192,7 @@ If verified knowledge base information is provided above, use that as your prima
         // Step 2: Generate explanation based on search results
         const systemPrompt = `You are Agent Bob, a ${personalityDesc} AI learning assistant. Today's date is ${currentDate}. You MUST base your answer on the search results provided below, NOT on your training data. For questions about current events or living people, the search results are the authoritative source. Explain topics clearly and accurately, but with your signature wit and sarcasm. Break down complex concepts into understandable parts. Keep explanations concise (3-5 paragraphs) but comprehensive.`;
 
-        const explanationResponse = await invokeLLM({
+        const explanationResponse = await invokeLLMWithQuota(userCtx, {
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: `Question: ${input.question}\n\nCurrent Web Search Results:\n${searchContext}\n\nBased on these search results, explain the answer to the question.` },
@@ -1180,7 +1205,7 @@ If verified knowledge base information is provided above, use that as your prima
         // Step 3: Extract key claims for fact-checking
         const claimsPrompt = `Extract 3-5 key factual claims from this explanation that should be verified. Return as a JSON array of strings.\n\nExplanation: ${explanation}`;
         
-        const claimsResponse = await invokeLLM({
+        const claimsResponse = await invokeLLMWithQuota(userCtx, {
           messages: [
             { role: "system", content: "You are a fact-checking assistant. Extract verifiable claims." },
             { role: "user", content: claimsPrompt },
@@ -1218,7 +1243,7 @@ If verified knowledge base information is provided above, use that as your prima
 
         for (const claim of claims) {
           // Search for verification
-          const searchResults = await searchWeb(claim, 3);
+          const searchResults = await searchWebWithQuota(userCtx, claim, 3);
 
           // Skip if search failed
           if (!searchResults || !searchResults.results || searchResults.results.length === 0) {
@@ -1235,7 +1260,7 @@ If verified knowledge base information is provided above, use that as your prima
           // Analyze search results for verification
           const verificationPrompt = `Today's date is ${currentDate}. You MUST base your verification ONLY on the search results provided, NOT on your training data. For questions about living people or current events, the search results are the authoritative source.\n\nVerify this claim: "${claim}"\n\nSearch Results:\n${JSON.stringify(searchResults.results.slice(0, 3))}\n\nProvide verification status (verified/disputed/debunked/unverified), confidence score (0-100), and brief explanation based ONLY on the search results.`;
           
-          const verificationResponse = await invokeLLM({
+          const verificationResponse = await invokeLLMWithQuota(userCtx, {
             messages: [
               { role: "system", content: "You are a fact-checking expert. Analyze search results to verify claims." },
               { role: "user", content: verificationPrompt },
@@ -1416,7 +1441,8 @@ Generate a study guide with:
 
 Maintain a ${personalityDesc} tone while being educational.`;
 
-        const studyGuideResponse = await invokeLLM({
+        const userCtx = getUserContextFromTRPC(ctx);
+        const studyGuideResponse = await invokeLLMWithQuota(userCtx, {
           messages: [
             { role: 'system', content: `You are Agent Bob, a ${personalityDesc} learning assistant creating study materials.` },
             { role: 'user', content: studyGuidePrompt },
@@ -1517,8 +1543,9 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
         console.log('[Quiz Generation] Calling LLM with prompt length:', quizPrompt.length);
         
         let quizResponse;
+        const userCtx = getUserContextFromTRPC(ctx);
         try {
-          quizResponse = await invokeLLM({
+          quizResponse = await invokeLLMWithQuota(userCtx, {
             messages: [
               { role: 'system', content: `You are Agent Bob, a ${personalityDesc} learning assistant creating quiz questions.` },
               { role: 'user', content: quizPrompt },
@@ -1675,7 +1702,8 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         let tips: string[] = [];
 
         try {
-          const response = await invokeLLM({
+          const userCtx = getUserContextFromTRPC(ctx);
+          const response = await invokeLLMWithQuota(userCtx, {
             messages: [
               { role: 'system', content: `You are SASS-E, a ${personalityDesc} AI language tutor.` },
               { role: 'user', content: feedbackPrompt },
@@ -1887,7 +1915,8 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           // Simple direct translation without personality
           const translationPrompt = `Translate the following text from ${input.sourceLanguage} to ${input.targetLanguage}. Provide only the direct translation without any additional commentary, explanation, or personality.\n\nText: "${input.text}"`;
 
-        const response = await invokeLLM({
+        const userCtx = getUserContextFromTRPC(ctx);
+        const response = await invokeLLMWithQuota(userCtx, {
           messages: [
             { role: "system", content: "You are a professional translation assistant. Provide accurate, direct translations without adding any commentary or personality." },
             { role: "user", content: translationPrompt },
@@ -1926,7 +1955,8 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         if (input.inputLanguage.toLowerCase() !== input.outputLanguage.toLowerCase()) {
           const translatePrompt = `Translate the following text from ${input.inputLanguage} to ${input.outputLanguage}. Provide only the direct translation without any additional commentary.\n\nText: "${input.message}"`;
           
-          const translateResponse = await invokeLLM({
+          const userCtx = getUserContextFromTRPC(ctx);
+          const translateResponse = await invokeLLMWithQuota(userCtx, {
             messages: [
               { role: "system", content: "You are a professional translation assistant. Provide accurate, direct translations without adding any commentary." },
               { role: "user", content: translatePrompt },
@@ -2015,7 +2045,8 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           ? "Analyze this image and extract all visible text with their positions and visual characteristics. For each text block, provide:\n1. Text content\n2. Position as relative coordinates (0-1 range) where x,y is top-left corner, width,height are dimensions\n3. Font weight: 'normal' or 'bold'\n4. Font style: 'normal' or 'italic'\n5. Font family: 'serif', 'sans-serif', or 'monospace'\n6. Text direction: 'ltr', 'rtl', or 'vertical'\n7. Text color: analyze the color of the text itself in CSS format (e.g., 'rgb(255, 0, 0)' for red, 'rgb(255, 255, 255)' for white)\n8. Background color: analyze the background color/pattern directly behind the text in CSS format\n9. Background type: 'solid' (uniform color), 'gradient' (color transition), or 'texture' (pattern/image)\n10. Line spacing: for multi-line text, estimate the spacing multiplier (1.0 = normal, 1.5 = 1.5x spacing, 2.0 = double spacing)\nAlso identify the language of the text."
           : "Extract all visible text from this image. Identify the language of the text. Return your response in this exact JSON format: {\"text\": \"extracted text here\", \"detectedLanguage\": \"language name\"}";
 
-        const extractResponse = await invokeLLM({
+        const userCtx = getUserContextFromTRPC(ctx);
+        const extractResponse = await invokeLLMWithQuota(userCtx, {
           messages: [
             {
               role: "user",
@@ -2055,7 +2086,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
             if (extracted.detectedLanguage.toLowerCase() !== input.targetLanguage.toLowerCase()) {
               const translatePrompt = `Translate the following text from ${extracted.detectedLanguage} to ${input.targetLanguage}. Provide only the direct translation.\n\nText: "${block.text}"`;
               
-              const translateResponse = await invokeLLM({
+              const translateResponse = await invokeLLMWithQuota(userCtx, {
                 messages: [
                   { role: "system", content: "You are a professional translation assistant." },
                   { role: "user", content: translatePrompt },
@@ -2095,7 +2126,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           if (extracted.detectedLanguage.toLowerCase() !== input.targetLanguage.toLowerCase()) {
             const translatePrompt = `Translate the following text from ${extracted.detectedLanguage} to ${input.targetLanguage}. Provide only the direct translation.\n\nText: "${extracted.text}"`;
             
-            const translateResponse = await invokeLLM({
+            const translateResponse = await invokeLLMWithQuota(userCtx, {
               messages: [
                 { role: "system", content: "You are a professional translation assistant." },
                 { role: "user", content: translatePrompt },
@@ -2312,7 +2343,8 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           // Translate the message
           const translationPrompt = `Translate the following text from ${input.language} to ${targetLanguage}. Provide only the direct translation without any additional commentary.\n\nText: "${input.messageText}"`;
           
-          const response = await invokeLLM({
+          const userCtx = getUserContextFromTRPC(ctx);
+          const response = await invokeLLMWithQuota(userCtx, {
             messages: [
               { role: "system", content: "You are a professional translation assistant. Provide accurate, direct translations without adding any commentary." },
               { role: "user", content: translationPrompt },
