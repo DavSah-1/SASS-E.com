@@ -31,7 +31,7 @@ import { toNumericId } from "./_core/dbWrapper";
 import { cleanupOldAudioFiles, cleanupByStorageLimit, getStorageStats } from "./services/audioCleanup";
 import { getCacheStats, cacheClear } from "./services/cache";
 import { metrics, logApiUsage, logError } from "./utils/metrics";
-import { systemLogs, performanceMetrics, errorLogs, apiUsageLogs, auditLogs } from "../drizzle/schema";
+import { systemLogs, performanceMetrics, errorLogs, apiUsageLogs, auditLogs, users } from "../drizzle/schema";
 import { and, gte, lte, like, eq, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { getSupabaseClient, getSupabaseAdminClient } from "./supabaseClient";
@@ -760,6 +760,122 @@ export const appRouter = router({
         } catch (error: any) {
           console.error("[Admin Export Audit Logs] Error:", error);
           throw new Error(`Failed to export audit logs: ${error.message}`);
+        }
+      }),
+
+    // Overview Stats for Admin Dashboard
+    getOverviewStats: protectedProcedure
+      .query(async ({ ctx }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const supabase = getSupabaseAdminClient();
+
+          // Get total users count
+          const { count: totalUsers, error: countError } = await supabase
+            .from('users')
+            .select('*', { count: 'exact', head: true });
+
+          if (countError) throw countError;
+
+          // Get active sessions (users who logged in within last 24 hours)
+          const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+          const { count: activeSessions, error: activeError } = await supabase
+            .from('users')
+            .select('*', { count: 'exact', head: true })
+            .gte('last_signed_in', oneDayAgo);
+
+          if (activeError) throw activeError;
+
+          // Get cache stats
+          const cacheStats = await getCacheStats();
+
+          // Get storage stats
+          const storageStats = await getStorageStats();
+
+          return {
+            totalUsers: totalUsers || 0,
+            activeSessions: activeSessions || 0,
+            cacheHitRate: cacheStats.hitRate || 0,
+            storageUsed: storageStats.totalSizeMB || 0,
+            storageLimit: storageStats.maxSizeMB || 1000,
+          };
+        } catch (error: any) {
+          console.error("[Admin Overview Stats] Error:", error);
+          throw new Error(`Failed to get overview stats: ${error.message}`);
+        }
+      }),
+
+    // Recent Activity Feed for Admin Dashboard
+    getRecentActivity: protectedProcedure
+      .input(z.object({
+        limit: z.number().optional().default(20),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const supabase = getSupabaseAdminClient();
+          const db = await getDb();
+          if (!db) {
+            throw new Error("Database not available");
+          }
+
+          // Get recent user registrations from Supabase
+          const { data: recentUsers, error: usersError } = await supabase
+            .from('users')
+            .select('id, name, email, created_at')
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+          if (usersError) throw usersError;
+
+          // Get recent audit log entries from MySQL
+          const recentAudits = await db
+            .select()
+            .from(auditLogs)
+            .orderBy(desc(auditLogs.createdAt))
+            .limit(10);
+
+          // Combine and format activities
+          const activities: any[] = [];
+
+          // Add user registrations
+          if (recentUsers) {
+            for (const user of recentUsers) {
+              activities.push({
+                id: `user-${user.id}`,
+                type: 'user_registration',
+                description: `New user registered: ${user.name || user.email}`,
+                timestamp: user.created_at,
+                metadata: { userId: user.id, email: user.email },
+              });
+            }
+          }
+
+          // Add audit log entries
+          for (const audit of recentAudits) {
+            activities.push({
+              id: `audit-${audit.id}`,
+              type: audit.actionType,
+              description: `${audit.adminEmail}: ${audit.actionType.replace(/_/g, ' ')} ${audit.targetUserEmail ? `for ${audit.targetUserEmail}` : ''}`,
+              timestamp: audit.createdAt,
+              metadata: { auditId: audit.id, details: audit.details },
+            });
+          }
+
+          // Sort by timestamp descending and limit
+          activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+          const limitedActivities = activities.slice(0, input.limit);
+
+          return { activities: limitedActivities };
+        } catch (error: any) {
+          console.error("[Admin Recent Activity] Error:", error);
+          throw new Error(`Failed to get recent activity: ${error.message}`);
         }
       }),
   }),

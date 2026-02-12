@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Trash2, RefreshCw, Database, Clock, CheckCircle, XCircle, AlertTriangle, Zap, Users, FileText, BarChart3 } from "lucide-react";
+import { Loader2, Trash2, RefreshCw, Database, Clock, CheckCircle, XCircle, AlertTriangle, Zap, Users, FileText, BarChart3, TrendingUp, Activity, HardDrive } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   Table,
@@ -38,6 +38,17 @@ export default function AdminDashboard() {
   const { data: cacheStats, isLoading: cacheLoading, refetch: refetchCache } = trpc.admin.getCacheStats.useQuery(undefined, {
     enabled: !loading && !!user && user.role === "admin",
   });
+
+  // Fetch overview stats
+  const { data: overviewStats, isLoading: overviewLoading } = trpc.admin.getOverviewStats.useQuery(undefined, {
+    enabled: !loading && !!user && user.role === "admin",
+  });
+
+  // Fetch recent activity
+  const { data: recentActivity, isLoading: activityLoading } = trpc.admin.getRecentActivity.useQuery(
+    { limit: 15 },
+    { enabled: !loading && !!user && user.role === "admin" }
+  );
   
   // Clear cache mutation
   const clearCacheMutation = trpc.admin.clearCache.useMutation({
@@ -120,6 +131,76 @@ export default function AdminDashboard() {
         <p className="text-muted-foreground">Manage audio file storage, cache, and cleanup operations</p>
       </div>
 
+      {/* Overview Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {overviewLoading ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                overviewStats?.totalUsers || 0
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Registered accounts</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {overviewLoading ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                overviewStats?.activeSessions || 0
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Last 24 hours</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cache Hit Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {overviewLoading ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                `${Math.round((overviewStats?.cacheHitRate || 0) * 100)}%`
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Performance metric</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Storage Used</CardTitle>
+            <HardDrive className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {overviewLoading ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                `${Math.round(overviewStats?.storageUsed || 0)} MB`
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              of {overviewStats?.storageLimit || 1000} MB limit
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Quick Navigation */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setLocation("/profile/admin/users")}>
@@ -156,6 +237,50 @@ export default function AdminDashboard() {
           </CardHeader>
         </Card>
       </div>
+
+      {/* Recent Activity Feed */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Recent Activity
+          </CardTitle>
+          <CardDescription>Latest user registrations and admin actions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {activityLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : recentActivity && recentActivity.activities.length > 0 ? (
+            <div className="space-y-4">
+              {recentActivity.activities.map((activity) => (
+                <div key={activity.id} className="flex items-start gap-4 border-b pb-4 last:border-0 last:pb-0">
+                  <div className="flex-shrink-0 mt-1">
+                    {activity.type === 'user_registration' ? (
+                      <div className="h-8 w-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                        <Users className="h-4 w-4 text-green-500" />
+                      </div>
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                        <Activity className="h-4 w-4 text-blue-500" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{activity.description}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(activity.timestamp).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">No recent activity</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Cache Statistics */}
       <Card>

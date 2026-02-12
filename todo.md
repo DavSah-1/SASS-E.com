@@ -4897,3 +4897,48 @@
 - [ ] Test all navigation links work correctly
 - [ ] Test breadcrumb navigation
 - [ ] Save checkpoint
+
+## Phase 21: Admin Dashboard Enhancements & Style Fixes
+
+### Backend - Overview Stats
+- [ ] Add getOverviewStats endpoint (total users, active sessions, cache hit rate, storage usage)
+- [ ] Implement active sessions calculation (users logged in within last 24 hours)
+- [ ] Integrate with existing cache stats and storage stats
+
+### Backend - Recent Activity Feed
+- [ ] Add getRecentActivity endpoint
+- [ ] Fetch recent user registrations (last 10)
+- [ ] Fetch recent audit log entries (last 10)
+- [ ] Combine and sort by timestamp
+
+### Frontend - Admin Dashboard
+- [ ] Add overview stats cards section at top
+- [ ] Display total users, active sessions, cache hit rate, storage usage
+- [ ] Add recent activity feed timeline
+- [ ] Show user registrations and admin actions chronologically
+
+### Style & Responsiveness Fixes
+- [ ] Audit /profile page for mobile/tablet responsiveness
+- [ ] Audit /profile/admin for mobile/tablet responsiveness
+- [ ] Audit /profile/admin/users for mobile/tablet responsiveness
+- [ ] Audit /profile/admin/audit for mobile/tablet responsiveness
+- [ ] Audit /profile/admin/monitoring for mobile/tablet responsiveness
+- [ ] Fix layout issues, spacing, card arrangements
+- [ ] Test on mobile (320px-768px) viewports
+- [ ] Test on tablet (768px-1024px) viewports
+
+### Testing
+- [ ] Test overview stats display correctly
+- [ ] Test recent activity feed shows correct data
+- [ ] Test all pages are responsive on mobile/tablet
+- [ ] Save checkpoint
+
+# Phase 21 Completed:
+- [x] Add getOverviewStats endpoint (total users, active sessions, cache hit rate, storage usage)
+- [x] Add getRecentActivity endpoint
+- [x] Add overview stats cards section at top of Admin Dashboard
+- [x] Display total users, active sessions, cache hit rate, storage usage
+- [x] Add recent activity feed timeline
+- [x] Show user registrations and admin actions chronologically
+- [x] Audit all /profile/* pages for responsiveness (already responsive)
+- [x] Fix TypeScript errors in backend endpoints
