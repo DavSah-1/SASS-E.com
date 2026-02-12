@@ -5009,3 +5009,10 @@
 - [x] Audit spacing consistency on all /profile/* pages
 - [ ] Test all pages and save checkpoint
 - [x] Test all pages and save checkpoint
+
+## Phase 25: Fix MonitoringDashboard Gradient Text
+
+- [ ] Fix gradient text styling on MonitoringDashboard heading (currently showing white instead of purple-pink gradient)
+- [ ] Test and save checkpoint
+- [x] Fix gradient text styling on MonitoringDashboard heading (changed to fuchsia-pink-cyan for visibility)
+- [x] Test and save checkpoint

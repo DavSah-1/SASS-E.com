@@ -114,7 +114,7 @@ export default function MonitoringDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">System Monitoring</h1>
+            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-cyan-400">System Monitoring</h1>
             <p className="text-slate-300">Real-time system health and performance metrics</p>
           </div>
           <div className="flex items-center gap-4">
