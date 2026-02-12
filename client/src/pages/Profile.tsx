@@ -657,7 +657,7 @@ export default function Profile() {
                     variant="outline"
                     className="bg-slate-700/50 hover:bg-slate-700 border-purple-500/30 text-white h-auto py-4 flex-col gap-2"
                   >
-                    <a href="/profile/monitoring">
+                    <a href="/profile/admin/monitoring">
                       <BarChart3 className="h-6 w-6 text-purple-400" />
                       <div className="text-center">
                         <div className="font-semibold">System Monitoring</div>

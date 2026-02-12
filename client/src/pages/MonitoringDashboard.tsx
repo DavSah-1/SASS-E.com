@@ -109,7 +109,7 @@ export default function MonitoringDashboard() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "System Monitoring" }]} />
+      <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard", href: "/profile/admin" }, { label: "System Monitoring" }]} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

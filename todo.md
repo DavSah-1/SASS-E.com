@@ -4883,3 +4883,17 @@
 - [x] Fix MonitoringDashboard breadcrumb to link Profile to /profile
 - [x] Fix UserManagement breadcrumb to link Profile to /profile
 - [x] Fix AuditLog breadcrumb to link Profile to /profile
+
+## Phase 20: Move Monitoring to /profile/admin/monitoring
+
+### Route Updates
+- [ ] Update route in App.tsx from /profile/monitoring to /profile/admin/monitoring
+- [ ] Update navigation link in Profile page
+- [ ] Add monitoring navigation card to Admin Dashboard
+- [ ] Update breadcrumbs in MonitoringDashboard
+
+### Testing
+- [ ] Test monitoring page loads at new route
+- [ ] Test all navigation links work correctly
+- [ ] Test breadcrumb navigation
+- [ ] Save checkpoint

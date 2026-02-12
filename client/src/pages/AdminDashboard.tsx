@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Trash2, RefreshCw, Database, Clock, CheckCircle, XCircle, AlertTriangle, Zap, Users, FileText } from "lucide-react";
+import { Loader2, Trash2, RefreshCw, Database, Clock, CheckCircle, XCircle, AlertTriangle, Zap, Users, FileText, BarChart3 } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   Table,
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Navigation */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setLocation("/profile/admin/users")}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -141,6 +141,17 @@ export default function AdminDashboard() {
             </CardTitle>
             <CardDescription>
               Track all administrative actions and security events
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setLocation("/profile/admin/monitoring")}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              System Monitoring
+            </CardTitle>
+            <CardDescription>
+              View system health, logs, metrics, and performance data
             </CardDescription>
           </CardHeader>
         </Card>
