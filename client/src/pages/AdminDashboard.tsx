@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Trash2, RefreshCw, Database, Clock, CheckCircle, XCircle, AlertTriangle, Zap } from "lucide-react";
+import { Loader2, Trash2, RefreshCw, Database, Clock, CheckCircle, XCircle, AlertTriangle, Zap, Users, FileText } from "lucide-react";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   Table,
@@ -114,10 +114,36 @@ export default function AdminDashboard() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Breadcrumb items={[{ label: "Admin Dashboard" }]} />
-      <div>
+      <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard" }]} />
+      <div className="mb-6">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <p className="text-muted-foreground">Manage audio file storage, cache, and cleanup operations</p>
+      </div>
+
+      {/* Quick Navigation */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setLocation("/profile/admin/users")}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              User Management
+            </CardTitle>
+            <CardDescription>
+              View and manage user accounts, roles, and permissions
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => setLocation("/profile/admin/audit")}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Audit Log
+            </CardTitle>
+            <CardDescription>
+              Track all administrative actions and security events
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
 
       {/* Cache Statistics */}

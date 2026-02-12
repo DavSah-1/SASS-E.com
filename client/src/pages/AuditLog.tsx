@@ -136,7 +136,7 @@ export default function AuditLog() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Breadcrumb items={[{ label: "Admin Dashboard", href: "/profile/admin" }, { label: "Audit Log" }]} />
+      <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard", href: "/profile/admin" }, { label: "Audit Log" }]} />
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Audit Log</CardTitle>
