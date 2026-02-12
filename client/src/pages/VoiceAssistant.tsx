@@ -39,10 +39,41 @@ export default function VoiceAssistant() {
   const voiceAccess = useFeatureAccess("voice_assistant");
   const { recordUsage } = useRecordUsage();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateRange, setDateRange] = useState<{ start?: Date; end?: Date }>({});
+  
   const clearAllHistoryMutation = trpc.assistant.clearAllConversations.useMutation();
-  const { data: history, refetch: refetchHistory } = trpc.assistant.history.useQuery(undefined, {
+  
+  const { data: historyData, refetch: refetchHistory } = trpc.assistant.history.useQuery(
+    {
+      page: currentPage,
+      pageSize: 20,
+      startDate: dateRange.start,
+      endDate: dateRange.end,
+    },
+    {
+      enabled: isAuthenticated,
+    }
+  );
+  
+  const { data: searchResults } = trpc.assistant.search.useQuery(
+    {
+      query: searchQuery,
+      page: currentPage,
+      pageSize: 20,
+    },
+    {
+      enabled: isAuthenticated && searchQuery.length > 0,
+    }
+  );
+  
+  const { data: stats } = trpc.assistant.stats.useQuery(undefined, {
     enabled: isAuthenticated,
   });
+  
+  const history = searchQuery ? searchResults?.data : historyData?.data;
+  const pagination = searchQuery ? searchResults : historyData;
   const { data: profile, refetch: refetchProfile } = trpc.assistant.getProfile.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -166,8 +197,8 @@ export default function VoiceAssistant() {
           
           // Get the latest conversation ID from history
           const latestHistory = await refetchHistory();
-          if (latestHistory.data && latestHistory.data.length > 0) {
-            setLastConversationId(latestHistory.data[latestHistory.data.length - 1].id);
+          if (latestHistory.data?.data && latestHistory.data.data.length > 0) {
+            setLastConversationId(latestHistory.data.data[latestHistory.data.data.length - 1].id);
           }
         } catch (error) {
           console.error("Error processing audio:", error);
@@ -555,13 +586,32 @@ export default function VoiceAssistant() {
             <CardTitle>Conversation History</CardTitle>
             <CardDescription>
               A record of all the times I've graced you with my wisdom
+              {stats && (
+                <span className="ml-2 text-xs">
+                  ({stats.totalConversations} total conversations)
+                </span>
+              )}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Search Input */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="flex-1 px-3 py-2 bg-slate-900/50 border border-purple-500/20 rounded-lg text-slate-300 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+            
             <ScrollArea className="h-96">
               {history && history.length > 0 ? (
                 <div className="space-y-4">
-                  {history.map((conv) => (
+                  {history.map((conv: any) => (
                     <div key={conv.id} className="p-4 bg-slate-900/50 rounded-lg space-y-2">
                       <div className="space-y-1">
                         <p className="text-xs text-slate-500">
@@ -583,6 +633,35 @@ export default function VoiceAssistant() {
                 </div>
               )}
             </ScrollArea>
+            
+            {/* Pagination Controls */}
+            {pagination?.pagination && pagination.pagination.totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-purple-500/20">
+                <div className="text-sm text-slate-400">
+                  Page {pagination.pagination.page} of {pagination.pagination.totalPages}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={!pagination.pagination.hasPreviousPage}
+                    className="bg-slate-900/50 border-purple-500/20 hover:bg-purple-500/10"
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => p + 1)}
+                    disabled={!pagination.pagination.hasNextPage}
+                    className="bg-slate-900/50 border-purple-500/20 hover:bg-purple-500/10"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -8,6 +8,7 @@ import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { handleError } from "./_core/errorHandler";
 import * as dbRoleAware from "./dbRoleAware";
+import { getConversationsPaginated, getConversationsByDateRange, getConversationStats, searchConversations } from "./db";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
 import { languageLearningRouter } from "./languageLearningRouter";
@@ -955,14 +956,7 @@ If verified knowledge base information is provided above, use that as your prima
         handleError(error, 'Clear Conversations');
       }
     }),
-    history: protectedProcedure.query(async ({ ctx }) => {
-      try {
-        const conversations = await dbRoleAware.getUserConversations(ctx, ctx.user.numericId);
-        return conversations;
-      } catch (error) {
-        handleError(error, 'Get History');
-      }
-    }),
+    // Removed old history procedure - replaced with paginated version below
 
     // Get user's learning profile
     getProfile: protectedProcedure.query(async ({ ctx }) => {
@@ -1049,6 +1043,71 @@ If verified knowledge base information is provided above, use that as your prima
         return { success: true, message: "Feedback received!" };
         } catch (error) {
           handleError(error, 'Submit Feedback');
+        }
+      }),
+
+    // Get paginated conversation history
+    history: protectedProcedure
+      .input(
+        z.object({
+          page: z.number().min(1).default(1),
+          pageSize: z.number().min(1).max(100).default(20),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+        })
+      )
+      .query(async ({ input, ctx }) => {
+        try {
+          const { page, pageSize, startDate, endDate } = input;
+
+          if (startDate && endDate) {
+            return await getConversationsByDateRange(
+              ctx.user.numericId,
+              ctx.user.role,
+              startDate,
+              endDate,
+              { page, pageSize }
+            );
+          }
+
+          return await getConversationsPaginated(
+            ctx.user.numericId,
+            ctx.user.role,
+            { page, pageSize }
+          );
+        } catch (error) {
+          handleError(error, 'Get Conversation History');
+        }
+      }),
+
+    // Get conversation statistics
+    stats: protectedProcedure.query(async ({ ctx }) => {
+      try {
+        return await getConversationStats(ctx.user.numericId, ctx.user.role);
+      } catch (error) {
+        handleError(error, 'Get Conversation Stats');
+      }
+    }),
+
+    // Search conversations
+    search: protectedProcedure
+      .input(
+        z.object({
+          query: z.string().min(1),
+          page: z.number().min(1).default(1),
+          pageSize: z.number().min(1).max(100).default(20),
+        })
+      )
+      .query(async ({ input, ctx }) => {
+        try {
+          return await searchConversations(
+            ctx.user.numericId,
+            ctx.user.role,
+            input.query,
+            { page: input.page, pageSize: input.pageSize }
+          );
+        } catch (error) {
+          handleError(error, 'Search Conversations');
         }
       }),
   }),
