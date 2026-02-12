@@ -146,7 +146,7 @@ export default function AuditLog() {
         </CardHeader>
         <CardContent>
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div>
               <label className="text-sm font-medium mb-2 block">Action Type</label>
               <Select value={actionTypeFilter} onValueChange={setActionTypeFilter}>
@@ -183,24 +183,28 @@ export default function AuditLog() {
               />
             </div>
 
-            <div className="flex items-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => refetchLogs()}
-                disabled={logsLoading}
-                className="flex-1"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
-              <Button
-                variant="default"
-                onClick={handleExport}
-                disabled={exportLoading}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export CSV
-              </Button>
+            <div className="sm:col-span-2 lg:col-span-1">
+              <label className="text-sm font-medium mb-2 block">Actions</label>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => refetchLogs()}
+                  disabled={logsLoading}
+                  className="flex-1"
+                >
+                  <RefreshCw className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Refresh</span>
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={handleExport}
+                  disabled={exportLoading}
+                  className="flex-1"
+                >
+                  <Download className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+              </div>
             </div>
           </div>
 

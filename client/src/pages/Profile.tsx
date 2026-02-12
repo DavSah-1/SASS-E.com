@@ -228,39 +228,39 @@ export default function Profile() {
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
               {t("Profile Settings")}
             </h1>
-            <p className="text-base sm:text-lg text-slate-300">
+            <p className="text-base sm:text-lg text-muted-foreground">
               {t("Manage your account preferences and view your interaction statistics")}
             </p>
           </div>
 
           {/* Account Information */}
-          <Card className="bg-slate-800/50 border-purple-500/20">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <User className="h-5 w-5" />
                 {t("Account Information")}
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 {t("Your account details and login information")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-slate-300 text-sm">{t("Name")}</Label>
-                  <p className="text-white font-medium mt-1">{user.name || t('Not set')}</p>
+                  <Label className="text-foreground text-sm">{t("Name")}</Label>
+                  <p className="text-foreground font-medium mt-1">{user.name || t('Not set')}</p>
                 </div>
                 <div>
-                  <Label className="text-slate-300 text-sm">{t("Email")}</Label>
-                  <p className="text-white font-medium mt-1">{user.email || t('Not set')}</p>
+                  <Label className="text-foreground text-sm">{t("Email")}</Label>
+                  <p className="text-foreground font-medium mt-1">{user.email || t('Not set')}</p>
                 </div>
                 <div>
-                  <Label className="text-slate-300 text-sm">{t("Login Method")}</Label>
-                  <p className="text-white font-medium mt-1 capitalize">{user.loginMethod || 'Unknown'}</p>
+                  <Label className="text-foreground text-sm">{t("Login Method")}</Label>
+                  <p className="text-foreground font-medium mt-1 capitalize">{user.loginMethod || 'Unknown'}</p>
                 </div>
                 <div>
-                  <Label className="text-slate-300 text-sm">{t("Role")}</Label>
-                  <p className="text-white font-medium mt-1 capitalize">{user.role || 'user'}</p>
+                  <Label className="text-foreground text-sm">{t("Role")}</Label>
+                  <p className="text-foreground font-medium mt-1 capitalize">{user.role || 'user'}</p>
                 </div>
               </div>
             </CardContent>
@@ -273,19 +273,19 @@ export default function Profile() {
           <QuotaDisplay />
 
           {/* Language Preference */}
-          <Card className="bg-slate-800/50 border-purple-500/20">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <Globe className="h-5 w-5" />
                 Language Preference
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Choose your preferred language for the interface
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="language" className="text-slate-300">
+                <Label htmlFor="language" className="text-foreground">
                   Interface Language
                 </Label>
                 <Select
@@ -293,14 +293,14 @@ export default function Profile() {
                   onValueChange={(value) => handleLanguageChange(value as Language)}
                   disabled={isSaving}
                 >
-                  <SelectTrigger id="language" className="bg-slate-700/50 border-purple-500/30 text-white">
+                  <SelectTrigger id="language" className="">
                     <SelectValue>
                       {getLanguageFlag(selectedLanguage)} {getLanguageName(selectedLanguage)}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-purple-500/30">
+                  <SelectContent className="">
                     {SUPPORTED_LANGUAGES.map((lang) => (
-                      <SelectItem key={lang} value={lang} className="text-white hover:bg-slate-700">
+                      <SelectItem key={lang} value={lang} className="">
                         <span className="flex items-center gap-2">
                           {getLanguageFlag(lang)} {getLanguageName(lang)}
                         </span>
@@ -316,19 +316,19 @@ export default function Profile() {
           </Card>
 
           {/* Currency Preference */}
-          <Card className="bg-slate-800/50 border-purple-500/20">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <DollarSign className="h-5 w-5" />
                 Currency Preference
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Choose your preferred currency for Money Hub
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="currency" className="text-slate-300">
+                <Label htmlFor="currency" className="text-foreground">
                   Display Currency
                 </Label>
                 <Select
@@ -336,18 +336,18 @@ export default function Profile() {
                   onValueChange={(value) => handleCurrencyChange(value as CurrencyCode)}
                   disabled={isSavingCurrency}
                 >
-                  <SelectTrigger id="currency" className="bg-slate-700/50 border-purple-500/30 text-white">
+                  <SelectTrigger id="currency" className="">
                     <SelectValue>
                       {CURRENCY_LIST.find(c => c.code === selectedCurrency)?.symbol} {CURRENCY_LIST.find(c => c.code === selectedCurrency)?.name}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-purple-500/30 max-h-64">
+                  <SelectContent className="max-h-64">
                     {CURRENCY_LIST.map((curr) => (
-                      <SelectItem key={curr.code} value={curr.code} className="text-white hover:bg-slate-700">
+                      <SelectItem key={curr.code} value={curr.code} className="">
                         <span className="flex items-center gap-2">
                           <span className="font-mono w-8">{curr.symbol}</span>
                           <span>{curr.name}</span>
-                          <span className="text-slate-400 text-xs">({curr.code})</span>
+                          <span className="text-muted-foreground text-xs">({curr.code})</span>
                         </span>
                       </SelectItem>
                     ))}
@@ -361,20 +361,20 @@ export default function Profile() {
           </Card>
 
           {/* Session Preference */}
-          <Card className="bg-slate-800/50 border-purple-500/20">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <Shield className="h-5 w-5" />
                 Session Preference
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Control how long you stay signed in
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-1 flex-1">
-                  <Label htmlFor="stay-signed-in" className="text-slate-300 font-medium">
+                  <Label htmlFor="stay-signed-in" className="text-foreground font-medium">
                     Stay Signed In
                   </Label>
                   <p className="text-sm text-slate-400">
@@ -398,13 +398,13 @@ export default function Profile() {
           </Card>
 
           {/* Two-Factor Authentication */}
-          <Card className="bg-slate-800/50 border-purple-500/20">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-white">
                 <Lock className="h-5 w-5" />
                 Two-Factor Authentication
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-muted-foreground">
                 Add an extra layer of security to your account
               </CardDescription>
             </CardHeader>
@@ -416,7 +416,7 @@ export default function Profile() {
                   </p>
                   <Button 
                     onClick={handleStart2FASetup}
-                    className="bg-purple-600 hover:bg-purple-700"
+                    variant="default"
                     disabled={generate2FASecretMutation.isPending}
                   >
                     <Key className="h-4 w-4 mr-2" />
@@ -428,7 +428,7 @@ export default function Profile() {
               {show2FASetup && !backupCodes && (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-slate-300 font-medium">Step 1: Scan QR Code</Label>
+                    <Label className="text-foreground font-medium">Step 1: Scan QR Code</Label>
                     <p className="text-sm text-slate-400">
                       Scan this QR code with your authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.)
                     </p>
@@ -440,7 +440,7 @@ export default function Profile() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-slate-300 font-medium">Step 2: Enter Verification Code</Label>
+                    <Label className="text-foreground font-medium">Step 2: Enter Verification Code</Label>
                     <p className="text-sm text-slate-400">
                       Enter the 6-digit code from your authenticator app
                     </p>
@@ -457,7 +457,7 @@ export default function Profile() {
                   <div className="flex gap-2">
                     <Button 
                       onClick={handleEnable2FA}
-                      className="bg-purple-600 hover:bg-purple-700"
+                      variant="default"
                       disabled={enable2FAMutation.isPending || verificationCode.length !== 6}
                     >
                       Verify and Enable
@@ -470,7 +470,6 @@ export default function Profile() {
                         setVerificationCode("");
                       }}
                       variant="outline"
-                      className="bg-slate-700 text-slate-100 hover:bg-slate-600 border-slate-600"
                     >
                       Cancel
                     </Button>
@@ -492,14 +491,14 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="bg-slate-700/50 rounded-lg p-4 space-y-2">
+                  <div className="bg-muted rounded-lg p-4 space-y-2">
                     <div className="flex items-center justify-between mb-2">
-                      <Label className="text-slate-300 font-medium">Backup Codes</Label>
+                      <Label className="text-foreground font-medium">Backup Codes</Label>
                       <Button
                         onClick={handleCopyBackupCodes}
                         variant="ghost"
                         size="sm"
-                        className="text-purple-400 hover:text-purple-300"
+                        className="text-primary hover:text-purple-300"
                       >
                         {copiedBackupCodes ? (
                           <><Check className="h-4 w-4 mr-1" /> Copied</>
@@ -510,7 +509,7 @@ export default function Profile() {
                     </div>
                     <div className="grid grid-cols-2 gap-2 font-mono text-sm">
                       {backupCodes.map((code, index) => (
-                        <div key={index} className="bg-slate-800 px-3 py-2 rounded text-slate-200">
+                        <div key={index} className="bg-muted px-3 py-2 rounded text-slate-200">
                           {code}
                         </div>
                       ))}
@@ -545,7 +544,6 @@ export default function Profile() {
                   <Button 
                     onClick={handleDisable2FA}
                     variant="outline"
-                    className="bg-slate-700 text-slate-100 hover:bg-slate-600 border-slate-600"
                     disabled={disable2FAMutation.isPending}
                   >
                     Disable 2FA
@@ -557,22 +555,22 @@ export default function Profile() {
 
           {/* Personality Profile */}
           {profile && (
-            <Card className="bg-slate-800/50 border-purple-500/20">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-white">
                   <Activity className="h-5 w-5" />
                   SASS-E Personality Profile
                 </CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-muted-foreground">
                   Your personalized interaction settings and statistics
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-slate-700/30 p-4 rounded-lg">
+                  <div className="bg-muted/50 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <TrendingUp className="h-4 w-4 text-purple-400" />
-                      <Label className="text-slate-300 text-sm">Sarcasm Level</Label>
+                      <Label className="text-foreground text-sm">Sarcasm Level</Label>
                     </div>
                     <p className="text-2xl font-bold text-white">
                       {profile.sarcasmLevel?.toFixed(1) || '5.0'}/10
@@ -582,10 +580,10 @@ export default function Profile() {
                     </p>
                   </div>
                   
-                  <div className="bg-slate-700/30 p-4 rounded-lg">
+                  <div className="bg-muted/50 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <MessageSquare className="h-4 w-4 text-purple-400" />
-                      <Label className="text-slate-300 text-sm">Total Interactions</Label>
+                      <Label className="text-foreground text-sm">Total Interactions</Label>
                     </div>
                     <p className="text-2xl font-bold text-white">
                       {profile.totalInteractions || 0}
@@ -596,8 +594,8 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="bg-slate-700/30 p-4 rounded-lg">
-                  <Label className="text-slate-300 text-sm mb-2 block">Feedback Summary</Label>
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <Label className="text-foreground text-sm mb-2 block">Feedback Summary</Label>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-slate-400">Positive</p>
@@ -614,9 +612,9 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className="bg-purple-900/20 border border-purple-500/30 p-4 rounded-lg">
+                <div className="bg-muted/50 border p-4 rounded-lg">
                   <p className="text-sm text-slate-300">
-                    <strong className="text-purple-400">Note:</strong> SASS-E adapts its personality based on your interactions. 
+                    <strong className="text-primary">Note:</strong> SASS-E adapts its personality based on your interactions. 
                     The sarcasm level adjusts automatically based on your feedback and conversation patterns.
                   </p>
                 </div>
@@ -626,13 +624,13 @@ export default function Profile() {
 
           {/* Admin Panel - Only visible to admins */}
           {user.role === 'admin' && (
-            <Card className="bg-slate-800/50 border-purple-500/20">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-white">
                   <Shield className="h-5 w-5" />
                   {t("Admin Panel")}
                 </CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-muted-foreground">
                   {t("Administrative tools and system management")}
                 </CardDescription>
               </CardHeader>
@@ -641,7 +639,7 @@ export default function Profile() {
                   <Button 
                     asChild
                     variant="outline"
-                    className="bg-slate-700/50 hover:bg-slate-700 border-purple-500/30 text-white h-auto py-4 flex-col gap-2"
+                    className="h-auto py-4 flex-col gap-2"
                   >
                     <a href="/profile/admin">
                       <Settings className="h-6 w-6 text-purple-400" />
@@ -655,7 +653,7 @@ export default function Profile() {
                   <Button 
                     asChild
                     variant="outline"
-                    className="bg-slate-700/50 hover:bg-slate-700 border-purple-500/30 text-white h-auto py-4 flex-col gap-2"
+                    className="h-auto py-4 flex-col gap-2"
                   >
                     <a href="/profile/admin/monitoring">
                       <BarChart3 className="h-6 w-6 text-purple-400" />
@@ -669,7 +667,7 @@ export default function Profile() {
                   <Button 
                     asChild
                     variant="outline"
-                    className="bg-slate-700/50 hover:bg-slate-700 border-purple-500/30 text-white h-auto py-4 flex-col gap-2"
+                    className="h-auto py-4 flex-col gap-2"
                   >
                     <a href="/profile/admin/users">
                       <Users className="h-6 w-6 text-purple-400" />

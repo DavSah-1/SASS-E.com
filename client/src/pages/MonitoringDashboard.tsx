@@ -194,7 +194,7 @@ export default function MonitoringDashboard() {
 
       {/* Tabs for different sections */}
       <Tabs defaultValue="performance" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="api-usage">API Usage</TabsTrigger>
           <TabsTrigger value="errors">Errors</TabsTrigger>
@@ -374,7 +374,7 @@ export default function MonitoringDashboard() {
               <CardDescription>Application logs and events</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <Input
                     placeholder="Search logs..."
@@ -384,7 +384,7 @@ export default function MonitoringDashboard() {
                   />
                 </div>
                 <Select value={logLevel || "all"} onValueChange={(v) => setLogLevel(v === "all" ? undefined : v as any)}>
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
