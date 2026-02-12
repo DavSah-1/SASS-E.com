@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,16 +18,25 @@ import {
 } from "@/components/ui/table";
 
 export default function AdminDashboard() {
+  const { user, loading } = useAuth();
+  const [, setLocation] = useLocation();
   const [cleanupType, setCleanupType] = useState<"age" | "storage" | "both">("both");
   
-  // Fetch storage stats
-  const { data: storageStats, isLoading: statsLoading, refetch: refetchStats } = trpc.admin.getStorageStats.useQuery();
+  // Fetch storage stats (must be called before conditional returns)
+  const { data: storageStats, isLoading: statsLoading, refetch: refetchStats } = trpc.admin.getStorageStats.useQuery(undefined, {
+    enabled: !loading && !!user && user.role === "admin",
+  });
   
   // Fetch cleanup logs
-  const { data: cleanupLogs, isLoading: logsLoading, refetch: refetchLogs } = trpc.admin.getCleanupLogs.useQuery({ limit: 20 });
+  const { data: cleanupLogs, isLoading: logsLoading, refetch: refetchLogs } = trpc.admin.getCleanupLogs.useQuery(
+    { limit: 20 },
+    { enabled: !loading && !!user && user.role === "admin" }
+  );
   
   // Fetch cache stats
-  const { data: cacheStats, isLoading: cacheLoading, refetch: refetchCache } = trpc.admin.getCacheStats.useQuery();
+  const { data: cacheStats, isLoading: cacheLoading, refetch: refetchCache } = trpc.admin.getCacheStats.useQuery(undefined, {
+    enabled: !loading && !!user && user.role === "admin",
+  });
   
   // Clear cache mutation
   const clearCacheMutation = trpc.admin.clearCache.useMutation({
@@ -78,6 +89,27 @@ export default function AdminDashboard() {
     const variant = status === "success" ? "default" : status === "partial" ? "secondary" : "destructive";
     return <Badge variant={variant}>{status}</Badge>;
   };
+
+  // Redirect non-admin users (after all hooks)
+  useEffect(() => {
+    if (!loading && (!user || user.role !== "admin")) {
+      setLocation("/");
+    }
+  }, [user, loading, setLocation]);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Don't render if not admin
+  if (!user || user.role !== "admin") {
+    return null;
+  }
 
   return (
     <div className="container mx-auto py-8 space-y-8">

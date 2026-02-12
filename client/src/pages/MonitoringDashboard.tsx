@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,34 +23,37 @@ import {
 } from "lucide-react";
 
 export default function MonitoringDashboard() {
+  const { user, loading } = useAuth();
+  const [, setLocation] = useLocation();
   const [timeRange, setTimeRange] = useState<"1h" | "24h" | "7d" | "30d">("24h");
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [logLevel, setLogLevel] = useState<"error" | "warn" | "info" | "http" | "debug" | undefined>();
 
-  // Queries
+  // Queries (must be called before conditional returns)
   const { data: systemHealth, refetch: refetchHealth } = trpc.admin.getSystemHealth.useQuery(undefined, {
     refetchInterval: autoRefresh ? 30000 : false,
+    enabled: !loading && !!user && user.role === "admin",
   });
 
   const { data: performanceData, refetch: refetchPerformance } = trpc.admin.getPerformanceMetrics.useQuery(
     { timeRange },
-    { refetchInterval: autoRefresh ? 30000 : false }
+    { refetchInterval: autoRefresh ? 30000 : false, enabled: !loading && !!user && user.role === "admin" }
   );
 
   const { data: apiUsageLogs, refetch: refetchApiUsage } = trpc.admin.getApiUsageLogs.useQuery(
     { limit: 100 },
-    { refetchInterval: autoRefresh ? 30000 : false }
+    { refetchInterval: autoRefresh ? 30000 : false, enabled: !loading && !!user && user.role === "admin" }
   );
 
   const { data: errorLogs, refetch: refetchErrors } = trpc.admin.getErrorLogs.useQuery(
     { limit: 100, resolved: false },
-    { refetchInterval: autoRefresh ? 30000 : false }
+    { refetchInterval: autoRefresh ? 30000 : false, enabled: !loading && !!user && user.role === "admin" }
   );
 
   const { data: systemLogs, refetch: refetchSystemLogs } = trpc.admin.getSystemLogs.useQuery(
     { limit: 100, level: logLevel, search: searchTerm || undefined },
-    { refetchInterval: autoRefresh ? 30000 : false }
+    { refetchInterval: autoRefresh ? 30000 : false, enabled: !loading && !!user && user.role === "admin" }
   );
 
   const resolveErrorMutation = trpc.admin.resolveError.useMutation({
@@ -79,6 +84,27 @@ export default function MonitoringDashboard() {
     if (ms < 1000) return `${ms}ms`;
     return `${(ms / 1000).toFixed(2)}s`;
   };
+
+  // Redirect non-admin users (after all hooks)
+  useEffect(() => {
+    if (!loading && (!user || user.role !== "admin")) {
+      setLocation("/");
+    }
+  }, [user, loading, setLocation]);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <RefreshCw className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Don't render if not admin
+  if (!user || user.role !== "admin") {
+    return null;
+  }
 
   return (
     <div className="container mx-auto py-8 space-y-8">

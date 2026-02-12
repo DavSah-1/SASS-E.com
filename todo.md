@@ -4762,4 +4762,13 @@
 - [x] Test all dashboard sections with real data
 - [x] Verify real-time updates work correctly
 - [x] Test filtering and search functionality
+- [x] Save checkpoint
+
+## Phase 15: Admin Access Protection
+
+- [x] Add admin role check to AdminDashboard page
+- [x] Add admin role check to MonitoringDashboard page
+- [x] Redirect non-admin users to home page
+- [x] Test with admin user (should have access)
+- [x] Test with non-admin user (should be redirected)
 - [ ] Save checkpoint
