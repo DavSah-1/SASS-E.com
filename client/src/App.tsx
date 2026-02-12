@@ -42,6 +42,7 @@ import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import AuthTest from "./pages/AuthTest";
 import SignIn from "./pages/SignInNew";
 import SignUp from "./pages/SignUp";
+import ErrorTest from "./pages/ErrorTest";
 
 
 function Router() {
@@ -66,6 +67,7 @@ function Router() {
       <Route path={"/auth-test"} component={AuthTest} />
       <Route path={"/sign-in"} component={SignIn} />
       <Route path={"/sign-up"} component={SignUp} />
+      <Route path={"/error-test"} component={ErrorTest} />
 
       <Route path={"/hubs/learning/math"} component={MathTutor} />
       <Route path={"/hubs/learning/math/curriculum"} component={MathCurriculum} />
