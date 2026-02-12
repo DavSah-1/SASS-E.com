@@ -124,15 +124,16 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard" }]} />
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Manage audio file storage, cache, and cleanup operations</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="container mx-auto py-8 px-4">
+        <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard" }]} />
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">Admin Dashboard</h1>
+          <p className="text-slate-300">Manage audio file storage, cache, and cleanup operations</p>
+        </div>
 
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* Overview Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -569,6 +570,7 @@ export default function AdminDashboard() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

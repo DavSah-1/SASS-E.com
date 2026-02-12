@@ -135,16 +135,18 @@ export default function AuditLog() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard", href: "/profile/admin" }, { label: "Audit Log" }]} />
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Audit Log</CardTitle>
-          <CardDescription>
-            Track all administrative actions for compliance and security monitoring
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="container mx-auto py-8 px-4">
+        <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard", href: "/profile/admin" }, { label: "Audit Log" }]} />
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">Audit Log</h1>
+          <p className="text-slate-300">Track all administrative actions for compliance and security monitoring</p>
+        </div>
+        <Card>
+          <CardHeader className="sr-only">
+            <CardTitle>Audit Log</CardTitle>
+          </CardHeader>
+          <CardContent>
           {/* Filters */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div>
@@ -290,6 +292,7 @@ export default function AuditLog() {
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

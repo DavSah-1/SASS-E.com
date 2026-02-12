@@ -4985,3 +4985,27 @@
 - [x] Improve AuditLog button responsiveness (icon-only on mobile)
 - [x] Improve MonitoringDashboard tabs (grid layout for mobile)
 - [x] Improve log search filters (vertical stack on mobile)
+
+## Phase 24: Apply Purple/Slate Theme to All Profile Pages
+
+- [ ] Extract purple/slate theme styles from Profile page
+- [ ] Apply purple/slate theme to AdminDashboard
+- [ ] Apply purple/slate theme to UserManagement
+- [ ] Apply purple/slate theme to AuditLog
+- [ ] Apply purple/slate theme to MonitoringDashboard
+- [ ] Audit spacing consistency on Profile page
+- [ ] Audit spacing consistency on AdminDashboard
+- [ ] Audit spacing consistency on UserManagement
+- [ ] Audit spacing consistency on AuditLog
+- [ ] Audit spacing consistency on MonitoringDashboard
+- [ ] Test all pages and save checkpoint
+
+- [x] Extract purple/slate theme styles from Profile page
+- [x] Apply purple/slate theme to AdminDashboard
+- [x] Apply purple/slate theme to UserManagement
+- [x] Apply purple/slate theme to AuditLog
+- [x] Apply purple/slate theme to MonitoringDashboard
+- [ ] Audit spacing consistency on all /profile/* pages
+- [x] Audit spacing consistency on all /profile/* pages
+- [ ] Test all pages and save checkpoint
+- [x] Test all pages and save checkpoint

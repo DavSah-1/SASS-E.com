@@ -108,15 +108,16 @@ export default function MonitoringDashboard() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard", href: "/profile/admin" }, { label: "System Monitoring" }]} />
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">System Monitoring</h1>
-          <p className="text-muted-foreground">Real-time system health and performance metrics</p>
-        </div>
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="container mx-auto py-8 px-4">
+        <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard", href: "/profile/admin" }, { label: "System Monitoring" }]} />
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">System Monitoring</h1>
+            <p className="text-slate-300">Real-time system health and performance metrics</p>
+          </div>
+          <div className="flex items-center gap-4">
           <Select value={timeRange} onValueChange={(v: any) => setTimeRange(v)}>
             <SelectTrigger className="w-[140px]">
               <SelectValue />
@@ -141,11 +142,11 @@ export default function MonitoringDashboard() {
           >
             {autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
           </Button>
+          </div>
         </div>
-      </div>
 
-      {/* System Health Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* System Health Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">System Uptime</CardTitle>
@@ -437,6 +438,7 @@ export default function MonitoringDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
