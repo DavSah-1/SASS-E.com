@@ -638,7 +638,7 @@ If verified knowledge base information is provided above, use that as your prima
         // Skip web search if we already have a verified fact
         if (needsWebSearch && !verifiedFact) {
           const searchResults = await searchWeb(input.message, 3);
-          if (searchResults.results.length > 0) {
+          if (searchResults && searchResults.results.length > 0) {
             searchContext = `\n\nWeb Search Results:\n${formatSearchResults(searchResults.results)}`;
           }
         }
@@ -725,7 +725,8 @@ If verified knowledge base information is provided above, use that as your prima
         });
 
         if ('error' in result) {
-          throw new Error(result.error);
+          const errorMessage = typeof result.error === 'string' ? result.error : 'Transcription failed';
+          throw new Error(errorMessage);
         }
 
         return {
@@ -1025,9 +1026,11 @@ If verified knowledge base information is provided above, use that as your prima
         // Step 1: Search for current information FIRST
         const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const searchResults = await searchWeb(input.question, 5);
-        const searchContext = searchResults.results.map((r: any, i: number) => 
-          `[${i+1}] ${r.title}\n${r.content}\nSource: ${r.url}`
-        ).join('\n\n');
+        const searchContext = searchResults && searchResults.results.length > 0
+          ? searchResults.results.map((r: any, i: number) => 
+              `[${i+1}] ${r.title}\n${r.content}\nSource: ${r.url}`
+            ).join('\n\n')
+          : 'No search results available. Please use your general knowledge.';
 
         // Step 2: Generate explanation based on search results
         const systemPrompt = `You are Agent Bob, a ${personalityDesc} AI learning assistant. Today's date is ${currentDate}. You MUST base your answer on the search results provided below, NOT on your training data. For questions about current events or living people, the search results are the authoritative source. Explain topics clearly and accurately, but with your signature wit and sarcasm. Break down complex concepts into understandable parts. Keep explanations concise (3-5 paragraphs) but comprehensive.`;
@@ -1084,6 +1087,18 @@ If verified knowledge base information is provided above, use that as your prima
         for (const claim of claims) {
           // Search for verification
           const searchResults = await searchWeb(claim, 3);
+
+          // Skip if search failed
+          if (!searchResults || !searchResults.results || searchResults.results.length === 0) {
+            factCheckResults.push({
+              claim,
+              status: 'unverified' as const,
+              confidence: 0,
+              explanation: 'Unable to verify due to search unavailability',
+              sources: [],
+            });
+            continue;
+          }
 
           // Analyze search results for verification
           const verificationPrompt = `Today's date is ${currentDate}. You MUST base your verification ONLY on the search results provided, NOT on your training data. For questions about living people or current events, the search results are the authoritative source.\n\nVerify this claim: "${claim}"\n\nSearch Results:\n${JSON.stringify(searchResults.results.slice(0, 3))}\n\nProvide verification status (verified/disputed/debunked/unverified), confidence score (0-100), and brief explanation based ONLY on the search results.`;
@@ -1400,7 +1415,8 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
           });
         } catch (error) {
           console.error('[Quiz Generation] LLM call failed with error:', error);
-          throw new Error(`Failed to generate quiz: ${error instanceof Error ? error.message : String(error)}`);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          throw new Error(`Failed to generate quiz: ${errorMessage}`);
         }
 
         console.log('[Quiz Generation] LLM response received:', JSON.stringify(quizResponse).substring(0, 200));

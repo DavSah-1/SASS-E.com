@@ -4509,3 +4509,25 @@
 - [x] Test all IoT operations as Admin user
 - [x] Test all IoT operations as regular User
 - [x] Document database routing implementation
+
+## Phase 1: Core Error Handling Implementation
+- [x] Create server/errors.ts with custom error classes (AppError, APIError, TranscriptionError, SearchError, QuotaExceededError, DatabaseError)
+- [x] Create server/_core/errorMessages.ts for sarcastic error messages
+- [x] Create server/_core/errorHandler.ts for TRPC error conversion
+- [x] Update server/_core/webSearch.ts with error handling, timeouts, and graceful degradation
+- [x] Update server/_core/voiceTranscription.ts with retry logic and exponential backoff
+- [x] Update server/_core/llm.ts with fallback responses
+- [x] Fix server/routers.ts null handling for searchWeb results
+- [x] Fix TypeScript errors in error handling code
+- [ ] Update server/routers.ts assistant router with comprehensive error handling
+- [ ] Update server/routers.ts learning router with error handling
+- [ ] Update server/routers.ts translation router with error handling
+- [ ] Update server/routers.ts IoT router with error handling
+- [ ] Update client error handling with user-friendly toast messages
+- [ ] Test web search error scenarios (timeout, quota, network failure)
+- [ ] Test voice transcription error scenarios (invalid audio, timeout, rate limit)
+- [ ] Test LLM error scenarios (API failure, empty response)
+- [ ] Test database error scenarios (connection failure, query errors)
+- [ ] Verify all error messages maintain Bob's sarcastic personality
+- [ ] Verify graceful degradation works (continues without search when search fails)
+- [ ] Save checkpoint after full implementation and testing

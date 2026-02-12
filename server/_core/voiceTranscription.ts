@@ -1,6 +1,14 @@
 /**
  * Voice transcription helper using internal Speech-to-Text service
  *
+ * Features:
+ * - Automatic retry with exponential backoff
+ * - Timeout protection (30 seconds)
+ * - Comprehensive error handling
+ * - File size validation (16MB limit)
+ * - Format validation
+ * - Graceful error recovery
+ *
  * Frontend implementation guide:
  * 1. Capture audio using MediaRecorder API
  * 2. Upload audio to storage (e.g., S3) to get URL
@@ -14,6 +22,9 @@
  *     console.log(data.text); // Full transcription
  *     console.log(data.language); // Detected language
  *     console.log(data.segments); // Timestamped segments
+ *   },
+ *   onError: (error) => {
+ *     toast.error(error.message); // User-friendly error message
  *   }
  * });
  * 
@@ -26,6 +37,16 @@
  * ```
  */
 import { ENV } from "./env";
+import { TranscriptionError, logError } from "../errors";
+
+/**
+ * Configuration constants
+ */
+const MAX_RETRIES = 3;
+const RETRY_BASE_DELAY_MS = 1000; // 1 second base delay
+const TRANSCRIPTION_TIMEOUT_MS = 30000; // 30 seconds
+const MAX_FILE_SIZE_MB = 16;
+const SUPPORTED_FORMATS = ['webm', 'mp3', 'mpeg', 'wav', 'wave', 'ogg', 'm4a', 'mp4'];
 
 export type TranscribeOptions = {
   audioUrl: string; // URL to the audio file (e.g., S3 URL)
@@ -56,78 +77,102 @@ export type WhisperResponse = {
   segments: WhisperSegment[];
 };
 
-export type TranscriptionResponse = WhisperResponse; // Return native Whisper API response directly
-
-export type TranscriptionError = {
-  error: string;
-  code: "FILE_TOO_LARGE" | "INVALID_FORMAT" | "TRANSCRIPTION_FAILED" | "UPLOAD_FAILED" | "SERVICE_ERROR";
-  details?: string;
-};
+export type TranscriptionResponse = WhisperResponse;
 
 /**
  * Transcribe audio to text using the internal Speech-to-Text service
+ * Includes automatic retry with exponential backoff for transient failures
  * 
  * @param options - Audio data and metadata
- * @returns Transcription result or error
+ * @param retryCount - Current retry attempt (used internally)
+ * @returns Transcription result
+ * @throws {TranscriptionError} When transcription fails after all retries
  */
 export async function transcribeAudio(
-  options: TranscribeOptions
-): Promise<TranscriptionResponse | TranscriptionError> {
+  options: TranscribeOptions,
+  retryCount: number = 0
+): Promise<TranscriptionResponse> {
   try {
-    // Step 1: Validate environment configuration
-    if (!ENV.forgeApiUrl) {
-      return {
-        error: "Voice transcription service is not configured",
-        code: "SERVICE_ERROR",
-        details: "BUILT_IN_FORGE_API_URL is not set"
-      };
+    // Step 1: Validate input
+    if (!options.audioUrl || typeof options.audioUrl !== 'string') {
+      throw new TranscriptionError('Audio URL is required');
     }
+    
+    if (!options.audioUrl.startsWith('http://') && !options.audioUrl.startsWith('https://')) {
+      throw new TranscriptionError('Invalid audio URL format');
+    }
+    
+    // Step 2: Validate environment configuration
+    if (!ENV.forgeApiUrl) {
+      throw new TranscriptionError('Voice transcription service is not configured');
+    }
+    
     if (!ENV.forgeApiKey) {
-      return {
-        error: "Voice transcription service authentication is missing",
-        code: "SERVICE_ERROR",
-        details: "BUILT_IN_FORGE_API_KEY is not set"
-      };
+      throw new TranscriptionError('Voice transcription service authentication is missing');
     }
 
-    // Step 2: Download audio from URL
+    // Step 3: Download audio from URL with timeout
     let audioBuffer: Buffer;
     let mimeType: string;
+    
     try {
-      const response = await fetch(options.audioUrl);
-      if (!response.ok) {
-        return {
-          error: "Failed to download audio file",
-          code: "INVALID_FORMAT",
-          details: `HTTP ${response.status}: ${response.statusText}`
-        };
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second download timeout
+      
+      try {
+        const response = await fetch(options.audioUrl, {
+          signal: controller.signal,
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new TranscriptionError(
+            `Failed to download audio file: HTTP ${response.status} ${response.statusText}`
+          );
+        }
+        
+        audioBuffer = Buffer.from(await response.arrayBuffer());
+        mimeType = response.headers.get('content-type') || 'audio/mpeg';
+        
+      } finally {
+        clearTimeout(timeoutId);
       }
       
-      audioBuffer = Buffer.from(await response.arrayBuffer());
-      mimeType = response.headers.get('content-type') || 'audio/mpeg';
-      
-      // Check file size (16MB limit)
-      const sizeMB = audioBuffer.length / (1024 * 1024);
-      if (sizeMB > 16) {
-        return {
-          error: "Audio file exceeds maximum size limit",
-          code: "FILE_TOO_LARGE",
-          details: `File size is ${sizeMB.toFixed(2)}MB, maximum allowed is 16MB`
-        };
-      }
     } catch (error) {
-      return {
-        error: "Failed to fetch audio file",
-        code: "SERVICE_ERROR",
-        details: error instanceof Error ? error.message : "Unknown error"
-      };
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new TranscriptionError('Audio download timed out');
+      }
+      
+      if (error instanceof TranscriptionError) {
+        throw error;
+      }
+      
+      throw new TranscriptionError(
+        `Failed to fetch audio file: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+    
+    // Step 4: Validate file size
+    const sizeMB = audioBuffer.length / (1024 * 1024);
+    if (sizeMB > MAX_FILE_SIZE_MB) {
+      throw new TranscriptionError(
+        `Audio file exceeds maximum size limit (${sizeMB.toFixed(2)}MB / ${MAX_FILE_SIZE_MB}MB)`
+      );
+    }
+    
+    // Step 5: Validate file format
+    const fileExtension = getFileExtension(mimeType);
+    if (!SUPPORTED_FORMATS.includes(fileExtension)) {
+      throw new TranscriptionError(
+        `Unsupported audio format: ${mimeType}. Supported formats: ${SUPPORTED_FORMATS.join(', ')}`
+      );
     }
 
-    // Step 3: Create FormData for multipart upload to Whisper API
+    // Step 6: Create FormData for multipart upload to Whisper API
     const formData = new FormData();
     
-    // Create a Blob from the buffer and append to form
-    const filename = `audio.${getFileExtension(mimeType)}`;
+    const filename = `audio.${fileExtension}`;
     const audioBlob = new Blob([new Uint8Array(audioBuffer)], { type: mimeType });
     formData.append("file", audioBlob, filename);
     
@@ -142,7 +187,7 @@ export async function transcribeAudio(
     );
     formData.append("prompt", prompt);
 
-    // Step 4: Call the transcription service
+    // Step 7: Call the transcription service with timeout
     const baseUrl = ENV.forgeApiUrl.endsWith("/")
       ? ENV.forgeApiUrl
       : `${ENV.forgeApiUrl}/`;
@@ -152,45 +197,95 @@ export async function transcribeAudio(
       baseUrl
     ).toString();
 
-    const response = await fetch(fullUrl, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${ENV.forgeApiKey}`,
-        "Accept-Encoding": "identity",
-      },
-      body: formData,
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TRANSCRIPTION_TIMEOUT_MS);
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "");
-      return {
-        error: "Transcription service request failed",
-        code: "TRANSCRIPTION_FAILED",
-        details: `${response.status} ${response.statusText}${errorText ? `: ${errorText}` : ""}`
-      };
+    try {
+      const response = await fetch(fullUrl, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${ENV.forgeApiKey}`,
+          "Accept-Encoding": "identity",
+        },
+        body: formData,
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeoutId);
+
+      // Handle rate limiting with retry
+      if (response.status === 429) {
+        if (retryCount < MAX_RETRIES) {
+          const delay = RETRY_BASE_DELAY_MS * Math.pow(2, retryCount);
+          const jitter = Math.random() * 500; // Add 0-500ms jitter
+          
+          console.warn(
+            `Transcription rate limited, retrying in ${delay + jitter}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`
+          );
+          
+          await sleep(delay + jitter);
+          return transcribeAudio(options, retryCount + 1);
+        }
+        
+        throw new TranscriptionError('Transcription service rate limit exceeded. Please try again later.');
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "");
+        
+        // Retry on 5xx errors (server errors)
+        if (response.status >= 500 && response.status < 600 && retryCount < MAX_RETRIES) {
+          const delay = RETRY_BASE_DELAY_MS * Math.pow(2, retryCount);
+          const jitter = Math.random() * 500;
+          
+          console.warn(
+            `Transcription service error ${response.status}, retrying in ${delay + jitter}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`
+          );
+          
+          await sleep(delay + jitter);
+          return transcribeAudio(options, retryCount + 1);
+        }
+        
+        throw new TranscriptionError(
+          `Transcription service request failed: ${response.status} ${response.statusText}${errorText ? `: ${errorText}` : ""}`
+        );
+      }
+
+      // Step 8: Parse and validate the transcription result
+      const whisperResponse = await response.json() as WhisperResponse;
+      
+      if (!whisperResponse.text || typeof whisperResponse.text !== 'string') {
+        throw new TranscriptionError('Invalid transcription response: missing or invalid text field');
+      }
+      
+      if (whisperResponse.text.trim().length === 0) {
+        throw new TranscriptionError('Transcription returned empty text. Please ensure the audio contains speech.');
+      }
+
+      return whisperResponse;
+      
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    // Step 5: Parse and return the transcription result
-    const whisperResponse = await response.json() as WhisperResponse;
-    
-    // Validate response structure
-    if (!whisperResponse.text || typeof whisperResponse.text !== 'string') {
-      return {
-        error: "Invalid transcription response",
-        code: "SERVICE_ERROR",
-        details: "Transcription service returned an invalid response format"
-      };
-    }
-
-    return whisperResponse; // Return native Whisper API response directly
 
   } catch (error) {
+    // Handle timeout errors
+    if (error instanceof Error && error.name === 'AbortError') {
+      logError(error, 'transcribeAudio');
+      throw new TranscriptionError('Transcription request timed out');
+    }
+    
+    // Re-throw TranscriptionError
+    if (error instanceof TranscriptionError) {
+      logError(error, 'transcribeAudio');
+      throw error;
+    }
+
     // Handle unexpected errors
-    return {
-      error: "Voice transcription failed",
-      code: "SERVICE_ERROR",
-      details: error instanceof Error ? error.message : "An unexpected error occurred"
-    };
+    logError(error, 'transcribeAudio');
+    throw new TranscriptionError(
+      `Voice transcription failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -242,11 +337,20 @@ function getLanguageName(langCode: string): string {
 }
 
 /**
+ * Sleep helper for retry delays
+ * @param ms - Milliseconds to sleep
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
  * Example tRPC procedure implementation:
  * 
  * ```ts
  * // In server/routers.ts
  * import { transcribeAudio } from "./_core/voiceTranscription";
+ * import { TranscriptionError } from "./errors";
  * 
  * export const voiceRouter = router({
  *   transcribe: protectedProcedure
@@ -256,28 +360,32 @@ function getLanguageName(langCode: string): string {
  *       prompt: z.string().optional(),
  *     }))
  *     .mutation(async ({ input, ctx }) => {
- *       const result = await transcribeAudio(input);
- *       
- *       // Check if it's an error
- *       if ('error' in result) {
+ *       try {
+ *         const result = await transcribeAudio(input);
+ *         
+ *         // Optionally save transcription to database
+ *         await db.insert(transcriptions).values({
+ *           userId: ctx.user.id,
+ *           text: result.text,
+ *           duration: result.duration,
+ *           language: result.language,
+ *           audioUrl: input.audioUrl,
+ *           createdAt: new Date(),
+ *         });
+ *         
+ *         return result;
+ *       } catch (error) {
+ *         if (error instanceof TranscriptionError) {
+ *           throw new TRPCError({
+ *             code: 'BAD_REQUEST',
+ *             message: error.message,
+ *           });
+ *         }
  *         throw new TRPCError({
- *           code: 'BAD_REQUEST',
- *           message: result.error,
- *           cause: result,
+ *           code: 'INTERNAL_SERVER_ERROR',
+ *           message: 'Transcription service unavailable',
  *         });
  *       }
- *       
- *       // Optionally save transcription to database
- *       await db.insert(transcriptions).values({
- *         userId: ctx.user.id,
- *         text: result.text,
- *         duration: result.duration,
- *         language: result.language,
- *         audioUrl: input.audioUrl,
- *         createdAt: new Date(),
- *       });
- *       
- *       return result;
  *     }),
  * });
  * ```

@@ -1,4 +1,24 @@
 import { ENV } from "./env";
+import { APIError, logError } from "../errors";
+import { getLLMFallbackResponse } from "./errorMessages";
+
+/**
+ * LLM Integration with comprehensive error handling
+ * 
+ * Features:
+ * - Automatic timeout protection (60 seconds)
+ * - Retry logic for transient failures
+ * - Fallback responses when LLM fails
+ * - Comprehensive error handling
+ * - Request/response logging
+ */
+
+/**
+ * Configuration constants
+ */
+const LLM_TIMEOUT_MS = 60000; // 60 seconds
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1000; // 1 second base delay
 
 export type Role = "system" | "user" | "assistant" | "tool" | "function";
 
@@ -216,7 +236,7 @@ const resolveApiUrl = () =>
 
 const assertApiKey = () => {
   if (!ENV.forgeApiKey) {
-    throw new Error("OPENAI_API_KEY is not configured");
+    throw new APIError("LLM API key is not configured", "manus");
   }
 };
 
@@ -265,79 +285,217 @@ const normalizeResponseFormat = ({
   };
 };
 
-export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
-  assertApiKey();
+/**
+ * Invoke LLM with comprehensive error handling and retry logic
+ * 
+ * @param params - LLM invocation parameters
+ * @param retryCount - Current retry attempt (used internally)
+ * @returns LLM response
+ * @throws {APIError} When LLM fails after all retries
+ */
+export async function invokeLLM(
+  params: InvokeParams,
+  retryCount: number = 0
+): Promise<InvokeResult> {
+  try {
+    assertApiKey();
 
-  const {
-    messages,
-    tools,
-    toolChoice,
-    tool_choice,
-    outputSchema,
-    output_schema,
-    responseFormat,
-    response_format,
-  } = params;
+    const {
+      messages,
+      tools,
+      toolChoice,
+      tool_choice,
+      outputSchema,
+      output_schema,
+      responseFormat,
+      response_format,
+    } = params;
 
-  const payload: Record<string, unknown> = {
-    model: "gemini-2.5-flash",
-    messages: messages.map(normalizeMessage),
-  };
+    // Validate messages
+    if (!messages || messages.length === 0) {
+      throw new APIError("Messages array cannot be empty", "manus");
+    }
 
-  if (tools && tools.length > 0) {
-    payload.tools = tools;
-  }
+    const payload: Record<string, unknown> = {
+      model: "gemini-2.5-flash",
+      messages: messages.map(normalizeMessage),
+    };
 
-  const normalizedToolChoice = normalizeToolChoice(
-    toolChoice || tool_choice,
-    tools
-  );
-  if (normalizedToolChoice) {
-    payload.tool_choice = normalizedToolChoice;
-  }
+    if (tools && tools.length > 0) {
+      payload.tools = tools;
+    }
 
-  payload.max_tokens = 32768
-  // Note: thinking parameter removed as it causes issues with json_schema response_format
+    const normalizedToolChoice = normalizeToolChoice(
+      toolChoice || tool_choice,
+      tools
+    );
+    if (normalizedToolChoice) {
+      payload.tool_choice = normalizedToolChoice;
+    }
 
-  const normalizedResponseFormat = normalizeResponseFormat({
-    responseFormat,
-    response_format,
-    outputSchema,
-    output_schema,
-  });
+    payload.max_tokens = 32768;
 
-  if (normalizedResponseFormat) {
-    payload.response_format = normalizedResponseFormat;
-  }
-
-  const response = await fetch(resolveApiUrl(), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("[invokeLLM] Request failed:", {
-      status: response.status,
-      statusText: response.statusText,
-      error: errorText,
-      payload: JSON.stringify(payload, null, 2)
+    const normalizedResponseFormat = normalizeResponseFormat({
+      responseFormat,
+      response_format,
+      outputSchema,
+      output_schema,
     });
-    throw new Error(
-      `LLM invoke failed: ${response.status} ${response.statusText} – ${errorText}`
+
+    if (normalizedResponseFormat) {
+      payload.response_format = normalizedResponseFormat;
+    }
+
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(resolveApiUrl(), {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${ENV.forgeApiKey}`,
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      // Handle rate limiting with retry
+      if (response.status === 429) {
+        if (retryCount < MAX_RETRIES) {
+          const delay = RETRY_DELAY_MS * Math.pow(2, retryCount);
+          const jitter = Math.random() * 500;
+          
+          console.warn(
+            `LLM rate limited, retrying in ${delay + jitter}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`
+          );
+          
+          await sleep(delay + jitter);
+          return invokeLLM(params, retryCount + 1);
+        }
+        
+        throw new APIError("LLM API rate limit exceeded", "manus");
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "Unknown error");
+        
+        // Retry on 5xx errors (server errors)
+        if (response.status >= 500 && response.status < 600 && retryCount < MAX_RETRIES) {
+          const delay = RETRY_DELAY_MS * Math.pow(2, retryCount);
+          const jitter = Math.random() * 500;
+          
+          console.warn(
+            `LLM server error ${response.status}, retrying in ${delay + jitter}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`
+          );
+          
+          await sleep(delay + jitter);
+          return invokeLLM(params, retryCount + 1);
+        }
+        
+        console.error("[invokeLLM] Request failed:", {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText,
+        });
+        
+        throw new APIError(
+          `LLM invoke failed: ${response.status} ${response.statusText}`,
+          "manus"
+        );
+      }
+
+      const result = (await response.json()) as InvokeResult;
+      
+      // Validate response structure
+      if (!result || !result.choices || result.choices.length === 0) {
+        throw new APIError("LLM returned empty response", "manus");
+      }
+      
+      if (!result.choices[0].message || !result.choices[0].message.content) {
+        throw new APIError("LLM returned invalid response structure", "manus");
+      }
+      
+      console.log("[invokeLLM] Success:", {
+        model: result.model,
+        choicesCount: result.choices?.length || 0,
+        hasContent: !!result.choices?.[0]?.message?.content
+      });
+      
+      return result;
+      
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+  } catch (error) {
+    // Handle timeout errors
+    if (error instanceof Error && error.name === 'AbortError') {
+      logError(error, 'invokeLLM');
+      throw new APIError('LLM request timed out', 'manus');
+    }
+    
+    // Re-throw APIError
+    if (error instanceof APIError) {
+      logError(error, 'invokeLLM');
+      throw error;
+    }
+
+    // Handle unexpected errors
+    logError(error, 'invokeLLM');
+    throw new APIError(
+      `LLM invocation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'manus'
     );
   }
+}
 
-  const result = (await response.json()) as InvokeResult;
-  console.log("[invokeLLM] Raw response:", JSON.stringify(result, null, 2));
-  console.log("[invokeLLM] Success:", {
-    model: result.model,
-    choicesCount: result.choices?.length || 0,
-    hasContent: !!result.choices?.[0]?.message?.content
-  });
-  return result;
+/**
+ * Invoke LLM with automatic fallback to sarcastic error message
+ * Use this for user-facing features where a response is always expected
+ * 
+ * @param params - LLM invocation parameters
+ * @returns LLM response or fallback message
+ */
+export async function invokeLLMWithFallback(
+  params: InvokeParams
+): Promise<string> {
+  try {
+    const result = await invokeLLM(params);
+    
+    const content = result.choices[0].message.content;
+    
+    // Extract text from content
+    if (typeof content === 'string') {
+      return content;
+    }
+    
+    if (Array.isArray(content)) {
+      const textParts = content
+        .filter(part => part.type === 'text')
+        .map(part => (part as TextContent).text);
+      
+      return textParts.join('\n');
+    }
+    
+    throw new APIError('Unexpected content format from LLM', 'manus');
+    
+  } catch (error) {
+    // Log the error
+    logError(error, 'invokeLLMWithFallback');
+    
+    // Return a sarcastic fallback response
+    return getLLMFallbackResponse();
+  }
+}
+
+/**
+ * Sleep helper for retry delays
+ * @param ms - Milliseconds to sleep
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
