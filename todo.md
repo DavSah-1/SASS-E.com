@@ -5016,3 +5016,14 @@
 - [ ] Test and save checkpoint
 - [x] Fix gradient text styling on MonitoringDashboard heading (changed to fuchsia-pink-cyan for visibility)
 - [x] Test and save checkpoint
+
+## Phase 26: Fix MonitoringDashboard Layout & Spacing
+
+- [ ] Fix container structure - tabs should be inside main container
+- [ ] Fix spacing to match other /profile/* pages (consistent py-8, mb-6, gap-6)
+- [ ] Ensure all content is within the purple gradient background
+- [ ] Test and save checkpoint
+- [x] Fix container structure - tabs now inside main container
+- [x] Fix spacing to match other /profile/* pages (mb-6 added)
+- [x] Ensure all content is within the purple gradient background
+- [x] Test and save checkpoint
