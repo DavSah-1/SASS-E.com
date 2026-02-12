@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useFeatureAccess, useRecordUsage } from "@/hooks/useFeatureAccess";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 export default function VoiceAssistant() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -42,10 +43,12 @@ export default function VoiceAssistant() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<{ start?: Date; end?: Date }>({});
+  const [allConversations, setAllConversations] = useState<any[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   
   const clearAllHistoryMutation = trpc.assistant.clearAllConversations.useMutation();
   
-  const { data: historyData, refetch: refetchHistory } = trpc.assistant.history.useQuery(
+  const { data: historyData, refetch: refetchHistory, isFetching } = trpc.assistant.history.useQuery(
     {
       page: currentPage,
       pageSize: 20,
@@ -72,8 +75,54 @@ export default function VoiceAssistant() {
     enabled: isAuthenticated,
   });
   
-  const history = searchQuery ? searchResults?.data : historyData?.data;
+  // Accumulate conversations for infinite scroll
+  useEffect(() => {
+    if (searchQuery) {
+      // For search, replace all conversations
+      setAllConversations(searchResults?.data || []);
+    } else if (historyData?.data) {
+      if (currentPage === 1) {
+        // Reset on first page
+        setAllConversations(historyData.data);
+      } else {
+        // Append new conversations
+        setAllConversations(prev => {
+          const existingIds = new Set(prev.map(c => c.id));
+          const newConversations = historyData.data.filter(c => !existingIds.has(c.id));
+          return [...prev, ...newConversations];
+        });
+      }
+    }
+    setIsLoadingMore(false);
+  }, [historyData, searchResults, currentPage, searchQuery]);
+  
+  const hasMore = searchQuery 
+    ? (searchResults?.pagination?.hasNextPage ?? false)
+    : (historyData?.pagination?.hasNextPage ?? false);
+  
+  const history = allConversations;
   const pagination = searchQuery ? searchResults : historyData;
+  
+  // Infinite scroll hook
+  const handleLoadMore = () => {
+    if (!isLoadingMore && hasMore) {
+      setIsLoadingMore(true);
+      setCurrentPage(p => p + 1);
+    }
+  };
+  
+  const sentinelRef = useInfiniteScroll({
+    hasMore,
+    isLoading: isLoadingMore || isFetching,
+    onLoadMore: handleLoadMore,
+    threshold: 100,
+  });
+  
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+    setAllConversations([]);
+  }, [searchQuery]);
   const { data: profile, refetch: refetchProfile } = trpc.assistant.getProfile.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -626,6 +675,23 @@ export default function VoiceAssistant() {
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Infinite Scroll Sentinel */}
+                  {hasMore && (
+                    <div
+                      ref={sentinelRef}
+                      className="flex justify-center py-4"
+                    >
+                      {isLoadingMore || isFetching ? (
+                        <div className="flex items-center gap-2 text-slate-400">
+                          <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-sm">Loading more conversations...</span>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-slate-500">Scroll for more</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center text-slate-400 py-8">
@@ -633,35 +699,6 @@ export default function VoiceAssistant() {
                 </div>
               )}
             </ScrollArea>
-            
-            {/* Pagination Controls */}
-            {pagination?.pagination && pagination.pagination.totalPages > 1 && (
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-purple-500/20">
-                <div className="text-sm text-slate-400">
-                  Page {pagination.pagination.page} of {pagination.pagination.totalPages}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    disabled={!pagination.pagination.hasPreviousPage}
-                    className="bg-slate-900/50 border-purple-500/20 hover:bg-purple-500/10"
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(p => p + 1)}
-                    disabled={!pagination.pagination.hasNextPage}
-                    className="bg-slate-900/50 border-purple-500/20 hover:bg-purple-500/10"
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
