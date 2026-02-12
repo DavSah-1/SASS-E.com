@@ -1943,3 +1943,26 @@ export const quotaUsage = mysqlTable("quota_usage", {
 
 export type QuotaUsage = typeof quotaUsage.$inferSelect;
 export type InsertQuotaUsage = typeof quotaUsage.$inferInsert;
+
+
+/**
+ * Cleanup Logs table for tracking audio file cleanup operations
+ * Provides audit trail for automated and manual cleanup operations
+ */
+export const cleanupLogs = mysqlTable("cleanup_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  cleanupType: mysqlEnum("cleanupType", ["age_based", "storage_based", "manual"]).notNull(),
+  filesDeleted: int("filesDeleted").default(0).notNull(),
+  spaceFreedMB: decimal("spaceFreedMB", { precision: 10, scale: 2 }).default("0.00").notNull(),
+  errors: text("errors"), // JSON array of error messages
+  triggeredBy: int("triggeredBy"), // User ID if manual cleanup, null if automated
+  status: mysqlEnum("status", ["success", "partial", "failed"]).notNull(),
+  executionTimeMs: int("executionTimeMs"), // How long the cleanup took
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  createdAtIdx: index("idx_cleanup_logs_createdAt").on(table.createdAt),
+  triggeredByIdx: index("idx_cleanup_logs_triggeredBy").on(table.triggeredBy),
+}));
+
+export type CleanupLog = typeof cleanupLogs.$inferSelect;
+export type InsertCleanupLog = typeof cleanupLogs.$inferInsert;

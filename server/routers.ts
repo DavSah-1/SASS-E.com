@@ -27,6 +27,11 @@ import { piperTTSRouter } from "./piperTTSRouter";
 import { transactionImportRouter } from "./transactionImportRouter";
 import { budgetExportRouter } from "./budgetExportRouter";
 import { toNumericId } from "./_core/dbWrapper";
+import { cleanupOldAudioFiles, cleanupByStorageLimit, getStorageStats } from "./services/audioCleanup";
+import { getDb } from "./db";
+import { getSupabaseClient } from "./supabaseClient";
+import { cleanupLogs } from "../drizzle/schema";
+import { desc } from "drizzle-orm";
 import {
   searchWebWithQuota,
   transcribeAudioWithQuota,
@@ -52,6 +57,87 @@ export const appRouter = router({
   piperTTS: piperTTSRouter,
   transactionImport: transactionImportRouter,
   budgetExport: budgetExportRouter,
+
+  admin: router({
+    // Audio cleanup endpoints
+    cleanupAudio: protectedProcedure
+      .input(z.object({
+        type: z.enum(["age", "storage", "both"]).optional().default("both"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          // Only admins can trigger cleanup
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          let ageResult = null;
+          let storageResult = null;
+
+          if (input.type === "age" || input.type === "both") {
+            ageResult = await cleanupOldAudioFiles(ctx.user.id);
+          }
+
+          if (input.type === "storage" || input.type === "both") {
+            storageResult = await cleanupByStorageLimit(ctx.user.id);
+          }
+
+          return {
+            success: true,
+            age: ageResult,
+            storage: storageResult,
+          };
+        } catch (error: any) {
+          console.error("[Admin Cleanup] Error:", error);
+          throw new Error(`Cleanup failed: ${error.message}`);
+        }
+      }),
+
+    getStorageStats: protectedProcedure
+      .query(async ({ ctx }) => {
+        try {
+          // Only admins can view storage stats
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const stats = await getStorageStats();
+          return stats;
+        } catch (error: any) {
+          console.error("[Admin Storage Stats] Error:", error);
+          throw new Error(`Failed to get storage stats: ${error.message}`);
+        }
+      }),
+
+    getCleanupLogs: protectedProcedure
+      .input(z.object({
+        limit: z.number().optional().default(50),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          // Only admins can view cleanup logs
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const db = await getDb();
+          if (!db) {
+            throw new Error("Database not available");
+          }
+
+          const logs = await db
+            .select()
+            .from(cleanupLogs)
+            .orderBy(desc(cleanupLogs.createdAt))
+            .limit(input.limit);
+
+          return logs;
+        } catch (error: any) {
+          console.error("[Admin Cleanup Logs] Error:", error);
+          throw new Error(`Failed to get cleanup logs: ${error.message}`);
+        }
+      }),
+  }),
 
   subscription: router({
     selectHubs: protectedProcedure

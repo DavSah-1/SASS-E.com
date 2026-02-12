@@ -302,6 +302,13 @@
       "when": 1770904314416,
       "tag": "0042_awesome_bushwacker",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "5",
+      "when": 1770906834833,
+      "tag": "0043_yielding_loners",
+      "breakpoints": true
     }
   ]
 }

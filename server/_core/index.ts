@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import uploadRouter from "../upload";
 import { serveStatic, setupVite } from "./vite";
+import { startCleanupScheduler } from "../services/audioCleanup";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -92,6 +93,14 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    
+    // Start automated audio cleanup scheduler (runs daily at 2 AM)
+    if (process.env.NODE_ENV === 'production') {
+      startCleanupScheduler();
+      console.log('[Audio Cleanup] Scheduler enabled (production mode)');
+    } else {
+      console.log('[Audio Cleanup] Scheduler disabled (development mode)');
+    }
   });
 }
 

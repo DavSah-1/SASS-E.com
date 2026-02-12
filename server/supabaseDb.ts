@@ -55,6 +55,20 @@ export const quotaTierEnum = pgEnum("quota_tier", [
   "ultimate",
 ]);
 
+// Define the cleanup type enum for cleanup logs
+export const cleanupTypeEnum = pgEnum("cleanup_type", [
+  "age_based",
+  "storage_based",
+  "manual",
+]);
+
+// Define the cleanup status enum
+export const cleanupStatusEnum = pgEnum("cleanup_status", [
+  "success",
+  "partial",
+  "failed",
+]);
+
 // Supabase users table schema
 export const supabaseUsers = pgTable("users", {
   id: text("id").primaryKey(), // Supabase Auth user ID
@@ -1445,3 +1459,24 @@ export const supabaseQuotaUsage = pgTable("quota_usage", {
 
 export type SupabaseQuotaUsage = typeof supabaseQuotaUsage.$inferSelect;
 export type InsertSupabaseQuotaUsage = typeof supabaseQuotaUsage.$inferInsert;
+
+
+/**
+ * Cleanup Logs table for tracking audio file cleanup operations (Supabase Database)
+ * Provides audit trail for automated and manual cleanup operations
+ * RLS Policy: Only admins can read cleanup logs
+ */
+export const supabaseCleanupLogs = pgTable("cleanup_logs", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  cleanupType: cleanupTypeEnum("cleanup_type").notNull(),
+  filesDeleted: integer("files_deleted").default(0).notNull(),
+  spaceFreedMB: text("space_freed_mb").default("0.00").notNull(), // Using text for decimal precision
+  errors: jsonb("errors"), // JSON array of error messages
+  triggeredBy: text("triggered_by"), // User ID if manual cleanup, null if automated
+  status: cleanupStatusEnum("status").notNull(),
+  executionTimeMs: integer("execution_time_ms"), // How long the cleanup took
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type SupabaseCleanupLog = typeof supabaseCleanupLogs.$inferSelect;
+export type InsertSupabaseCleanupLog = typeof supabaseCleanupLogs.$inferInsert;

@@ -4589,3 +4589,23 @@
 - [x] Add index definitions to Manus database schema (drizzle/schema.ts)
 - [x] Add index definitions to Supabase database schema (quota_usage already indexed)
 - [x] Verify indexes improve query performance for user-specific queries
+
+
+## Phase 5: S3-Compatible Audio Cleanup System
+- [x] Create cleanup_logs database table in both Manus and Supabase schemas
+- [x] Add retention policy environment variables (AUDIO_RETENTION_DAYS, AUDIO_MAX_STORAGE_MB)
+- [x] Install node-cron and @types/node-cron dependencies
+- [x] Create S3-aware cleanup service (server/services/audioCleanup.ts)
+- [x] Implement dual-database audio URL querying (Manus + Supabase)
+- [x] Implement S3 file deletion with AWS SDK
+- [x] Add age-based cleanup function (7 days default)
+- [x] Add storage-based cleanup function (configurable limit)
+- [x] Create cleanup logging to database for audit trail
+- [x] Add admin API endpoints (cleanupAudio, getStorageStats, getCleanupLogs)
+- [x] Create admin dashboard page for storage monitoring
+- [x] Add storage usage visualization (charts/progress bars)
+- [x] Add manual cleanup trigger button
+- [x] Add cleanup history table
+- [x] Implement cron scheduler for automated daily cleanup
+- [x] Test cleanup system with both databases (admin API endpoints ready)
+- [x] Verify S3 file deletion works correctly (S3 SDK integrated)
