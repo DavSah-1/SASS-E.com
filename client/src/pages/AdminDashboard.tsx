@@ -284,7 +284,7 @@ export default function AdminDashboard() {
       </Card>
 
       {/* Cache Statistics */}
-      <Card>
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5" />
@@ -395,7 +395,7 @@ export default function AdminDashboard() {
       </Card>
 
       {/* Storage Statistics */}
-      <Card>
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />

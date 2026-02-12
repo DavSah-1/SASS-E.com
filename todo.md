@@ -5073,3 +5073,12 @@
 - [x] Add h-auto to TabsList to override shadcn's fixed h-9 height
 - [x] Test on mobile to verify tabs stack properly
 - [x] Save checkpoint
+
+## Phase 31: Fix AdminDashboard Section Spacing
+
+- [ ] Audit all section spacing (mb-* classes) on AdminDashboard
+- [ ] Standardize to consistent spacing values
+- [ ] Test and save checkpoint
+- [x] Audit all section spacing - Found inconsistent mb-6 usage
+- [x] Standardize to mb-6 for all major sections
+- [x] Test and save checkpoint
