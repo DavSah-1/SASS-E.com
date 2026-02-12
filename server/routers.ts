@@ -6,6 +6,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { handleError } from "./_core/errorHandler";
 import * as dbRoleAware from "./dbRoleAware";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
@@ -547,6 +548,7 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        try {
         // Import role-aware database functions
         const dbRoleAware = await import("./dbRoleAware");
         const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
@@ -710,6 +712,9 @@ If verified knowledge base information is provided above, use that as your prima
           sarcasmLevel: userProfile?.sarcasmLevel || 5,
           totalInteractions: (userProfile?.totalInteractions || 0) + 1,
         };
+        } catch (error) {
+          handleError(error, 'Assistant Chat');
+        }
       }),
 
     transcribe: protectedProcedure
@@ -719,37 +724,54 @@ If verified knowledge base information is provided above, use that as your prima
         })
       )
       .mutation(async ({ input }) => {
-        const result = await transcribeAudio({
-          audioUrl: input.audioUrl,
-          language: "en",
-        });
+        try {
+          const result = await transcribeAudio({
+            audioUrl: input.audioUrl,
+            language: "en",
+          });
 
-        if ('error' in result) {
-          const errorMessage = typeof result.error === 'string' ? result.error : 'Transcription failed';
-          throw new Error(errorMessage);
+          if ('error' in result) {
+            const errorMessage = typeof result.error === 'string' ? result.error : 'Transcription failed';
+            throw new Error(errorMessage);
+          }
+
+          return {
+            text: result.text,
+          };
+        } catch (error) {
+          handleError(error, 'Assistant Transcribe');
         }
-
-        return {
-          text: result.text,
-        };
       }),
 
     getConversations: protectedProcedure.query(async ({ ctx }) => {
-      const conversations = await dbRoleAware.getUserConversations(ctx, ctx.user.numericId);
-      return conversations;
+      try {
+        const conversations = await dbRoleAware.getUserConversations(ctx, ctx.user.numericId);
+        return conversations;
+      } catch (error) {
+        handleError(error, 'Get Conversations');
+      }
     }),
     clearAllConversations: protectedProcedure.mutation(async ({ ctx }) => {
-      const { deleteAllUserConversations } = await import('./db');
-      await deleteAllUserConversations(ctx.user.numericId);
-      return { success: true };
+      try {
+        const { deleteAllUserConversations } = await import('./db');
+        await deleteAllUserConversations(ctx.user.numericId);
+        return { success: true };
+      } catch (error) {
+        handleError(error, 'Clear Conversations');
+      }
     }),
     history: protectedProcedure.query(async ({ ctx }) => {
-      const conversations = await dbRoleAware.getUserConversations(ctx, ctx.user.numericId);
-      return conversations;
+      try {
+        const conversations = await dbRoleAware.getUserConversations(ctx, ctx.user.numericId);
+        return conversations;
+      } catch (error) {
+        handleError(error, 'Get History');
+      }
     }),
 
     // Get user's learning profile
     getProfile: protectedProcedure.query(async ({ ctx }) => {
+      try {
       let profile = await dbRoleAware.getUserProfile(ctx, ctx.user.numericId);
       if (!profile) {
         await dbRoleAware.createUserProfile(ctx, {
@@ -771,6 +793,9 @@ If verified knowledge base information is provided above, use that as your prima
         preferredTopics: profile?.preferredTopics ? JSON.parse(profile.preferredTopics) : [],
         interactionPatterns: profile?.interactionPatterns ? JSON.parse(profile.interactionPatterns) : {},
       };
+      } catch (error) {
+        handleError(error, 'Get Profile');
+      }
     }),
 
     // Submit feedback for a conversation
@@ -783,6 +808,7 @@ If verified knowledge base information is provided above, use that as your prima
         })
       )
       .mutation(async ({ ctx, input }) => {
+        try {
         // Save feedback
         await dbRoleAware.saveConversationFeedback(ctx, {
           conversationId: input.conversationId,
@@ -826,6 +852,9 @@ If verified knowledge base information is provided above, use that as your prima
         }
 
         return { success: true, message: "Feedback received!" };
+        } catch (error) {
+          handleError(error, 'Submit Feedback');
+        }
       }),
   }),
 
@@ -884,7 +913,8 @@ If verified knowledge base information is provided above, use that as your prima
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
+        try {
+          const device = await dbRoleAware.getIoTDeviceById(ctx, input.deviceId);
         if (!device) {
           throw new Error("Device not found");
         }
@@ -960,6 +990,9 @@ If verified knowledge base information is provided above, use that as your prima
           message: bobMessageString,
           newState: result.newState,
         };
+        } catch (error) {
+          handleError(error, 'IoT Control Device');
+        }
       }),
 
     // Get device status
