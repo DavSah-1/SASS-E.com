@@ -46,6 +46,7 @@ import ErrorTest from "./pages/ErrorTest";
 import AdminDashboard from "./pages/AdminDashboard";
 import MonitoringDashboard from "./pages/MonitoringDashboard";
 import UserManagement from "./pages/UserManagement";
+import AuditLog from "./pages/AuditLog";
 
 
 function Router() {
@@ -71,9 +72,10 @@ function Router() {
       <Route path={"/sign-in"} component={SignIn} />
       <Route path={"/sign-up"} component={SignUp} />
       <Route path={"/error-test"} component={ErrorTest} />
-      <Route path={"/profile/admin"} component={AdminDashboard} />
-      <Route path={"/profile/monitoring"} component={MonitoringDashboard} />
-      <Route path={"/profile/admin/users"} component={UserManagement} />
+          <Route path="/profile/admin" component={AdminDashboard} />
+      <Route path="/profile/monitoring" component={MonitoringDashboard} />
+      <Route path="/profile/admin/users" component={UserManagement} />
+      <Route path="/profile/admin/audit" component={AuditLog} />
       {/* Redirect old admin routes */}
       <Route path={"/admin"}>{() => { window.location.href = "/profile/admin"; return null; }}</Route>
       <Route path={"/monitoring"}>{() => { window.location.href = "/profile/monitoring"; return null; }}</Route>

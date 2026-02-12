@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Trash2, RefreshCw, Database, Clock, CheckCircle, XCircle, AlertTriangle, Zap } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import {
   Table,
   TableBody,
@@ -112,7 +113,8 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto py-8 px-4">
+      <Breadcrumb items={[{ label: "Admin Dashboard" }]} />
       <div>
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <p className="text-muted-foreground">Manage audio file storage, cache, and cleanup operations</p>

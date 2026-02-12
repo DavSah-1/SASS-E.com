@@ -21,6 +21,7 @@ import {
   XCircle,
   Search
 } from "lucide-react";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export default function MonitoringDashboard() {
   const { user, loading } = useAuth();
@@ -107,7 +108,8 @@ export default function MonitoringDashboard() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto py-8 px-4">
+      <Breadcrumb items={[{ label: "System Monitoring" }]} />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
