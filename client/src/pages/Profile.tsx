@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCurrency, CURRENCY_LIST, CurrencyCode } from "@/contexts/CurrencyContext";
 import { Language, getLanguageName, getLanguageFlag } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
-import { User, Globe, Activity, TrendingUp, MessageSquare, DollarSign, Shield, Lock, Key, Copy, Check } from "lucide-react";
+import { User, Globe, Activity, TrendingUp, MessageSquare, DollarSign, Shield, Lock, Key, Copy, Check, Settings, BarChart3, Users } from "lucide-react";
 import { SubscriptionManagement } from "@/components/SubscriptionManagement";
 import { QuotaDisplay } from "@/components/QuotaDisplay";
 import { useState, useEffect } from "react";
@@ -619,6 +619,66 @@ export default function Profile() {
                     <strong className="text-purple-400">Note:</strong> SASS-E adapts its personality based on your interactions. 
                     The sarcasm level adjusts automatically based on your feedback and conversation patterns.
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Admin Panel - Only visible to admins */}
+          {user.role === 'admin' && (
+            <Card className="bg-slate-800/50 border-purple-500/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <Shield className="h-5 w-5" />
+                  {t("Admin Panel")}
+                </CardTitle>
+                <CardDescription className="text-slate-400">
+                  {t("Administrative tools and system management")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <Button 
+                    asChild
+                    variant="outline"
+                    className="bg-slate-700/50 hover:bg-slate-700 border-purple-500/30 text-white h-auto py-4 flex-col gap-2"
+                  >
+                    <a href="/profile/admin">
+                      <Settings className="h-6 w-6 text-purple-400" />
+                      <div className="text-center">
+                        <div className="font-semibold">Admin Dashboard</div>
+                        <div className="text-xs text-slate-400">Storage, cache & cleanup</div>
+                      </div>
+                    </a>
+                  </Button>
+                  
+                  <Button 
+                    asChild
+                    variant="outline"
+                    className="bg-slate-700/50 hover:bg-slate-700 border-purple-500/30 text-white h-auto py-4 flex-col gap-2"
+                  >
+                    <a href="/profile/monitoring">
+                      <BarChart3 className="h-6 w-6 text-purple-400" />
+                      <div className="text-center">
+                        <div className="font-semibold">System Monitoring</div>
+                        <div className="text-xs text-slate-400">Logs, metrics & health</div>
+                      </div>
+                    </a>
+                  </Button>
+                  
+                  <Button 
+                    asChild
+                    variant="outline"
+                    className="bg-slate-700/50 hover:bg-slate-700 border-purple-500/30 text-white h-auto py-4 flex-col gap-2"
+                  >
+                    <a href="/profile/admin/users">
+                      <Users className="h-6 w-6 text-purple-400" />
+                      <div className="text-center">
+                        <div className="font-semibold">User Management</div>
+                        <div className="text-xs text-slate-400">Roles & permissions</div>
+                      </div>
+                    </a>
+                  </Button>
                 </div>
               </CardContent>
             </Card>

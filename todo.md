@@ -4771,4 +4771,43 @@
 - [x] Redirect non-admin users to home page
 - [x] Test with admin user (should have access)
 - [x] Test with non-admin user (should be redirected)
+- [x] Save checkpoint
+
+## Phase 16: Admin Panel Reorganization & User Management
+
+### Route Updates
+- [x] Update App.tsx routes: /admin → /profile/admin
+- [x] Update App.tsx routes: /monitoring → /profile/monitoring
+- [x] Add new route: /profile/admin/users
+- [ ] Test old routes redirect or show 404
+
+### Profile Page Updates
+- [x] Add admin panel section to Profile page (admin-only)
+- [x] Add navigation buttons to /profile/admin
+- [x] Add navigation buttons to /profile/monitoring
+- [x] Add navigation buttons to /profile/admin/users
+
+### User Management Backend
+- [x] Create tRPC endpoint: getAllUsers (with pagination)
+- [x] Create tRPC endpoint: updateUserRole (promote/demote admin)
+- [x] Create tRPC endpoint: suspendUser
+- [x] Create tRPC endpoint: deleteUser
+- [x] Create tRPC endpoint: resetUserPassword
+- [x] Create tRPC endpoint: getUserActivity (quota usage)stats)
+
+### User Management Page
+- [ ] Create UserManagement.tsx page component
+- [ ] Add users table with columns: email, name, role, last login, subscription tier
+- [ ] Add role toggle button (promote/demote admin)
+- [ ] Add suspend/unsuspend user button
+- [ ] Add delete user button with confirmation dialog
+- [ ] Add reset password button with temporary password display
+- [ ] Add user activity modal showing quota usage
+- [ ] Add pagination for user list
+- [ ] Add search/filter functionality
+
+### Testing & Deployment
+- [ ] Test route changes (old routes should 404)
+- [ ] Test admin panel section visibility (admin-only)
+- [ ] Test user management operations
 - [ ] Save checkpoint

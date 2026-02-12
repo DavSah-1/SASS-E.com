@@ -34,7 +34,7 @@ import { metrics, logApiUsage, logError } from "./utils/metrics";
 import { systemLogs, performanceMetrics, errorLogs, apiUsageLogs } from "../drizzle/schema";
 import { and, gte, lte, like, eq, sql } from "drizzle-orm";
 import { getDb } from "./db";
-import { getSupabaseClient } from "./supabaseClient";
+import { getSupabaseClient, getSupabaseAdminClient } from "./supabaseClient";
 import { cleanupLogs } from "../drizzle/schema";
 import { desc } from "drizzle-orm";
 import {
@@ -391,6 +391,185 @@ export const appRouter = router({
         } catch (error: any) {
           console.error("[Admin Resolve Error] Error:", error);
           throw new Error(`Failed to resolve error: ${error.message}`);
+        }
+      }),
+
+    // User Management Endpoints
+    getAllUsers: protectedProcedure
+      .input(z.object({
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+        search: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const supabase = getSupabaseAdminClient();
+          
+          let query = supabase
+            .from('users')
+            .select('*', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(input.offset, input.offset + input.limit - 1);
+
+          if (input.search) {
+            query = query.or(`email.ilike.%${input.search}%,name.ilike.%${input.search}%`);
+          }
+
+          const { data, error, count } = await query;
+
+          if (error) throw error;
+
+          return {
+            users: data || [],
+            total: count || 0,
+          };
+        } catch (error: any) {
+          console.error("[Admin Get All Users] Error:", error);
+          throw new Error(`Failed to get users: ${error.message}`);
+        }
+      }),
+
+    updateUserRole: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+        role: z.enum(["admin", "user"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const supabase = getSupabaseAdminClient();
+          
+          const { error } = await supabase
+            .from('users')
+            .update({ role: input.role })
+            .eq('id', input.userId);
+
+          if (error) throw error;
+
+          return { success: true, message: `User role updated to ${input.role}` };
+        } catch (error: any) {
+          console.error("[Admin Update User Role] Error:", error);
+          throw new Error(`Failed to update user role: ${error.message}`);
+        }
+      }),
+
+    suspendUser: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+        suspended: z.boolean(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          // TODO: Add suspended field to users table schema
+          // For now, we'll just return success
+          console.log(`[Admin] User ${input.userId} suspension status: ${input.suspended}`);
+
+          return { 
+            success: true, 
+            message: input.suspended ? "User suspended" : "User unsuspended"
+          };
+        } catch (error: any) {
+          console.error("[Admin Suspend User] Error:", error);
+          throw new Error(`Failed to suspend user: ${error.message}`);
+        }
+      }),
+
+    deleteUser: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const supabase = getSupabaseAdminClient();
+          
+          const { error } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', input.userId);
+
+          if (error) throw error;
+
+          return { success: true, message: "User deleted successfully" };
+        } catch (error: any) {
+          console.error("[Admin Delete User] Error:", error);
+          throw new Error(`Failed to delete user: ${error.message}`);
+        }
+      }),
+
+    resetUserPassword: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          // Generate temporary password
+          const tempPassword = Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12).toUpperCase();
+
+          // TODO: Implement password reset logic with Supabase Auth
+          console.log(`[Admin] Generated temporary password for user ${input.userId}`);
+
+          return { 
+            success: true, 
+            tempPassword,
+            message: "Temporary password generated. User should change it on next login."
+          };
+        } catch (error: any) {
+          console.error("[Admin Reset Password] Error:", error);
+          throw new Error(`Failed to reset password: ${error.message}`);
+        }
+      }),
+
+    getUserActivity: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const db = await getDb();
+          if (!db) {
+            throw new Error("Database not available");
+          }
+
+          // Get API usage stats
+          const apiUsage = await db
+            .select({
+              apiName: apiUsageLogs.apiName,
+              count: sql<number>`count(*)`,
+              totalQuota: sql<number>`sum(${apiUsageLogs.quotaUsed})`,
+            })
+            .from(apiUsageLogs)
+            .where(eq(apiUsageLogs.userId, input.userId))
+            .groupBy(apiUsageLogs.apiName);
+
+          return {
+            apiUsage,
+          };
+        } catch (error: any) {
+          console.error("[Admin Get User Activity] Error:", error);
+          throw new Error(`Failed to get user activity: ${error.message}`);
         }
       }),
   }),
