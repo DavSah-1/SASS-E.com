@@ -29,6 +29,7 @@ import { transactionImportRouter } from "./transactionImportRouter";
 import { budgetExportRouter } from "./budgetExportRouter";
 import { toNumericId } from "./_core/dbWrapper";
 import { cleanupOldAudioFiles, cleanupByStorageLimit, getStorageStats } from "./services/audioCleanup";
+import { getCacheStats, cacheClear } from "./services/cache";
 import { getDb } from "./db";
 import { getSupabaseClient } from "./supabaseClient";
 import { cleanupLogs } from "../drizzle/schema";
@@ -136,6 +137,47 @@ export const appRouter = router({
         } catch (error: any) {
           console.error("[Admin Cleanup Logs] Error:", error);
           throw new Error(`Failed to get cleanup logs: ${error.message}`);
+        }
+      }),
+
+    // Cache management endpoints
+    getCacheStats: protectedProcedure
+      .query(async ({ ctx }) => {
+        try {
+          // Only admins can view cache stats
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const stats = await getCacheStats();
+          return stats;
+        } catch (error: any) {
+          console.error("[Admin Cache Stats] Error:", error);
+          throw new Error(`Failed to get cache stats: ${error.message}`);
+        }
+      }),
+
+    clearCache: protectedProcedure
+      .input(z.object({
+        pattern: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          // Only admins can clear cache
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          await cacheClear(input.pattern);
+          return {
+            success: true,
+            message: input.pattern 
+              ? `Cleared cache entries matching pattern: ${input.pattern}`
+              : "Cleared all cache entries",
+          };
+        } catch (error: any) {
+          console.error("[Admin Clear Cache] Error:", error);
+          throw new Error(`Failed to clear cache: ${error.message}`);
         }
       }),
   }),

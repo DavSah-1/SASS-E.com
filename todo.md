@@ -4631,3 +4631,15 @@
 - [x] Add loading indicator for fetching more conversations
 - [x] Test infinite scroll with both databases (TypeScript compilation successful)
 - [ ] Save checkpoint
+
+
+## Phase 8: Search Result Caching
+- [x] Install ioredis and @types/ioredis dependencies
+- [x] Create cache service (server/services/cache.ts) with Redis and in-memory fallback
+- [x] Update Tavily search to use caching
+- [x] Ensure quota tracking only increments on cache misses
+- [x] Add admin endpoints for cache statistics
+- [x] Add admin endpoint for manual cache clearing
+- [x] Update admin dashboard to show cache statistics
+- [x] Test caching with both Redis and in-memory fallback
+- [ ] Save checkpoint

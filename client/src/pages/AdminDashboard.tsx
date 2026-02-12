@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Trash2, RefreshCw, Database, Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Loader2, Trash2, RefreshCw, Database, Clock, CheckCircle, XCircle, AlertTriangle, Zap } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -23,6 +23,20 @@ export default function AdminDashboard() {
   
   // Fetch cleanup logs
   const { data: cleanupLogs, isLoading: logsLoading, refetch: refetchLogs } = trpc.admin.getCleanupLogs.useQuery({ limit: 20 });
+  
+  // Fetch cache stats
+  const { data: cacheStats, isLoading: cacheLoading, refetch: refetchCache } = trpc.admin.getCacheStats.useQuery();
+  
+  // Clear cache mutation
+  const clearCacheMutation = trpc.admin.clearCache.useMutation({
+    onSuccess: (result) => {
+      toast.success(result.message);
+      refetchCache();
+    },
+    onError: (error) => {
+      toast.error(`Failed to clear cache: ${error.message}`);
+    },
+  });
   
   // Cleanup mutation
   const cleanupMutation = trpc.admin.cleanupAudio.useMutation({
@@ -69,8 +83,80 @@ export default function AdminDashboard() {
     <div className="container mx-auto py-8 space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Manage audio file storage and cleanup operations</p>
+        <p className="text-muted-foreground">Manage audio file storage, cache, and cleanup operations</p>
       </div>
+
+      {/* Cache Statistics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5" />
+            Search Cache Statistics
+          </CardTitle>
+          <CardDescription>Redis/In-memory cache for Tavily search results</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {cacheLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : cacheStats ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground">Cache Type</p>
+                  <p className="text-2xl font-bold capitalize">{cacheStats.type}</p>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground">Cached Entries</p>
+                  <p className="text-2xl font-bold">{cacheStats.entries}</p>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="text-2xl font-bold">{cacheStats.enabled ? "✅ Enabled" : "❌ Disabled"}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button onClick={() => refetchCache()} variant="outline" size="sm">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh Stats
+                </Button>
+                <Button 
+                  onClick={() => {
+                    if (confirm("Are you sure you want to clear all cache entries? This will force all subsequent searches to make new API calls.")) {
+                      clearCacheMutation.mutate({});
+                    }
+                  }}
+                  variant="destructive" 
+                  size="sm"
+                  disabled={clearCacheMutation.isPending}
+                >
+                  {clearCacheMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Clearing...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Clear All Cache
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p>• Cache stores search results for 1 hour (successful searches) or 5 minutes (empty results)</p>
+                <p>• Cache hits do not consume your Tavily API quota</p>
+                <p>• {cacheStats.type === "redis" ? "Using Redis for persistent caching" : "Using in-memory cache (resets on server restart)"}</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-muted-foreground">Failed to load cache statistics</p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Storage Statistics */}
       <Card>

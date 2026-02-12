@@ -3,6 +3,7 @@ import { checkQuota, incrementQuota, type UserContext, type Service } from "./qu
 import { invokeLLM } from "../_core/llm";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { searchWeb } from "../_core/webSearch";
+import { cacheGet, cacheSet, generateCacheKey } from "../services/cache";
 
 /**
  * Quota-Aware API Wrappers
@@ -14,7 +15,11 @@ import { searchWeb } from "../_core/webSearch";
  */
 
 /**
- * Quota-aware web search using Tavily
+ * Quota-aware web search using Tavily with caching
+ * 
+ * Caches search results to avoid redundant API calls:
+ * - Cache hit: Returns cached results without incrementing quota
+ * - Cache miss: Makes API call, increments quota, and caches results
  * 
  * @param ctx User context for quota tracking
  * @param query Search query
@@ -27,7 +32,19 @@ export async function searchWebWithQuota(
   query: string,
   maxResults: number = 5
 ) {
-  // Check quota before making the call
+  // Generate cache key from query
+  const cacheKey = generateCacheKey(query, 'search');
+  
+  // Check cache first
+  const cached = await cacheGet<any>(cacheKey);
+  if (cached) {
+    console.log(`[Cache] Hit for search query: "${query.substring(0, 50)}..."`);
+    return cached;
+  }
+  
+  console.log(`[Cache] Miss for search query: "${query.substring(0, 50)}..."`);
+  
+  // Check quota before making the call (only on cache miss)
   const quotaCheck = await checkQuota(ctx, "tavily");
   
   if (!quotaCheck.allowed) {
@@ -40,8 +57,13 @@ export async function searchWebWithQuota(
   // Make the API call
   const result = await searchWeb(query, maxResults);
 
-  // Increment quota after successful call
+  // Increment quota after successful call (only on cache miss)
   await incrementQuota(ctx, "tavily");
+  
+  // Cache the result
+  // Use 1 hour TTL for results, 5 minutes for empty results
+  const ttl = result && result.results && result.results.length > 0 ? 3600 : 300;
+  await cacheSet(cacheKey, result, { ttl });
 
   return result;
 }
