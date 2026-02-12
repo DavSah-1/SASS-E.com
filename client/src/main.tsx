@@ -88,11 +88,26 @@ const trpcClient = trpc.createClient({
           headers.set("Authorization", `Bearer ${session.access_token}`);
         }
         
-        return globalThis.fetch(input, {
+        const response = await globalThis.fetch(input, {
           ...(init ?? {}),
           credentials: "include", // Still include cookies for Manus OAuth
           headers,
         });
+        
+        // Check if response is HTML instead of JSON (indicates routing error)
+        const contentType = response.headers.get("content-type");
+        if (contentType?.includes("text/html")) {
+          console.error("[tRPC] Received HTML response instead of JSON. This indicates a routing issue.");
+          console.error("[tRPC] Request URL:", input);
+          console.error("[tRPC] Response status:", response.status);
+          // Return a proper error response instead of letting JSON parsing fail
+          return new Response(
+            JSON.stringify({ error: { message: "Server routing error: received HTML instead of JSON" } }),
+            { status: 500, headers: { "content-type": "application/json" } }
+          );
+        }
+        
+        return response;
       },
     }),
   ],
