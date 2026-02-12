@@ -5055,3 +5055,12 @@
 - [x] Inspect tabs on tablet (768px) - No tablet breakpoint, stuck at 2 columns
 - [x] Fix tab layout - Changed to grid-cols-2 md:grid-cols-4 for tablet support
 - [x] Test and save checkpoint
+
+## Phase 29: Fix Tab Spacing on Mobile
+
+- [ ] Identify spacing issue when tabs stack (Errors/System Logs on row 2)
+- [ ] Fix spacing between tabs and content below
+- [ ] Test on mobile and save checkpoint
+- [x] Identify spacing issue when tabs stack - No gap between grid rows
+- [x] Fix spacing - Added gap-2 to TabsList grid
+- [x] Test on mobile and save checkpoint
