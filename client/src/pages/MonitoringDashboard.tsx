@@ -112,14 +112,14 @@ export default function MonitoringDashboard() {
       <div className="container mx-auto py-8 px-4">
         <Breadcrumb items={[{ label: "Profile", href: "/profile" }, { label: "Admin Dashboard", href: "/profile/admin" }, { label: "System Monitoring" }]} />
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-cyan-400">System Monitoring</h1>
             <p className="text-slate-300">Real-time system health and performance metrics</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           <Select value={timeRange} onValueChange={(v: any) => setTimeRange(v)}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[120px] sm:w-[140px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -133,14 +133,17 @@ export default function MonitoringDashboard() {
             variant="outline"
             size="icon"
             onClick={handleRefreshAll}
+            title="Refresh"
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
           <Button
             variant={autoRefresh ? "default" : "outline"}
             onClick={() => setAutoRefresh(!autoRefresh)}
+            className="text-sm"
           >
-            {autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
+            <span className="hidden sm:inline">{autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}</span>
+            <span className="sm:hidden">{autoRefresh ? "Auto ON" : "Auto OFF"}</span>
           </Button>
           </div>
         </div>
