@@ -5044,3 +5044,14 @@
 - [x] Test AuditLog on mobile and tablet - Already responsive with icon-only buttons
 - [x] Fix responsive layout issues - MonitoringDashboard header now stacks vertically on mobile
 - [x] Test all fixes and save checkpoint
+
+## Phase 28: Fix MonitoringDashboard Tabs Mobile Layout
+
+- [ ] Inspect tabs (Performance, API Usage, Errors, System Logs) on mobile (375px)
+- [ ] Inspect tabs on tablet (768px)
+- [ ] Fix tab layout issues for mobile and tablet
+- [ ] Test and save checkpoint
+- [x] Inspect tabs (Performance, API Usage, Errors, System Logs) on mobile (375px) - Found grid-cols-2 lg:grid-cols-4
+- [x] Inspect tabs on tablet (768px) - No tablet breakpoint, stuck at 2 columns
+- [x] Fix tab layout - Changed to grid-cols-2 md:grid-cols-4 for tablet support
+- [x] Test and save checkpoint

@@ -198,7 +198,7 @@ export default function MonitoringDashboard() {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="performance" className="space-y-4 mb-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="api-usage">API Usage</TabsTrigger>
             <TabsTrigger value="errors">Errors</TabsTrigger>
