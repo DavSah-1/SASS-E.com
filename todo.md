@@ -4681,8 +4681,54 @@
 
 ## Phase 12: Push Latest Changes to GitHub
 
-- [ ] Check git status and verify repository connection
-- [ ] Stage all changes
-- [ ] Create commit with descriptive message
-- [ ] Push to GitHub repository (DavSah-1/SASS-E.com)
-- [ ] Verify push success
+- [x] Check git status and verify repository connection
+- [x] Stage all changes
+- [x] Create commit with descriptive message
+- [x] Push to GitHub repository (DavSah-1/SASS-E.com)
+- [x] Verify push success
+
+## Phase 13: Custom Monitoring & Logging Service
+
+### Database Schema Design
+- [x] Create `system_logs` table for application logs
+- [x] Create `performance_metrics` table for execution time tracking
+- [x] Create `error_logs` table for error tracking
+- [x] Create `api_usage_logs` table for API call tracking
+- [x] Run database migration
+
+### Winston Logger Implementation
+- [x] Install Winston and winston-daily-rotate-file packages
+- [x] Create logger utility (server/utils/logger.ts)
+- [x] Implement database transport for Winston
+- [x] Add HTTP request logging middleware
+- [x] Configure log levels and formatting
+
+### Performance Metrics System
+- [x] Create metrics collector (server/utils/metrics.ts)
+- [x] Implement measureAsync and measure helpers
+- [x] Add database persistence for metrics
+- [x] Create metrics aggregation queries (avg, p50, p95, p99)
+
+### Service Integration
+- [x] Add logging to web search service
+- [x] Add logging to LLM service
+- [x] Add logging to voice transcription service
+- [x] Add performance metrics tracking to all services
+- [x] Add API usage logging to all services
+- [x] Add error logging to all services
+
+### Admin Dashboard
+- [ ] Create backend endpoints for metrics retrieval
+- [ ] Create backend endpoint for system health
+- [ ] Create backend endpoint for logs viewing
+- [ ] Build monitoring dashboard UI page
+- [ ] Add real-time metrics charts
+- [ ] Add log viewer with filtering
+- [ ] Add system health indicators
+
+### Testing & Documentation
+- [ ] Test logging functionality
+- [ ] Test metrics collection
+- [ ] Test admin dashboard
+- [ ] Update documentation
+- [ ] Save checkpoint

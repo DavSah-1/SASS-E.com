@@ -4,6 +4,10 @@ import { invokeLLM } from "../_core/llm";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { searchWeb } from "../_core/webSearch";
 import { cacheGet, cacheSet, generateCacheKey } from "../services/cache";
+import { createContextLogger } from "./logger";
+import { measureAsync, logApiUsage, logError } from "./metrics";
+
+const logger = createContextLogger('quotaAwareApi');
 
 /**
  * Quota-Aware API Wrappers
@@ -32,40 +36,89 @@ export async function searchWebWithQuota(
   query: string,
   maxResults: number = 5
 ) {
-  // Generate cache key from query
-  const cacheKey = generateCacheKey(query, 'search');
-  
-  // Check cache first
-  const cached = await cacheGet<any>(cacheKey);
-  if (cached) {
-    console.log(`[Cache] Hit for search query: "${query.substring(0, 50)}..."`);
-    return cached;
-  }
-  
-  console.log(`[Cache] Miss for search query: "${query.substring(0, 50)}..."`);
-  
-  // Check quota before making the call (only on cache miss)
-  const quotaCheck = await checkQuota(ctx, "tavily");
-  
-  if (!quotaCheck.allowed) {
-    throw new TRPCError({
-      code: "TOO_MANY_REQUESTS",
-      message: `Oh wow, you've hit your monthly search limit (${quotaCheck.limit} searches). Maybe try using your brain instead of relying on me for everything? Your quota resets on ${quotaCheck.resetAt.toLocaleDateString()}. Or, you know, upgrade your subscription if you can't live without my search prowess.`,
-    });
-  }
+  return measureAsync(
+    'web_search_duration',
+    async () => {
+      // Generate cache key from query
+      const cacheKey = generateCacheKey(query, 'search');
+      
+      // Check cache first
+      const cached = await cacheGet<any>(cacheKey);
+      if (cached) {
+        logger.info(`Cache hit for search query: "${query.substring(0, 50)}..."`, { userId: ctx.id });
+        return cached;
+      }
+      
+      logger.info(`Cache miss for search query: "${query.substring(0, 50)}..."`, { userId: ctx.id });
+      
+      // Check quota before making the call (only on cache miss)
+      const quotaCheck = await checkQuota(ctx, "tavily");
+      
+      if (!quotaCheck.allowed) {
+        logger.warn(`Quota exceeded for user ${ctx.id} on Tavily search`, { userId: ctx.id });
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: `Oh wow, you've hit your monthly search limit (${quotaCheck.limit} searches). Maybe try using your brain instead of relying on me for everything? Your quota resets on ${quotaCheck.resetAt.toLocaleDateString()}. Or, you know, upgrade your subscription if you can't live without my search prowess.`,
+        });
+      }
 
-  // Make the API call
-  const result = await searchWeb(query, maxResults);
+      const apiStart = Date.now();
+      let success = false;
+      let errorMessage: string | undefined;
+      
+      try {
+        // Make the API call
+        const result = await searchWeb(query, maxResults);
+        success = true;
 
-  // Increment quota after successful call (only on cache miss)
-  await incrementQuota(ctx, "tavily");
-  
-  // Cache the result
-  // Use 1 hour TTL for results, 5 minutes for empty results
-  const ttl = result && result.results && result.results.length > 0 ? 3600 : 300;
-  await cacheSet(cacheKey, result, { ttl });
+        // Increment quota after successful call (only on cache miss)
+        await incrementQuota(ctx, "tavily");
+        
+        // Cache the result
+        // Use 1 hour TTL for results, 5 minutes for empty results
+        const ttl = result && result.results && result.results.length > 0 ? 3600 : 300;
+        await cacheSet(cacheKey, result, { ttl });
+        
+        logger.info(`Search completed successfully for query: "${query.substring(0, 50)}..."`, { 
+          userId: ctx.id,
+          resultsCount: result?.results?.length || 0 
+        });
 
-  return result;
+        return result;
+      } catch (error: any) {
+        errorMessage = error.message;
+        logger.error(`Search failed for query: "${query.substring(0, 50)}..."`, { 
+          userId: ctx.id,
+          error: error.message 
+        });
+        
+        await logError({
+          errorType: error.constructor.name,
+          message: error.message,
+          stack: error.stack,
+          context: 'searchWebWithQuota',
+          metadata: { query: query.substring(0, 100), maxResults },
+          userId: typeof ctx.id === 'number' ? ctx.id : undefined,
+        });
+        
+        throw error;
+      } finally {
+        // Log API usage
+        await logApiUsage({
+          apiName: 'tavily',
+          endpoint: '/search',
+          method: 'POST',
+          duration: Date.now() - apiStart,
+          quotaUsed: success ? 1 : 0,
+          userId: typeof ctx.id === 'number' ? ctx.id : undefined,
+          success,
+          errorMessage,
+        });
+      }
+    },
+    { query: query.substring(0, 50) },
+    typeof ctx.id === 'number' ? ctx.id : undefined
+  );
 }
 
 /**
@@ -84,23 +137,74 @@ export async function transcribeAudioWithQuota(
     prompt?: string;
   }
 ) {
-  // Check quota before making the call
-  const quotaCheck = await checkQuota(ctx, "whisper");
-  
-  if (!quotaCheck.allowed) {
-    throw new TRPCError({
-      code: "TOO_MANY_REQUESTS",
-      message: `Congratulations! You've exhausted your ${quotaCheck.limit} monthly transcriptions. I guess I'll have to wait until ${quotaCheck.resetAt.toLocaleDateString()} to hear more of your riveting audio. Or upgrade your plan if you absolutely can't live without my transcription services.`,
-    });
-  }
+  return measureAsync(
+    'audio_transcription_duration',
+    async () => {
+      // Check quota before making the call
+      const quotaCheck = await checkQuota(ctx, "whisper");
+      
+      if (!quotaCheck.allowed) {
+        logger.warn(`Quota exceeded for user ${ctx.id} on Whisper transcription`, { userId: ctx.id });
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: `Congratulations! You've exhausted your ${quotaCheck.limit} monthly transcriptions. I guess I'll have to wait until ${quotaCheck.resetAt.toLocaleDateString()} to hear more of your riveting audio. Or upgrade your plan if you absolutely can't live without my transcription services.`,
+        });
+      }
 
-  // Make the API call
-  const result = await transcribeAudio(params);
+      const apiStart = Date.now();
+      let success = false;
+      let errorMessage: string | undefined;
+      
+      try {
+        logger.info('Starting audio transcription', { userId: ctx.id, language: params.language });
+        
+        // Make the API call
+        const result = await transcribeAudio(params);
+        success = true;
 
-  // Increment quota after successful call
-  await incrementQuota(ctx, "whisper");
+        // Increment quota after successful call
+        await incrementQuota(ctx, "whisper");
+        
+        logger.info('Transcription completed successfully', { 
+          userId: ctx.id,
+          textLength: result.text?.length || 0 
+        });
 
-  return result;
+        return result;
+      } catch (error: any) {
+        errorMessage = error.message;
+        logger.error('Transcription failed', { 
+          userId: ctx.id,
+          error: error.message 
+        });
+        
+        await logError({
+          errorType: error.constructor.name,
+          message: error.message,
+          stack: error.stack,
+          context: 'transcribeAudioWithQuota',
+          metadata: { audioUrl: params.audioUrl, language: params.language },
+          userId: typeof ctx.id === 'number' ? ctx.id : undefined,
+        });
+        
+        throw error;
+      } finally {
+        // Log API usage
+        await logApiUsage({
+          apiName: 'whisper',
+          endpoint: '/transcribe',
+          method: 'POST',
+          duration: Date.now() - apiStart,
+          quotaUsed: success ? 1 : 0,
+          userId: typeof ctx.id === 'number' ? ctx.id : undefined,
+          success,
+          errorMessage,
+        });
+      }
+    },
+    { language: params.language || 'auto' },
+    typeof ctx.id === 'number' ? ctx.id : undefined
+  );
 }
 
 /**
@@ -115,23 +219,77 @@ export async function invokeLLMWithQuota(
   ctx: UserContext,
   params: Parameters<typeof invokeLLM>[0]
 ) {
-  // Check quota before making the call
-  const quotaCheck = await checkQuota(ctx, "llm");
-  
-  if (!quotaCheck.allowed) {
-    throw new TRPCError({
-      code: "TOO_MANY_REQUESTS",
-      message: `Well, well, well... looks like you've burned through all ${quotaCheck.limit} of your monthly AI requests. Shocking, I know. Your quota resets on ${quotaCheck.resetAt.toLocaleDateString()}. Until then, try thinking for yourself—it's free! Or upgrade if you're that dependent on my brilliance.`,
-    });
-  }
+  return measureAsync(
+    'llm_invocation_duration',
+    async () => {
+      // Check quota before making the call
+      const quotaCheck = await checkQuota(ctx, "llm");
+      
+      if (!quotaCheck.allowed) {
+        logger.warn(`Quota exceeded for user ${ctx.id} on LLM invocation`, { userId: ctx.id });
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: `Well, well, well... looks like you've burned through all ${quotaCheck.limit} of your monthly AI requests. Shocking, I know. Your quota resets on ${quotaCheck.resetAt.toLocaleDateString()}. Until then, try thinking for yourself—it's free! Or upgrade if you're that dependent on my brilliance.`,
+        });
+      }
 
-  // Make the API call
-  const result = await invokeLLM(params);
+      const apiStart = Date.now();
+      let success = false;
+      let errorMessage: string | undefined;
+      
+      try {
+        logger.info('Starting LLM invocation', { 
+          userId: ctx.id,
+          messageCount: params.messages?.length || 0 
+        });
+        
+        // Make the API call
+        const result = await invokeLLM(params);
+        success = true;
 
-  // Increment quota after successful call
-  await incrementQuota(ctx, "llm");
+        // Increment quota after successful call
+        await incrementQuota(ctx, "llm");
+        
+        logger.info('LLM invocation completed successfully', { 
+          userId: ctx.id,
+          responseLength: result.choices?.[0]?.message?.content?.length || 0 
+        });
 
-  return result;
+        return result;
+      } catch (error: any) {
+        errorMessage = error.message;
+        logger.error('LLM invocation failed', { 
+          userId: ctx.id,
+          error: error.message 
+        });
+        
+        await logError({
+          errorType: error.constructor.name,
+          message: error.message,
+          stack: error.stack,
+          context: 'invokeLLMWithQuota',
+          metadata: { messageCount: params.messages?.length || 0 },
+          userId: typeof ctx.id === 'number' ? ctx.id : undefined,
+        });
+        
+        throw error;
+      } finally {
+        // Log API usage
+        await logApiUsage({
+          apiName: 'openai',
+          endpoint: '/chat/completions',
+          method: 'POST',
+          duration: Date.now() - apiStart,
+          quotaUsed: success ? 1 : 0,
+          userId: typeof ctx.id === 'number' ? ctx.id : undefined,
+          success,
+          errorMessage,
+        });
+      }
+    },
+    { messageCount: String(params.messages?.length || 0) },
+    typeof ctx.id === 'number' ? ctx.id : undefined
+  );
 }
 
 /**

@@ -1966,3 +1966,93 @@ export const cleanupLogs = mysqlTable("cleanup_logs", {
 
 export type CleanupLog = typeof cleanupLogs.$inferSelect;
 export type InsertCleanupLog = typeof cleanupLogs.$inferInsert;
+
+/**
+ * System Logs table for application-level logging
+ */
+export const systemLogs = mysqlTable("system_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  level: mysqlEnum("level", ["error", "warn", "info", "http", "debug"]).notNull(),
+  message: text("message").notNull(),
+  context: varchar("context", { length: 255 }), // Service/module name
+  metadata: text("metadata"), // JSON string for additional data
+  userId: int("userId"), // Optional: link to user if applicable
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  levelIdx: index("idx_system_logs_level").on(table.level),
+  contextIdx: index("idx_system_logs_context").on(table.context),
+  timestampIdx: index("idx_system_logs_timestamp").on(table.timestamp),
+  userIdIdx: index("idx_system_logs_userId").on(table.userId),
+}));
+
+export type SystemLog = typeof systemLogs.$inferSelect;
+export type InsertSystemLog = typeof systemLogs.$inferInsert;
+
+/**
+ * Performance Metrics table for tracking execution times
+ */
+export const performanceMetrics = mysqlTable("performance_metrics", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(), // Metric name (e.g., 'web_search_duration')
+  value: int("value").notNull(), // Duration in milliseconds or count
+  tags: text("tags"), // JSON string for additional tags
+  userId: int("userId"), // Optional: link to user
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  nameIdx: index("idx_performance_metrics_name").on(table.name),
+  timestampIdx: index("idx_performance_metrics_timestamp").on(table.timestamp),
+  userIdIdx: index("idx_performance_metrics_userId").on(table.userId),
+}));
+
+export type PerformanceMetric = typeof performanceMetrics.$inferSelect;
+export type InsertPerformanceMetric = typeof performanceMetrics.$inferInsert;
+
+/**
+ * Error Logs table for detailed error tracking
+ */
+export const errorLogs = mysqlTable("error_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  errorType: varchar("errorType", { length: 255 }).notNull(), // Error class name
+  message: text("message").notNull(),
+  stack: text("stack"), // Stack trace
+  context: varchar("context", { length: 255 }), // Where the error occurred
+  metadata: text("metadata"), // JSON string for request data, etc.
+  userId: int("userId"), // Optional: link to user
+  resolved: boolean("resolved").default(false).notNull(),
+  resolvedAt: timestamp("resolvedAt"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  errorTypeIdx: index("idx_error_logs_errorType").on(table.errorType),
+  contextIdx: index("idx_error_logs_context").on(table.context),
+  resolvedIdx: index("idx_error_logs_resolved").on(table.resolved),
+  timestampIdx: index("idx_error_logs_timestamp").on(table.timestamp),
+  userIdIdx: index("idx_error_logs_userId").on(table.userId),
+}));
+
+export type ErrorLog = typeof errorLogs.$inferSelect;
+export type InsertErrorLog = typeof errorLogs.$inferInsert;
+
+/**
+ * API Usage Logs table for tracking external API calls
+ */
+export const apiUsageLogs = mysqlTable("api_usage_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  apiName: varchar("apiName", { length: 255 }).notNull(), // 'tavily', 'openai', 'whisper', etc.
+  endpoint: varchar("endpoint", { length: 512 }), // API endpoint called
+  method: varchar("method", { length: 10 }), // HTTP method
+  statusCode: int("statusCode"), // Response status code
+  duration: int("duration"), // Duration in milliseconds
+  quotaUsed: int("quotaUsed").default(1).notNull(), // How much quota this call consumed
+  userId: int("userId"), // Optional: link to user
+  success: boolean("success").notNull(),
+  errorMessage: text("errorMessage"), // Error message if failed
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => ({
+  apiNameIdx: index("idx_api_usage_logs_apiName").on(table.apiName),
+  userIdIdx: index("idx_api_usage_logs_userId").on(table.userId),
+  successIdx: index("idx_api_usage_logs_success").on(table.success),
+  timestampIdx: index("idx_api_usage_logs_timestamp").on(table.timestamp),
+}));
+
+export type ApiUsageLog = typeof apiUsageLogs.$inferSelect;
+export type InsertApiUsageLog = typeof apiUsageLogs.$inferInsert;
