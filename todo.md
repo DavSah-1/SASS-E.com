@@ -4668,4 +4668,21 @@
 - [x] Test cache metrics with real searches
 
 ### Final
+- [x] Save checkpoint
+
+## Phase 11: Redis Configuration for Persistent Caching
+
+- [ ] Request REDIS_URL environment variable via webdev_request_secrets
+- [ ] Provide instructions for getting free Redis instance (Upstash/Redis Cloud)
+- [ ] Test Redis connection after user provides REDIS_URL
+- [ ] Verify cache persistence across server restarts
+- [ ] Update documentation with Redis setup instructions
 - [ ] Save checkpoint
+
+## Phase 12: Push Latest Changes to GitHub
+
+- [ ] Check git status and verify repository connection
+- [ ] Stage all changes
+- [ ] Create commit with descriptive message
+- [ ] Push to GitHub repository (DavSah-1/SASS-E.com)
+- [ ] Verify push success
