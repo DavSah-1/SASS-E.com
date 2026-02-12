@@ -24,6 +24,13 @@ if (process.env.REDIS_URL) {
 // In-memory fallback
 const memoryCache = new Map<string, { data: any; expiresAt: number }>();
 
+// Performance metrics tracking
+const cacheMetrics = {
+  hits: 0,
+  misses: 0,
+  totalRequests: 0,
+};
+
 interface CacheOptions {
   ttl?: number; // Time to live in seconds
   prefix?: string;
@@ -34,25 +41,39 @@ interface CacheOptions {
  * Note: Key should already include prefix (e.g., "search:hash")
  */
 export async function cacheGet<T>(key: string): Promise<T | null> {
+  cacheMetrics.totalRequests++;
+  
   if (redis) {
     try {
       const data = await redis.get(key);
-      return data ? JSON.parse(data) : null;
+      const result = data ? JSON.parse(data) : null;
+      if (result) {
+        cacheMetrics.hits++;
+      } else {
+        cacheMetrics.misses++;
+      }
+      return result;
     } catch (error) {
       console.error('[Cache] Redis get error:', error);
+      cacheMetrics.misses++;
       // Fallback to in-memory
     }
   }
 
   // In-memory fallback
   const cached = memoryCache.get(key);
-  if (!cached) return null;
-
-  if (Date.now() > cached.expiresAt) {
-    memoryCache.delete(key);
+  if (!cached) {
+    cacheMetrics.misses++;
     return null;
   }
 
+  if (Date.now() > cached.expiresAt) {
+    memoryCache.delete(key);
+    cacheMetrics.misses++;
+    return null;
+  }
+
+  cacheMetrics.hits++;
   return cached.data;
 }
 
@@ -141,6 +162,10 @@ export function generateCacheKey(query: string, prefix?: string): string {
  * Get cache statistics
  */
 export async function getCacheStats() {
+  const hitRate = cacheMetrics.totalRequests > 0
+    ? (cacheMetrics.hits / cacheMetrics.totalRequests) * 100
+    : 0;
+
   if (redis) {
     try {
       const keys = await redis.keys('search:*');
@@ -148,6 +173,10 @@ export async function getCacheStats() {
         enabled: true,
         type: 'redis' as const,
         entries: keys.length,
+        hits: cacheMetrics.hits,
+        misses: cacheMetrics.misses,
+        totalRequests: cacheMetrics.totalRequests,
+        hitRate: parseFloat(hitRate.toFixed(2)),
       };
     } catch (error) {
       console.error('[Cache] Redis stats error:', error);
@@ -158,6 +187,10 @@ export async function getCacheStats() {
     enabled: true,
     type: 'in-memory' as const,
     entries: memoryCache.size,
+    hits: cacheMetrics.hits,
+    misses: cacheMetrics.misses,
+    totalRequests: cacheMetrics.totalRequests,
+    hitRate: parseFloat(hitRate.toFixed(2)),
   };
 }
 

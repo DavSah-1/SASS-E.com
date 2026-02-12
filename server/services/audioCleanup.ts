@@ -3,27 +3,12 @@ import { getSupabaseAdminClient } from '../supabaseClient';
 import { conversations, cleanupLogs, type InsertCleanupLog } from '../../drizzle/schema';
 import { type InsertSupabaseCleanupLog } from '../supabaseDb';
 import { lt, and, isNotNull, asc, eq } from 'drizzle-orm';
-import { S3Client, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import cron from 'node-cron';
 
 // Environment configuration
 const AUDIO_RETENTION_DAYS = parseInt(process.env.AUDIO_RETENTION_DAYS || '7', 10);
 const AUDIO_MAX_STORAGE_MB = parseInt(process.env.AUDIO_MAX_STORAGE_MB || '1000', 10);
-
-// S3 configuration (from storage.ts)
-const S3_REGION = process.env.S3_REGION || 'us-east-1';
-const S3_BUCKET = process.env.S3_BUCKET || '';
-const S3_ACCESS_KEY = process.env.S3_ACCESS_KEY_ID || '';
-const S3_SECRET_KEY = process.env.S3_SECRET_ACCESS_KEY || '';
-
-// Initialize S3 client
-const s3Client = new S3Client({
-  region: S3_REGION,
-  credentials: {
-    accessKeyId: S3_ACCESS_KEY,
-    secretAccessKey: S3_SECRET_KEY,
-  },
-});
+const STORAGE_BUCKET = 'audio-files'; // Supabase storage bucket name
 
 interface CleanupResult {
   filesDeleted: number;
@@ -33,14 +18,15 @@ interface CleanupResult {
 }
 
 /**
- * Extract S3 key from full S3 URL
- * Example: https://bucket.s3.region.amazonaws.com/path/to/file.webm → path/to/file.webm
+ * Extract storage path from Supabase Storage URL
+ * Example: https://xxx.supabase.co/storage/v1/object/public/audio-files/path/to/file.webm → path/to/file.webm
  */
-function extractS3Key(url: string): string | null {
+function extractStoragePath(url: string): string | null {
   try {
     const urlObj = new URL(url);
-    // Remove leading slash from pathname
-    return urlObj.pathname.substring(1);
+    // Extract path after /storage/v1/object/public/{bucket}/
+    const match = urlObj.pathname.match(/\/storage\/v1\/object\/public\/[^\/]+\/(.+)/);
+    return match ? match[1] : null;
   } catch (error) {
     console.error(`[Audio Cleanup] Invalid URL: ${url}`, error);
     return null;
@@ -48,44 +34,51 @@ function extractS3Key(url: string): string | null {
 }
 
 /**
- * Get file size from S3 (in MB)
+ * Get file size from Supabase Storage (in MB)
  */
-async function getS3FileSize(key: string): Promise<number> {
+async function getStorageFileSize(path: string): Promise<number> {
   try {
-    const command = new ListObjectsV2Command({
-      Bucket: S3_BUCKET,
-      Prefix: key,
-      MaxKeys: 1,
-    });
-    
-    const response = await s3Client.send(command);
-    const file = response.Contents?.[0];
-    
-    if (!file || !file.Size) {
+    const supabase = getSupabaseAdminClient();
+    if (!supabase) return 0;
+
+    const { data, error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .list(path.substring(0, path.lastIndexOf('/')), {
+        search: path.substring(path.lastIndexOf('/') + 1),
+      });
+
+    if (error || !data || data.length === 0) {
       return 0;
     }
-    
-    return file.Size / (1024 * 1024); // Convert bytes to MB
+
+    const file = data[0];
+    return (file.metadata?.size || 0) / (1024 * 1024); // Convert bytes to MB
   } catch (error) {
-    console.error(`[Audio Cleanup] Failed to get file size for ${key}:`, error);
+    console.error(`[Audio Cleanup] Failed to get file size for ${path}:`, error);
     return 0;
   }
 }
 
 /**
- * Delete file from S3
+ * Delete file from Supabase Storage
  */
-async function deleteFromS3(key: string): Promise<boolean> {
+async function deleteFromStorage(path: string): Promise<boolean> {
   try {
-    const command = new DeleteObjectCommand({
-      Bucket: S3_BUCKET,
-      Key: key,
-    });
-    
-    await s3Client.send(command);
+    const supabase = getSupabaseAdminClient();
+    if (!supabase) return false;
+
+    const { error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .remove([path]);
+
+    if (error) {
+      console.error(`[Audio Cleanup] Failed to delete ${path}:`, error);
+      return false;
+    }
+
     return true;
   } catch (error) {
-    console.error(`[Audio Cleanup] Failed to delete ${key} from S3:`, error);
+    console.error(`[Audio Cleanup] Failed to delete ${path} from storage:`, error);
     return false;
   }
 }
@@ -123,19 +116,19 @@ export async function cleanupOldAudioFiles(triggeredBy?: number | string): Promi
         for (const conv of oldConversations) {
           if (!conv.audioUrl) continue;
           
-          const s3Key = extractS3Key(conv.audioUrl);
-          if (!s3Key) {
+          const storagePath = extractStoragePath(conv.audioUrl);
+          if (!storagePath) {
             result.errors.push(`Invalid URL format: ${conv.audioUrl}`);
             continue;
           }
 
           // Get file size before deletion
-          const fileSizeMB = await getS3FileSize(s3Key);
+          const fileSizeMB = await getStorageFileSize(storagePath);
 
-          // Delete from S3
-          const deleted = await deleteFromS3(s3Key);
+          // Delete from Supabase Storage
+          const deleted = await deleteFromStorage(storagePath);
           if (!deleted) {
-            result.errors.push(`Failed to delete S3 file: ${s3Key}`);
+            result.errors.push(`Failed to delete storage file: ${storagePath}`);
             continue;
           }
 
@@ -169,19 +162,19 @@ export async function cleanupOldAudioFiles(triggeredBy?: number | string): Promi
           for (const conv of oldConversations) {
             if (!conv.audio_url) continue;
 
-            const s3Key = extractS3Key(conv.audio_url);
-            if (!s3Key) {
+            const storagePath = extractStoragePath(conv.audio_url);
+            if (!storagePath) {
               result.errors.push(`Invalid URL format: ${conv.audio_url}`);
               continue;
             }
 
             // Get file size before deletion
-            const fileSizeMB = await getS3FileSize(s3Key);
+            const fileSizeMB = await getStorageFileSize(storagePath);
 
-            // Delete from S3
-            const deleted = await deleteFromS3(s3Key);
+            // Delete from Supabase Storage
+            const deleted = await deleteFromStorage(storagePath);
             if (!deleted) {
-              result.errors.push(`Failed to delete S3 file: ${s3Key}`);
+              result.errors.push(`Failed to delete storage file: ${storagePath}`);
               continue;
             }
 
@@ -229,18 +222,21 @@ export async function cleanupByStorageLimit(triggeredBy?: number | string): Prom
   };
 
   try {
-    // Calculate total storage used by listing all audio files in S3
-    const listCommand = new ListObjectsV2Command({
-      Bucket: S3_BUCKET,
-      Prefix: 'audio/', // Assuming audio files are stored under 'audio/' prefix
-    });
+    // Calculate total storage used by listing all audio files in Supabase Storage
+    const supabase = getSupabaseAdminClient();
+    if (!supabase) {
+      result.errors.push('Supabase client not available');
+      return result;
+    }
 
-    const listResponse = await s3Client.send(listCommand);
+    const { data: files, error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .list();
+
     let totalSizeMB = 0;
-
-    if (listResponse.Contents) {
-      for (const file of listResponse.Contents) {
-        totalSizeMB += (file.Size || 0) / (1024 * 1024);
+    if (files && !error) {
+      for (const file of files) {
+        totalSizeMB += (file.metadata?.size || 0) / (1024 * 1024);
       }
     }
 
@@ -267,11 +263,11 @@ export async function cleanupByStorageLimit(triggeredBy?: number | string): Prom
         if (totalSizeMB <= targetSizeMB) break;
         if (!conv.audioUrl) continue;
 
-        const s3Key = extractS3Key(conv.audioUrl);
-        if (!s3Key) continue;
+        const storagePath = extractStoragePath(conv.audioUrl);
+        if (!storagePath) continue;
 
-        const fileSizeMB = await getS3FileSize(s3Key);
-        const deleted = await deleteFromS3(s3Key);
+        const fileSizeMB = await getStorageFileSize(storagePath);
+        const deleted = await deleteFromStorage(storagePath);
 
         if (deleted) {
           await manusDb
@@ -287,7 +283,6 @@ export async function cleanupByStorageLimit(triggeredBy?: number | string): Prom
     }
 
     // Get oldest conversations from Supabase DB
-    const supabase = getSupabaseAdminClient();
     if (supabase && totalSizeMB > targetSizeMB) {
       const { data: oldConversations } = await supabase
         .from('conversations')
@@ -300,11 +295,11 @@ export async function cleanupByStorageLimit(triggeredBy?: number | string): Prom
           if (totalSizeMB <= targetSizeMB) break;
           if (!conv.audio_url) continue;
 
-          const s3Key = extractS3Key(conv.audio_url);
-          if (!s3Key) continue;
+          const storagePath = extractStoragePath(conv.audio_url);
+          if (!storagePath) continue;
 
-          const fileSizeMB = await getS3FileSize(s3Key);
-          const deleted = await deleteFromS3(s3Key);
+          const fileSizeMB = await getStorageFileSize(storagePath);
+          const deleted = await deleteFromStorage(storagePath);
 
           if (deleted) {
             await supabase
@@ -346,19 +341,27 @@ export async function getStorageStats(): Promise<{
   percentUsed: number;
 }> {
   try {
-    const listCommand = new ListObjectsV2Command({
-      Bucket: S3_BUCKET,
-      Prefix: 'audio/',
-    });
+    const supabase = getSupabaseAdminClient();
+    if (!supabase) {
+      return {
+        totalFiles: 0,
+        totalSizeMB: 0,
+        maxSizeMB: AUDIO_MAX_STORAGE_MB,
+        percentUsed: 0,
+      };
+    }
 
-    const listResponse = await s3Client.send(listCommand);
+    const { data: files, error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .list();
+
     let totalSize = 0;
     let totalFiles = 0;
 
-    if (listResponse.Contents) {
-      totalFiles = listResponse.Contents.length;
-      for (const file of listResponse.Contents) {
-        totalSize += file.Size || 0;
+    if (files && !error) {
+      totalFiles = files.length;
+      for (const file of files) {
+        totalSize += file.metadata?.size || 0;
       }
     }
 

@@ -117,6 +117,45 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* Cache Performance Metrics */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Cache Performance</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">Total Requests</p>
+                    <p className="text-2xl font-bold">{cacheStats.totalRequests || 0}</p>
+                  </div>
+                  <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/20">
+                    <p className="text-sm text-green-600 dark:text-green-400">Cache Hits</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">{cacheStats.hits || 0}</p>
+                  </div>
+                  <div className="bg-orange-500/10 rounded-lg p-4 border border-orange-500/20">
+                    <p className="text-sm text-orange-600 dark:text-orange-400">Cache Misses</p>
+                    <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{cacheStats.misses || 0}</p>
+                  </div>
+                  <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/20">
+                    <p className="text-sm text-blue-600 dark:text-blue-400">Hit Rate</p>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{cacheStats.hitRate || 0}%</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="font-medium">Cache Efficiency</span>
+                    <span className="text-muted-foreground">
+                      {cacheStats.hitRate || 0}% of requests served from cache
+                    </span>
+                  </div>
+                  <Progress value={cacheStats.hitRate || 0} className="h-2" />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {cacheStats.hitRate && cacheStats.hitRate > 0 ? (
+                      <>Saving approximately {cacheStats.hits || 0} API calls through caching</>
+                    ) : (
+                      <>No cache hits yet. Make some searches to see caching in action!</>
+                    )}
+                  </p>
+                </div>
+              </div>
+
               <div className="flex gap-2">
                 <Button onClick={() => refetchCache()} variant="outline" size="sm">
                   <RefreshCw className="h-4 w-4 mr-2" />
