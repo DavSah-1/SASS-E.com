@@ -16,7 +16,7 @@ export default function AuditLog() {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
   const [page, setPage] = useState(0);
-  const [actionTypeFilter, setActionTypeFilter] = useState<string>("");
+  const [actionTypeFilter, setActionTypeFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -27,7 +27,7 @@ export default function AuditLog() {
     {
       limit: pageSize,
       offset: page * pageSize,
-      actionType: actionTypeFilter || undefined,
+      actionType: actionTypeFilter === "all" ? undefined : actionTypeFilter,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
     },
@@ -40,7 +40,7 @@ export default function AuditLog() {
   const [exportEnabled, setExportEnabled] = useState(false);
   const { data: exportData, refetch: refetchExport, isLoading: exportLoading } = trpc.admin.exportAuditLogs.useQuery(
     {
-      actionType: actionTypeFilter || undefined,
+      actionType: actionTypeFilter === "all" ? undefined : actionTypeFilter,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
     },
@@ -154,7 +154,7 @@ export default function AuditLog() {
                   <SelectValue placeholder="All actions" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All actions</SelectItem>
+                  <SelectItem value="all">All actions</SelectItem>
                   <SelectItem value="role_change">Role Change</SelectItem>
                   <SelectItem value="user_delete">User Delete</SelectItem>
                   <SelectItem value="password_reset">Password Reset</SelectItem>
