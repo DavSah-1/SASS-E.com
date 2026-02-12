@@ -44,6 +44,7 @@ import SignIn from "./pages/SignInNew";
 import SignUp from "./pages/SignUp";
 import ErrorTest from "./pages/ErrorTest";
 import AdminDashboard from "./pages/AdminDashboard";
+import MonitoringDashboard from "./pages/MonitoringDashboard";
 
 
 function Router() {
@@ -70,6 +71,7 @@ function Router() {
       <Route path={"/sign-up"} component={SignUp} />
       <Route path={"/error-test"} component={ErrorTest} />
       <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/monitoring"} component={MonitoringDashboard} />
 
       <Route path={"/hubs/learning/math"} component={MathTutor} />
       <Route path={"/hubs/learning/math/curriculum"} component={MathCurriculum} />

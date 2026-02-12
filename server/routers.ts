@@ -30,6 +30,9 @@ import { budgetExportRouter } from "./budgetExportRouter";
 import { toNumericId } from "./_core/dbWrapper";
 import { cleanupOldAudioFiles, cleanupByStorageLimit, getStorageStats } from "./services/audioCleanup";
 import { getCacheStats, cacheClear } from "./services/cache";
+import { metrics, logApiUsage, logError } from "./utils/metrics";
+import { systemLogs, performanceMetrics, errorLogs, apiUsageLogs } from "../drizzle/schema";
+import { and, gte, lte, like, eq, sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { getSupabaseClient } from "./supabaseClient";
 import { cleanupLogs } from "../drizzle/schema";
@@ -178,6 +181,216 @@ export const appRouter = router({
         } catch (error: any) {
           console.error("[Admin Clear Cache] Error:", error);
           throw new Error(`Failed to clear cache: ${error.message}`);
+        }
+      }),
+
+    // Monitoring endpoints
+    getSystemHealth: protectedProcedure
+      .query(async ({ ctx }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const uptime = process.uptime();
+          const memoryUsage = process.memoryUsage();
+          
+          return {
+            uptime: Math.floor(uptime),
+            memory: {
+              used: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+              total: Math.round(memoryUsage.heapTotal / 1024 / 1024),
+              percentage: Math.round((memoryUsage.heapUsed / memoryUsage.heapTotal) * 100),
+            },
+            timestamp: new Date(),
+          };
+        } catch (error: any) {
+          console.error("[Admin System Health] Error:", error);
+          throw new Error(`Failed to get system health: ${error.message}`);
+        }
+      }),
+
+    getPerformanceMetrics: protectedProcedure
+      .input(z.object({
+        name: z.string().optional(),
+        timeRange: z.enum(["1h", "24h", "7d", "30d"]).optional().default("24h"),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const timeRanges = {
+            "1h": 60 * 60 * 1000,
+            "24h": 24 * 60 * 60 * 1000,
+            "7d": 7 * 24 * 60 * 60 * 1000,
+            "30d": 30 * 24 * 60 * 60 * 1000,
+          };
+
+          const since = new Date(Date.now() - timeRanges[input.timeRange]);
+          const metricsData = await metrics.getMetrics(input.name, since);
+          
+          // Get stats for each metric name
+          const uniqueNames = Array.from(new Set(metricsData.map(m => m.name)));
+          const stats = await Promise.all(
+            uniqueNames.map(async (name) => ({
+              name,
+              stats: await metrics.getStats(name, since),
+            }))
+          );
+
+          return {
+            metrics: metricsData,
+            stats,
+          };
+        } catch (error: any) {
+          console.error("[Admin Performance Metrics] Error:", error);
+          throw new Error(`Failed to get performance metrics: ${error.message}`);
+        }
+      }),
+
+    getApiUsageLogs: protectedProcedure
+      .input(z.object({
+        limit: z.number().optional().default(100),
+        apiName: z.string().optional(),
+        success: z.boolean().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const db = await getDb();
+          if (!db) {
+            throw new Error("Database not available");
+          }
+
+          const conditions = [];
+          if (input.apiName) {
+            conditions.push(eq(apiUsageLogs.apiName, input.apiName));
+          }
+          if (input.success !== undefined) {
+            conditions.push(eq(apiUsageLogs.success, input.success));
+          }
+
+          const logs = await db
+            .select()
+            .from(apiUsageLogs)
+            .where(conditions.length > 0 ? and(...conditions) : undefined)
+            .orderBy(desc(apiUsageLogs.timestamp))
+            .limit(input.limit);
+
+          return logs;
+        } catch (error: any) {
+          console.error("[Admin API Usage Logs] Error:", error);
+          throw new Error(`Failed to get API usage logs: ${error.message}`);
+        }
+      }),
+
+    getErrorLogs: protectedProcedure
+      .input(z.object({
+        limit: z.number().optional().default(100),
+        resolved: z.boolean().optional(),
+        errorType: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const db = await getDb();
+          if (!db) {
+            throw new Error("Database not available");
+          }
+
+          const conditions = [];
+          if (input.resolved !== undefined) {
+            conditions.push(eq(errorLogs.resolved, input.resolved));
+          }
+          if (input.errorType) {
+            conditions.push(eq(errorLogs.errorType, input.errorType));
+          }
+
+          const logs = await db
+            .select()
+            .from(errorLogs)
+            .where(conditions.length > 0 ? and(...conditions) : undefined)
+            .orderBy(desc(errorLogs.timestamp))
+            .limit(input.limit);
+
+          return logs;
+        } catch (error: any) {
+          console.error("[Admin Error Logs] Error:", error);
+          throw new Error(`Failed to get error logs: ${error.message}`);
+        }
+      }),
+
+    getSystemLogs: protectedProcedure
+      .input(z.object({
+        limit: z.number().optional().default(100),
+        level: z.enum(["error", "warn", "info", "http", "debug"]).optional(),
+        search: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const db = await getDb();
+          if (!db) {
+            throw new Error("Database not available");
+          }
+
+          const conditions = [];
+          if (input.level) {
+            conditions.push(eq(systemLogs.level, input.level));
+          }
+          if (input.search) {
+            conditions.push(like(systemLogs.message, `%${input.search}%`));
+          }
+
+          const logs = await db
+            .select()
+            .from(systemLogs)
+            .where(conditions.length > 0 ? and(...conditions) : undefined)
+            .orderBy(desc(systemLogs.timestamp))
+            .limit(input.limit);
+
+          return logs;
+        } catch (error: any) {
+          console.error("[Admin System Logs] Error:", error);
+          throw new Error(`Failed to get system logs: ${error.message}`);
+        }
+      }),
+
+    resolveError: protectedProcedure
+      .input(z.object({
+        errorId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          if (ctx.user.role !== "admin") {
+            throw new Error("Unauthorized: Admin access required");
+          }
+
+          const db = await getDb();
+          if (!db) {
+            throw new Error("Database not available");
+          }
+
+          await db
+            .update(errorLogs)
+            .set({ resolved: true, resolvedAt: new Date() })
+            .where(eq(errorLogs.id, input.errorId));
+
+          return { success: true };
+        } catch (error: any) {
+          console.error("[Admin Resolve Error] Error:", error);
+          throw new Error(`Failed to resolve error: ${error.message}`);
         }
       }),
   }),

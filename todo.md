@@ -4732,3 +4732,34 @@
 - [ ] Test admin dashboard
 - [ ] Update documentation
 - [ ] Save checkpoint
+
+## Phase 14: Real-Time Admin Monitoring Dashboard
+
+### Backend Endpoints
+- [x] Create tRPC endpoint for system health metrics
+- [x] Create tRPC endpoint for performance metrics with time range filtering
+- [x] Create tRPC endpoint for API usage logs with pagination
+- [x] Create tRPC endpoint for error logs with filtering
+- [x] Create tRPC endpoint for system logs with search and filtering
+- [x] Add endpoint for marking errors as resolved
+
+### Dashboard UI
+- [x] Create MonitoringDashboard page component
+- [x] Add system health overview section (uptime, memory, active users)
+- [x] Add performance metrics charts (execution time trends, p50/p95/p99)
+- [x] Add API usage visualization (success rates, quota consumption)
+- [x] Add error tracking table with resolution status
+- [x] Add system logs viewer with search and filtering
+- [x] Implement responsive design for mobile/tablet
+
+### Real-time Features
+- [x] Add auto-refresh functionality (30-second interval)
+- [x] Add manual refresh button
+- [x] Add time range selector (last hour, 24h, 7d, 30d)
+- [ ] Add export functionality for logs and metrics
+
+### Testing & Deployment
+- [x] Test all dashboard sections with real data
+- [x] Verify real-time updates work correctly
+- [x] Test filtering and search functionality
+- [ ] Save checkpoint
