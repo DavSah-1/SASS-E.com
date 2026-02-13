@@ -976,7 +976,7 @@ export async function saveExerciseAttempt(
         exercise_id: attempt.exerciseId,
         user_answer: attempt.userAnswer,
         is_correct: attempt.isCorrect,
-        attempted_at: attempt.attemptedAt || new Date(),
+        created_at: attempt.attemptedAt || new Date(),
       })
       .select()
       .single();

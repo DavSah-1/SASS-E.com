@@ -5185,3 +5185,11 @@
 - [ ] Run supplemental migration in Supabase
 - [ ] Fix remaining test data issues (null values, empty result sets)
 - [ ] Reach 90%+ test pass rate
+
+## Supplemental Migration Error Fix
+- [x] Diagnose exercise_id column error in supplemental-schema-fixes.sql
+- [x] Create corrected migration without foreign key constraints (v3)
+- [x] Run corrected migration in Supabase
+- [x] Verify all columns and tables created successfully
+- [x] Fix attempted_at → created_at column name mismatch
+- [x] Eliminate ALL schema/column errors from tests
