@@ -144,7 +144,7 @@ export async function getUserConversations(
       .from('conversations')
       .select('*')
       .eq('user_id', String(ctx.user.id))
-      .order('timestamp', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(limit);
     
     if (error) handleSupabaseError(error, 'getUserConversations');
@@ -2089,7 +2089,21 @@ export async function getUserBudgetCategories(
     const { data, error } = await query.order('name', { ascending: true });
     
     if (error) handleSupabaseError(error, 'getUserBudgetCategories');
-    return data || [];
+    
+    // Convert snake_case to camelCase for consistency with MySQL version
+    return (data || []).map(cat => ({
+      id: cat.id,
+      userId: typeof cat.user_id === 'string' ? parseInt(cat.user_id) : cat.user_id,
+      name: cat.name,
+      type: cat.category_type,
+      monthlyLimit: cat.allocated_amount,
+      color: cat.color,
+      icon: cat.icon,
+      isDefault: cat.is_default || 0,
+      sortOrder: cat.sort_order || 0,
+      createdAt: cat.created_at,
+      updatedAt: cat.updated_at,
+    }));
   }
 }
 
@@ -2476,7 +2490,19 @@ export async function getUserGoals(
       .order('priority', { ascending: true });
     
     if (error) handleSupabaseError(error, 'getUserGoals');
-    return data || [];
+    
+    // Convert snake_case to camelCase for consistency with MySQL version
+    return (data || []).map(goal => ({
+      id: goal.id,
+      userId: typeof goal.user_id === 'string' ? parseInt(goal.user_id) : goal.user_id,
+      name: goal.name,
+      targetAmount: goal.target_amount,
+      currentAmount: goal.current_amount,
+      targetDate: goal.target_date,
+      priority: goal.priority,
+      category: goal.category,
+      createdAt: goal.created_at,
+    }));
   }
 }
 

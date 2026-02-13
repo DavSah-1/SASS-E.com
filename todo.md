@@ -5214,3 +5214,15 @@
 - [x] Fixed conversation participant creation (accessToken in tRPC callers)
 - [x] Eliminated ALL null constraint violations
 - [x] Test results: 239 passing, 39 failing, 24 skipped (86.0%)
+
+
+## Phase 3: Schema Cache & Data Transformation (In Progress)
+- [x] Fixed conversations.timestamp → created_at column name
+- [x] Added camelCase transformation to getUserBudgetCategories (userId field)
+- [x] Added camelCase transformation to getUserGoals (userId field)
+- [x] Fixed parseInt to handle both string and number user_id values
+- [x] Created SUPABASE-SCHEMA-CACHE-REFRESH.md guide
+- [x] Test results: 238 passing, 40 failing, 24 skipped (86.2% pass rate, +1 test fixed)
+- [ ] **CRITICAL**: Refresh Supabase schema cache (run `NOTIFY pgrst, 'reload schema';` in Supabase SQL Editor)
+- [ ] Add camelCase transformations to remaining GET functions (getUserDebts, getUserVocabularyProgress, etc.)
+- [ ] Target: 250+ passing tests after schema cache refresh
