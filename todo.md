@@ -5175,3 +5175,13 @@
 - [x] Fix column name mismatches (timestamp, lessonCompleted, answers)
 - [ ] Fix remaining column name mismatches throughout dbRoleAware.ts
 - [ ] Run tests to verify 20+ additional tests pass
+
+## Systematic Column Name Conversion (camelCase → snake_case)
+- [x] Scan all Supabase operations in dbRoleAware.ts (162 operations across 51 tables)
+- [x] Fix critical column names (timestamp, lessonCompleted, answers)
+- [x] Create helper functions for case conversion (toSnakeCase, toCamelCase)
+- [x] Create supplemental migration for missing columns (answers, attempted_at, room)
+- [x] Improve test pass rate from 79.8% to 82.1% (+7 tests)
+- [ ] Run supplemental migration in Supabase
+- [ ] Fix remaining test data issues (null values, empty result sets)
+- [ ] Reach 90%+ test pass rate
