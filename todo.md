@@ -5226,3 +5226,14 @@
 - [ ] **CRITICAL**: Refresh Supabase schema cache (run `NOTIFY pgrst, 'reload schema';` in Supabase SQL Editor)
 - [ ] Add camelCase transformations to remaining GET functions (getUserDebts, getUserVocabularyProgress, etc.)
 - [ ] Target: 250+ passing tests after schema cache refresh
+
+
+## Phase 3 Completion Tasks (Current)
+- [ ] Refresh Supabase schema cache (run `NOTIFY pgrst, 'reload schema';` in Supabase SQL Editor) - **USER ACTION REQUIRED**
+- [x] Fix getUserGoals transformation - added all missing fields matching Supabase schema
+- [x] Extend camelCase transformations to getUserDebts - matched Supabase schema
+- [x] Extend camelCase transformations to getUserVocabularyProgress - matched Supabase schema
+- [x] Fixed schema mismatches (Supabase uses different field names than MySQL)
+- [x] Run comprehensive test suite - 237 passing, 41 failing, 24 skipped (86.2%)
+- [ ] Verify 90%+ test pass rate - **BLOCKED by schema cache refresh**
+- [x] Save checkpoint with Phase 3 progress

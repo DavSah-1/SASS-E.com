@@ -830,7 +830,23 @@ export async function getUserVocabularyProgress(
       .eq('vocabulary_items.language', language);
     
     if (error) handleSupabaseError(error, 'getUserVocabularyProgress');
-    return data || [];
+    
+    // Convert snake_case to camelCase for consistency with MySQL version
+    return (data || []).map(progress => ({
+      id: progress.id,
+      userId: typeof progress.user_id === 'string' ? parseInt(progress.user_id) : progress.user_id,
+      vocabularyItemId: progress.vocabulary_item_id,
+      language: progress.language,
+      masteryLevel: progress.mastery_level,
+      timesReviewed: progress.times_reviewed,
+      timesCorrect: progress.times_correct,
+      timesIncorrect: progress.times_incorrect,
+      lastReviewed: progress.last_reviewed,
+      nextReview: progress.next_review,
+      createdAt: progress.created_at,
+      updatedAt: progress.updated_at,
+      vocabulary_items: progress.vocabulary_items, // Keep nested object as-is for now
+    }));
   }
 }
 
@@ -1677,7 +1693,26 @@ export async function getUserDebts(
     const { data, error } = await query.order('created_at', { ascending: false });
     
     if (error) handleSupabaseError(error, 'getUserDebts');
-    return data || [];
+    
+    // Convert to match MySQL schema format
+    return (data || []).map(debt => ({
+      id: debt.id,
+      userId: debt.user_id, // Already an integer in Supabase
+      debtName: debt.name,
+      debtType: debt.debt_type,
+      originalBalance: debt.balance ? parseFloat(debt.balance) * 100 : 0, // Convert dollars to cents
+      currentBalance: debt.balance ? parseFloat(debt.balance) * 100 : 0, // Convert dollars to cents
+      interestRate: debt.interest_rate ? parseFloat(debt.interest_rate) * 100 : 0, // Convert to basis points
+      minimumPayment: debt.minimum_payment ? parseFloat(debt.minimum_payment) * 100 : 0, // Convert dollars to cents
+      dueDay: debt.due_date,
+      creditor: null, // Supabase doesn't have this field
+      accountNumber: null, // Supabase doesn't have this field
+      status: debt.status,
+      notes: null, // Supabase doesn't have this field
+      createdAt: debt.created_at,
+      updatedAt: debt.updated_at,
+      paidOffAt: null, // Supabase doesn't have this field
+    }));
   }
 }
 
@@ -2090,17 +2125,17 @@ export async function getUserBudgetCategories(
     
     if (error) handleSupabaseError(error, 'getUserBudgetCategories');
     
-    // Convert snake_case to camelCase for consistency with MySQL version
+    // Convert to match MySQL schema format
     return (data || []).map(cat => ({
       id: cat.id,
-      userId: typeof cat.user_id === 'string' ? parseInt(cat.user_id) : cat.user_id,
+      userId: cat.user_id, // Already an integer in Supabase
       name: cat.name,
-      type: cat.category_type,
-      monthlyLimit: cat.allocated_amount,
-      color: cat.color,
+      type: cat.type,
+      monthlyLimit: cat.monthly_limit ? parseFloat(cat.monthly_limit) * 100 : null, // Convert dollars to cents
+      color: cat.color || '#10b981',
       icon: cat.icon,
-      isDefault: cat.is_default || 0,
-      sortOrder: cat.sort_order || 0,
+      isDefault: 0, // Supabase doesn't have this field
+      sortOrder: 0, // Supabase doesn't have this field
       createdAt: cat.created_at,
       updatedAt: cat.updated_at,
     }));
@@ -2491,17 +2526,25 @@ export async function getUserGoals(
     
     if (error) handleSupabaseError(error, 'getUserGoals');
     
-    // Convert snake_case to camelCase for consistency with MySQL version
+    // Convert to match MySQL schema format
     return (data || []).map(goal => ({
       id: goal.id,
-      userId: typeof goal.user_id === 'string' ? parseInt(goal.user_id) : goal.user_id,
+      userId: goal.user_id, // Already an integer in Supabase
       name: goal.name,
-      targetAmount: goal.target_amount,
-      currentAmount: goal.current_amount,
+      description: goal.description,
+      type: goal.type || 'custom',
+      targetAmount: goal.target_amount ? parseFloat(goal.target_amount) * 100 : 0, // Convert dollars to cents
+      currentAmount: goal.current_amount ? parseFloat(goal.current_amount) * 100 : 0, // Convert dollars to cents
       targetDate: goal.target_date,
-      priority: goal.priority,
-      category: goal.category,
+      status: goal.status || 'active',
+      priority: goal.priority || 0,
+      icon: goal.icon || '🎯',
+      color: goal.color || '#10b981',
+      isAutoTracked: 0, // Supabase doesn't have this field
+      linkedCategoryId: null, // Supabase doesn't have this field
+      completedAt: null, // Supabase doesn't have this field
       createdAt: goal.created_at,
+      updatedAt: goal.updated_at,
     }));
   }
 }
