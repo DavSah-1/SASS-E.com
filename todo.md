@@ -5115,3 +5115,6 @@
 - [x] Write sample tests (button.test.tsx, rateLimiter.test.ts)
 - [x] Add test scripts to package.json
 - [x] Save checkpoint
+
+## Bug Fixes - tRPC Routing Errors
+- [x] Fix tRPC routing error - server returning HTML instead of JSON for batch queries (auth.me, subscription.canChangeHubs, notifications.getUnreadCount)

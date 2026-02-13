@@ -916,37 +916,33 @@ export const appRouter = router({
       }),
     canChangeHubs: protectedProcedure
       .query(async ({ ctx }) => {
-        try {
-          const user = ctx.user;
-          
-          // Owner can always change (check by role)
-          if (user.role === "admin") {
-            return { canChange: true, reason: "Owner access" };
-          }
-          
-          // If no hubs selected yet, can change
-          if (!user.hubsSelectedAt) {
-            return { canChange: true, reason: "No hubs selected yet" };
-          }
-          
-          // Check if subscription has expired
-          if (user.subscriptionExpiresAt) {
-            const now = new Date();
-            const expiresAt = new Date(user.subscriptionExpiresAt);
-            
-            if (now >= expiresAt) {
-              return { canChange: true, reason: "Subscription expired" };
-            }
-          }
-          
-          return { 
-            canChange: false, 
-            reason: "Hub selection is locked until subscription ends",
-            lockedUntil: user.subscriptionExpiresAt 
-          };
-        } catch (error) {
-          handleError(error, 'Subscription Can Change Hubs');
+        const user = ctx.user;
+        
+        // Owner can always change (check by role)
+        if (user.role === "admin") {
+          return { canChange: true, reason: "Owner access" };
         }
+        
+        // If no hubs selected yet, can change
+        if (!user.hubsSelectedAt) {
+          return { canChange: true, reason: "No hubs selected yet" };
+        }
+        
+        // Check if subscription has expired
+        if (user.subscriptionExpiresAt) {
+          const now = new Date();
+          const expiresAt = new Date(user.subscriptionExpiresAt);
+          
+          if (now >= expiresAt) {
+            return { canChange: true, reason: "Subscription expired" };
+          }
+        }
+        
+        return { 
+          canChange: false, 
+          reason: "Hub selection is locked until subscription ends",
+          lockedUntil: user.subscriptionExpiresAt 
+        };
       }),
     checkAccess: protectedProcedure
       .input(z.object({
@@ -2752,12 +2748,8 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     
     // Get unread notification count
     getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
-      try {
-        const count = await dbRoleAware.getUnreadNotificationCount(ctx, ctx.user.numericId);
-        return { count };
-      } catch (error) {
-        handleError(error, 'Notifications Get Unread Count');
-      }
+      const count = await dbRoleAware.getUnreadNotificationCount(ctx, ctx.user.numericId);
+      return { count };
     }),
     
     // Mark notification as read
