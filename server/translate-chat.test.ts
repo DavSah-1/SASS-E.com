@@ -22,6 +22,7 @@ describe("Translate Chat System", () => {
     // Create caller with mock context
     caller = appRouter.createCaller({
       user: testUser,
+      accessToken: process.env.SUPABASE_SERVICE_KEY || "",
       req: {} as any,
       res: {} as any,
     });
@@ -56,6 +57,7 @@ describe("Translate Chat System", () => {
 
     const secondCaller = appRouter.createCaller({
       user: secondUser,
+      accessToken: process.env.SUPABASE_SERVICE_KEY || "",
       req: {} as any,
       res: {} as any,
     });
@@ -144,6 +146,7 @@ describe("Translate Chat System", () => {
 
     const spanishCaller = appRouter.createCaller({
       user: spanishUser,
+      accessToken: process.env.SUPABASE_SERVICE_KEY || "",
       req: {} as any,
       res: {} as any,
     });

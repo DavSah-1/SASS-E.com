@@ -2054,9 +2054,10 @@ export async function createBudgetCategory(
       .from('budget_categories')
       .insert({
         user_id: String(ctx.user.id),
-        category_name: category.categoryName,
+        name: category.name || category.categoryName,
         monthly_limit: category.monthlyLimit,
-        category_type: category.categoryType,
+        type: category.type || category.categoryType,
+        color: category.color,
         created_at: category.createdAt || new Date(),
       })
       .select()
@@ -2443,12 +2444,13 @@ export async function createFinancialGoal(
       .from('financial_goals')
       .insert({
         user_id: String(ctx.user.id),
-        goal_name: goal.goalName,
+        name: goal.name || goal.goalName,
+        description: goal.description,
         target_amount: goal.targetAmount,
         current_amount: goal.currentAmount || 0,
         target_date: goal.targetDate,
-        goal_type: goal.goalType,
-        priority: goal.priority,
+        category: goal.category || goal.goalType,
+        status: goal.status || 'active',
         created_at: goal.createdAt || new Date(),
       })
       .select()
