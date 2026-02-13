@@ -2910,7 +2910,7 @@ export async function isUserParticipant(
       .from('translate_conversation_participants')
       .select('id')
       .eq('conversation_id', conversationId)
-      .eq('user_id', String(ctx.user.id))
+      .eq('user_id', String(userId))
       .single();
     
     if (error) return false;
