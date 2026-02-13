@@ -2740,20 +2740,33 @@ export async function createTranslateConversation(
     return await db.createTranslateConversation(creatorId, title);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
-    const shareableCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const { data, error } = await supabase
+    // Generate exactly 12-character alphanumeric code
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const shareableCode = Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    const { data, error} = await supabase
       .from('translate_conversations')
       .insert({
         creator_id: String(ctx.user.id),
         title: title || 'New Conversation',
         shareable_code: shareableCode,
+        is_active: 1, // INTEGER: 1=active, 0=inactive
         created_at: new Date(),
       })
       .select()
       .single();
     
     if (error) handleSupabaseError(error, 'createTranslateConversation');
-    return data;
+    // Transform to camelCase for consistency
+    return {
+      conversationId: data.id,
+      shareableCode: data.shareable_code,
+      creatorId: data.creator_id,
+      title: data.title,
+      isActive: data.is_active,
+      expiresAt: data.expires_at,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
   }
 }
 
@@ -2831,7 +2844,7 @@ export async function addConversationParticipant(
       .from('translate_conversation_participants')
       .insert({
         conversation_id: conversationId,
-        user_id: String(ctx.user.id),
+        user_id: String(userId),
         preferred_language: preferredLanguage,
         joined_at: new Date(),
       })

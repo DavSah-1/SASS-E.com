@@ -5298,3 +5298,35 @@
 - [x] Document test coverage and pass rates - 85.6% non-skipped pass rate
 - [x] Identify and document any failing tests - 40 failures documented with root causes
 - [x] Save checkpoint with test report
+
+
+## Phase 9: Implement Comprehensive Test Fixes (Current)
+
+### Phase 1: Database Schema Fixes (COMPLETE)
+- [x] Run schema cache refresh SQL in Supabase
+- [x] Add user_vocabulary → vocabulary_items FK constraint
+- [x] Add exercise_id column to exercise_attempts
+- [x] Add translate FK constraints (participants → conversations, messages → conversations)
+- [x] Verify schema cache reload
+
+### Phase 2: Translate Chat Fixes (IN PROGRESS - 6/8 passing)
+- [x] Fix addConversationParticipant to use correct userId parameter
+- [x] Fix createTranslateConversation to return camelCase fields
+- [x] Fix shareable code generation to produce exactly 12 characters
+- [x] Add is_active: 1 to conversation creation
+- [ ] Fix "conversation is no longer active" errors (6 tests still failing)
+- [ ] Fix "not a participant" errors
+- [ ] Fix conversation list query
+
+### Phase 3: RLS Test Infrastructure Fixes (1 hour)
+- [ ] Update rlsPolicyEnforcement.test.ts to use authenticated clients
+- [ ] Convert user IDs from string to integer
+- [ ] Fix UPDATE operations to pass primitive values
+- [ ] Run RLS tests to verify fixes
+
+### Phase 4: Final Verification
+- [ ] Run full test suite
+- [ ] Target: 298/302 passing (98.7%)
+- [ ] Document remaining failures
+- [ ] Generate updated test report
+- [ ] Save checkpoint
