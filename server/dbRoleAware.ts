@@ -724,7 +724,7 @@ export async function getUserQuizzes(
     const { data, error } = await supabase
       .from('quizzes')
       .select('*')
-      .eq('user_id', String(ctx.user.id))
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
     
     if (error) handleSupabaseError(error, 'getUserQuizzes');
@@ -2733,7 +2733,7 @@ export async function getUnshownCelebrations(
 
 export async function createTranslateConversation(
   ctx: DbContext,
-  creatorId: number,
+  creatorId: string,
   title?: string
 ) {
   if (ctx.user.role === "admin") {
@@ -2833,7 +2833,7 @@ export async function getConversationByCode(
 export async function addConversationParticipant(
   ctx: DbContext,
   conversationId: number,
-  userId: number,
+  userId: string,
   preferredLanguage: string
 ) {
   if (ctx.user.role === "admin") {
@@ -2844,7 +2844,7 @@ export async function addConversationParticipant(
       .from('translate_conversation_participants')
       .insert({
         conversation_id: conversationId,
-        user_id: String(userId),
+        user_id: userId,
         preferred_language: preferredLanguage,
         joined_at: new Date(),
       })
@@ -2859,7 +2859,7 @@ export async function addConversationParticipant(
 export async function removeConversationParticipant(
   ctx: DbContext,
   conversationId: number,
-  userId: number
+  userId: string
 ) {
   if (ctx.user.role === "admin") {
     return await db.removeConversationParticipant(conversationId, userId);
@@ -2900,7 +2900,7 @@ export async function getConversationParticipants(
 export async function isUserParticipant(
   ctx: DbContext,
   conversationId: number,
-  userId: number
+  userId: string
 ) {
   if (ctx.user.role === "admin") {
     return await db.isUserParticipant(conversationId, userId);
@@ -2910,7 +2910,7 @@ export async function isUserParticipant(
       .from('translate_conversation_participants')
       .select('id')
       .eq('conversation_id', conversationId)
-      .eq('user_id', String(userId))
+      .eq('user_id', userId)
       .single();
     
     if (error) return false;
@@ -2930,7 +2930,7 @@ export async function saveTranslateMessage(
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     const { data, error } = await supabase
-      .from('translate_conversation_messages')
+      .from('translate_messages')
       .insert({
         conversation_id: conversationId,
         sender_id: String(senderId),
@@ -2956,7 +2956,7 @@ export async function getTranslateConversationMessages(
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     const { data, error } = await supabase
-      .from('translate_conversation_messages')
+      .from('translate_messages')
       .select(`
         *,
         users(name)

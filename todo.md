@@ -5330,3 +5330,22 @@
 - [ ] Document remaining failures
 - [ ] Generate updated test report
 - [ ] Save checkpoint
+
+
+## Phase 9 Translate Chat Fixes (Current - 4-Step Approach)
+- [ ] Step 1: Fix wrong table name (translate_conversation_messages → translate_messages) in dbRoleAware.ts
+- [ ] Step 2: Add FK constraint (translate_conversation_participants.user_id → users.id) in Supabase
+- [ ] Step 3: Fix test file - add is_active: true to conversation creation
+- [ ] Step 4: Fix test file - add conversation setup to "list conversations" test
+- [ ] Step 5: Run tests and verify 8/8 passing (100%)
+- [ ] Step 6: Save checkpoint with translate chat tests complete
+
+
+## Phase 9B: Migrate Translate Chat to UUID (Current)
+- [ ] Update translateChatRouter.ts - replace ctx.user.numericId with ctx.user.id
+- [ ] Update dbRoleAware.ts addConversationParticipant - use UUID instead of String(userId)
+- [ ] Update dbRoleAware.ts isUserParticipant - use UUID parameter
+- [ ] Update dbRoleAware.ts createTranslateConversation - use UUID for creator_id
+- [ ] Update test file - use ctx.user.id instead of ctx.user.numericId
+- [ ] Run tests and verify 8/8 passing
+- [ ] Save checkpoint with translate chat UUID migration complete
