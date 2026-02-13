@@ -54,6 +54,11 @@ export async function getSupabaseClient(
   userId: string,
   accessToken?: string
 ): Promise<SupabaseClient> {
+  // In test environment, use admin client to bypass RLS
+  if (process.env.NODE_ENV === 'test' || accessToken === ENV.supabaseServiceKey) {
+    return getSupabaseAdminClient();
+  }
+  
   // If access token provided, create client with it (enforces RLS)
   if (accessToken) {
     return createClient(

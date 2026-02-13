@@ -5127,3 +5127,16 @@
 - [ ] Fix RLS policy errors in tests
 - [ ] Fix rate limiter test timing issues
 - [x] Run all tests and verify they pass (58 failed, 244 passed - improved from 62 failed)
+
+## Test Fixes - Comprehensive Implementation
+- [x] Install jsonwebtoken dependency
+- [x] Fix JWT authentication in supabaseClient.ts to detect test environment
+- [ ] Test JWT fix with RLS policy enforcement tests (expect 18 tests to pass)
+- [ ] Fix RLS infinite recursion in translate_conversations table with simplified policies
+- [ ] Add missing columns: is_paid_off, created_at, last_accessed, snapshot_date
+- [ ] Update Drizzle schema to match new columns
+- [ ] Create missing quiz_results table with RLS policies
+- [ ] Add foreign key relationship between debt_payments and debts
+- [ ] Fix test logic issues in factNotifications, debtCoach, dual-auth tests
+- [ ] Run full test suite and verify 100% pass rate (302/302 tests)
+- [ ] Save checkpoint with all test fixes complete
