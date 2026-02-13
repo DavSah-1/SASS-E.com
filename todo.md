@@ -5140,3 +5140,12 @@
 - [ ] Fix test logic issues in factNotifications, debtCoach, dual-auth tests
 - [ ] Run full test suite and verify 100% pass rate (302/302 tests)
 - [ ] Save checkpoint with all test fixes complete
+
+## Test Fixes - Phases 2-5 (In Progress)
+- [x] Create consolidated SQL migration file combining all 3 migrations
+- [ ] Run consolidated SQL migration in Supabase SQL Editor
+- [x] Verified test data in testHelpers.ts already has required fields
+- [x] Verified factNotifications.test.ts already uses correct matching
+- [x] Verified dual-auth.test.ts uses null UUID correctly for negative test
+- [ ] Run full test suite to verify 100% pass rate
+- [ ] Save final checkpoint with all test fixes
