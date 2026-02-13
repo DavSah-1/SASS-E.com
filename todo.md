@@ -5091,3 +5091,27 @@
 - [x] Found Manual Cleanup (line 454) and Cleanup History (line 520)
 - [x] Added mb-6 to Manual Cleanup Card
 - [x] Save checkpoint
+
+## Phase 33: Implement Rate Limiting & Testing Framework
+
+- [ ] Install express-rate-limit
+- [ ] Install vitest and @testing-library dependencies
+- [ ] Create rate limiter middleware
+- [ ] Apply rate limiting to Express server
+- [ ] Set up vitest configuration
+- [ ] Create test directory structure
+- [ ] Write sample tests
+- [ ] Save checkpoint
+
+## Phase 33: Implement Rate Limiting & Testing Framework - COMPLETED
+
+- [x] Install express-rate-limit
+- [x] Install vitest and @testing-library dependencies
+- [x] Create rate limiter middleware
+- [x] Apply rate limiting to Express server
+- [x] Enable trust proxy for correct client IP detection
+- [x] Set up vitest configuration
+- [x] Create test directory structure
+- [x] Write sample tests (button.test.tsx, rateLimiter.test.ts)
+- [x] Add test scripts to package.json
+- [x] Save checkpoint

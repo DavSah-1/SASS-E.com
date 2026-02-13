@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import uploadRouter from "../upload";
 import { serveStatic, setupVite } from "./vite";
 import { startCleanupScheduler } from "../services/audioCleanup";
+import { apiLimiter, authLimiter, trpcLimiter, uploadLimiter } from "../middleware/rateLimiter";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -32,6 +33,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  
+  // Trust proxy to get correct client IP (required for rate limiting)
+  app.set('trust proxy', 1);
   
   // Stripe webhook endpoint MUST come before body parser
   // Stripe requires raw body for signature verification
@@ -65,13 +69,19 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  // OAuth callback under /api/oauth/callback
+  
+  // Apply general API rate limiting
+  app.use("/api", apiLimiter);
+  // OAuth callback under /api/oauth/callback (with auth rate limiting)
+  app.use("/api/oauth", authLimiter);
   registerOAuthRoutes(app);
-  // File upload endpoint
+  // File upload endpoint (with upload rate limiting)
+  app.use("/api/upload", uploadLimiter);
   app.use("/api", uploadRouter);
-  // tRPC API
+  // tRPC API (with tRPC rate limiting)
   app.use(
     "/api/trpc",
+    trpcLimiter,
     createExpressMiddleware({
       router: appRouter,
       createContext,
