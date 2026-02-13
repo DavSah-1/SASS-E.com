@@ -22,6 +22,15 @@ export default defineConfig({
       "client/src/**/*.test.{ts,tsx}",
       "client/src/**/*.spec.{ts,tsx}",
     ],
+    // Increase timeouts for DB operations and rate limiter tests
+    testTimeout: 15000,
+    hookTimeout: 15000,
+    // Set test environment variables
+    env: {
+      NODE_ENV: 'test',
+      // Tests will use the same database but with service role access
+      // to bypass RLS policies
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -32,6 +41,8 @@ export default defineConfig({
         '**/*.config.*',
         '**/mockData',
         '**/dist',
+        '**/*.test.ts',
+        '**/*.test.tsx',
       ],
     },
   },
