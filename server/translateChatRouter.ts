@@ -54,7 +54,9 @@ export const translateChatRouter = router({
         throw new Error("Conversation not found");
       }
 
-      if (!conversation.isActive) {
+      // Check if conversation is active (handle both INTEGER 1/0 and BOOLEAN true/false)
+      const isActive = conversation.isActive === 1 || conversation.isActive === true || conversation.isActive === '1';
+      if (!isActive) {
         throw new Error("This conversation is no longer active");
       }
 

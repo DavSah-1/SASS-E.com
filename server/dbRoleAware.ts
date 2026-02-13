@@ -2826,7 +2826,19 @@ export async function getConversationByCode(
       .single();
     
     if (error) handleSupabaseError(error, 'getConversationByCode');
-    return data;
+    // Transform to camelCase for consistency
+    if (!data) return null;
+    return {
+      id: data.id,
+      conversationId: data.id,
+      shareableCode: data.shareable_code,
+      creatorId: data.creator_id,
+      title: data.title,
+      isActive: data.is_active,
+      expiresAt: data.expires_at,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+    };
   }
 }
 
@@ -2839,6 +2851,8 @@ export async function addConversationParticipant(
   if (ctx.user.role === "admin") {
     return await db.addConversationParticipant(conversationId, userId, preferredLanguage);
   } else {
+    console.log('[DEBUG addConversationParticipant] conversationId:', conversationId, 'type:', typeof conversationId);
+    console.log('[DEBUG addConversationParticipant] userId:', userId, 'type:', typeof userId);
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     const { data, error } = await supabase
       .from('translate_conversation_participants')
@@ -2893,7 +2907,15 @@ export async function getConversationParticipants(
       .eq('conversation_id', conversationId);
     
     if (error) handleSupabaseError(error, 'getConversationParticipants');
-    return data || [];
+    // Transform to camelCase for consistency
+    return (data || []).map(p => ({
+      id: p.id,
+      conversationId: p.conversation_id,
+      userId: p.user_id,
+      preferredLanguage: p.preferred_language,
+      joinedAt: p.joined_at,
+      users: p.users, // Nested user data
+    }));
   }
 }
 
@@ -2942,7 +2964,7 @@ export async function saveTranslateMessage(
       .single();
     
     if (error) handleSupabaseError(error, 'saveTranslateMessage');
-    return data;
+    return data?.id; // Return just the ID, not the whole object
   }
 }
 
@@ -2957,10 +2979,7 @@ export async function getTranslateConversationMessages(
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     const { data, error } = await supabase
       .from('translate_messages')
-      .select(`
-        *,
-        users(name)
-      `)
+      .select('*')
       .eq('conversation_id', conversationId)
       .order('sent_at', { ascending: false })
       .limit(limit);
@@ -3402,12 +3421,13 @@ export async function saveMessageTranslation(
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     const { data, error } = await supabase
-      .from('conversation_messages')
-      .update({
+      .from('translate_message_translations')
+      .insert({
+        message_id: messageId,
+        user_id: String(userId),
         translated_text: translatedText,
-        language: targetLanguage,
+        target_language: targetLanguage,
       })
-      .eq('id', messageId)
       .select()
       .single();
     

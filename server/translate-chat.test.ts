@@ -175,11 +175,29 @@ describe("Translate Chat System", () => {
     // Create a Spanish-speaking user
     const spanishUser = {
       ...testUser,
-      id: 3,
+      id: "550e8400-e29b-41d4-a716-446655440003", // UUID string
+      numericId: 3, // For MySQL compatibility
       openId: "test-user-789",
       name: "Spanish User",
       preferredLanguage: "es",
     };
+
+    // Ensure Spanish user exists in Supabase
+    const supabase = getSupabaseAdminClient();
+    const { error: user3Error } = await supabase.from('users').upsert({
+      id: spanishUser.id,
+      email: `spanish-${Date.now()}@test.com`,
+      name: spanishUser.name,
+      role: spanishUser.role,
+      preferred_language: spanishUser.preferredLanguage,
+      created_at: spanishUser.createdAt,
+      updated_at: spanishUser.updatedAt,
+      last_signed_in: spanishUser.lastSignedIn,
+    }, { onConflict: 'id' });
+    if (user3Error) {
+      console.error('Failed to create Spanish test user:', user3Error);
+      throw user3Error;
+    }
 
     const spanishCaller = appRouter.createCaller({
       user: spanishUser,
