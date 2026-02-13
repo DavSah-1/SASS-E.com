@@ -121,7 +121,7 @@ export async function saveConversation(
         user_message: conversation.userMessage,
         assistant_response: conversation.assistantResponse,
         context: conversation.context,
-        timestamp: conversation.timestamp || new Date(),
+        created_at: conversation.timestamp || new Date(),
       })
       .select()
       .single();
@@ -3386,12 +3386,15 @@ export async function saveQuizResult(
     return await db.saveQuizResult(result);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from('quiz_results')
       .insert({
-        ...result,
         user_id: String(ctx.user.id),
-        completed_at: new Date(),
+        topic_id: result.topicName,
+        score: result.score,
+        total_questions: result.totalQuestions,
+        answers: result.answers ? JSON.stringify(result.answers) : null,
+        created_at: new Date(),
       })
       .select()
       .single();
@@ -3479,12 +3482,21 @@ export async function updateTopicProgress(
     return await db.updateTopicProgress(userId, topicName, category, updates);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    
+    // Convert camelCase to snake_case for Supabase
+    const supabaseUpdates: any = {
+      last_accessed: new Date(),
+    };
+    if (updates.status !== undefined) supabaseUpdates.status = updates.status;
+    if (updates.lessonCompleted !== undefined) supabaseUpdates.lesson_completed = updates.lessonCompleted;
+    if (updates.practiceCount !== undefined) supabaseUpdates.practice_count = updates.practiceCount;
+    if (updates.quizzesTaken !== undefined) supabaseUpdates.quizzes_taken = updates.quizzesTaken;
+    if (updates.bestQuizScore !== undefined) supabaseUpdates.best_quiz_score = updates.bestQuizScore;
+    if (updates.masteryLevel !== undefined) supabaseUpdates.mastery_level = updates.masteryLevel;
+    
     const { data, error } = await supabase
       .from('topic_progress')
-      .update({
-        ...updates,
-        last_accessed: new Date(),
-      })
+      .update(supabaseUpdates)
       .eq('user_id', String(ctx.user.id))
       .eq('topic_name', topicName)
       .eq('category', category)
