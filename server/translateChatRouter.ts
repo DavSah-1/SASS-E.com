@@ -17,14 +17,14 @@ export const translateChatRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { conversationId, shareableCode } = await dbRoleAware.createTranslateConversation(ctx, 
-        ctx.user.id,
+        String(ctx.user.id),
         input.title
       );
 
       // Add creator as first participant
       await dbRoleAware.addConversationParticipant(ctx, 
         conversationId,
-        ctx.user.id,
+        String(ctx.user.id),
         ctx.user.preferredLanguage || 'en'
       );
 
@@ -65,7 +65,7 @@ export const translateChatRouter = router({
       // Add user as participant
       await dbRoleAware.addConversationParticipant(ctx, 
         conversation.id,
-        ctx.user.id,
+        String(ctx.user.id),
         ctx.user.preferredLanguage || 'en'
       );
 
@@ -101,7 +101,7 @@ export const translateChatRouter = router({
       }
 
       // Check if user is participant
-      const isParticipant = await dbRoleAware.isUserParticipant(ctx, conversation.id, ctx.user.id);
+      const isParticipant = await dbRoleAware.isUserParticipant(ctx, conversation.id, String(ctx.user.id));
       if (!isParticipant) {
         throw new Error("You are not a participant in this conversation");
       }
@@ -140,7 +140,7 @@ export const translateChatRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Verify user is participant
-      const isParticipant = await dbRoleAware.isUserParticipant(ctx, input.conversationId, ctx.user.id);
+      const isParticipant = await dbRoleAware.isUserParticipant(ctx, input.conversationId, String(ctx.user.id));
       if (!isParticipant) {
         throw new Error("You are not a participant in this conversation");
       }
@@ -150,7 +150,7 @@ export const translateChatRouter = router({
       // Save original message
       const messageId = await dbRoleAware.saveTranslateMessage(ctx, 
         input.conversationId,
-        ctx.user.id,
+        String(ctx.user.id),
         input.text,
         originalLanguage
       );
@@ -160,7 +160,7 @@ export const translateChatRouter = router({
 
       // Translate for each participant (except sender)
       for (const participant of participants) {
-        if (participant.userId === ctx.user.id) {
+        if (participant.userId === String(ctx.user.id)) {
           // Save original for sender
           await dbRoleAware.saveMessageTranslation(ctx, 
             messageId,
@@ -232,7 +232,7 @@ export const translateChatRouter = router({
     )
     .query(async ({ ctx, input }) => {
       // Verify user is participant
-      const isParticipant = await dbRoleAware.isUserParticipant(ctx, input.conversationId, ctx.user.id);
+      const isParticipant = await dbRoleAware.isUserParticipant(ctx, input.conversationId, String(ctx.user.id));
       if (!isParticipant) {
         throw new Error("You are not a participant in this conversation");
       }
@@ -243,7 +243,7 @@ export const translateChatRouter = router({
       // Get translations for current user
       const messagesWithTranslations = await Promise.all(
         messages.map(async (msg) => {
-          const translation = await dbRoleAware.getMessageTranslation(ctx, msg.id, ctx.user.id);
+          const translation = await dbRoleAware.getMessageTranslation(ctx, msg.id, String(ctx.user.id));
 
           return {
             id: msg.id,
@@ -253,7 +253,7 @@ export const translateChatRouter = router({
             translatedText: translation?.translatedText || msg.originalText,
             targetLanguage: translation?.targetLanguage || msg.originalLanguage,
             createdAt: msg.createdAt,
-            isMine: msg.senderId === ctx.user.id,
+            isMine: msg.senderId === String(ctx.user.id),
           };
         })
       );
@@ -265,7 +265,7 @@ export const translateChatRouter = router({
    * Get user's conversations
    */
   getMyConversations: protectedProcedure.query(async ({ ctx }) => {
-    const conversations = await dbRoleAware.getUserTranslateConversations(ctx, ctx.user.id);
+    const conversations = await dbRoleAware.getUserTranslateConversations(ctx, String(ctx.user.id));
 
     return conversations.map((conv) => ({
       id: conv.id,
@@ -286,7 +286,7 @@ export const translateChatRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.removeConversationParticipant(ctx, input.conversationId, ctx.user.id);
+      await dbRoleAware.removeConversationParticipant(ctx, input.conversationId, String(ctx.user.id));
       return { success: true };
     }),
 

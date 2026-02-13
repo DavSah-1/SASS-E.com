@@ -2772,7 +2772,7 @@ export async function createTranslateConversation(
 
 export async function getUserTranslateConversations(
   ctx: DbContext,
-  userId: number
+  userId: string
 ) {
   if (ctx.user.role === "admin") {
     return await db.getUserTranslateConversations(userId);
@@ -2921,7 +2921,7 @@ export async function isUserParticipant(
 export async function saveTranslateMessage(
   ctx: DbContext,
   conversationId: number,
-  senderId: number,
+  senderId: string,
   originalText: string,
   originalLanguage: string
 ) {
@@ -3373,7 +3373,7 @@ export async function saveConversationSessionToPhrasebook(
 export async function getMessageTranslation(
   ctx: DbContext,
   messageId: number,
-  userId: number
+  userId: string
 ) {
   if (ctx.user.role === "admin") {
     return await db.getMessageTranslation(messageId, userId);
@@ -3393,7 +3393,7 @@ export async function getMessageTranslation(
 export async function saveMessageTranslation(
   ctx: DbContext,
   messageId: number,
-  userId: number,
+  userId: string,
   translatedText: string,
   targetLanguage: string
 ) {

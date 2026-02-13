@@ -1,14 +1,16 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { appRouter } from "./routers";
+import { getSupabaseAdminClient } from "./supabaseClient";
 
 describe("Translate Chat System", () => {
   let testUser: any;
   let caller: any;
 
   beforeAll(async () => {
-    // Mock user for testing
+    // Mock user for testing (using UUID for Supabase)
     testUser = {
-      id: 1,
+      id: "550e8400-e29b-41d4-a716-446655440001", // UUID string
+      numericId: 1, // For MySQL compatibility
       openId: "test-user-123",
       name: "Test User",
       email: "test@example.com",
@@ -18,6 +20,23 @@ describe("Translate Chat System", () => {
       updatedAt: new Date(),
       lastSignedIn: new Date(),
     };
+
+    // Ensure test users exist in Supabase
+    const supabase = getSupabaseAdminClient();
+    const { error: userError } = await supabase.from('users').upsert({
+      id: testUser.id,
+      email: testUser.email,
+      name: testUser.name,
+      role: testUser.role,
+      preferred_language: testUser.preferredLanguage,
+      created_at: testUser.createdAt,
+      updated_at: testUser.updatedAt,
+      last_signed_in: testUser.lastSignedIn,
+    }, { onConflict: 'id' });
+    if (userError) {
+      console.error('Failed to create test user:', userError);
+      throw userError;
+    }
 
     // Create caller with mock context
     caller = appRouter.createCaller({
@@ -49,11 +68,29 @@ describe("Translate Chat System", () => {
     // Create a second user caller
     const secondUser = {
       ...testUser,
-      id: 2,
+      id: "550e8400-e29b-41d4-a716-446655440002", // UUID string
+      numericId: 2, // For MySQL compatibility
       openId: "test-user-456",
       name: "Second User",
       preferredLanguage: "es",
     };
+
+    // Ensure second user exists in Supabase
+    const supabase = getSupabaseAdminClient();
+    const { error: user2Error } = await supabase.from('users').upsert({
+      id: secondUser.id,
+      email: secondUser.email,
+      name: secondUser.name,
+      role: secondUser.role,
+      preferred_language: secondUser.preferredLanguage,
+      created_at: secondUser.createdAt,
+      updated_at: secondUser.updatedAt,
+      last_signed_in: secondUser.lastSignedIn,
+    }, { onConflict: 'id' });
+    if (user2Error) {
+      console.error('Failed to create second test user:', user2Error);
+      throw user2Error;
+    }
 
     const secondCaller = appRouter.createCaller({
       user: secondUser,

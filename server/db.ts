@@ -3414,7 +3414,7 @@ function generateShareableCode(): string {
 /**
  * Create a new translate conversation
  */
-export async function createTranslateConversation(creatorId: number, title?: string) {
+export async function createTranslateConversation(creatorId: string, title?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -3471,7 +3471,7 @@ export async function getConversationById(conversationId: number) {
  */
 export async function addConversationParticipant(
   conversationId: number,
-  userId: number,
+  userId: string,
   preferredLanguage: string
 ) {
   const db = await getDb();
@@ -3544,7 +3544,7 @@ export async function isUserParticipant(conversationId: number, userId: number) 
  */
 export async function saveTranslateMessage(
   conversationId: number,
-  senderId: number,
+  senderId: string,
   originalText: string,
   originalLanguage: string
 ) {
@@ -3583,7 +3583,7 @@ export async function getTranslateConversationMessages(conversationId: number, l
  */
 export async function saveMessageTranslation(
   messageId: number,
-  userId: number,
+  userId: string,
   translatedText: string,
   targetLanguage: string
 ) {
@@ -3619,7 +3619,7 @@ export async function saveMessageTranslation(
 /**
  * Get message translation for user
  */
-export async function getMessageTranslation(messageId: number, userId: number) {
+export async function getMessageTranslation(messageId: number, userId: string) {
   const db = await getDb();
   if (!db) return null;
 
@@ -3640,7 +3640,7 @@ export async function getMessageTranslation(messageId: number, userId: number) {
 /**
  * Get user's translate conversations
  */
-export async function getUserTranslateConversations(userId: number) {
+export async function getUserTranslateConversations(userId: string) {
   const db = await getDb();
   if (!db) return [];
 
