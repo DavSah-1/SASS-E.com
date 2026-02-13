@@ -1855,7 +1855,7 @@ export async function getLatestStrategy(
       .from('debt_strategies')
       .select('*')
       .eq('user_id', String(ctx.user.id))
-      .order('created_at', { ascending: false })
+      .order('calculated_at', { ascending: false })
       .limit(1)
       .single();
     
@@ -2085,7 +2085,7 @@ export async function getUserBudgetCategories(
       query = query.eq('category_type', type);
     }
     
-    const { data, error } = await query.order('category_name', { ascending: true });
+    const { data, error } = await query.order('name', { ascending: true });
     
     if (error) handleSupabaseError(error, 'getUserBudgetCategories');
     return data || [];

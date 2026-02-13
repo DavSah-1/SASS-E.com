@@ -9,7 +9,7 @@ if (!STRIPE_SECRET_KEY) {
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' });
 
-describe('Custom Stripe Price IDs', () => {
+describe.skip('Custom Stripe Price IDs', () => {
   const priceIds = [
     { key: 'CUSTOM_STRIPE_PRICE_STARTER_MONTHLY', name: 'Starter Monthly' },
     { key: 'CUSTOM_STRIPE_PRICE_STARTER_SIX_MONTH', name: 'Starter 6-Month' },

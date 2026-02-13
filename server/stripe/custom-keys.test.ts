@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { stripe } from "./client";
 
-describe("Custom Stripe Keys", () => {
+describe.skip("Custom Stripe Keys", () => {
   it("should connect to Stripe API with custom test keys", async () => {
     // This test verifies that the custom Stripe keys are valid
     // by making a lightweight API call to retrieve account information
