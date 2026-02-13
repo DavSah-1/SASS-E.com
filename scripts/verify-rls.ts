@@ -105,7 +105,7 @@ async function testBudgetCategoryIsolation() {
       .insert({
         user_id: user1Auth.user!.id,
         name: 'User 1 Test Category',
-        type: 'needs',
+        type: 'expense',
         monthly_limit: 500,
         is_active: true,
       })
@@ -248,6 +248,7 @@ async function testFinancialGoalIsolation() {
         target_amount: 5000,
         current_amount: 0,
         status: 'active',
+        category: 'savings',
       })
       .select()
       .single();
