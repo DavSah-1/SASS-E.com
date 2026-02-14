@@ -3422,7 +3422,7 @@ export async function createTranslateConversation(creatorId: string, title?: str
   
   const insertResult = await db.insert(translateConversations).values({
     shareableCode,
-    creatorId,
+    creatorId: Number(creatorId),
     title: title || null,
     isActive: 1,
     expiresAt: null,
@@ -3494,9 +3494,9 @@ export async function addConversationParticipant(
   }
 
   const insertResult = await db.insert(translateConversationParticipants).values({
-    conversationId: conversationId as number,
-    userId: userId as number,
-    preferredLanguage: preferredLanguage as string,
+    conversationId: Number(conversationId),
+    userId: userId,
+    preferredLanguage: preferredLanguage,
   });
 
   return (insertResult as any).insertId as number;
@@ -3553,7 +3553,7 @@ export async function saveTranslateMessage(
 
   const insertResult = await db.insert(translateMessages).values({
     conversationId,
-    senderId,
+    senderId: Number(senderId),
     originalText,
     originalLanguage,
   });
