@@ -3521,7 +3521,7 @@ export async function getConversationParticipants(conversationId: number) {
 /**
  * Check if user is participant
  */
-export async function isUserParticipant(conversationId: number, userId: number) {
+export async function isUserParticipant(conversationId: number, userId: string) {
   const db = await getDb();
   if (!db) return false;
 
@@ -3663,7 +3663,7 @@ export async function getUserTranslateConversations(userId: string) {
 /**
  * Remove participant from conversation
  */
-export async function removeConversationParticipant(conversationId: number, userId: number) {
+export async function removeConversationParticipant(conversationId: number, userId: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 

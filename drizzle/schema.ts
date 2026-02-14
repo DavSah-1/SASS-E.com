@@ -1734,7 +1734,7 @@ export type InsertTranslateConversation = typeof translateConversations.$inferIn
 export const translateConversationParticipants = mysqlTable("translate_conversation_participants", {
   id: int("id").autoincrement().primaryKey(),
   conversationId: int("conversationId").notNull(),
-  userId: int("userId").notNull(),
+  userId: text("userId").notNull(), // Changed to text for UUID support
   preferredLanguage: varchar("preferredLanguage", { length: 10 }).notNull(), // ISO language code
   joinedAt: timestamp("joinedAt").defaultNow().notNull(),
 });
@@ -1763,7 +1763,7 @@ export type InsertTranslateMessage = typeof translateMessages.$inferInsert;
 export const translateMessageTranslations = mysqlTable("translate_message_translations", {
   id: int("id").autoincrement().primaryKey(),
   messageId: int("messageId").notNull(),
-  userId: int("userId").notNull(),
+  userId: text("userId").notNull(), // Changed to text for UUID support
   translatedText: text("translatedText").notNull(),
   targetLanguage: varchar("targetLanguage", { length: 10 }).notNull(), // ISO language code
   createdAt: timestamp("createdAt").defaultNow().notNull(),
