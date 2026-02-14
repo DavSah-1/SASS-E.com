@@ -111,6 +111,11 @@ async function startServer() {
     } else {
       console.log('[Audio Cleanup] Scheduler disabled (development mode)');
     }
+    
+    // Start notification cleanup scheduler (runs daily at 2 AM)
+    const { startNotificationCleanupJob } = require('../scheduledJobs');
+    startNotificationCleanupJob();
+    console.log('[Notification Cleanup] Scheduler started (runs daily at 2:00 AM UTC)');
   });
 }
 
