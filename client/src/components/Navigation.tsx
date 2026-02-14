@@ -8,7 +8,7 @@ import { Download, Menu, X, Home as HomeIcon, Mic, Lightbulb, GraduationCap, Lan
 import { LanguageSelector } from "./LanguageSelector";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
-import { NotificationBell } from "./NotificationBell";
+import { NotificationPanel } from "./NotificationPanel";
 import { useLocation } from "wouter";
 import {
   AlertDialog,
@@ -208,7 +208,7 @@ export function Navigation() {
           )}
           {isAuthenticated ? (
             <>
-              <NotificationBell />
+              <NotificationPanel />
               <Button asChild variant="ghost" size="sm">
                 <a href="/profile">
                   <User className="h-4 w-4" />
