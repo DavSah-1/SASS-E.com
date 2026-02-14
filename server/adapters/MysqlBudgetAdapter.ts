@@ -60,4 +60,8 @@ export class MysqlBudgetAdapter implements BudgetAdapter {
   async getUserMonthlyBudgetSummaries(userId: number, limit: number = 12) {
     return db.getUserMonthlyBudgetSummaries(userId, limit);
   }
+
+  async getCategorySpendingBreakdown(userId: number, monthYear: string) {
+    return db.getCategorySpendingBreakdown(userId, monthYear);
+  }
 }

@@ -34,4 +34,9 @@ export interface BudgetAdapter {
   calculateMonthlyBudgetSummary(userId: number, monthYear: string): Promise<any>;
   saveMonthlyBudgetSummary(summary: any): Promise<any>;
   getUserMonthlyBudgetSummaries(userId: number, limit?: number): Promise<any[]>;
+
+  /**
+   * Category Spending Analysis
+   */
+  getCategorySpendingBreakdown(userId: number, monthYear: string): Promise<any[]>;
 }

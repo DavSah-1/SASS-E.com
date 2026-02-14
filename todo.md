@@ -5649,3 +5649,26 @@
 - [ ] Run full test suite
 - [ ] Verify 0 TypeScript errors
 - [ ] Create checkpoint
+
+
+## Remaining Router Migrations
+
+### Budget Routers
+- [x] Migrate budgetExportRouter.ts (7 dbRoleAware calls)
+- [x] Complete budgetRouter.ts migration (2 remaining calls)
+
+### Goals Router
+- [ ] Migrate goalsRouter.ts (20 dbRoleAware calls)
+
+### Translation Routers
+- [ ] Migrate translateChatRouter.ts (22 dbRoleAware calls)
+- [ ] Migrate translationRouter.ts (1 dbRoleAware call)
+
+### Transaction Import
+- [ ] Migrate transactionImportRouter.ts (3 dbRoleAware calls)
+
+### Final Steps
+- [ ] Run full test suite
+- [ ] Verify 0 TypeScript errors
+- [ ] Delete dbRoleAware.ts (4,282 lines)
+- [ ] Create final checkpoint

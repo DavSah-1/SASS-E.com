@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import * as dbRoleAware from "./dbRoleAware";
+// import * as dbRoleAware from "./dbRoleAware"; // Replaced by adapter pattern
 import ExcelJS from "exceljs";
 
 /**
@@ -19,8 +19,8 @@ export const budgetExportRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const transactions = await dbRoleAware.getUserBudgetTransactions(
-        ctx,
+      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
+      const transactions = await ctx.budgetDb.getUserBudgetTransactions(
         ctx.user.numericId,
         {
           limit: input.limit || 1000,
@@ -28,7 +28,7 @@ export const budgetExportRouter = router({
       );
       
       // Get categories for mapping
-      const categories = await dbRoleAware.getUserBudgetCategories(ctx, ctx.user.numericId);
+      const categories = await ctx.budgetDb.getUserBudgetCategories(ctx.user.numericId);
       const categoryMap = new Map(categories.map(c => [c.id, c.name]));
 
       // Generate CSV content
@@ -75,8 +75,8 @@ export const budgetExportRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const transactions = await dbRoleAware.getUserBudgetTransactions(
-        ctx,
+      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
+      const transactions = await ctx.budgetDb.getUserBudgetTransactions(
         ctx.user.numericId,
         {
           limit: input.limit || 1000,
@@ -84,7 +84,7 @@ export const budgetExportRouter = router({
       );
       
       // Get categories for mapping
-      const categories = await dbRoleAware.getUserBudgetCategories(ctx, ctx.user.numericId);
+      const categories = await ctx.budgetDb.getUserBudgetCategories(ctx.user.numericId);
       const categoryMap = new Map(categories.map(c => [c.id, c.name]));
 
       // Create workbook
@@ -151,8 +151,8 @@ export const budgetExportRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const transactions = await dbRoleAware.getUserBudgetTransactions(
-        ctx,
+      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
+      const transactions = await ctx.budgetDb.getUserBudgetTransactions(
         ctx.user.numericId,
         {
           limit: input.limit || 1000,
@@ -160,7 +160,7 @@ export const budgetExportRouter = router({
       );
       
       // Get categories for mapping
-      const categories = await dbRoleAware.getUserBudgetCategories(ctx, ctx.user.numericId);
+      const categories = await ctx.budgetDb.getUserBudgetCategories(ctx.user.numericId);
       const categoryMap = new Map(categories.map(c => [c.id, c.name]));
 
       // Calculate summary

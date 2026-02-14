@@ -247,4 +247,43 @@ export class SupabaseBudgetAdapter implements BudgetAdapter {
     if (error) handleSupabaseError(error, 'getUserMonthlyBudgetSummaries');
     return data || [];
   }
+
+  async getCategorySpendingBreakdown(userId: number, monthYear: string) {
+    const supabase = await this.getClient();
+    const [year, month] = monthYear.split("-");
+    const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
+    
+    const { data, error } = await supabase
+      .from('budget_transactions')
+      .select(`
+        amount,
+        category_id,
+        budget_categories(category_name, monthly_limit)
+      `)
+      .eq('user_id', this.userId)
+      .eq('transaction_type', 'expense')
+      .gte('transaction_date', startDate.toISOString())
+      .lte('transaction_date', endDate.toISOString());
+    
+    if (error) throw new Error(`Supabase getCategorySpendingBreakdown error: ${error.message}`);
+    
+    // Group by category
+    const breakdown = new Map();
+    (data || []).forEach((t: any) => {
+      const catId = t.category_id;
+      const category = Array.isArray(t.budget_categories) ? t.budget_categories[0] : t.budget_categories;
+      if (!breakdown.has(catId)) {
+        breakdown.set(catId, {
+          categoryId: catId,
+          categoryName: category?.category_name,
+          monthlyLimit: category?.monthly_limit,
+          totalSpent: 0,
+        });
+      }
+      breakdown.get(catId).totalSpent += t.amount;
+    });
+    
+    return Array.from(breakdown.values());
+  }
 }

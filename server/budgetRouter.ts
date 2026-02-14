@@ -224,9 +224,8 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      // TODO: Move to budgetDb adapter when getCategorySpendingBreakdown is added
-      const dbRoleAware = await import('./dbRoleAware');
-      const breakdown = await dbRoleAware.getCategorySpendingBreakdown(ctx, ctx.user.numericId, input.monthYear);
+      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
+      const breakdown = await ctx.budgetDb.getCategorySpendingBreakdown(ctx.user.numericId, input.monthYear);
       return breakdown;
     }),
 
@@ -241,9 +240,8 @@ export const budgetRouter = router({
     )
     .query(async ({ ctx, input }) => {
       const summary = await ctx.budgetDb!.calculateMonthlyBudgetSummary(ctx.user.numericId, input.monthYear);
-      // TODO: Move to debtDb adapter when created
-      const dbRoleAware = await import('./dbRoleAware');
-      const debtSummary = await dbRoleAware.getDebtSummary(ctx, ctx.user.numericId);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      const debtSummary = await ctx.debtDb.getDebtSummary(ctx.user.numericId);
 
       if (!summary) {
         return {
