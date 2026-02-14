@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import * as dbRoleAware from "./dbRoleAware";
+// import * as dbRoleAware from "./dbRoleAware"; // Replaced by adapter pattern
 import { invokeLLM } from "./_core/llm";
 import { checkCategoryAlerts, checkAllCategoryAlerts } from "./alertHelpers";
 
@@ -22,7 +22,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.createBudgetCategory(ctx, {
+      await ctx.budgetDb!.createBudgetCategory({
         userId: ctx.user.numericId,
         ...input,
         isDefault: 0,
@@ -41,7 +41,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const categories = await dbRoleAware.getUserBudgetCategories(ctx, ctx.user.numericId, input.type);
+      const categories = await ctx.budgetDb!.getUserBudgetCategories(ctx.user.numericId, input.type);
       return categories;
     }),
 
@@ -62,7 +62,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.updateBudgetCategory(ctx, input.categoryId, input.updates);
+      await ctx.budgetDb!.updateBudgetCategory(input.categoryId, input.updates);
       return { success: true, message: "Category updated successfully" };
     }),
 
@@ -76,7 +76,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.deleteBudgetCategory(ctx, input.categoryId);
+      await ctx.budgetDb!.deleteBudgetCategory(input.categoryId);
       return { success: true, message: "Category deleted successfully" };
     }),
 
@@ -99,7 +99,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.createBudgetTransaction(ctx, {
+      await ctx.budgetDb!.createBudgetTransaction({
         userId: ctx.user.numericId,
         categoryId: input.categoryId,
         amount: input.amount,
@@ -134,11 +134,10 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const transactions = await dbRoleAware.getUserBudgetTransactions(ctx, ctx.user.numericId, {
+      const transactions = await ctx.budgetDb!.getUserBudgetTransactions(ctx.user.numericId, {
         categoryId: input.categoryId,
         startDate: input.startDate ? new Date(input.startDate) : undefined,
         endDate: input.endDate ? new Date(input.endDate) : undefined,
-        limit: input.limit,
       });
 
       return transactions;
@@ -167,7 +166,7 @@ export const budgetRouter = router({
         updates.transactionDate = new Date(updates.transactionDate);
       }
 
-      await dbRoleAware.updateBudgetTransaction(ctx, input.transactionId, updates);
+      await ctx.budgetDb!.updateBudgetTransaction(input.transactionId, updates);
       return { success: true, message: "Transaction updated successfully" };
     }),
 
@@ -181,7 +180,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.deleteBudgetTransaction(ctx, input.transactionId);
+      await ctx.budgetDb!.deleteBudgetTransaction(input.transactionId);
       return { success: true, message: "Transaction deleted successfully" };
     }),
 
@@ -197,7 +196,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const summary = await dbRoleAware.calculateMonthlyBudgetSummary(ctx, ctx.user.numericId, input.monthYear);
+      const summary = await ctx.budgetDb!.calculateMonthlyBudgetSummary(ctx.user.numericId, input.monthYear);
       return summary;
     }),
 
@@ -211,7 +210,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const summaries = await dbRoleAware.getUserMonthlyBudgetSummaries(ctx, ctx.user.numericId, input.limit);
+      const summaries = await ctx.budgetDb!.getUserMonthlyBudgetSummaries(ctx.user.numericId, input.limit);
       return summaries;
     }),
 
@@ -225,6 +224,8 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
+      // TODO: Move to budgetDb adapter when getCategorySpendingBreakdown is added
+      const dbRoleAware = await import('./dbRoleAware');
       const breakdown = await dbRoleAware.getCategorySpendingBreakdown(ctx, ctx.user.numericId, input.monthYear);
       return breakdown;
     }),
@@ -239,7 +240,9 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const summary = await dbRoleAware.calculateMonthlyBudgetSummary(ctx, ctx.user.numericId, input.monthYear);
+      const summary = await ctx.budgetDb!.calculateMonthlyBudgetSummary(ctx.user.numericId, input.monthYear);
+      // TODO: Move to debtDb adapter when created
+      const dbRoleAware = await import('./dbRoleAware');
       const debtSummary = await dbRoleAware.getDebtSummary(ctx, ctx.user.numericId);
 
       if (!summary) {
@@ -275,7 +278,7 @@ export const budgetRouter = router({
    * Initialize default budget categories for new users
    */
   initializeDefaultCategories: protectedProcedure.mutation(async ({ ctx }) => {
-    const existingCategories = await dbRoleAware.getUserBudgetCategories(ctx, ctx.user.numericId);
+    const existingCategories = await ctx.budgetDb!.getUserBudgetCategories(ctx.user.numericId);
     
     if (existingCategories.length > 0) {
       return { success: true, message: "Categories already initialized" };
@@ -302,7 +305,7 @@ export const budgetRouter = router({
     ];
 
     for (const cat of incomeCategories) {
-      await dbRoleAware.createBudgetCategory(ctx, {
+      await ctx.budgetDb!.createBudgetCategory({
         userId: ctx.user.numericId,
         type: "income",
         isDefault: 1,
@@ -311,7 +314,7 @@ export const budgetRouter = router({
     }
 
     for (const cat of expenseCategories) {
-      await dbRoleAware.createBudgetCategory(ctx, {
+      await ctx.budgetDb!.createBudgetCategory({
         userId: ctx.user.numericId,
         type: "expense",
         isDefault: 1,

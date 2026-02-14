@@ -5529,3 +5529,51 @@
 - [x] Test in browser (page loading, will verify after login)
 - [x] Verify both admin and user roles work (tests confirm routing)
 - [x] Create checkpoint if successful
+
+
+## Full Adapter Pattern Refactoring (All Domains)
+
+### Phase 1: Create Adapter Interfaces
+- [x] Create BudgetAdapter interface
+- [ ] Create DebtAdapter interface
+- [ ] Create LearningAdapter interface
+- [ ] Create IoTAdapter interface
+- [ ] Create UserAdapter interface (profile, settings)
+- [ ] Create ConversationAdapter interface
+
+### Phase 2: Implement MySQL Adapters
+- [x] Implement MysqlBudgetAdapter
+- [ ] Implement MysqlDebtAdapter
+- [ ] Implement MysqlLearningAdapter
+- [ ] Implement MysqlIoTAdapter
+- [ ] Implement MysqlUserAdapter
+- [ ] Implement MysqlConversationAdapter
+
+### Phase 3: Implement Supabase Adapters
+- [x] Implement SupabaseBudgetAdapter
+- [ ] Implement SupabaseDebtAdapter
+- [ ] Implement SupabaseLearningAdapter
+- [ ] Implement SupabaseIoTAdapter
+- [ ] Implement SupabaseUserAdapter
+- [ ] Implement SupabaseConversationAdapter
+
+### Phase 4: Update Context and Factory
+- [ ] Add all adapters to TrpcContext type
+- [ ] Create factory functions for all adapters
+- [ ] Update context creation to instantiate all adapters
+
+### Phase 5: Migrate Routers
+- [ ] Migrate budget router to use ctx.budgetDb
+- [ ] Migrate debt router to use ctx.debtDb
+- [ ] Migrate learning routers to use ctx.learningDb
+- [ ] Migrate IoT router to use ctx.iotDb
+- [ ] Migrate user/profile routers to use ctx.userDb
+- [ ] Migrate conversation router to use ctx.conversationDb
+
+### Phase 6: Cleanup and Testing
+- [ ] Delete dbRoleAware.ts file
+- [ ] Delete related helper files (db-cleanup.ts, dbRoleAware-cleanup.ts, etc.)
+- [ ] Run full test suite
+- [ ] Fix any failing tests
+- [ ] Verify all routers work in browser
+- [ ] Create final checkpoint

@@ -65,6 +65,7 @@ export async function createTestCaller(options: {
       setHeader: () => {},
     } as any,
     notificationDb: null, // TODO: Add adapter when needed for tests
+    budgetDb: null, // TODO: Add adapter when needed for tests
   };
 
   // Create caller with context
@@ -78,6 +79,7 @@ export function createUnauthenticatedCaller() {
   const mockContext: TrpcContext = {
     user: null,
     notificationDb: null,
+    budgetDb: null,
     req: {
       headers: {},
       cookies: {},

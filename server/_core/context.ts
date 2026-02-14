@@ -1,14 +1,15 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { UnifiedUser } from "./dbRouter";
 import { sdk } from "./sdk";
-import { createNotificationAdapter, type NotificationAdapter } from "../adapters";
+import { createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter } from "../adapters";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: UnifiedUser | null;
   accessToken?: string; // JWT token for RLS enforcement
-  notificationDb: NotificationAdapter | null; // Notification adapter (POC)
+  notificationDb: NotificationAdapter | null; // Notification adapter
+  budgetDb: BudgetAdapter | null; // Budget adapter
 };
 
 export async function createContext(
@@ -30,8 +31,9 @@ export async function createContext(
     user = null;
   }
 
-  // Create notification adapter if user is authenticated
+  // Create adapters if user is authenticated
   const notificationDb = user ? createNotificationAdapter({ user, accessToken }) : null;
+  const budgetDb = user ? createBudgetAdapter({ user, accessToken }) : null;
 
   return {
     req: opts.req,
@@ -39,5 +41,6 @@ export async function createContext(
     user,
     accessToken,
     notificationDb,
+    budgetDb,
   };
 }
