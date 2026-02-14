@@ -2808,6 +2808,18 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         }
       }),
     
+    // Delete all notifications for current user
+    deleteAll: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        try {
+          const deleted = await dbRoleAware.deleteAllUserNotifications(ctx, ctx.user.numericId);
+          return { success: true, deleted };
+        } catch (error) {
+          handleError(error, 'Notifications Delete All');
+          return { success: false, deleted: 0 };
+        }
+      }),
+    
     // Get user's notification preferences
     getPreferences: protectedProcedure.query(async ({ ctx }) => {
       try {

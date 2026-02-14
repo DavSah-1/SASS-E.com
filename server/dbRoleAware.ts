@@ -3916,6 +3916,19 @@ export async function dismissNotification(
   }
 }
 
+export async function deleteAllUserNotifications(
+  ctx: DbContext,
+  userId: number
+): Promise<number> {
+  if (ctx.user.role === "admin") {
+    const { deleteAllUserNotifications } = await import('./db-deleteAll');
+    return await deleteAllUserNotifications(userId);
+  } else {
+    const { deleteAllSupabaseUserNotifications } = await import('./dbRoleAware-deleteAll');
+    return await deleteAllSupabaseUserNotifications(String(ctx.user.id), ctx.accessToken);
+  }
+}
+
 export async function getNotificationPreferences(
   ctx: DbContext,
   userId: number

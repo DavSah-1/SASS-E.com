@@ -5482,3 +5482,21 @@
 - [x] Add logging for cleanup operations
 - [x] Test cleanup job manually
 - [x] Write unit tests for cleanup function
+
+
+## Delete All Current Notifications
+- [x] Create script to delete all notifications from MySQL database
+- [x] Create script to delete all notifications from Supabase database
+- [x] Execute deletion scripts
+- [x] Verify all notifications are deleted
+
+
+## Delete All Notifications Button in UI
+- [x] Create tRPC procedure to delete all notifications for current user
+- [x] Support both MySQL (admin) and Supabase (user) databases
+- [x] Add "Delete All" button to NotificationPanel component
+- [x] Add confirmation dialog before deleting
+- [x] Implement optimistic UI update
+- [x] Show success toast after deletion
+- [x] Test delete all functionality in browser
+- [x] Write unit tests for delete all procedure

@@ -1,18 +1,29 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
-import { Bell, Check, Calendar } from "lucide-react";
+import { Bell, Check, Calendar, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { NotificationActionButton } from "./NotificationActionButton";
 
 export function NotificationPanel() {
   const [open, setOpen] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const utils = trpc.useUtils();
 
   const { data: notifications = [], isLoading } = trpc.notifications.getNotifications.useQuery(
@@ -31,6 +42,27 @@ export function NotificationPanel() {
     },
   });
 
+  const deleteAll = trpc.notifications.deleteAll.useMutation({
+    onMutate: () => {
+      // Optimistically clear notifications
+      utils.notifications.getNotifications.setData({ includeRead: false }, []);
+      utils.notifications.getUnreadCount.setData(undefined, { count: 0 });
+    },
+    onSuccess: (data) => {
+      utils.notifications.getNotifications.invalidate();
+      utils.notifications.getUnreadCount.invalidate();
+      toast.success(`Deleted ${data.deleted} notification${data.deleted !== 1 ? 's' : ''}`);
+      setShowDeleteDialog(false);
+      setOpen(false);
+    },
+    onError: () => {
+      // Revert optimistic update on error
+      utils.notifications.getNotifications.invalidate();
+      utils.notifications.getUnreadCount.invalidate();
+      toast.error("Failed to delete notifications");
+    },
+  });
+
   const handleMarkAllAsRead = () => {
     // Mark all unread notifications as read
     const unreadNotifications = notifications.filter((n) => !n.isRead);
@@ -41,6 +73,18 @@ export function NotificationPanel() {
 
     // Mark all as read by passing a special flag
     markAllAsRead.mutate({ notificationId: -1 }); // -1 signals "mark all"
+  };
+
+  const handleDeleteAll = () => {
+    if (notifications.length === 0) {
+      toast.info("No notifications to delete");
+      return;
+    }
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteAll = () => {
+    deleteAll.mutate();
   };
 
   const getNotificationIcon = (type: string) => {
@@ -64,6 +108,7 @@ export function NotificationPanel() {
   };
 
   return (
+    <>
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
@@ -82,15 +127,27 @@ export function NotificationPanel() {
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="font-semibold text-lg">Notifications</h3>
           {notifications.length > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleMarkAllAsRead}
-              disabled={markAllAsRead.isPending}
-            >
-              <Check className="h-4 w-4 mr-1" />
-              Mark all read
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleMarkAllAsRead}
+                disabled={markAllAsRead.isPending}
+              >
+                <Check className="h-4 w-4 mr-1" />
+                Mark all read
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDeleteAll}
+                disabled={deleteAll.isPending}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete all
+              </Button>
+            </div>
           )}
         </div>
 
@@ -172,5 +229,27 @@ export function NotificationPanel() {
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+
+    <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete all notifications?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete all {notifications.length} notification{notifications.length !== 1 ? 's' : ''}.
+            This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={confirmDeleteAll}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Delete all
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
