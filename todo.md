@@ -5356,3 +5356,10 @@
 - [ ] Add parseInt() to all userId comparisons in RLS tests
 - [ ] Fix UPDATE operation calls to match function signatures
 - [ ] Verify all RLS tests pass after fixes
+
+
+## Bug Fixes - RLS Test Data Creation
+- [ ] Find all string user IDs in RLS test data creation ("rls-test-user-1", "rls-test-user-2")
+- [ ] Replace string user IDs with numeric user IDs (user1Ctx.user.numericId, user2Ctx.user.numericId)
+- [ ] Verify no string user IDs remain in test data
+- [ ] Run RLS tests to confirm all tests pass

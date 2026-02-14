@@ -985,10 +985,12 @@ export async function saveExerciseAttempt(
     return await db.saveExerciseAttempt(attempt);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    // Always use ctx.user.id for Supabase (RLS policies enforce this)
+    const userId = String(ctx.user.id);
     const { data, error } = await supabase
       .from('exercise_attempts')
       .insert({
-        user_id: String(ctx.user.id),
+        user_id: userId,
         exercise_id: attempt.exerciseId,
         user_answer: attempt.userAnswer,
         is_correct: attempt.isCorrect,
@@ -1651,10 +1653,12 @@ export async function addDebt(
     return await db.addDebt(debt);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    // Always use ctx.user.id for Supabase (RLS policies enforce this)
+    const userId = String(ctx.user.id);
     const { data, error } = await supabase
       .from('debts')
       .insert({
-        user_id: String(ctx.user.id),
+        user_id: userId,
         debt_name: debt.debtName,
         original_amount: debt.originalAmount,
         current_balance: debt.currentBalance,
@@ -2085,10 +2089,12 @@ export async function createBudgetCategory(
     return await db.createBudgetCategory(category);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    // Always use ctx.user.id for Supabase (RLS policies enforce this)
+    const userId = String(ctx.user.id);
     const { data, error } = await supabase
       .from('budget_categories')
       .insert({
-        user_id: String(ctx.user.id),
+        user_id: userId,
         name: category.name || category.categoryName,
         monthly_limit: category.monthlyLimit,
         type: category.type || category.categoryType,
@@ -2489,10 +2495,12 @@ export async function createFinancialGoal(
     return await db.createFinancialGoal(goal);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    // Always use ctx.user.id for Supabase (RLS policies enforce this)
+    const userId = String(ctx.user.id);
     const { data, error } = await supabase
       .from('financial_goals')
       .insert({
-        user_id: String(ctx.user.id),
+        user_id: userId,
         name: goal.name || goal.goalName,
         description: goal.description,
         target_amount: goal.targetAmount,
