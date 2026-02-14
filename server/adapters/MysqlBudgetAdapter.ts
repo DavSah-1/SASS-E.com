@@ -64,4 +64,8 @@ export class MysqlBudgetAdapter implements BudgetAdapter {
   async getCategorySpendingBreakdown(userId: number, monthYear: string) {
     return db.getCategorySpendingBreakdown(userId, monthYear);
   }
+
+  async findDuplicateTransaction(userId: number, date: string, amount: number, description: string) {
+    return db.findDuplicateTransaction(userId, date, amount, description);
+  }
 }

@@ -27,6 +27,7 @@ export interface BudgetAdapter {
   getUserBudgetTransactions(userId: number, options?: { categoryId?: number; startDate?: Date; endDate?: Date }): Promise<any[]>;
   updateBudgetTransaction(transactionId: number, updates: any): Promise<any>;
   deleteBudgetTransaction(transactionId: number): Promise<any>;
+  findDuplicateTransaction(userId: number, date: string, amount: number, description: string): Promise<any | null>;
 
   /**
    * Monthly Budget Summaries

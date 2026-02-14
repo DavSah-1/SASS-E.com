@@ -1,6 +1,7 @@
+// Migrated to use ctx.budgetDb adapter
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import * as dbRoleAware from "./dbRoleAware";
+// import * as dbRoleAware from "./dbRoleAware";
 import Papa from "papaparse";
 
 // Common transaction format after parsing
@@ -166,7 +167,7 @@ async function detectCategory(
   userId: number,
   description: string
 ): Promise<number | null> {
-  const categories = await dbRoleAware.getUserBudgetCategories(ctx, userId);
+  const categories = await ctx.budgetDb!.getUserBudgetCategories(userId);
 
   // Simple keyword matching
   const descLower = description.toLowerCase();
@@ -178,9 +179,9 @@ async function detectCategory(
     descLower.includes("deposit") ||
     descLower.includes("payment received")
   ) {
-    const salaryCategory = categories.find(
-      (c) => c.type === "income" && c.name.toLowerCase().includes("salary")
-    );
+  const salaryCategory = categories.find(
+    (c: any) => c.type === "income" && c.name.toLowerCase().includes("salary")
+  );
     if (salaryCategory) return salaryCategory.id;
   }
 
@@ -202,17 +203,17 @@ async function detectCategory(
 
   for (const [categoryName, keywords] of Object.entries(expenseKeywords)) {
     if (keywords.some((kw) => descLower.includes(kw))) {
-      const category = categories.find(
-        (c) =>
-          c.type === "expense" &&
-          c.name.toLowerCase().includes(categoryName)
-      );
+    const category = categories.find(
+      (c: any) =>
+        c.type === "expense" &&
+        c.name.toLowerCase().includes(categoryName)
+    );
       if (category) return category.id;
     }
   }
 
   // Default to first expense category if no match
-  const defaultExpense = categories.find((c) => c.type === "expense");
+  const defaultExpense = categories.find((c: any) => c.type === "expense");
   return defaultExpense?.id || null;
 }
 
@@ -291,10 +292,9 @@ export const transactionImportRouter = router({
           // Check for duplicates if requested
           if (input.skipDuplicates) {
             const existing =
-              await dbRoleAware.findDuplicateTransaction(
-                ctx,
+              await ctx.budgetDb!.findDuplicateTransaction(
                 ctx.user.numericId,
-                tx.date,
+                tx.date.toISOString().split('T')[0],
                 tx.amount,
                 tx.description
               );
@@ -306,7 +306,7 @@ export const transactionImportRouter = router({
           }
 
           // Create transaction
-          await dbRoleAware.createBudgetTransaction(ctx, {
+          await ctx.budgetDb!.createBudgetTransaction({
             userId: ctx.user.numericId,
             categoryId: tx.categoryId,
             amount: tx.amount,

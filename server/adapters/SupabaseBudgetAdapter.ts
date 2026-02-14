@@ -286,4 +286,20 @@ export class SupabaseBudgetAdapter implements BudgetAdapter {
     
     return Array.from(breakdown.values());
   }
+
+  async findDuplicateTransaction(userId: number, date: string, amount: number, description: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('budget_transactions')
+      .select('*')
+      .eq('user_id', this.userId)
+      .eq('transaction_date', date)
+      .eq('amount', amount)
+      .eq('description', description)
+      .limit(1)
+      .maybeSingle();
+    
+    if (error) throw new Error(`Supabase findDuplicateTransaction error: ${error.message}`);
+    return data;
+  }
 }

@@ -5693,3 +5693,11 @@
 ### Phase 4: Final Steps
 - [x] Mark tasks complete in todo.md
 - [ ] Save checkpoint
+
+
+## TransactionImportRouter Migration
+
+- [x] Analyze transactionImportRouter.ts dbRoleAware calls
+- [x] Migrate to ctx.budgetDb (3 calls)
+- [x] Verify TypeScript compilation
+- [ ] Save checkpoint
