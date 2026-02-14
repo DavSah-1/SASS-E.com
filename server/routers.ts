@@ -2758,12 +2758,24 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       }
     }),
     
-    // Mark notification as read
+    // Mark notification(s) as read
     markAsRead: protectedProcedure
-      .input(z.object({ notificationId: z.number() }))
+      .input(z.object({ 
+        notificationId: z.number().optional(),
+        notificationIds: z.array(z.number()).optional(),
+      }))
       .mutation(async ({ ctx, input }) => {
         try {
-          await dbRoleAware.markNotificationAsRead(ctx, input.notificationId, ctx.user.numericId);
+          // Support both single and batch operations
+          const ids = input.notificationIds || (input.notificationId ? [input.notificationId] : []);
+          if (ids.length === 0) {
+            return { success: false, error: 'No notification IDs provided' };
+          }
+          
+          // Mark all notifications as read
+          for (const id of ids) {
+            await dbRoleAware.markNotificationAsRead(ctx, id, ctx.user.numericId);
+          }
           return { success: true };
         } catch (error) {
           handleError(error, 'Notifications Mark As Read');
@@ -2771,12 +2783,24 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         }
       }),
     
-    // Dismiss notification
+    // Dismiss notification(s)
     dismiss: protectedProcedure
-      .input(z.object({ notificationId: z.number() }))
+      .input(z.object({ 
+        notificationId: z.number().optional(),
+        notificationIds: z.array(z.number()).optional(),
+      }))
       .mutation(async ({ ctx, input }) => {
         try {
-          await dbRoleAware.dismissNotification(ctx, input.notificationId, ctx.user.numericId);
+          // Support both single and batch operations
+          const ids = input.notificationIds || (input.notificationId ? [input.notificationId] : []);
+          if (ids.length === 0) {
+            return { success: false, error: 'No notification IDs provided' };
+          }
+          
+          // Dismiss all notifications
+          for (const id of ids) {
+            await dbRoleAware.dismissNotification(ctx, id, ctx.user.numericId);
+          }
           return { success: true };
         } catch (error) {
           handleError(error, 'Notifications Dismiss');

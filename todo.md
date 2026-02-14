@@ -5422,3 +5422,30 @@
 - [x] Update getUserNotifications to return batched notifications
 - [x] Test batching with multiple notification types
 - [x] Verify both admin and user databases work correctly
+
+
+## Notification Action Buttons
+### Schema Updates
+- [x] Add action_url field to notifications table (MySQL + Supabase)
+- [x] Add action_type enum (view_details, mark_read, dismiss, custom)
+- [x] Add action_label field for custom button text
+
+### Backend Implementation
+- [x] Update markAsRead procedure to support batch operations
+- [x] Create dismissNotification procedure for both databases
+- [x] Add getNotificationActionUrl helper function
+- [x] Update notification creation to include action metadata
+
+### Frontend Implementation
+- [x] Create NotificationActionButton component
+- [x] Add action buttons to notification cards
+- [x] Implement optimistic UI updates for actions
+- [x] Add loading states and error handling
+- [x] Make buttons responsive for mobile
+
+### Testing
+- [ ] Test mark as read action (single + batch)
+- [ ] Test dismiss action
+- [ ] Test view details navigation
+- [ ] Verify both admin and user databases work correctly
+- [ ] Test mobile responsiveness

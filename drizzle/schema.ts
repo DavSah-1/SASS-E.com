@@ -1623,6 +1623,10 @@ export const factUpdateNotifications = mysqlTable("fact_update_notifications", {
   // Batching metadata
   batchKey: varchar("batchKey", { length: 255 }), // Group notifications by this key (e.g., "debt_milestone_2024-02-14")
   batchCount: int("batchCount").default(1).notNull(), // Number of notifications in this batch
+  // Action buttons
+  actionUrl: varchar("action_url", { length: 500 }),
+  actionType: mysqlEnum("action_type", ["view_details", "mark_read", "dismiss", "custom"]).default("view_details"),
+  actionLabel: varchar("action_label", { length: 100 }).default("View Details"),
   // User interaction
   isRead: int("isRead").default(0).notNull(),
   readAt: timestamp("readAt"),

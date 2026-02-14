@@ -3979,7 +3979,8 @@ export async function updateNotificationPreferences(
   }
 }
 
-import { generateBatchKey, shouldBatch, generateBatchedTitle, generateBatchedMessage } from './notificationBatching';
+import { shouldBatch, generateBatchKey, generateBatchedTitle, generateBatchedMessage } from './notificationBatching';
+import { getNotificationAction } from './notificationActions';
 
 export async function createFactUpdateNotifications(
   ctx: DbContext,
@@ -4032,6 +4033,7 @@ export async function createFactUpdateNotifications(
             .eq('id', existingBatch.id);
         } else {
           // Create new batch notification
+          const action = getNotificationAction('fact_update', { factId: newFact.id });
           await supabase
             .from('notifications')
             .insert({
@@ -4042,18 +4044,25 @@ export async function createFactUpdateNotifications(
               type: 'fact_update',
               title: 'Fact Update',
               message: `A fact you accessed has been updated: "${newFact.question}"`,
+              action_url: action.actionUrl,
+              action_type: action.actionType,
+              action_label: action.actionLabel,
               created_at: now.toISOString(),
             });
         }
       }
     } else {
       // No batching: create individual notifications
+      const action = getNotificationAction('fact_update', { factId: newFact.id });
       const notifications = uniqueUsers.map(userId => ({
         user_id: userId,
         notification_type: notificationType,
         type: 'fact_update',
         title: 'Fact Update',
         message: `A fact you accessed has been updated: "${newFact.question}"`,
+        action_url: action.actionUrl,
+        action_type: action.actionType,
+        action_label: action.actionLabel,
         created_at: now.toISOString(),
       }));
       

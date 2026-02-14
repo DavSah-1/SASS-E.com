@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE fact_update_notifications\nADD COLUMN action_url VARCHAR(500),\nADD COLUMN action_type ENUM('view_details', 'mark_read', 'dismiss', 'custom') DEFAULT 'view_details',\nADD COLUMN action_label VARCHAR(100) DEFAULT 'View Details';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute ALTER TABLE fact_update_notifications\nADD COLUMN action_url VARCHAR(500),\nADD COLUMN action_type ENUM('view_details', 'mark_read', 'dismiss', 'custom') DEFAULT 'view_details',\nADD COLUMN action_label VARCHAR(100) DEFAULT 'View Details';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1217
+}

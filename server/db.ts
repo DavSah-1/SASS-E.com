@@ -2583,7 +2583,8 @@ export async function logFactAccess(userId: number, verifiedFactId: number, fact
 /**
  * Create notifications for users who accessed an old version of a fact
  */
-import { generateBatchKey, shouldBatch, generateBatchedTitle, generateBatchedMessage } from './notificationBatching';
+import { shouldBatch, generateBatchKey, generateBatchedTitle, generateBatchedMessage } from './notificationBatching';
+import { getNotificationAction } from './notificationActions';
 
 export async function createFactUpdateNotifications(oldFact: VerifiedFact, newFact: VerifiedFact) {
   const db = await getDb();
@@ -2649,6 +2650,7 @@ export async function createFactUpdateNotifications(oldFact: VerifiedFact, newFa
           .where(eq(factUpdateNotifications.id, existingBatch[0].id));
       } else {
         // Create new batch notification
+        const action = getNotificationAction('fact_update', { factId: oldFact.id });
         await db.insert(factUpdateNotifications).values({
           userId,
           verifiedFactId: oldFact.id,
@@ -2659,11 +2661,15 @@ export async function createFactUpdateNotifications(oldFact: VerifiedFact, newFa
           batchCount: 1,
           title: 'Fact Update Available',
           message: `The answer to "${oldFact.question}" has been updated with new information.`,
+          actionUrl: action.actionUrl,
+          actionType: action.actionType,
+          actionLabel: action.actionLabel,
         });
       }
     }
   } else {
     // No batching: create individual notifications
+    const action = getNotificationAction('fact_update', { factId: oldFact.id });
     const notifications: InsertFactUpdateNotification[] = userIds.map(userId => ({
       userId,
       verifiedFactId: oldFact.id,
@@ -2672,6 +2678,9 @@ export async function createFactUpdateNotifications(oldFact: VerifiedFact, newFa
       notificationType,
       title: 'Fact Update Available',
       message: `The answer to "${oldFact.question}" has been updated with new information.`,
+      actionUrl: action.actionUrl,
+      actionType: action.actionType,
+      actionLabel: action.actionLabel,
     }));
     
     if (notifications.length > 0) {
