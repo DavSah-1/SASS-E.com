@@ -294,7 +294,7 @@ export const transactionImportRouter = router({
             const existing =
               await ctx.budgetDb!.findDuplicateTransaction(
                 ctx.user.numericId,
-                tx.date.toISOString().split('T')[0],
+                tx.date,
                 tx.amount,
                 tx.description
               );

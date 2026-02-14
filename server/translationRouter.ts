@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { translateText, translateBatch } from "./_core/translation";
-import * as dbRoleAware from "./dbRoleAware";
 import { users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 

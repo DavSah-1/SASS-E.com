@@ -5701,3 +5701,32 @@
 - [x] Migrate to ctx.budgetDb (3 calls)
 - [x] Verify TypeScript compilation
 - [ ] Save checkpoint
+
+
+## TranslationAdapter Creation & Migration (Final Domain)
+
+### Phase 1: Analysis
+- [ ] Analyze translateChatRouter.ts dbRoleAware calls (22 calls)
+- [ ] Analyze translationRouter.ts dbRoleAware calls (1 call)
+- [ ] Identify all required adapter methods
+
+### Phase 2: Adapter Implementation
+- [x] Create TranslationAdapter interface
+- [x] Create MysqlTranslationAdapter implementation
+- [x] Create SupabaseTranslationAdapter implementation
+
+### Phase 3: Context Integration
+- [x] Add createTranslationAdapter to adapters/index.ts
+- [x] Add translationDb to context.ts
+- [x] Update test helpers with translationDb
+
+### Phase 4: Router Migration
+- [x] Migrate translateChatRouter.ts (22 calls)
+- [x] Migrate translationRouter.ts (1 call)
+- [x] Fix TypeScript errors
+- [x] Verify 0 compilation errors
+
+### Phase 5: Final Steps
+- [ ] Mark all tasks complete
+- [ ] Save checkpoint
+- [ ] Celebrate completion of all router migrations!

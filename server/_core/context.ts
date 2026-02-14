@@ -1,7 +1,7 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { UnifiedUser } from "./dbRouter";
 import { sdk } from "./sdk";
-import { createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter, createIoTAdapter, type IoTAdapter, createGoalsAdapter, type GoalsAdapter } from "../adapters";
+import { createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter, createIoTAdapter, type IoTAdapter, createGoalsAdapter, type GoalsAdapter, createTranslationAdapter, type TranslationAdapter } from "../adapters";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -14,6 +14,7 @@ export type TrpcContext = {
   learningDb: LearningAdapter | null; // Learning adapter
   iotDb: IoTAdapter | null; // IoT adapter
   goalsDb: GoalsAdapter | null; // Goals adapter
+  translationDb: TranslationAdapter | null; // Translation adapter
 };
 
 export async function createContext(
@@ -42,6 +43,7 @@ export async function createContext(
   const learningDb = user ? createLearningAdapter({ user, accessToken }) : null;
   const iotDb = user ? createIoTAdapter({ user, accessToken }) : null;
   const goalsDb = user ? createGoalsAdapter({ user, accessToken }) : null;
+  const translationDb = user ? createTranslationAdapter({ user, accessToken }) : null;
 
   return {
     req: opts.req,
@@ -54,5 +56,6 @@ export async function createContext(
     learningDb,
     iotDb,
     goalsDb,
+    translationDb,
   };
 }

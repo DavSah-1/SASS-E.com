@@ -23,6 +23,9 @@ import type { IoTAdapter } from './IoTAdapter';
 import { MysqlGoalsAdapter } from './MysqlGoalsAdapter';
 import { SupabaseGoalsAdapter } from './SupabaseGoalsAdapter';
 import type { GoalsAdapter } from './GoalsAdapter';
+import { MysqlTranslationAdapter } from './MysqlTranslationAdapter';
+import { SupabaseTranslationAdapter } from './SupabaseTranslationAdapter';
+import type { TranslationAdapter } from './TranslationAdapter';
 
 export interface AdapterContext {
   user: {
@@ -113,6 +116,27 @@ export function createGoalsAdapter(ctx: AdapterContext): GoalsAdapter {
   }
 }
 
+/**
+ * Create translation adapter based on user role
+ */
+export function createTranslationAdapter(ctx: AdapterContext): TranslationAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MysqlTranslationAdapter();
+  } else {
+    const userId = String(ctx.user.numericId || ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+    const getClient = async () => {
+      const { createClient } = await import('@supabase/supabase-js');
+      return createClient(supabaseUrl, supabaseKey, {
+        global: { headers: { Authorization: `Bearer ${accessToken}` } },
+      });
+    };
+    return new SupabaseTranslationAdapter(userId, getClient);
+  }
+}
+
 // Export adapters and interfaces
 export type { NotificationAdapter } from './NotificationAdapter';
 export type { BudgetAdapter } from './BudgetAdapter';
@@ -120,6 +144,7 @@ export type { DebtAdapter } from './DebtAdapter';
 export type { LearningAdapter } from './LearningAdapter';
 export type { IoTAdapter } from './IoTAdapter';
 export type { GoalsAdapter } from './GoalsAdapter';
+export type { TranslationAdapter } from './TranslationAdapter';
 export { MysqlNotificationAdapter } from './MysqlNotificationAdapter';
 export { SupabaseNotificationAdapter } from './SupabaseNotificationAdapter';
 export { MysqlBudgetAdapter } from './MysqlBudgetAdapter';

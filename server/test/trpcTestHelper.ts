@@ -70,6 +70,7 @@ export async function createTestCaller(options: {
     learningDb: null, // TODO: Add adapter when needed for tests
     iotDb: null, // TODO: Add adapter when needed for tests
     goalsDb: null, // TODO: Add adapter when needed for tests
+    translationDb: null, // TODO: Add adapter when needed for tests
   };
 
   // Create caller with context
@@ -88,6 +89,7 @@ export function createUnauthenticatedCaller() {
     learningDb: null,
     iotDb: null,
     goalsDb: null,
+    translationDb: null,
     req: {
       headers: {},
       cookies: {},
