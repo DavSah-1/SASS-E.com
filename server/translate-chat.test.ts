@@ -1,6 +1,15 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { appRouter } from "./routers";
 import { getSupabaseAdminClient } from "./supabaseClient";
+import { 
+  createNotificationAdapter, 
+  createBudgetAdapter, 
+  createDebtAdapter, 
+  createLearningAdapter, 
+  createIoTAdapter, 
+  createGoalsAdapter, 
+  createTranslationAdapter 
+} from './adapters';
 
 describe("Translate Chat System", () => {
   let testUser: any;
@@ -38,12 +47,29 @@ describe("Translate Chat System", () => {
       throw userError;
     }
 
+    // Create adapters for test context
+    const adapterContext = { user: testUser, accessToken: process.env.SUPABASE_SERVICE_KEY || "" };
+    const notificationDb = createNotificationAdapter(adapterContext);
+    const budgetDb = createBudgetAdapter(adapterContext);
+    const debtDb = createDebtAdapter(adapterContext);
+    const learningDb = createLearningAdapter(adapterContext);
+    const iotDb = createIoTAdapter(adapterContext);
+    const goalsDb = createGoalsAdapter(adapterContext);
+    const translationDb = createTranslationAdapter(adapterContext);
+
     // Create caller with mock context
     caller = appRouter.createCaller({
       user: testUser,
       accessToken: process.env.SUPABASE_SERVICE_KEY || "",
       req: {} as any,
       res: {} as any,
+      notificationDb,
+      budgetDb,
+      debtDb,
+      learningDb,
+      iotDb,
+      goalsDb,
+      translationDb,
     });
   });
 

@@ -10,6 +10,15 @@
 import { appRouter } from '../routers';
 import { createTestUser } from './supabaseTestHelper';
 import type { TrpcContext } from '../_core/context';
+import { 
+  createNotificationAdapter, 
+  createBudgetAdapter, 
+  createDebtAdapter, 
+  createLearningAdapter, 
+  createIoTAdapter, 
+  createGoalsAdapter, 
+  createTranslationAdapter 
+} from '../adapters';
 
 /**
  * Create a tRPC caller with test context
@@ -51,6 +60,16 @@ export async function createTestCaller(options: {
     };
   }
 
+  // Create adapters for test context (same logic as context.ts)
+  const adapterContext = { user: testUser as any, accessToken: undefined };
+  const notificationDb = createNotificationAdapter(adapterContext);
+  const budgetDb = createBudgetAdapter(adapterContext);
+  const debtDb = createDebtAdapter(adapterContext);
+  const learningDb = createLearningAdapter(adapterContext);
+  const iotDb = createIoTAdapter(adapterContext);
+  const goalsDb = createGoalsAdapter(adapterContext);
+  const translationDb = createTranslationAdapter(adapterContext);
+
   // Create mock context
   const mockContext: TrpcContext = {
     user: testUser as any,
@@ -64,13 +83,13 @@ export async function createTestCaller(options: {
       clearCookie: () => {},
       setHeader: () => {},
     } as any,
-    notificationDb: null, // TODO: Add adapter when needed for tests
-    budgetDb: null, // TODO: Add adapter when needed for tests
-    debtDb: null, // TODO: Add adapter when needed for tests
-    learningDb: null, // TODO: Add adapter when needed for tests
-    iotDb: null, // TODO: Add adapter when needed for tests
-    goalsDb: null, // TODO: Add adapter when needed for tests
-    translationDb: null, // TODO: Add adapter when needed for tests
+    notificationDb,
+    budgetDb,
+    debtDb,
+    learningDb,
+    iotDb,
+    goalsDb,
+    translationDb,
   };
 
   // Create caller with context

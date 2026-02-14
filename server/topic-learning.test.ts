@@ -1,6 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { appRouter } from './routers';
 import type { Context } from './_core/context';
+import { 
+  createNotificationAdapter, 
+  createBudgetAdapter, 
+  createDebtAdapter, 
+  createLearningAdapter, 
+  createIoTAdapter, 
+  createGoalsAdapter, 
+  createTranslationAdapter 
+} from './adapters';
 
 describe('Topic Learning System', () => {
   const mockUser = {
@@ -11,10 +20,19 @@ describe('Topic Learning System', () => {
     role: 'user' as const,
   };
 
+  const adapterContext = { user: mockUser, accessToken: undefined };
+
   const mockContext: Context = {
     req: {} as any,
     res: {} as any,
     user: mockUser,
+    notificationDb: createNotificationAdapter(adapterContext),
+    budgetDb: createBudgetAdapter(adapterContext),
+    debtDb: createDebtAdapter(adapterContext),
+    learningDb: createLearningAdapter(adapterContext),
+    iotDb: createIoTAdapter(adapterContext),
+    goalsDb: createGoalsAdapter(adapterContext),
+    translationDb: createTranslationAdapter(adapterContext),
   };
 
   it('should generate lesson content for a topic', async () => {

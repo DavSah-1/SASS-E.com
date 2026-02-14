@@ -1,24 +1,46 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import { appRouter } from "./routers";
 import type { Context } from "./_core/context";
+import { 
+  createNotificationAdapter, 
+  createBudgetAdapter, 
+  createDebtAdapter, 
+  createLearningAdapter, 
+  createIoTAdapter, 
+  createGoalsAdapter, 
+  createTranslationAdapter 
+} from './adapters';
 
 // Mock context for testing
-const createMockContext = (userId: number): Context => ({
-  user: {
+const createMockContext = (userId: number): Context => {
+  const user = {
     id: userId,
     openId: `test-open-id-${userId}`,
     name: "Test User",
     email: "test@example.com",
     loginMethod: "test",
-    role: "user",
+    role: "user" as const,
     preferredLanguage: "en",
     createdAt: new Date(),
     updatedAt: new Date(),
     lastSignedIn: new Date(),
-  },
-  req: {} as any,
-  res: {} as any,
-});
+  };
+  
+  const adapterContext = { user, accessToken: undefined };
+  
+  return {
+    user,
+    req: {} as any,
+    res: {} as any,
+    notificationDb: createNotificationAdapter(adapterContext),
+    budgetDb: createBudgetAdapter(adapterContext),
+    debtDb: createDebtAdapter(adapterContext),
+    learningDb: createLearningAdapter(adapterContext),
+    iotDb: createIoTAdapter(adapterContext),
+    goalsDb: createGoalsAdapter(adapterContext),
+    translationDb: createTranslationAdapter(adapterContext),
+  };
+};
 
 describe("Debt Coach API", () => {
   const userId = 999999; // Test user ID
