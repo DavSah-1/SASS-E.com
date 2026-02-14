@@ -20,6 +20,9 @@ import type { LearningAdapter } from './LearningAdapter';
 import { MysqlIoTAdapter } from './MysqlIoTAdapter';
 import { SupabaseIoTAdapter } from './SupabaseIoTAdapter';
 import type { IoTAdapter } from './IoTAdapter';
+import { MysqlGoalsAdapter } from './MysqlGoalsAdapter';
+import { SupabaseGoalsAdapter } from './SupabaseGoalsAdapter';
+import type { GoalsAdapter } from './GoalsAdapter';
 
 export interface AdapterContext {
   user: {
@@ -95,12 +98,28 @@ export function createIoTAdapter(ctx: AdapterContext): IoTAdapter {
   }
 }
 
+/**
+ * Create goals adapter based on user role
+ */
+export function createGoalsAdapter(ctx: AdapterContext): GoalsAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MysqlGoalsAdapter();
+  } else {
+    const userId = String(ctx.user.numericId || ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+    return new SupabaseGoalsAdapter(userId, accessToken, supabaseUrl, supabaseKey);
+  }
+}
+
 // Export adapters and interfaces
 export type { NotificationAdapter } from './NotificationAdapter';
 export type { BudgetAdapter } from './BudgetAdapter';
 export type { DebtAdapter } from './DebtAdapter';
 export type { LearningAdapter } from './LearningAdapter';
 export type { IoTAdapter } from './IoTAdapter';
+export type { GoalsAdapter } from './GoalsAdapter';
 export { MysqlNotificationAdapter } from './MysqlNotificationAdapter';
 export { SupabaseNotificationAdapter } from './SupabaseNotificationAdapter';
 export { MysqlBudgetAdapter } from './MysqlBudgetAdapter';

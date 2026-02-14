@@ -21,10 +21,7 @@ export const budgetExportRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       const transactions = await ctx.budgetDb.getUserBudgetTransactions(
-        ctx.user.numericId,
-        {
-          limit: input.limit || 1000,
-        }
+        ctx.user.numericId
       );
       
       // Get categories for mapping
@@ -77,10 +74,7 @@ export const budgetExportRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       const transactions = await ctx.budgetDb.getUserBudgetTransactions(
-        ctx.user.numericId,
-        {
-          limit: input.limit || 1000,
-        }
+        ctx.user.numericId
       );
       
       // Get categories for mapping
@@ -153,10 +147,7 @@ export const budgetExportRouter = router({
     .mutation(async ({ ctx, input }) => {
       if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       const transactions = await ctx.budgetDb.getUserBudgetTransactions(
-        ctx.user.numericId,
-        {
-          limit: input.limit || 1000,
-        }
+        ctx.user.numericId
       );
       
       // Get categories for mapping

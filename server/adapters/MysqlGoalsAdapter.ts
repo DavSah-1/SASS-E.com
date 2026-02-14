@@ -7,7 +7,8 @@ import { GoalsAdapter } from './GoalsAdapter';
  */
 export class MysqlGoalsAdapter implements GoalsAdapter {
   async createFinancialGoal(goal: any): Promise<number> {
-    return db.createFinancialGoal(goal);
+    const result = await db.createFinancialGoal(goal);
+    return result || 0;
   }
 
   async getUserGoals(userId: number): Promise<any[]> {

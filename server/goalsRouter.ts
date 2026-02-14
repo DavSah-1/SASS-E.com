@@ -1,6 +1,7 @@
+// Migrated to use ctx.goalsDb adapter
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import * as dbRoleAware from "./dbRoleAware";
+// import * as dbRoleAware from "./dbRoleAware";
 import { invokeLLM } from "./_core/llm";
 
 export const goalsRouter = router({
@@ -24,7 +25,7 @@ export const goalsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const goalId = await dbRoleAware.createFinancialGoal(ctx, {
+      const goalId = await ctx.goalsDb!.createFinancialGoal({
         userId: ctx.user.numericId,
         name: input.name,
         description: input.description,
@@ -52,7 +53,7 @@ export const goalsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const goals = await dbRoleAware.getUserGoals(ctx, ctx.user.numericId);
+      const goals = await ctx.goalsDb!.getUserGoals(ctx.user.numericId);
       return goals;
     }),
 
@@ -62,7 +63,7 @@ export const goalsRouter = router({
   getGoal: protectedProcedure
     .input(z.object({ goalId: z.number().int() }))
     .query(async ({ ctx, input }) => {
-      const goal = await dbRoleAware.getGoalById(ctx, input.goalId);
+      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
@@ -89,7 +90,7 @@ export const goalsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const goal = await dbRoleAware.getGoalById(ctx, input.goalId);
+      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
@@ -105,7 +106,7 @@ export const goalsRouter = router({
       if (input.icon !== undefined) updates.icon = input.icon;
       if (input.color !== undefined) updates.color = input.color;
 
-      await dbRoleAware.updateFinancialGoal(ctx, input.goalId, updates);
+      await ctx.goalsDb!.updateFinancialGoal(input.goalId, updates);
 
       return { success: true };
     }),
@@ -116,13 +117,13 @@ export const goalsRouter = router({
   deleteGoal: protectedProcedure
     .input(z.object({ goalId: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
-      const goal = await dbRoleAware.getGoalById(ctx, input.goalId);
+      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
       }
 
-      await dbRoleAware.deleteFinancialGoal(ctx, input.goalId);
+      await ctx.goalsDb!.deleteFinancialGoal(input.goalId);
 
       return { success: true };
     }),
@@ -140,19 +141,18 @@ export const goalsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const goal = await dbRoleAware.getGoalById(ctx, input.goalId);
+      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
       }
 
-      const newTotal = await dbRoleAware.recordGoalProgress(ctx, {
-        goalId: input.goalId,
-        userId: ctx.user.numericId,
-        amount: input.amount,
-        note: input.note,
-        source: input.source
-      });
+      const newTotal = await ctx.goalsDb!.recordGoalProgress(
+        input.goalId,
+        input.amount,
+        input.note,
+        input.source
+      );
 
       return { newTotal, success: true };
     }),
@@ -168,13 +168,13 @@ export const goalsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const goal = await dbRoleAware.getGoalById(ctx, input.goalId);
+      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
       }
 
-      const history = await dbRoleAware.getGoalProgressHistory(ctx, input.goalId);
+      const history = await ctx.goalsDb!.getGoalProgressHistory(input.goalId);
       return history;
     }),
 
@@ -184,13 +184,13 @@ export const goalsRouter = router({
   getMilestones: protectedProcedure
     .input(z.object({ goalId: z.number().int() }))
     .query(async ({ ctx, input }) => {
-      const goal = await dbRoleAware.getGoalById(ctx, input.goalId);
+      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
       }
 
-      const milestones = await dbRoleAware.getGoalMilestones(ctx, input.goalId);
+      const milestones = await ctx.goalsDb!.getGoalMilestones(input.goalId);
       return milestones;
     }),
 
@@ -198,7 +198,7 @@ export const goalsRouter = router({
    * Get unshown milestone celebrations
    */
   getUnshownCelebrations: protectedProcedure.query(async ({ ctx }) => {
-    const celebrations = await dbRoleAware.getUnshownCelebrations(ctx, ctx.user.numericId);
+    const celebrations = await ctx.goalsDb!.getUnshownCelebrations(ctx.user.numericId);
     return celebrations;
   }),
 
@@ -208,7 +208,7 @@ export const goalsRouter = router({
   markCelebrationShown: protectedProcedure
     .input(z.object({ milestoneId: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.markMilestoneCelebrationShown(ctx, input.milestoneId);
+      await ctx.goalsDb!.markMilestoneCelebrationShown(input.milestoneId);
       return { success: true };
     }),
 
@@ -216,7 +216,7 @@ export const goalsRouter = router({
    * Get AI-powered goal recommendations
    */
   getGoalRecommendations: protectedProcedure.query(async ({ ctx }) => {
-    const goals = await dbRoleAware.getUserGoals(ctx, ctx.user.numericId);
+    const goals = await ctx.goalsDb!.getUserGoals(ctx.user.numericId);
     
     // Generate recommendations using LLM
     const response = await invokeLLM({
@@ -244,8 +244,8 @@ export const goalsRouter = router({
    * Get goal summary statistics
    */
   getSummary: protectedProcedure.query(async ({ ctx }) => {
-    const goals = await dbRoleAware.getUserGoals(ctx, ctx.user.numericId);
-    const completedGoals = await dbRoleAware.getUserGoals(ctx, ctx.user.numericId);
+    const goals = await ctx.goalsDb!.getUserGoals(ctx.user.numericId);
+    const completedGoals = await ctx.goalsDb!.getUserGoals(ctx.user.numericId);
 
     const activeGoals = goals.filter(g => g.status === "active");
     const totalTargetAmount = activeGoals.reduce((sum, g) => sum + g.targetAmount, 0);

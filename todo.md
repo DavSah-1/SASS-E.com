@@ -5672,3 +5672,24 @@
 - [ ] Verify 0 TypeScript errors
 - [ ] Delete dbRoleAware.ts (4,282 lines)
 - [ ] Create final checkpoint
+
+
+## GoalsAdapter Implementation and Migration
+
+### Phase 1: SupabaseGoalsAdapter
+- [x] Implement SupabaseGoalsAdapter with all 10 methods
+- [x] Test Supabase adapter implementation
+
+### Phase 2: Context Integration
+- [x] Add createGoalsAdapter to adapters/index.ts
+- [x] Add goalsDb to context.ts
+- [x] Update test helpers with goalsDb
+
+### Phase 3: Router Migration
+- [x] Migrate goalsRouter.ts (20 dbRoleAware calls) to ctx.goalsDb
+- [x] Fix TypeScript errors
+- [x] Verify 0 compilation errors
+
+### Phase 4: Final Steps
+- [x] Mark tasks complete in todo.md
+- [ ] Save checkpoint
