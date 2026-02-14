@@ -2743,13 +2743,19 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           }));
         } catch (error) {
           handleError(error, 'Notifications Get Notifications');
+          return [];
         }
       }),
     
     // Get unread notification count
     getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
-      const count = await dbRoleAware.getUnreadNotificationCount(ctx, ctx.user.numericId);
-      return { count };
+      try {
+        const count = await dbRoleAware.getUnreadNotificationCount(ctx, ctx.user.numericId);
+        return { count };
+      } catch (error) {
+        handleError(error, 'Notifications Get Unread Count');
+        return { count: 0 };
+      }
     }),
     
     // Mark notification as read
@@ -2761,6 +2767,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           return { success: true };
         } catch (error) {
           handleError(error, 'Notifications Mark As Read');
+          return { success: false };
         }
       }),
     
@@ -2773,6 +2780,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           return { success: true };
         } catch (error) {
           handleError(error, 'Notifications Dismiss');
+          return { success: false };
         }
       }),
   }),
