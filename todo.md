@@ -5457,3 +5457,11 @@
 - [x] Ensure notification panel is visible in header/navigation
 - [x] Test notification display with action buttons
 - [x] Verify action buttons work correctly (View Details, Mark as Read, Dismiss)
+
+
+## Fix tRPC Notification Endpoints Returning HTML
+- [x] Investigate why notifications.getNotifications returns HTML instead of JSON
+- [x] Investigate why notifications.markAsRead returns HTML instead of JSON
+- [x] Check if notification router is properly registered in appRouter
+- [x] Verify notification procedures have proper return statements
+- [x] Test all notification endpoints return JSON correctly

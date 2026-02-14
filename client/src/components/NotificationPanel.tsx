@@ -16,7 +16,7 @@ export function NotificationPanel() {
   const utils = trpc.useUtils();
 
   const { data: notifications = [], isLoading } = trpc.notifications.getNotifications.useQuery(
-    undefined,
+    { includeRead: false },
     { enabled: open }
   );
 

@@ -2730,7 +2730,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
   notifications: router({
     // Get user's notifications
     getNotifications: protectedProcedure
-      .input(z.object({ includeRead: z.boolean().default(false) }).optional())
+      .input(z.object({ includeRead: z.boolean().optional() }).optional())
       .query(async ({ ctx, input }) => {
         try {
           const notifications = await dbRoleAware.getUserNotifications(ctx, ctx.user.numericId, input?.includeRead || false);
