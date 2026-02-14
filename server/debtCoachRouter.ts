@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
-import * as dbRoleAware from "./dbRoleAware";
+// import * as dbRoleAware from "./dbRoleAware"; // Replaced by adapter pattern
 
 /**
  * Debt Elimination Financial Coach Router
@@ -35,13 +35,15 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.addDebt(ctx, {
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      
+      await ctx.debtDb.addDebt({
         userId: ctx.user.numericId,
         ...input,
       });
 
       // Generate welcome coaching message for first debt
-      const userDebts = await dbRoleAware.getUserDebts(ctx, ctx.user.numericId);
+      const userDebts = await ctx.debtDb.getUserDebts(ctx.user.numericId);
       if (userDebts.length === 1) {
         const coachingMessage = await generateCoachingMessage(
           ctx.user.numericId,
@@ -49,7 +51,7 @@ export const debtCoachRouter = router({
           { debtName: input.debtName, balance: input.currentBalance }
         );
         
-        await dbRoleAware.saveCoachingSession(ctx, {
+        await ctx.debtDb.saveCoachingSession({
           userId: ctx.user.numericId,
           sessionType: "welcome",
           message: coachingMessage,
@@ -70,7 +72,8 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const debts = await dbRoleAware.getUserDebts(ctx, ctx.user.numericId, input.includeInactive);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      const debts = await ctx.debtDb.getUserDebts(ctx.user.numericId, input.includeInactive);
       return debts;
     }),
 
@@ -80,7 +83,8 @@ export const debtCoachRouter = router({
   getDebt: protectedProcedure
     .input(z.object({ debtId: z.number().int().positive() }))
     .query(async ({ ctx, input }) => {
-      const debt = await dbRoleAware.getDebtById(ctx, input.debtId);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      const debt = await ctx.debtDb.getDebtById(input.debtId, ctx.user.numericId);
       if (!debt) {
         throw new Error("Debt not found");
       }
@@ -107,7 +111,8 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.updateDebt(ctx, input.debtId, input.updates);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      await ctx.debtDb.updateDebt(input.debtId, ctx.user.numericId, input.updates);
       return { success: true, message: "Debt updated successfully" };
     }),
 
@@ -117,7 +122,8 @@ export const debtCoachRouter = router({
   deleteDebt: protectedProcedure
     .input(z.object({ debtId: z.number().int().positive() }))
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.deleteDebt(ctx, input.debtId);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      await ctx.debtDb.deleteDebt(input.debtId, ctx.user.numericId);
       return { success: true, message: "Debt deleted successfully" };
     }),
 
@@ -135,8 +141,10 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      
       // Get current debt to calculate new balance
-      const debt = await dbRoleAware.getDebtById(ctx, input.debtId);
+      const debt = await ctx.debtDb.getDebtById(input.debtId, ctx.user.numericId);
       if (!debt) {
         throw new Error("Debt not found");
       }
@@ -148,7 +156,7 @@ export const debtCoachRouter = router({
       const balanceAfter = Math.max(0, debt.currentBalance - principalPaid);
 
       // Record the payment
-      await dbRoleAware.recordDebtPayment(ctx, {
+      await ctx.debtDb.recordDebtPayment({
         debtId: input.debtId,
         userId: ctx.user.numericId,
         amount: input.amount,
@@ -175,7 +183,7 @@ export const debtCoachRouter = router({
         }
       );
 
-      await dbRoleAware.saveCoachingSession(ctx, {
+      await ctx.debtDb.saveCoachingSession({
         userId: ctx.user.numericId,
         sessionType: "payment_logged",
         message: coachingMessage,
@@ -204,7 +212,8 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const payments = await dbRoleAware.getDebtPaymentHistory(ctx, input.debtId);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      const payments = await ctx.debtDb.getDebtPaymentHistory(input.debtId, ctx.user.numericId);
       return payments;
     }),
 
@@ -218,7 +227,8 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const payments = await dbRoleAware.getAllUserPayments(ctx, ctx.user.numericId);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      const payments = await ctx.debtDb.getAllUserPayments(ctx.user.numericId);
       return payments;
     }),
 
@@ -233,7 +243,9 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const debts = await dbRoleAware.getUserDebts(ctx, ctx.user.numericId, false);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      
+      const debts = await ctx.debtDb.getUserDebts(ctx.user.numericId, false);
 
       if (debts.length === 0) {
         throw new Error("No active debts to calculate strategy");
@@ -309,7 +321,7 @@ export const debtCoachRouter = router({
       const totalInterestSaved = minimumOnlyInterest - totalInterestPaid;
 
       // Save strategy
-      await dbRoleAware.saveDebtStrategy(ctx, {
+      await ctx.debtDb.saveDebtStrategy({
         userId: ctx.user.numericId,
         strategyType: input.strategyType,
         monthlyExtraPayment: input.monthlyExtraPayment,
@@ -341,7 +353,9 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const strategy = await dbRoleAware.getLatestStrategy(ctx, ctx.user.numericId, input.strategyType);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      
+      const strategy = await ctx.debtDb.getLatestStrategy(ctx.user.numericId, input.strategyType);
       if (!strategy) {
         return null;
       }
@@ -362,7 +376,8 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const milestones = await dbRoleAware.getUserMilestones(ctx, ctx.user.numericId);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      const milestones = await ctx.debtDb.getUserMilestones(ctx.user.numericId);
       return milestones;
     }),
 
@@ -376,7 +391,8 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const sessions = await dbRoleAware.getRecentCoachingSessions(ctx, ctx.user.numericId, input.limit);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      const sessions = await ctx.debtDb.getRecentCoachingSessions(ctx.user.numericId, input.limit);
       return sessions;
     }),
 
@@ -384,8 +400,10 @@ export const debtCoachRouter = router({
    * Get motivational coaching message
    */
   getMotivation: protectedProcedure.mutation(async ({ ctx }) => {
-    const summary = await dbRoleAware.getDebtSummary(ctx, ctx.user.numericId);
-    const recentPayments = await dbRoleAware.getAllUserPayments(ctx, ctx.user.numericId, 5);
+    if (!ctx.debtDb) throw new Error("Debt adapter not available");
+    
+    const summary = await ctx.debtDb.getDebtSummary(ctx.user.numericId);
+    const recentPayments = await ctx.debtDb.getAllUserPayments(ctx.user.numericId, 5);
 
     const coachingMessage = await generateCoachingMessage(
       ctx.user.numericId,
@@ -396,7 +414,7 @@ export const debtCoachRouter = router({
       }
     );
 
-    await dbRoleAware.saveCoachingSession(ctx, {
+    await ctx.debtDb.saveCoachingSession({
       userId: ctx.user.numericId,
       sessionType: "motivation",
       message: coachingMessage,
@@ -410,7 +428,8 @@ export const debtCoachRouter = router({
    * Get debt summary statistics
    */
   getSummary: protectedProcedure.query(async ({ ctx }) => {
-    const summary = await dbRoleAware.getDebtSummary(ctx, ctx.user.numericId);
+    if (!ctx.debtDb) throw new Error("Debt adapter not available");
+    const summary = await ctx.debtDb.getDebtSummary(ctx.user.numericId);
     return summary;
   }),
 
@@ -430,7 +449,9 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await dbRoleAware.saveBudgetSnapshot(ctx, {
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      
+      await ctx.debtDb.saveBudgetSnapshot({
         userId: ctx.user.numericId,
         ...input,
       });
@@ -448,7 +469,8 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const snapshots = await dbRoleAware.getBudgetSnapshots(ctx, ctx.user.numericId, input.limit);
+      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      const snapshots = await ctx.debtDb.getBudgetSnapshots(ctx.user.numericId, input.limit);
       return snapshots;
     }),
 });
@@ -510,15 +532,17 @@ async function checkAndAwardMilestones(
   debt: any,
   newBalance: number
 ) {
+  if (!ctx.debtDb) return;
+  
   const percentPaid =
     ((debt.originalBalance - newBalance) / debt.originalBalance) * 100;
 
-  const milestones = await dbRoleAware.getUserMilestones(ctx, userId);
-  const achievedTypes = new Set(milestones.map((m) => m.milestoneType));
+  const milestones = await ctx.debtDb.getUserMilestones(userId);
+  const achievedTypes = new Set(milestones.map((m: any) => m.milestoneType));
 
   // Check percentage milestones
   if (percentPaid >= 25 && !achievedTypes.has("25_percent_paid")) {
-    await dbRoleAware.saveDebtMilestone(ctx, {
+    await ctx.debtDb.saveDebtMilestone({
       userId,
       debtId,
       milestoneType: "25_percent_paid",
@@ -528,7 +552,7 @@ async function checkAndAwardMilestones(
   }
 
   if (percentPaid >= 50 && !achievedTypes.has("50_percent_paid")) {
-    await dbRoleAware.saveDebtMilestone(ctx, {
+    await ctx.debtDb.saveDebtMilestone({
       userId,
       debtId,
       milestoneType: "50_percent_paid",
@@ -538,7 +562,7 @@ async function checkAndAwardMilestones(
   }
 
   if (percentPaid >= 75 && !achievedTypes.has("75_percent_paid")) {
-    await dbRoleAware.saveDebtMilestone(ctx, {
+    await ctx.debtDb.saveDebtMilestone({
       userId,
       debtId,
       milestoneType: "75_percent_paid",
@@ -549,7 +573,7 @@ async function checkAndAwardMilestones(
 
   // Check if debt is paid off
   if (newBalance === 0 && !achievedTypes.has("debt_paid_off")) {
-    await dbRoleAware.saveDebtMilestone(ctx, {
+    await ctx.debtDb.saveDebtMilestone({
       userId,
       debtId,
       milestoneType: "debt_paid_off",

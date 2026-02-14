@@ -469,4 +469,85 @@ export class SupabaseLearningAdapter implements LearningAdapter {
       createdAt: t.created_at,
     }));
   }
+
+  async getVocabularyItems(language: string, difficulty?: string, limit: number = 50): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('vocabulary_items')
+      .select('*')
+      .eq('language', language);
+    
+    if (difficulty) {
+      query = query.eq('difficulty_level', difficulty);
+    }
+    
+    const { data, error } = await query
+      .order('word', { ascending: true })
+      .limit(limit);
+    
+    if (error) throw new Error(`Supabase getVocabularyItems error: ${error.message}`);
+    return data || [];
+  }
+
+  async getLanguageExercises(language: string, exerciseType?: string, difficulty?: string, limit?: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('language_exercises')
+      .select('*')
+      .eq('language', language);
+    
+    if (exerciseType) {
+      query = query.eq('exercise_type', exerciseType);
+    }
+    if (difficulty) {
+      query = query.eq('difficulty', difficulty);
+    }
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
+    
+    if (error) throw new Error(`Supabase getLanguageExercises error: ${error.message}`);
+    return data || [];
+  }
+
+  async saveExerciseAttempt(attempt: any): Promise<number> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('exercise_attempts')
+      .insert({
+        user_id: this.userId,
+        exercise_id: attempt.exerciseId,
+        workout_id: attempt.workoutId || 1,
+        exercise_name: attempt.exerciseName || 'Test Exercise',
+        sets_completed: attempt.setsCompleted || 1,
+        reps_completed: attempt.repsCompleted || 1,
+        user_answer: attempt.userAnswer,
+        is_correct: attempt.isCorrect,
+        created_at: attempt.attemptedAt || new Date(),
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Supabase saveExerciseAttempt error: ${error.message}`);
+    return data?.id;
+  }
+
+  async getUserAchievements(userId: number, language?: string): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('language_achievements')
+      .select('*')
+      .eq('user_id', this.userId);
+    
+    if (language) {
+      query = query.eq('language', language);
+    }
+    
+    const { data, error } = await query.order('earned_at', { ascending: false });
+    
+    if (error) throw new Error(`Supabase getUserAchievements error: ${error.message}`);
+    return data || [];
+  }
 }

@@ -55,4 +55,24 @@ export class MysqlDebtAdapter implements DebtAdapter {
   async getDebtSummary(userId: number): Promise<any> {
     return db.getDebtSummary(userId);
   }
+
+  async getAllUserPayments(userId: number, limit?: number): Promise<any[]> {
+    return db.getAllUserPayments(userId, limit);
+  }
+
+  async getLatestStrategy(userId: number, strategyType?: string): Promise<any | undefined> {
+    return db.getLatestStrategy(userId, strategyType);
+  }
+
+  async saveCoachingSession(session: any): Promise<void> {
+    await db.saveCoachingSession(session);
+  }
+
+  async getRecentCoachingSessions(userId: number, limit?: number): Promise<any[]> {
+    return db.getRecentCoachingSessions(userId, limit);
+  }
+
+  async getBudgetSnapshots(userId: number, limit?: number): Promise<any[]> {
+    return db.getBudgetSnapshots(userId, limit);
+  }
 }

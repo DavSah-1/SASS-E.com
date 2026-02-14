@@ -295,4 +295,98 @@ export class SupabaseDebtAdapter implements DebtAdapter {
       debtCount,
     };
   }
+
+  async getAllUserPayments(userId: number, limit: number = 50): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('debt_payments')
+      .select(`
+        *,
+        debts!inner(user_id)
+      `)
+      .eq('debts.user_id', this.userId)
+      .order('payment_date', { ascending: false })
+      .limit(limit);
+    
+    if (error) throw new Error(`Supabase getAllUserPayments error: ${error.message}`);
+    return data || [];
+  }
+
+  async getLatestStrategy(userId: number, strategyType?: string): Promise<any | undefined> {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('debt_strategies')
+      .select('*')
+      .eq('user_id', this.userId);
+    
+    if (strategyType) {
+      query = query.eq('strategy_type', strategyType);
+    }
+    
+    const { data, error } = await query
+      .order('calculated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
+    if (error) throw new Error(`Supabase getLatestStrategy error: ${error.message}`);
+    
+    // Transform snake_case to camelCase
+    if (!data) return undefined;
+    return {
+      id: data.id,
+      userId: data.user_id,
+      strategyType: data.strategy_type,
+      monthlyExtraPayment: data.monthly_extra_payment,
+      payoffOrder: data.payoff_order,
+      totalInterestPaid: data.total_interest_paid,
+      totalInterestSaved: data.total_interest_saved,
+      monthsToPayoff: data.months_to_payoff,
+      projectedPayoffDate: data.projected_payoff_date,
+      calculatedAt: data.calculated_at,
+      createdAt: data.created_at,
+    };
+  }
+
+  async saveCoachingSession(session: any): Promise<void> {
+    const supabase = await this.getClient();
+    const { error } = await supabase
+      .from('coaching_sessions')
+      .insert({
+        user_id: this.userId,
+        session_type: session.sessionType,
+        message: session.message || session.adviceGiven || '',
+        sentiment: session.sentiment || 'neutral',
+        advice_given: session.adviceGiven,
+        action_items: session.actionItems,
+        created_at: session.createdAt || new Date(),
+      });
+    
+    if (error) throw new Error(`Supabase saveCoachingSession error: ${error.message}`);
+  }
+
+  async getRecentCoachingSessions(userId: number, limit: number = 10): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('coaching_sessions')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (error) throw new Error(`Supabase getRecentCoachingSessions error: ${error.message}`);
+    return data || [];
+  }
+
+  async getBudgetSnapshots(userId: number, limit: number = 12): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('debt_budget_snapshots')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('snapshot_date', { ascending: false })
+      .limit(limit);
+    
+    if (error) throw new Error(`Supabase getBudgetSnapshots error: ${error.message}`);
+    return data || [];
+  }
 }

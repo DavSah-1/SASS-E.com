@@ -26,4 +26,13 @@ export interface DebtAdapter {
 
   // Summary & Analytics
   getDebtSummary(userId: number): Promise<any>;
+  getAllUserPayments(userId: number, limit?: number): Promise<any[]>;
+  getLatestStrategy(userId: number, strategyType?: string): Promise<any | undefined>;
+  
+  // Coaching & Sessions
+  saveCoachingSession(session: any): Promise<void>;
+  getRecentCoachingSessions(userId: number, limit?: number): Promise<any[]>;
+  
+  // Budget Snapshots
+  getBudgetSnapshots(userId: number, limit?: number): Promise<any[]>;
 }

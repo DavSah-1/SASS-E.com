@@ -96,4 +96,20 @@ export class MysqlLearningAdapter implements LearningAdapter {
   async getCategoryProgress(userId: number, category: string): Promise<any[]> {
     return db.getCategoryProgress(userId, category);
   }
+
+  async getVocabularyItems(language: string, difficulty?: string, limit?: number): Promise<any[]> {
+    return db.getVocabularyItems(language, difficulty, limit);
+  }
+
+  async getLanguageExercises(language: string, exerciseType?: string, difficulty?: string, limit?: number): Promise<any[]> {
+    return db.getLanguageExercises(language, exerciseType, difficulty, limit);
+  }
+
+  async saveExerciseAttempt(attempt: any): Promise<number> {
+    return db.saveExerciseAttempt(attempt);
+  }
+
+  async getUserAchievements(userId: number, language?: string): Promise<any[]> {
+    return db.getUserAchievements(userId, language);
+  }
 }

@@ -43,4 +43,12 @@ export interface LearningAdapter {
   // Topic Progress
   getTopicProgress(userId: number, topicName: string, category: string): Promise<any | undefined>;
   getCategoryProgress(userId: number, category: string): Promise<any[]>;
+  
+  // Vocabulary & Exercises
+  getVocabularyItems(language: string, difficulty?: string, limit?: number): Promise<any[]>;
+  getLanguageExercises(language: string, exerciseType?: string, difficulty?: string, limit?: number): Promise<any[]>;
+  saveExerciseAttempt(attempt: any): Promise<number>;
+  
+  // Achievements
+  getUserAchievements(userId: number, language?: string): Promise<any[]>;
 }
