@@ -1,7 +1,7 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { UnifiedUser } from "./dbRouter";
 import { sdk } from "./sdk";
-import { createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter } from "../adapters";
+import { createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter, createIoTAdapter, type IoTAdapter } from "../adapters";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -12,6 +12,7 @@ export type TrpcContext = {
   budgetDb: BudgetAdapter | null; // Budget adapter
   debtDb: DebtAdapter | null; // Debt adapter
   learningDb: LearningAdapter | null; // Learning adapter
+  iotDb: IoTAdapter | null; // IoT adapter
 };
 
 export async function createContext(
@@ -38,6 +39,7 @@ export async function createContext(
   const budgetDb = user ? createBudgetAdapter({ user, accessToken }) : null;
   const debtDb = user ? createDebtAdapter({ user, accessToken }) : null;
   const learningDb = user ? createLearningAdapter({ user, accessToken }) : null;
+  const iotDb = user ? createIoTAdapter({ user, accessToken }) : null;
 
   return {
     req: opts.req,
@@ -48,5 +50,6 @@ export async function createContext(
     budgetDb,
     debtDb,
     learningDb,
+    iotDb,
   };
 }

@@ -5610,3 +5610,22 @@
 - [ ] Delete or archive dbRoleAware.ts
 - [ ] Run full test suite
 - [ ] Create final checkpoint
+
+
+## IoT Domain Adapter Implementation
+
+### Phase 1: Create IoT Adapter
+- [x] Analyze IoT operations in dbRoleAware.ts
+- [x] Create IoTAdapter interface
+- [x] Implement MysqlIoTAdapter
+- [x] Implement SupabaseIoTAdapter
+
+### Phase 2: Add to Context
+- [x] Add iotDb to adapter factory
+- [x] Update context.ts to create IoT adapter
+- [x] Update test helpers to include iotDb
+
+### Phase 3: Test and Verify
+- [ ] Run IoT tests
+- [ ] Verify adapter pattern works for all 5 domains
+- [ ] Create checkpoint

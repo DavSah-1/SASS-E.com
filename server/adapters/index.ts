@@ -17,6 +17,9 @@ import type { DebtAdapter } from './DebtAdapter';
 import { MysqlLearningAdapter } from './MysqlLearningAdapter';
 import { SupabaseLearningAdapter } from './SupabaseLearningAdapter';
 import type { LearningAdapter } from './LearningAdapter';
+import { MysqlIoTAdapter } from './MysqlIoTAdapter';
+import { SupabaseIoTAdapter } from './SupabaseIoTAdapter';
+import type { IoTAdapter } from './IoTAdapter';
 
 export interface AdapterContext {
   user: {
@@ -79,12 +82,28 @@ export function createLearningAdapter(ctx: AdapterContext): LearningAdapter {
   }
 }
 
+/**
+ * Create IoT adapter based on user role
+ */
+export function createIoTAdapter(ctx: AdapterContext): IoTAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MysqlIoTAdapter();
+  } else {
+    const userId = String(ctx.user.numericId || ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseIoTAdapter(userId, accessToken);
+  }
+}
+
 // Export adapters and interfaces
 export type { NotificationAdapter } from './NotificationAdapter';
 export type { BudgetAdapter } from './BudgetAdapter';
 export type { DebtAdapter } from './DebtAdapter';
 export type { LearningAdapter } from './LearningAdapter';
+export type { IoTAdapter } from './IoTAdapter';
 export { MysqlNotificationAdapter } from './MysqlNotificationAdapter';
 export { SupabaseNotificationAdapter } from './SupabaseNotificationAdapter';
 export { MysqlBudgetAdapter } from './MysqlBudgetAdapter';
 export { SupabaseBudgetAdapter } from './SupabaseBudgetAdapter';
+export { MysqlIoTAdapter } from './MysqlIoTAdapter';
+export { SupabaseIoTAdapter } from './SupabaseIoTAdapter';
