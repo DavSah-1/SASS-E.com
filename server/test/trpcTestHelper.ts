@@ -66,6 +66,7 @@ export async function createTestCaller(options: {
     } as any,
     notificationDb: null, // TODO: Add adapter when needed for tests
     budgetDb: null, // TODO: Add adapter when needed for tests
+    debtDb: null, // TODO: Add adapter when needed for tests
   };
 
   // Create caller with context
@@ -80,6 +81,7 @@ export function createUnauthenticatedCaller() {
     user: null,
     notificationDb: null,
     budgetDb: null,
+    debtDb: null,
     req: {
       headers: {},
       cookies: {},

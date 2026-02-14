@@ -11,6 +11,9 @@ import type { NotificationAdapter } from './NotificationAdapter';
 import { MysqlBudgetAdapter } from './MysqlBudgetAdapter';
 import { SupabaseBudgetAdapter } from './SupabaseBudgetAdapter';
 import type { BudgetAdapter } from './BudgetAdapter';
+import { MysqlDebtAdapter } from './MysqlDebtAdapter';
+import { SupabaseDebtAdapter } from './SupabaseDebtAdapter';
+import type { DebtAdapter } from './DebtAdapter';
 
 export interface AdapterContext {
   user: {
@@ -47,9 +50,23 @@ export function createBudgetAdapter(ctx: AdapterContext): BudgetAdapter {
   }
 }
 
+/**
+ * Create debt adapter based on user role
+ */
+export function createDebtAdapter(ctx: AdapterContext): DebtAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MysqlDebtAdapter();
+  } else {
+    const userId = String(ctx.user.numericId || ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseDebtAdapter(userId, accessToken);
+  }
+}
+
 // Export adapters and interfaces
 export type { NotificationAdapter } from './NotificationAdapter';
 export type { BudgetAdapter } from './BudgetAdapter';
+export type { DebtAdapter } from './DebtAdapter';
 export { MysqlNotificationAdapter } from './MysqlNotificationAdapter';
 export { SupabaseNotificationAdapter } from './SupabaseNotificationAdapter';
 export { MysqlBudgetAdapter } from './MysqlBudgetAdapter';

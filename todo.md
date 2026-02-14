@@ -5577,3 +5577,36 @@
 - [ ] Fix any failing tests
 - [ ] Verify all routers work in browser
 - [ ] Create final checkpoint
+
+
+## Complete Adapter Pattern Refactoring (Debt, Learning, IoT)
+
+### Debt Domain Adapter
+- [x] Create DebtAdapter interface
+- [x] Implement MysqlDebtAdapter
+- [x] Implement SupabaseDebtAdapter
+- [x] Add debtDb to context and factory
+- [ ] Migrate debtCoachRouter.ts to use ctx.debtDb (29 calls remaining)
+- [ ] Run debt tests to verify
+
+### Learning Domain Adapter
+- [ ] Create LearningAdapter interface
+- [ ] Implement MysqlLearningAdapter
+- [ ] Implement SupabaseLearningAdapter
+- [ ] Add learningDb to context and factory
+- [ ] Migrate learning routers to use ctx.learningDb
+- [ ] Run learning tests to verify
+
+### IoT Domain Adapter
+- [ ] Create IoTAdapter interface
+- [ ] Implement MysqlIoTAdapter
+- [ ] Implement SupabaseIoTAdapter
+- [ ] Add iotDb to context and factory
+- [ ] Migrate iotRouter.ts to use ctx.iotDb
+- [ ] Run IoT tests to verify
+
+### Final Cleanup
+- [ ] Verify all routers migrated
+- [ ] Delete or archive dbRoleAware.ts
+- [ ] Run full test suite
+- [ ] Create final checkpoint
