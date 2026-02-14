@@ -5372,3 +5372,10 @@
 - [x] Fix numeric overflow in quiz_results.score column
 - [x] Refresh Supabase schema cache
 - [ ] Verify TypeScript compilation errors resolved (8 errors remaining)
+
+
+## Phase 2: Fix RLS Test Failures (HIGH PRIORITY - In Progress)
+- [ ] Update all userId comparisons in RLS tests to use ctx.user.id instead of ctx.user.numericId
+- [ ] Remove parseInt calls since comparing string openIds now
+- [ ] Run RLS tests to verify all 19 tests pass
+- [ ] Verify test pass rate improves to ~90%

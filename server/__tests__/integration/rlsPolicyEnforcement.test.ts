@@ -21,15 +21,14 @@ describe("RLS Policy Enforcement Tests", () => {
     it("should allow user to read their own budget categories", async () => {
       const categories = await dbRoleAware.getUserBudgetCategories(
         user1Ctx,
-        user1Ctx.user.numericId
+        user1Ctx.user.id
       );
       
       expect(Array.isArray(categories)).toBe(true);
       // All returned categories should belong to user1
       categories.forEach(cat => {
-        console.log('[DEBUG] cat.userId:', cat.userId, 'type:', typeof cat.userId);
-        const userIdNum = typeof cat.userId === "number" ? cat.userId : parseInt(cat.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
+        // Compare UUID strings directly (ctx.user.id is the openId string)
+        expect(cat.userId).toBe(user1Ctx.user.id);
       });
     });
 
@@ -37,22 +36,21 @@ describe("RLS Policy Enforcement Tests", () => {
       // User1 tries to query User2's categories
       const categories = await dbRoleAware.getUserBudgetCategories(
         user1Ctx,
-        user2Ctx.user.numericId // Different user ID
+        user2Ctx.user.id // Different user ID
       );
       
       // RLS should return empty array or only user1's data
       expect(Array.isArray(categories)).toBe(true);
       categories.forEach(cat => {
-        // Should not contain user2's data
-        const userIdNum = typeof cat.userId === "number" ? cat.userId : parseInt(cat.userId);
-        expect(userIdNum).not.toBe(user2Ctx.user.numericId);
+        // Should not contain user2's data (compare UUID strings)
+        expect(cat.userId).not.toBe(user2Ctx.user.id);
       });
     });
 
     it("should allow user to create their own budget category", async () => {
       const newCategory = {
         ...testData.budgetCategory,
-        userId: user1Ctx.user.numericId,
+        userId: user1Ctx.user.id,
         name: `RLS Test Category ${Date.now()}`,
       };
       
@@ -62,43 +60,43 @@ describe("RLS Policy Enforcement Tests", () => {
       // Verify it was created for the correct user
       const categories = await dbRoleAware.getUserBudgetCategories(
         user1Ctx,
-        user1Ctx.user.numericId
+        user1Ctx.user.id
       );
       
       const created = categories.find(c => c.name === newCategory.name);
       expect(created).toBeDefined();
-      const userIdNum = typeof created?.userId === 'number' ? created.userId : parseInt(created?.userId || '0');
-      expect(userIdNum).toBe(user1Ctx.user.numericId);
+      // Compare UUID strings directly
+      expect(created?.userId).toBe(user1Ctx.user.id);
     });
   });
 
   describe("User Data Isolation - Financial Goals", () => {
     it("should allow user to read their own goals", async () => {
-      const goals = await dbRoleAware.getUserGoals(user1Ctx, user1Ctx.user.numericId);
+      const goals = await dbRoleAware.getUserGoals(user1Ctx, user1Ctx.user.id);
       
       expect(Array.isArray(goals)).toBe(true);
       goals.forEach(goal => {
-        const userIdNum = typeof goal.userId === 'number' ? goal.userId : parseInt(goal.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
+        // Compare UUID strings directly
+        expect(goal.userId).toBe(user1Ctx.user.id);
       });
     });
 
     it("should prevent user from reading another user's goals", async () => {
       // User1 tries to query User2's goals
-      const goals = await dbRoleAware.getUserGoals(user1Ctx, user2Ctx.user.numericId);
+      const goals = await dbRoleAware.getUserGoals(user1Ctx, user2Ctx.user.id);
       
       // RLS should return empty array or only user1's data
       expect(Array.isArray(goals)).toBe(true);
       goals.forEach(goal => {
-        const userIdNum = typeof goal.userId === 'number' ? goal.userId : parseInt(goal.userId);
-        expect(userIdNum).not.toBe(user2Ctx.user.numericId);
+        // Compare UUID strings directly
+        expect(goal.userId).not.toBe(user2Ctx.user.id);
       });
     });
 
     it("should allow user to create their own goal", async () => {
       const newGoal = {
         ...testData.goal,
-        userId: user1Ctx.user.numericId,
+        userId: user1Ctx.user.id,
         name: `RLS Test Goal ${Date.now()}`,
       };
       
@@ -106,51 +104,53 @@ describe("RLS Policy Enforcement Tests", () => {
       expect(result).toBeDefined();
       
       // Verify it was created for the correct user
-      const goals = await dbRoleAware.getUserGoals(user1Ctx, user1Ctx.user.numericId);
+      const goals = await dbRoleAware.getUserGoals(user1Ctx, user1Ctx.user.id);
       const created = goals.find(g => g.name === newGoal.name);
-       expect(created).toBeDefined();
-      const userIdNum = typeof created?.userId === 'number' ? created.userId : parseInt(created?.userId || '0');
-      expect(userIdNum).toBe(user1Ctx.user.numericId);
+      expect(created).toBeDefined();
+      // Compare UUID strings directly
+      expect(created?.userId).toBe(user1Ctx.user.id);
     });
   });
 
   describe("User Data Isolation - Debts", () => {
     it("should allow user to read their own debts", async () => {
-      const debts = await dbRoleAware.getUserDebts(user1Ctx, user1Ctx.user.numericId);
+      const debts = await dbRoleAware.getUserDebts(user1Ctx, user1Ctx.user.id);
       
       expect(Array.isArray(debts)).toBe(true);
       debts.forEach(debt => {
-        const userIdNum = typeof debt.userId === 'number' ? debt.userId : parseInt(debt.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
+        const userIdNum = debt.userId;
+        expect(userIdNum).toBe(user1Ctx.user.id);
       });
     });
 
     it("should prevent user from reading another user's debts", async () => {
       // User1 tries to query User2's debts
-      const debts = await dbRoleAware.getUserDebts(user1Ctx, user2Ctx.user.numericId);
+      const debts = await dbRoleAware.getUserDebts(user1Ctx, user2Ctx.user.id);
       
       // RLS should return empty array or only user1's data
       expect(Array.isArray(debts)).toBe(true);
       debts.forEach(debt => {
-        const userIdNum = typeof debt.userId === "number" ? debt.userId : parseInt(debt.userId); expect(userIdNum).not.toBe(user2Ctx.user.numericId);
+        // Compare UUID strings directly
+        expect(debt.userId).not.toBe(user2Ctx.user.id);
       });
     });
 
     it("should allow user to create their own debt", async () => {
       const newDebt = {
         ...testData.debt,
-        userId: user1Ctx.user.numericId,
+        userId: user1Ctx.user.id,
         name: `RLS Test Debt ${Date.now()}`,
       };
       
-      const result = await dbRoleAware.createDebt(user1Ctx, newDebt);
+      const result = await dbRoleAware.addDebt(user1Ctx, newDebt);
       expect(result).toBeDefined();
       
       // Verify it was created for the correct user
-      const debts = await dbRoleAware.getUserDebts(user1Ctx, user1Ctx.user.numericId);
+      const debts = await dbRoleAware.getUserDebts(user1Ctx, user1Ctx.user.id);
       const created = debts.find(d => d.name === newDebt.name);
       expect(created).toBeDefined();
-      const userIdNum = typeof created?.userId === "number" ? created.userId : parseInt(created?.userId || "0"); expect(userIdNum).toBe(user1Ctx.user.numericId);
+      // Compare UUID strings directly
+      expect(created?.userId).toBe(user1Ctx.user.id);
     });
   });
 
@@ -159,13 +159,14 @@ describe("RLS Policy Enforcement Tests", () => {
       // This tests user-specific vocabulary progress tracking
       const progress = await dbRoleAware.getUserVocabularyProgress(
         user1Ctx,
-        user1Ctx.user.numericId,
+        user1Ctx.user.id,
         "Spanish"
       );
       
       expect(Array.isArray(progress)).toBe(true);
       progress.forEach(item => {
-        const userIdNum = typeof item.userId === "number" ? item.userId : parseInt(item.userId); expect(userIdNum).toBe(user1Ctx.user.numericId);
+        // Compare UUID strings directly
+        expect(item.userId).toBe(user1Ctx.user.id);
       });
     });
 
@@ -173,20 +174,21 @@ describe("RLS Policy Enforcement Tests", () => {
       // User1 tries to query User2's vocabulary progress
       const progress = await dbRoleAware.getUserVocabularyProgress(
         user1Ctx,
-        user2Ctx.user.numericId,
+        user2Ctx.user.id,
         "Spanish"
       );
       
       // RLS should return empty array or only user1's data
       expect(Array.isArray(progress)).toBe(true);
       progress.forEach(item => {
-        const userIdNum = typeof item.userId === "number" ? item.userId : parseInt(item.userId); expect(userIdNum).not.toBe(user2Ctx.user.numericId);
+        // Compare UUID strings directly
+        expect(item.userId).not.toBe(user2Ctx.user.id);
       });
     });
 
     it("should allow user to save their own exercise attempt", async () => {
       const attemptData = {
-        userId: user1Ctx.user.numericId,
+        userId: user1Ctx.user.id,
         exerciseId: 1,
         isCorrect: true,
         userAnswer: "test answer",
@@ -208,8 +210,8 @@ describe("RLS Policy Enforcement Tests", () => {
       for (const userCtx of users) {
         const category = {
           ...testData.budgetCategory,
-          userId: userCtx.user.numericId,
-          name: `Multi-User Test ${userCtx.user.numericId}`,
+          userId: userCtx.user.id,
+          name: `Multi-User Test ${userCtx.user.id}`,
         };
         
         await dbRoleAware.createBudgetCategory(userCtx, category);
@@ -219,17 +221,17 @@ describe("RLS Policy Enforcement Tests", () => {
       for (const userCtx of users) {
         const categories = await dbRoleAware.getUserBudgetCategories(
           userCtx,
-          userCtx.user.numericId
+          userCtx.user.id
         );
         
         const ownCategory = categories.find(
-          c => c.name === `Multi-User Test ${userCtx.user.numericId}`
+          c => c.name === `Multi-User Test ${userCtx.user.id}`
         );
         expect(ownCategory).toBeDefined();
         
         // Should not see other users' categories
         const otherCategories = categories.filter(
-          c => c.userId !== userCtx.user.numericId
+          c => c.userId !== userCtx.user.id
         );
         expect(otherCategories.length).toBe(0);
       }
@@ -239,7 +241,7 @@ describe("RLS Policy Enforcement Tests", () => {
       // User1 creates a goal
       const goal = {
         ...testData.goal,
-        userId: user1Ctx.user.numericId,
+        userId: user1Ctx.user.id,
         name: `Cross-User Test Goal ${Date.now()}`,
       };
       
@@ -247,7 +249,7 @@ describe("RLS Policy Enforcement Tests", () => {
       expect(created).toBeDefined();
       
       // User2 tries to update User1's goal (should fail or be ignored by RLS)
-      const user1Goals = await dbRoleAware.getUserGoals(user1Ctx, user1Ctx.user.numericId);
+      const user1Goals = await dbRoleAware.getUserGoals(user1Ctx, user1Ctx.user.id);
       const user1Goal = user1Goals.find(g => g.name === goal.name);
       
       if (user1Goal) {
@@ -259,11 +261,11 @@ describe("RLS Policy Enforcement Tests", () => {
           });
           
           // Verify the update didn't affect User1's goal
-          const updatedGoals = await dbRoleAware.getUserGoals(user1Ctx, user1Ctx.user.numericId);
+          const updatedGoals = await dbRoleAware.getUserGoals(user1Ctx, user1Ctx.user.id);
           const stillOriginal = updatedGoals.find(g => g.id === user1Goal.id);
           
           // Goal should still belong to User1 and not be modified
-          const userIdNum = typeof stillOriginal?.userId === "number" ? stillOriginal.userId : parseInt(stillOriginal?.userId || "0"); expect(userIdNum).toBe(user1Ctx.user.numericId);
+          const userIdNum = typeof stillOriginal?.userId === "number" ? stillOriginal.userId : parseInt(stillOriginal?.userId || "0"); expect(userIdNum).toBe(user1Ctx.user.id);
           expect(stillOriginal?.currentAmount).not.toBe(9999);
         } catch (error) {
           // RLS should prevent the update, which is the expected behavior
@@ -278,12 +280,12 @@ describe("RLS Policy Enforcement Tests", () => {
       // All queries should automatically filter by userId via RLS
       const categories1 = await dbRoleAware.getUserBudgetCategories(
         user1Ctx,
-        user1Ctx.user.numericId
+        user1Ctx.user.id
       );
       
       const categories2 = await dbRoleAware.getUserBudgetCategories(
         user2Ctx,
-        user2Ctx.user.numericId
+        user2Ctx.user.id
       );
       
       // Results should be completely different
@@ -291,12 +293,12 @@ describe("RLS Policy Enforcement Tests", () => {
       
       // Each should only contain their own data
       categories1.forEach(c => {
-        const userIdNum = typeof c.userId === 'number' ? c.userId : parseInt(c.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
+        const userIdNum = c.userId;
+        expect(userIdNum).toBe(user1Ctx.user.id);
       });
       categories2.forEach(c => {
-        const userIdNum = typeof c.userId === 'number' ? c.userId : parseInt(c.userId);
-        expect(userIdNum).toBe(user2Ctx.user.numericId);
+        const userIdNum = c.userId;
+        expect(userIdNum).toBe(user2Ctx.user.id);
       });
     });
 
@@ -304,7 +306,7 @@ describe("RLS Policy Enforcement Tests", () => {
       // User cannot insert data for another user
       const categoryForUser2 = {
         ...testData.budgetCategory,
-        userId: user2Ctx.user.numericId, // User1 tries to create for User2
+        userId: user2Ctx.user.id, // User1 tries to create for User2
         name: `Invalid Insert Test ${Date.now()}`,
       };
       
@@ -314,14 +316,14 @@ describe("RLS Policy Enforcement Tests", () => {
       // Verify it was created for user1, not user2
       const user1Categories = await dbRoleAware.getUserBudgetCategories(
         user1Ctx,
-        user1Ctx.user.numericId
+        user1Ctx.user.id
       );
       
       const created = user1Categories.find(c => c.name === categoryForUser2.name);
       if (created) {
         // RLS should have overridden the userId to user1's ID
-        const userIdNum = typeof created.userId === 'number' ? created.userId : parseInt(created.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
+        const userIdNum = created.userId;
+        expect(userIdNum).toBe(user1Ctx.user.id);
       }
     });
 
@@ -329,7 +331,7 @@ describe("RLS Policy Enforcement Tests", () => {
       // User1 creates a category
       const category = {
         ...testData.budgetCategory,
-        userId: user1Ctx.user.numericId,
+        userId: user1Ctx.user.id,
         name: `Update Test ${Date.now()}`,
       };
       
@@ -339,7 +341,7 @@ describe("RLS Policy Enforcement Tests", () => {
       // User1 can update their own category
       const user1Categories = await dbRoleAware.getUserBudgetCategories(
         user1Ctx,
-        user1Ctx.user.numericId
+        user1Ctx.user.id
       );
       const toUpdate = user1Categories.find(c => c.name === category.name);
       
@@ -350,7 +352,7 @@ describe("RLS Policy Enforcement Tests", () => {
         // Verify update
         const updated = await dbRoleAware.getUserBudgetCategories(
           user1Ctx,
-          user1Ctx.user.numericId
+          user1Ctx.user.id
         );
         const updatedCat = updated.find(c => c.id === toUpdate.id);
         expect(updatedCat?.monthlyLimit).toBe(99900); // 999 dollars * 100 = 99900 cents

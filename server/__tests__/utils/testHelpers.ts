@@ -139,7 +139,7 @@ export const testData = {
     balance: 5000,
     interestRate: 15.5,
     minimumPayment: 100,
-    dueDate: 15,
+    dueDate: new Date('2025-01-15'), // Full date object, not just day number
     debtType: "credit_card" as const,
     status: "active" as const,
   },

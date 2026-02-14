@@ -992,6 +992,10 @@ export async function saveExerciseAttempt(
       .insert({
         user_id: userId,
         exercise_id: attempt.exerciseId,
+        workout_id: attempt.workoutId || 1, // Default workout_id if not provided
+        exercise_name: attempt.exerciseName || 'Test Exercise', // Default name if not provided
+        sets_completed: attempt.setsCompleted || 1, // Default sets_completed if not provided
+        reps_completed: attempt.repsCompleted || 1, // Default reps_completed if not provided
         user_answer: attempt.userAnswer,
         is_correct: attempt.isCorrect,
         created_at: attempt.attemptedAt || new Date(),
@@ -1000,7 +1004,8 @@ export async function saveExerciseAttempt(
       .single();
     
     if (error) handleSupabaseError(error, 'saveExerciseAttempt');
-    return data;
+    // Return just the ID to match MySQL behavior
+    return data?.id;
   }
 }
 
@@ -1659,13 +1664,16 @@ export async function addDebt(
       .from('debts')
       .insert({
         user_id: userId,
-        debt_name: debt.debtName,
-        original_amount: debt.originalAmount,
-        current_balance: debt.currentBalance,
-        interest_rate: debt.interestRate,
-        minimum_payment: debt.minimumPayment,
+        debt_name: debt.name || debt.debtName, // Support both 'name' and 'debtName'
+        // Note: 'balance' column not in schema cache, using current_balance only
+        original_amount: debt.originalAmount || debt.balance || debt.currentBalance || 0,
+        current_balance: debt.currentBalance || debt.balance || 0,
+        interest_rate: debt.interestRate || 0,
+        minimum_payment: debt.minimumPayment || 0,
         due_date: debt.dueDate,
+        due_day: debt.dueDay || 1, // Default due_day if not provided
         debt_type: debt.debtType,
+        status: debt.status || 'active',
         created_at: debt.createdAt || new Date(),
       })
       .select()
@@ -1701,8 +1709,9 @@ export async function getUserDebts(
     // Convert to match MySQL schema format
     return (data || []).map(debt => ({
       id: debt.id,
-      userId: debt.user_id, // Already an integer in Supabase
-      debtName: debt.name,
+      userId: debt.user_id, // UUID string in Supabase
+      name: debt.debt_name || debt.name, // Support both debt_name and name
+      debtName: debt.debt_name || debt.name,
       debtType: debt.debt_type,
       originalBalance: debt.balance ? parseFloat(debt.balance) * 100 : 0, // Convert dollars to cents
       currentBalance: debt.balance ? parseFloat(debt.balance) * 100 : 0, // Convert dollars to cents
