@@ -22,8 +22,8 @@ export class SupabaseNotificationAdapter implements NotificationAdapter {
   private userId: string;
   private accessToken: string;
   
-  constructor(userId: number, accessToken: string) {
-    this.userId = String(userId);
+  constructor(userId: string, accessToken: string) {
+    this.userId = userId;
     this.accessToken = accessToken;
   }
   

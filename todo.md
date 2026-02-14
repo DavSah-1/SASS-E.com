@@ -5741,3 +5741,15 @@
 - [x] Document test results
 
 **Results:** 269/311 tests passing (86.5%). Remaining 18 failures are test data issues (UUID vs numeric ID), not adapter implementation problems. Adapter pattern migration validated successfully.
+
+
+## Fix Translation Test UUID Issues
+
+- [x] Analyze translate-chat.test.ts UUID errors
+- [x] Update adapter factories to use ctx.user.id for Supabase (not numericId)
+- [x] Fix SupabaseNotificationAdapter constructor to accept string
+- [x] Re-run tests - improved from 269/311 to 274/311 passing (88.1%)
+- [ ] Fix remaining 13 test failures (adapter undefined issues)
+- [ ] Save checkpoint
+
+**Progress:** Fixed UUID type mismatches by updating all 7 Supabase adapter factories to use `String(ctx.user.id)` instead of `String(ctx.user.numericId || ctx.user.id)`. This reduced test failures from 18 to 13.

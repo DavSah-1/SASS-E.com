@@ -43,7 +43,7 @@ export function createNotificationAdapter(ctx: AdapterContext): NotificationAdap
   if (ctx.user.role === 'admin') {
     return new MysqlNotificationAdapter();
   } else {
-    const userId = ctx.user.numericId || Number(ctx.user.id);
+    const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
     return new SupabaseNotificationAdapter(userId, accessToken);
   }
@@ -56,7 +56,7 @@ export function createBudgetAdapter(ctx: AdapterContext): BudgetAdapter {
   if (ctx.user.role === 'admin') {
     return new MysqlBudgetAdapter();
   } else {
-    const userId = String(ctx.user.numericId || ctx.user.id);
+    const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
     return new SupabaseBudgetAdapter(userId, accessToken);
   }
@@ -69,7 +69,7 @@ export function createDebtAdapter(ctx: AdapterContext): DebtAdapter {
   if (ctx.user.role === 'admin') {
     return new MysqlDebtAdapter();
   } else {
-    const userId = String(ctx.user.numericId || ctx.user.id);
+    const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
     return new SupabaseDebtAdapter(userId, accessToken);
   }
@@ -82,7 +82,7 @@ export function createLearningAdapter(ctx: AdapterContext): LearningAdapter {
   if (ctx.user.role === 'admin') {
     return new MysqlLearningAdapter();
   } else {
-    const userId = String(ctx.user.numericId || ctx.user.id);
+    const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
     return new SupabaseLearningAdapter(userId, accessToken);
   }
@@ -95,7 +95,7 @@ export function createIoTAdapter(ctx: AdapterContext): IoTAdapter {
   if (ctx.user.role === 'admin') {
     return new MysqlIoTAdapter();
   } else {
-    const userId = String(ctx.user.numericId || ctx.user.id);
+    const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
     return new SupabaseIoTAdapter(userId, accessToken);
   }
@@ -108,7 +108,7 @@ export function createGoalsAdapter(ctx: AdapterContext): GoalsAdapter {
   if (ctx.user.role === 'admin') {
     return new MysqlGoalsAdapter();
   } else {
-    const userId = String(ctx.user.numericId || ctx.user.id);
+    const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
     const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
     const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
@@ -123,7 +123,7 @@ export function createTranslationAdapter(ctx: AdapterContext): TranslationAdapte
   if (ctx.user.role === 'admin') {
     return new MysqlTranslationAdapter();
   } else {
-    const userId = String(ctx.user.numericId || ctx.user.id);
+    const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
     const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
     const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
