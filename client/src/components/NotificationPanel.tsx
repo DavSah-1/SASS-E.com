@@ -51,7 +51,7 @@ export function NotificationPanel() {
     onSuccess: (data) => {
       utils.notifications.getNotifications.invalidate();
       utils.notifications.getUnreadCount.invalidate();
-      toast.success(`Deleted ${data.deleted} notification${data.deleted !== 1 ? 's' : ''}`);
+      toast.success('All notifications deleted');
       setShowDeleteDialog(false);
       setOpen(false);
     },

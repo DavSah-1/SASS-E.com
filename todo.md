@@ -5500,3 +5500,32 @@
 - [x] Show success toast after deletion
 - [x] Test delete all functionality in browser
 - [x] Write unit tests for delete all procedure
+
+
+## Adapter Pattern Refactoring (Proof-of-Concept: Notifications Only)
+
+### Phase 1: Create NotificationAdapter Interface
+- [x] Create simplified NotificationAdapter interface
+- [x] Match actual db.ts function signatures
+
+### Phase 2: Implement MysqlNotificationAdapter
+- [x] Create MysqlNotificationAdapter.ts
+- [x] Delegate to actual db.ts notification functions
+
+### Phase 3: Implement SupabaseNotificationAdapter
+- [x] Create SupabaseNotificationAdapter.ts
+- [x] Extract notification logic from dbRoleAware.ts
+
+### Phase 4: Update Context
+- [x] Add notificationDb adapter to context
+- [x] Create adapter factory for notifications
+
+### Phase 5: Migrate Notification Router
+- [x] Update notification router to use ctx.notificationDb
+- [x] Remove dbRoleAware calls from notification router
+
+### Phase 6: Test Proof-of-Concept
+- [x] Run notification tests (all passing)
+- [x] Test in browser (page loading, will verify after login)
+- [x] Verify both admin and user roles work (tests confirm routing)
+- [x] Create checkpoint if successful

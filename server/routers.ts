@@ -2733,7 +2733,10 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ includeRead: z.boolean().optional() }).optional())
       .query(async ({ ctx, input }) => {
         try {
-          const notifications = await dbRoleAware.getUserNotifications(ctx, ctx.user.numericId, input?.includeRead || false);
+          if (!ctx.notificationDb) {
+            throw new Error('Notification adapter not available');
+          }
+          const notifications = await ctx.notificationDb.getUserNotifications(ctx.user.numericId, input?.includeRead || false);
           
           // Parse JSON fields for each notification
           return notifications.map(notif => ({
@@ -2750,7 +2753,10 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     // Get unread notification count
     getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
       try {
-        const count = await dbRoleAware.getUnreadNotificationCount(ctx, ctx.user.numericId);
+        if (!ctx.notificationDb) {
+          throw new Error('Notification adapter not available');
+        }
+        const count = await ctx.notificationDb.getUnreadNotificationCount(ctx.user.numericId);
         return { count };
       } catch (error) {
         handleError(error, 'Notifications Get Unread Count');
@@ -2772,9 +2778,12 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
             return { success: false, error: 'No notification IDs provided' };
           }
           
+          if (!ctx.notificationDb) {
+            throw new Error('Notification adapter not available');
+          }
           // Mark all notifications as read
           for (const id of ids) {
-            await dbRoleAware.markNotificationAsRead(ctx, id, ctx.user.numericId);
+            await ctx.notificationDb.markNotificationAsRead(id, ctx.user.numericId);
           }
           return { success: true };
         } catch (error) {
@@ -2797,9 +2806,12 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
             return { success: false, error: 'No notification IDs provided' };
           }
           
+          if (!ctx.notificationDb) {
+            throw new Error('Notification adapter not available');
+          }
           // Dismiss all notifications
           for (const id of ids) {
-            await dbRoleAware.dismissNotification(ctx, id, ctx.user.numericId);
+            await ctx.notificationDb.dismissNotification(id, ctx.user.numericId);
           }
           return { success: true };
         } catch (error) {
@@ -2812,18 +2824,24 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
     deleteAll: protectedProcedure
       .mutation(async ({ ctx }) => {
         try {
-          const deleted = await dbRoleAware.deleteAllUserNotifications(ctx, ctx.user.numericId);
-          return { success: true, deleted };
+          if (!ctx.notificationDb) {
+            throw new Error('Notification adapter not available');
+          }
+          await ctx.notificationDb.deleteAllUserNotifications(ctx.user.numericId);
+          return { success: true };
         } catch (error) {
           handleError(error, 'Notifications Delete All');
-          return { success: false, deleted: 0 };
+          return { success: false };
         }
       }),
     
     // Get user's notification preferences
     getPreferences: protectedProcedure.query(async ({ ctx }) => {
       try {
-        const prefs = await dbRoleAware.getNotificationPreferences(ctx, ctx.user.numericId);
+        if (!ctx.notificationDb) {
+          throw new Error('Notification adapter not available');
+        }
+        const prefs = await ctx.notificationDb.getNotificationPreferences(ctx.user.numericId);
         return prefs || {
           // Default preferences if none exist
           budgetAlertsEnabled: 1,
