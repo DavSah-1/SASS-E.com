@@ -5349,3 +5349,10 @@
 - [ ] Update test file - use ctx.user.id instead of ctx.user.numericId
 - [ ] Run tests and verify 8/8 passing
 - [ ] Save checkpoint with translate chat UUID migration complete
+
+
+## Bug Fixes - RLS Policy Enforcement Tests (30 failures)
+- [ ] Fix userId type mismatches in test assertions (string vs number comparisons)
+- [ ] Add parseInt() to all userId comparisons in RLS tests
+- [ ] Fix UPDATE operation calls to match function signatures
+- [ ] Verify all RLS tests pass after fixes

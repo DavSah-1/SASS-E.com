@@ -27,9 +27,7 @@ describe("RLS Policy Enforcement Tests", () => {
       expect(Array.isArray(categories)).toBe(true);
       // All returned categories should belong to user1
       categories.forEach(cat => {
-        console.log('[DEBUG] cat.userId:', cat.userId, 'type:', typeof cat.userId);
-        const userIdNum = typeof cat.userId === "number" ? cat.userId : parseInt(cat.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
+        expect(cat.userId).toBe(user1Ctx.user.numericId);
       });
     });
 
@@ -44,8 +42,7 @@ describe("RLS Policy Enforcement Tests", () => {
       expect(Array.isArray(categories)).toBe(true);
       categories.forEach(cat => {
         // Should not contain user2's data
-        const userIdNum = typeof cat.userId === "number" ? cat.userId : parseInt(cat.userId);
-        expect(userIdNum).not.toBe(user2Ctx.user.numericId);
+        expect(cat.userId).not.toBe(user2Ctx.user.numericId);
       });
     });
 
@@ -67,8 +64,7 @@ describe("RLS Policy Enforcement Tests", () => {
       
       const created = categories.find(c => c.name === newCategory.name);
       expect(created).toBeDefined();
-      const userIdNum = typeof created?.userId === 'number' ? created.userId : parseInt(created?.userId || '0');
-      expect(userIdNum).toBe(user1Ctx.user.numericId);
+      expect(created?.userId).toBe(user1Ctx.user.numericId);
     });
   });
 
@@ -78,8 +74,7 @@ describe("RLS Policy Enforcement Tests", () => {
       
       expect(Array.isArray(goals)).toBe(true);
       goals.forEach(goal => {
-        const userIdNum = typeof goal.userId === 'number' ? goal.userId : parseInt(goal.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
+        expect(goal.userId).toBe(user1Ctx.user.numericId);
       });
     });
 
@@ -90,8 +85,7 @@ describe("RLS Policy Enforcement Tests", () => {
       // RLS should return empty array or only user1's data
       expect(Array.isArray(goals)).toBe(true);
       goals.forEach(goal => {
-        const userIdNum = typeof goal.userId === 'number' ? goal.userId : parseInt(goal.userId);
-        expect(userIdNum).not.toBe(user2Ctx.user.numericId);
+        expect(goal.userId).not.toBe(user2Ctx.user.numericId);
       });
     });
 
@@ -108,9 +102,8 @@ describe("RLS Policy Enforcement Tests", () => {
       // Verify it was created for the correct user
       const goals = await dbRoleAware.getUserGoals(user1Ctx, user1Ctx.user.numericId);
       const created = goals.find(g => g.name === newGoal.name);
-       expect(created).toBeDefined();
-      const userIdNum = typeof created?.userId === 'number' ? created.userId : parseInt(created?.userId || '0');
-      expect(userIdNum).toBe(user1Ctx.user.numericId);
+      expect(created).toBeDefined();
+      expect(created?.userId).toBe(user1Ctx.user.numericId);
     });
   });
 
@@ -120,8 +113,7 @@ describe("RLS Policy Enforcement Tests", () => {
       
       expect(Array.isArray(debts)).toBe(true);
       debts.forEach(debt => {
-        const userIdNum = typeof debt.userId === 'number' ? debt.userId : parseInt(debt.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
+        expect(debt.userId).toBe(user1Ctx.user.numericId);
       });
     });
 
@@ -132,7 +124,7 @@ describe("RLS Policy Enforcement Tests", () => {
       // RLS should return empty array or only user1's data
       expect(Array.isArray(debts)).toBe(true);
       debts.forEach(debt => {
-        const userIdNum = typeof debt.userId === "number" ? debt.userId : parseInt(debt.userId); expect(userIdNum).not.toBe(user2Ctx.user.numericId);
+        expect(debt.userId).not.toBe(user2Ctx.user.numericId);
       });
     });
 
@@ -150,7 +142,7 @@ describe("RLS Policy Enforcement Tests", () => {
       const debts = await dbRoleAware.getUserDebts(user1Ctx, user1Ctx.user.numericId);
       const created = debts.find(d => d.name === newDebt.name);
       expect(created).toBeDefined();
-      const userIdNum = typeof created?.userId === "number" ? created.userId : parseInt(created?.userId || "0"); expect(userIdNum).toBe(user1Ctx.user.numericId);
+      expect(created?.userId).toBe(user1Ctx.user.numericId);
     });
   });
 
@@ -165,7 +157,7 @@ describe("RLS Policy Enforcement Tests", () => {
       
       expect(Array.isArray(progress)).toBe(true);
       progress.forEach(item => {
-        const userIdNum = typeof item.userId === "number" ? item.userId : parseInt(item.userId); expect(userIdNum).toBe(user1Ctx.user.numericId);
+        expect(item.userId).toBe(user1Ctx.user.numericId);
       });
     });
 
@@ -180,7 +172,7 @@ describe("RLS Policy Enforcement Tests", () => {
       // RLS should return empty array or only user1's data
       expect(Array.isArray(progress)).toBe(true);
       progress.forEach(item => {
-        const userIdNum = typeof item.userId === "number" ? item.userId : parseInt(item.userId); expect(userIdNum).not.toBe(user2Ctx.user.numericId);
+        expect(item.userId).not.toBe(user2Ctx.user.numericId);
       });
     });
 
@@ -263,7 +255,7 @@ describe("RLS Policy Enforcement Tests", () => {
           const stillOriginal = updatedGoals.find(g => g.id === user1Goal.id);
           
           // Goal should still belong to User1 and not be modified
-          const userIdNum = typeof stillOriginal?.userId === "number" ? stillOriginal.userId : parseInt(stillOriginal?.userId || "0"); expect(userIdNum).toBe(user1Ctx.user.numericId);
+          expect(stillOriginal?.userId).toBe(user1Ctx.user.numericId);
           expect(stillOriginal?.currentAmount).not.toBe(9999);
         } catch (error) {
           // RLS should prevent the update, which is the expected behavior
@@ -290,14 +282,8 @@ describe("RLS Policy Enforcement Tests", () => {
       expect(categories1).not.toEqual(categories2);
       
       // Each should only contain their own data
-      categories1.forEach(c => {
-        const userIdNum = typeof c.userId === 'number' ? c.userId : parseInt(c.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
-      });
-      categories2.forEach(c => {
-        const userIdNum = typeof c.userId === 'number' ? c.userId : parseInt(c.userId);
-        expect(userIdNum).toBe(user2Ctx.user.numericId);
-      });
+      categories1.forEach(c => expect(c.userId).toBe(user1Ctx.user.numericId));
+      categories2.forEach(c => expect(c.userId).toBe(user2Ctx.user.numericId));
     });
 
     it("should enforce userId matching in INSERT operations", async () => {
@@ -320,8 +306,7 @@ describe("RLS Policy Enforcement Tests", () => {
       const created = user1Categories.find(c => c.name === categoryForUser2.name);
       if (created) {
         // RLS should have overridden the userId to user1's ID
-        const userIdNum = typeof created.userId === 'number' ? created.userId : parseInt(created.userId);
-        expect(userIdNum).toBe(user1Ctx.user.numericId);
+        expect(created.userId).toBe(user1Ctx.user.numericId);
       }
     });
 
@@ -345,7 +330,10 @@ describe("RLS Policy Enforcement Tests", () => {
       
       if (toUpdate) {
         // User1 updates successfully
-        await dbRoleAware.updateBudgetCategory(user1Ctx, toUpdate.id, { monthly_limit: 999 });
+        await dbRoleAware.updateBudgetCategory(user1Ctx, {
+          categoryId: toUpdate.id,
+          updates: { monthlyLimit: 999 },
+        });
         
         // Verify update
         const updated = await dbRoleAware.getUserBudgetCategories(
@@ -353,7 +341,7 @@ describe("RLS Policy Enforcement Tests", () => {
           user1Ctx.user.numericId
         );
         const updatedCat = updated.find(c => c.id === toUpdate.id);
-        expect(updatedCat?.monthlyLimit).toBe(99900); // 999 dollars * 100 = 99900 cents
+        expect(updatedCat?.monthlyLimit).toBe(999);
       }
     });
   });
