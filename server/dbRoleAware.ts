@@ -3979,6 +3979,8 @@ export async function updateNotificationPreferences(
   }
 }
 
+import { generateBatchKey, shouldBatch, generateBatchedTitle, generateBatchedMessage } from './notificationBatching';
+
 export async function createFactUpdateNotifications(
   ctx: DbContext,
   oldFact: any,
@@ -3996,21 +3998,72 @@ export async function createFactUpdateNotifications(
     
     const uniqueUsers = Array.from(new Set((accessLogs || []).map(log => log.user_id)));
     
-    // Create notifications for each user
-    const notifications = uniqueUsers.map(userId => ({
-      user_id: userId,
-      type: 'fact_update',
-      title: 'Fact Update',
-      message: `A fact you accessed has been updated: "${newFact.question}"`,
-      created_at: new Date(),
-    }));
+    const notificationType = 'fact_update';
+    const now = new Date();
     
-    if (notifications.length > 0) {
+    // Check if batching is enabled
+    if (shouldBatch(notificationType)) {
+      const batchKey = generateBatchKey(notificationType, now);
+      
+      // Process each user with batching
+      for (const userId of uniqueUsers) {
+        // Check if a batch notification already exists
+        const { data: existingBatch } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('batch_key', batchKey)
+          .eq('is_dismissed', false)
+          .limit(1)
+          .single();
+        
+        if (existingBatch) {
+          // Update existing batch: increment count
+          const currentCount = existingBatch.batch_count || 1;
+          const newCount = currentCount + 1;
+          
+          await supabase
+            .from('notifications')
+            .update({
+              batch_count: newCount,
+              title: generateBatchedTitle(notificationType, newCount),
+              message: generateBatchedMessage(notificationType, newCount),
+            })
+            .eq('id', existingBatch.id);
+        } else {
+          // Create new batch notification
+          await supabase
+            .from('notifications')
+            .insert({
+              user_id: userId,
+              notification_type: notificationType,
+              batch_key: batchKey,
+              batch_count: 1,
+              type: 'fact_update',
+              title: 'Fact Update',
+              message: `A fact you accessed has been updated: "${newFact.question}"`,
+              created_at: now.toISOString(),
+            });
+        }
+      }
+    } else {
+      // No batching: create individual notifications
+      const notifications = uniqueUsers.map(userId => ({
+        user_id: userId,
+        notification_type: notificationType,
+        type: 'fact_update',
+        title: 'Fact Update',
+        message: `A fact you accessed has been updated: "${newFact.question}"`,
+        created_at: now.toISOString(),
+      }));
+      
+      if (notifications.length > 0) {
       const { error } = await supabase
         .from('notifications')
         .insert(notifications);
       
       if (error) handleSupabaseError(error, 'createFactUpdateNotifications');
+      }
     }
   }
 }

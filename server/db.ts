@@ -2583,6 +2583,8 @@ export async function logFactAccess(userId: number, verifiedFactId: number, fact
 /**
  * Create notifications for users who accessed an old version of a fact
  */
+import { generateBatchKey, shouldBatch, generateBatchedTitle, generateBatchedMessage } from './notificationBatching';
+
 export async function createFactUpdateNotifications(oldFact: VerifiedFact, newFact: VerifiedFact) {
   const db = await getDb();
   if (!db) return;
@@ -2610,21 +2612,74 @@ export async function createFactUpdateNotifications(oldFact: VerifiedFact, newFa
     verifiedAt: newFact.verifiedAt
   });
   
-  // Create notifications for each user
-  const notifications: InsertFactUpdateNotification[] = userIds.map(userId => ({
-    userId,
-    verifiedFactId: oldFact.id,
-    oldVersion,
-    newVersion,
-    title: 'Fact Update Available',
-    message: `The answer to "${oldFact.question}" has been updated with new information.`,
-  }));
+  const notificationType = 'fact_update';
+  const now = new Date();
   
-  if (notifications.length > 0) {
-    await db.insert(factUpdateNotifications).values(notifications);
+  // Check if batching is enabled for this notification type
+  if (shouldBatch(notificationType)) {
+    const batchKey = generateBatchKey(notificationType, now);
+    
+    // Process each user's notification with batching
+    for (const userId of userIds) {
+      // Check if a batch notification already exists for this user
+      const existingBatch = await db
+        .select()
+        .from(factUpdateNotifications)
+        .where(
+          and(
+            eq(factUpdateNotifications.userId, userId),
+            eq(factUpdateNotifications.batchKey, batchKey),
+            eq(factUpdateNotifications.isDismissed, 0)
+          )
+        )
+        .limit(1);
+      
+      if (existingBatch.length > 0) {
+        // Update existing batch: increment count
+        const currentCount = existingBatch[0].batchCount || 1;
+        const newCount = currentCount + 1;
+        
+        await db
+          .update(factUpdateNotifications)
+          .set({
+            batchCount: newCount,
+            title: generateBatchedTitle(notificationType, newCount),
+            message: generateBatchedMessage(notificationType, newCount),
+          })
+          .where(eq(factUpdateNotifications.id, existingBatch[0].id));
+      } else {
+        // Create new batch notification
+        await db.insert(factUpdateNotifications).values({
+          userId,
+          verifiedFactId: oldFact.id,
+          oldVersion,
+          newVersion,
+          notificationType,
+          batchKey,
+          batchCount: 1,
+          title: 'Fact Update Available',
+          message: `The answer to "${oldFact.question}" has been updated with new information.`,
+        });
+      }
+    }
+  } else {
+    // No batching: create individual notifications
+    const notifications: InsertFactUpdateNotification[] = userIds.map(userId => ({
+      userId,
+      verifiedFactId: oldFact.id,
+      oldVersion,
+      newVersion,
+      notificationType,
+      title: 'Fact Update Available',
+      message: `The answer to "${oldFact.question}" has been updated with new information.`,
+    }));
+    
+    if (notifications.length > 0) {
+      await db.insert(factUpdateNotifications).values(notifications);
+    }
   }
   
-  return notifications.length;
+  return userIds.length;
 }
 
 /**
