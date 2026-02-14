@@ -2851,8 +2851,6 @@ export async function addConversationParticipant(
   if (ctx.user.role === "admin") {
     return await db.addConversationParticipant(conversationId, userId, preferredLanguage);
   } else {
-    console.log('[DEBUG addConversationParticipant] conversationId:', conversationId, 'type:', typeof conversationId);
-    console.log('[DEBUG addConversationParticipant] userId:', userId, 'type:', typeof userId);
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     const { data, error } = await supabase
       .from('translate_conversation_participants')
@@ -2985,7 +2983,16 @@ export async function getTranslateConversationMessages(
       .limit(limit);
     
     if (error) handleSupabaseError(error, 'getTranslateConversationMessages');
-    return data || [];
+    // Transform to camelCase for consistency
+    return (data || []).map(msg => ({
+      id: msg.id,
+      conversationId: msg.conversation_id,
+      senderId: msg.sender_id,
+      originalText: msg.original_text,
+      originalLanguage: msg.original_language,
+      createdAt: msg.created_at,
+      sentAt: msg.sent_at,
+    }));
   }
 }
 
@@ -3399,13 +3406,23 @@ export async function getMessageTranslation(
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     const { data, error } = await supabase
-      .from('conversation_messages')
+      .from('translate_message_translations')
       .select('*')
-      .eq('id', messageId)
+      .eq('message_id', messageId)
+      .eq('user_id', userId)
       .single();
     
     if (error) return null;
-    return data;
+    // Transform to camelCase for consistency
+    if (!data) return null;
+    return {
+      id: data.id,
+      messageId: data.message_id,
+      userId: data.user_id,
+      translatedText: data.translated_text,
+      targetLanguage: data.target_language,
+      createdAt: data.created_at,
+    };
   }
 }
 
