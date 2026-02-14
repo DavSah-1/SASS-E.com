@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import * as dbRoleAware from "./dbRoleAware";
+// import * as dbRoleAware from "./dbRoleAware"; // Replaced by adapter pattern
 import { invokeLLM } from "./_core/llm";
 
 export const scienceRouter = router({
@@ -14,7 +14,8 @@ export const scienceRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const experiments = await dbRoleAware.getExperiments(ctx, input);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const experiments = await ctx.learningDb.getExperiments(input);
       return experiments;
     }),
 
@@ -22,12 +23,13 @@ export const scienceRouter = router({
   getExperimentDetails: protectedProcedure
     .input(z.object({ experimentId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const experiment = await dbRoleAware.getExperimentById(ctx, input.experimentId);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const experiment = await ctx.learningDb.getExperimentById(input.experimentId);
       if (!experiment) {
         throw new Error("Experiment not found");
       }
 
-      const steps = await dbRoleAware.getExperimentSteps(ctx, input.experimentId);
+      const steps = await ctx.learningDb.getExperimentSteps(input.experimentId);
 
       return {
         experiment,
@@ -50,7 +52,8 @@ export const scienceRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const experiment = await dbRoleAware.getExperimentById(ctx, input.experimentId);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const experiment = await ctx.learningDb.getExperimentById(input.experimentId);
       if (!experiment) {
         throw new Error("Experiment not found");
       }
@@ -119,7 +122,7 @@ Format as JSON:
       const aiAnalysis = JSON.parse(llmResponse.choices[0].message.content as string);
 
       // Save lab result
-      const resultId = await dbRoleAware.saveLabResult(ctx, {
+      const resultId = await ctx.learningDb.saveLabResult({
         userId: ctx.user.numericId,
         experimentId: input.experimentId,
         observations: input.observations,
@@ -134,10 +137,10 @@ Format as JSON:
       });
 
       // Update science progress
-      let progress = await dbRoleAware.getScienceProgress(ctx, ctx.user.numericId);
+      let progress = await ctx.learningDb.getScienceProgress(ctx.user.numericId);
       if (!progress) {
-        await dbRoleAware.initializeScienceProgress(ctx, ctx.user.numericId);
-        progress = await dbRoleAware.getScienceProgress(ctx, ctx.user.numericId);
+        await ctx.learningDb.initializeScienceProgress(ctx.user.numericId);
+        progress = await ctx.learningDb.getScienceProgress(ctx.user.numericId);
       }
 
       if (progress) {
@@ -155,7 +158,7 @@ Format as JSON:
             newTotal
         );
 
-        await dbRoleAware.updateScienceProgress(ctx, ctx.user.numericId, {
+        await ctx.learningDb.updateScienceProgress(ctx.user.numericId, {
           totalExperimentsCompleted: newTotal,
           [categoryField]: newCategoryCount,
           averageGrade: newAverageGrade,
@@ -176,16 +179,18 @@ Format as JSON:
   getMyLabResults: protectedProcedure
     .input(z.object({ experimentId: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      const results = await dbRoleAware.getUserLabResults(ctx, ctx.user.numericId, input.experimentId);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const results = await ctx.learningDb.getUserLabResults(ctx.user.numericId, input.experimentId);
       return results;
     }),
 
   // Get user's science progress
   getMyProgress: protectedProcedure.query(async ({ ctx }) => {
-    let progress = await dbRoleAware.getScienceProgress(ctx, ctx.user.numericId);
+    if (!ctx.learningDb) throw new Error("Learning adapter not available");
+    let progress = await ctx.learningDb.getScienceProgress(ctx.user.numericId);
     if (!progress) {
-      await dbRoleAware.initializeScienceProgress(ctx, ctx.user.numericId);
-      progress = await dbRoleAware.getScienceProgress(ctx, ctx.user.numericId);
+      await ctx.learningDb.initializeScienceProgress(ctx.user.numericId);
+      progress = await ctx.learningDb.getScienceProgress(ctx.user.numericId);
     }
     return progress;
   }),
@@ -259,7 +264,7 @@ Format as JSON:
         }
         /* LLM generation disabled due to json_schema compatibility issues
         if (questions.length === 0) {
-        const experiment = await dbRoleAware.getExperimentById(ctx, input.experimentId);
+        const experiment = await ctx.learningDb.getExperimentById(input.experimentId);
         if (!experiment) throw new Error("Experiment not found");
 
         const prompt = `Generate 6 multiple-choice quiz questions for a pre-lab quiz about the following science experiment:
@@ -345,6 +350,7 @@ Format as JSON array with structure:
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const { getLabQuizQuestions, saveLabQuizAttempt } = await import("./db");
       
       const questions = await getLabQuizQuestions(input.experimentId);
@@ -386,6 +392,7 @@ Format as JSON array with structure:
   hasPassedQuiz: protectedProcedure
     .input(z.object({ experimentId: z.number() }))
     .query(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const { hasPassedLabQuiz } = await import("./db");
       const passed = await hasPassedLabQuiz(ctx.user.numericId, input.experimentId);
       return { passed };

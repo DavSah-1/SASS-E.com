@@ -5629,3 +5629,23 @@
 - [ ] Run IoT tests
 - [ ] Verify adapter pattern works for all 5 domains
 - [ ] Create checkpoint
+
+
+## Learning Router Migration to Adapter Pattern
+
+### Phase 1: Identify Missing Methods
+- [ ] Analyze all 4 learning routers for required adapter methods
+- [ ] Add missing methods to LearningAdapter interface
+- [ ] Implement missing methods in MysqlLearningAdapter
+- [ ] Implement missing methods in SupabaseLearningAdapter
+
+### Phase 2: Migrate Learning Routers
+- [x] Migrate languageLearningRouter.ts (23 dbRoleAware calls)
+- [x] Migrate topicRouter.ts (19 dbRoleAware calls)
+- [x] Migrate mathRouter.ts (13 dbRoleAware calls)
+- [x] Migrate scienceRouter.ts (13 dbRoleAware calls)
+
+### Phase 3: Testing
+- [ ] Run full test suite
+- [ ] Verify 0 TypeScript errors
+- [ ] Create checkpoint

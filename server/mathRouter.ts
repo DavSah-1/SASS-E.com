@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import * as dbRoleAware from "./dbRoleAware";
+// import * as dbRoleAware from "./dbRoleAware"; // Replaced by adapter pattern
 import { invokeLLM } from "./_core/llm";
 
 /**
@@ -19,6 +19,7 @@ export const mathRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Use LLM to generate step-by-step solution with SASS-E personality
@@ -106,7 +107,7 @@ Format your response as JSON with this structure:
         const solutionData = JSON.parse(contentStr);
 
         // Save solution to database
-        const solutionId = await dbRoleAware.saveMathSolution(ctx, {
+        const solutionId = await ctx.learningDb.saveMathSolution({
           userId,
           problemId: null, // Custom problem
           problemText: input.problemText,
@@ -118,14 +119,14 @@ Format your response as JSON with this structure:
         });
 
         // Update user progress
-        const progress = await dbRoleAware.getMathProgress(ctx, userId);
+        const progress = await ctx.learningDb.getMathProgress(userId);
         if (progress) {
           const topicsExplored = JSON.parse(progress.topicsExplored || "[]");
           if (input.topic && !topicsExplored.includes(input.topic)) {
             topicsExplored.push(input.topic);
           }
 
-          await dbRoleAware.updateMathProgress(ctx, userId, input.topic || 'general', {
+          await ctx.learningDb.updateMathProgress(userId, {
             totalProblemsAttempted: progress.totalProblemsAttempted + 1,
             topicsExplored,
             lastPracticeDate: new Date(),
@@ -154,7 +155,8 @@ Format your response as JSON with this structure:
       })
     )
     .query(async ({ ctx, input }) => {
-      const problems = await dbRoleAware.getMathProblems(ctx, input.topic ?? undefined, input.difficulty, input.limit);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const problems = await ctx.learningDb.getMathProblems(input.topic ?? undefined, input.difficulty, input.limit);
       return problems;
     }),
 
@@ -164,7 +166,8 @@ Format your response as JSON with this structure:
   getProblem: protectedProcedure
     .input(z.object({ problemId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const problem = await dbRoleAware.getMathProblem(ctx, input.problemId);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const problem = await ctx.learningDb.getMathProblem(input.problemId);
       return problem;
     }),
 
@@ -180,12 +183,13 @@ Format your response as JSON with this structure:
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Get problem details if problemId provided
       let correctAnswer = null;
       if (input.problemId) {
-        const problem = await dbRoleAware.getMathProblem(ctx, input.problemId);
+        const problem = await ctx.learningDb.getMathProblem(input.problemId);
         correctAnswer = problem?.answer || null;
       }
 
@@ -238,7 +242,7 @@ Is the student's answer correct?`;
         const checkResult = JSON.parse(contentStr);
 
         // Save solution attempt
-        await dbRoleAware.saveMathSolution(ctx, {
+        await ctx.learningDb.saveMathSolution({
           userId,
           problemId: input.problemId || null,
           problemText: input.problemText,
@@ -250,10 +254,9 @@ Is the student's answer correct?`;
         });
 
         // Update progress
-        const progress = await dbRoleAware.getMathProgress(ctx, userId);
+        const progress = await ctx.learningDb.getMathProgress(userId);
         if (progress) {
-          await dbRoleAware.updateMathProgress(ctx, userId, 'general', {
-            totalProblemsAttempted: progress.totalProblemsAttempted + 1,
+        await ctx.learningDb.updateMathProgress(userId, {totalProblemsAttempted: progress.totalProblemsAttempted + 1,
             totalProblemsSolved: checkResult.isCorrect
               ? progress.totalProblemsSolved + 1
               : progress.totalProblemsSolved,
@@ -274,7 +277,8 @@ Is the student's answer correct?`;
   getSolutionHistory: protectedProcedure
     .input(z.object({ limit: z.number().default(20) }))
     .query(async ({ ctx, input }) => {
-      const solutions = await dbRoleAware.getUserMathSolutions(ctx, ctx.user.numericId, input.limit);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const solutions = await ctx.learningDb.getUserMathSolutions(ctx.user.numericId, input.limit);
       return solutions;
     }),
 
@@ -282,7 +286,8 @@ Is the student's answer correct?`;
    * Get user's math progress
    */
   getProgress: protectedProcedure.query(async ({ ctx }) => {
-    const progress = await dbRoleAware.getMathProgress(ctx, ctx.user.numericId);
+    if (!ctx.learningDb) throw new Error("Learning adapter not available");
+    const progress = await ctx.learningDb.getMathProgress(ctx.user.numericId);
     return progress;
   }),
 
@@ -298,6 +303,7 @@ Is the student's answer correct?`;
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       // Use LLM to generate practice problems
       const systemPrompt = `You are SASS-E, a math tutor generating practice problems.
 Create ${input.count} ${input.difficulty} level problems for the topic: ${input.topic}
@@ -363,7 +369,7 @@ Format your response as JSON:
         // Save problems to database
         const savedProblems = [];
         for (const problem of generatedData.problems) {
-          const problemId = await dbRoleAware.saveMathProblem(ctx, {
+          const problemId = await ctx.learningDb.saveMathProblem({
             topic: input.topic,
             subtopic: null,
             difficulty: input.difficulty,

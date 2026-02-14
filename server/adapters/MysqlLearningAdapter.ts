@@ -106,10 +106,74 @@ export class MysqlLearningAdapter implements LearningAdapter {
   }
 
   async saveExerciseAttempt(attempt: any): Promise<number> {
-    return db.saveExerciseAttempt(attempt);
+    const result = await db.saveExerciseAttempt(attempt);
+    return typeof result === 'number' ? result : 0;
   }
 
   async getUserAchievements(userId: number, language?: string): Promise<any[]> {
-    return db.getUserAchievements(userId, language);
+    return db.getUserAchievements(userId, language || '');
+  }
+
+  async updateTopicProgress(userId: number, topicName: string, category: string, updates: any): Promise<void> {
+    await db.updateTopicProgress(userId, topicName, category, updates);
+  }
+
+  async savePracticeSession(session: any): Promise<void> {
+    await db.savePracticeSession(session);
+  }
+
+  async saveQuizResult(result: any): Promise<void> {
+    await db.saveQuizResult(result);
+  }
+
+  async getQuizResults(userId: number, topicName: string, category: string, limit?: number): Promise<any[]> {
+    return db.getQuizResults(userId, topicName, category);
+  }
+
+  async getPracticeSessions(userId: number, topicName: string, category: string, limit?: number): Promise<any[]> {
+    return db.getPracticeSessions(userId, topicName, category);
+  }
+
+  async getMathProblems(topic?: string, difficulty?: string, limit?: number): Promise<any[]> {
+    return db.getMathProblems(topic, difficulty, limit);
+  }
+
+  async getMathProblem(problemId: number): Promise<any | undefined> {
+    return db.getMathProblem(problemId);
+  }
+
+  async saveMathProblem(problem: any): Promise<number> {
+    const result = await db.saveMathProblem(problem);
+    return typeof result === 'number' ? result : 0;
+  }
+
+  async saveMathSolution(solution: any): Promise<number> {
+    const result = await db.saveMathSolution(solution);
+    return typeof result === 'number' ? result : 0;
+  }
+
+  async getUserMathSolutions(userId: number, limit?: number): Promise<any[]> {
+    return db.getUserMathSolutions(userId, limit);
+  }
+
+  async getExperiments(filters: any): Promise<any[]> {
+    return db.getExperiments(filters);
+  }
+
+  async getExperimentById(experimentId: number): Promise<any | undefined> {
+    return db.getExperimentById(experimentId);
+  }
+
+  async getExperimentSteps(experimentId: number): Promise<any[]> {
+    return db.getExperimentSteps(experimentId);
+  }
+
+  async saveLabResult(result: any): Promise<number> {
+    const resultId = await db.saveLabResult(result);
+    return typeof resultId === 'number' ? resultId : 0;
+  }
+
+  async getUserLabResults(userId: number, experimentId?: number): Promise<any[]> {
+    return db.getUserLabResults(userId, experimentId);
   }
 }

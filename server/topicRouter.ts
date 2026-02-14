@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import * as dbRoleAware from "./dbRoleAware";
+// import * as dbRoleAware from "./dbRoleAware"; // Replaced by adapter pattern
 import { invokeLLM } from "./_core/llm";
 
 /**
@@ -18,10 +18,11 @@ export const topicRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Get or create progress
-      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
+      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
 
       // Generate lesson content using LLM
       const systemPrompt = `You are SASS-E (Synthetic Adaptive Synaptic System - Entity), a witty and clever math tutor for young learners.
@@ -123,7 +124,7 @@ Format your response as JSON:
 
         // Update progress to "learning" status
         if (progress && progress.status === "not_started") {
-          await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
+          await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
             status: "learning",
           });
         }
@@ -149,9 +150,10 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
-      await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
+      await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
         lessonCompleted: 1,
         status: "practicing",
       });
@@ -171,10 +173,11 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Get current progress
-      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
+      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
 
       const systemPrompt = `You are SASS-E, creating practice problems for "${input.topicName}" for Pre-K to Grade 2 students.
 
@@ -264,6 +267,7 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Simple answer checking (can be enhanced with LLM for more flexible matching)
@@ -271,9 +275,9 @@ Format your response as JSON:
         input.userAnswer.trim().toLowerCase() === input.correctAnswer.trim().toLowerCase();
 
       // Update practice count
-      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
+      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
       if (progress) {
-        await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
+        await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
           practiceCount: progress.practiceCount + 1,
         });
       }
@@ -302,12 +306,13 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       const accuracy = Math.round((input.problemsCorrect / input.problemsSolved) * 100);
 
       // Save practice session
-      await dbRoleAware.savePracticeSession(ctx, {
+      await ctx.learningDb.savePracticeSession({
         userId,
         topicName: input.topicName,
         category: input.category,
@@ -319,7 +324,7 @@ Format your response as JSON:
       });
 
       // Update progress
-      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
+      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
       if (progress) {
         // Calculate new mastery level based on practice performance
         const newMastery = Math.min(
@@ -327,7 +332,7 @@ Format your response as JSON:
           Math.round((progress.masteryLevel + accuracy) / 2)
         );
 
-        await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
+        await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
           masteryLevel: newMastery,
         });
       }
@@ -353,6 +358,7 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       const systemPrompt = `You are SASS-E, creating a quiz for "${input.topicName}" for Pre-K to Grade 2 students.
@@ -450,6 +456,7 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       const totalQuestions = input.answers.length;
@@ -462,7 +469,7 @@ Format your response as JSON:
         .map((a) => a.question.substring(0, 50));
 
       // Save quiz result
-      await dbRoleAware.saveQuizResult(ctx, {
+      await ctx.learningDb.saveQuizResult({
         userId,
         topicName: input.topicName,
         category: input.category,
@@ -476,13 +483,13 @@ Format your response as JSON:
       });
 
       // Update progress
-      const progress = await dbRoleAware.getTopicProgress(ctx, userId, input.topicName, input.category);
+      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
       if (progress) {
         const newQuizzesTaken = progress.quizzesTaken + 1;
         const newBestScore = Math.max(progress.bestQuizScore, score);
         const newMasteryLevel = Math.min(100, Math.round((progress.masteryLevel + score) / 2));
 
-        await dbRoleAware.updateTopicProgress(ctx, userId, input.topicName, input.category, {
+        await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
           quizzesTaken: newQuizzesTaken,
           bestQuizScore: newBestScore,
           masteryLevel: newMasteryLevel,
@@ -518,7 +525,8 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const progress = await dbRoleAware.getTopicProgress(ctx, ctx.user.numericId, input.topicName, input.category);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const progress = await ctx.learningDb.getTopicProgress(ctx.user.numericId, input.topicName, input.category);
       return progress;
     }),
 
@@ -532,7 +540,8 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const progressList = await dbRoleAware.getCategoryProgress(ctx, ctx.user.numericId, input.category);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const progressList = await ctx.learningDb.getCategoryProgress(ctx.user.numericId, input.category);
       return progressList;
     }),
 
@@ -547,7 +556,8 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const results = await dbRoleAware.getQuizResults(ctx, ctx.user.numericId, input.topicName, input.category);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const results = await ctx.learningDb.getQuizResults(ctx.user.numericId, input.topicName, input.category);
       return results;
     }),
 
@@ -562,7 +572,8 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const sessions = await dbRoleAware.getPracticeSessions(ctx, ctx.user.numericId, input.topicName, input.category);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const sessions = await ctx.learningDb.getPracticeSessions(ctx.user.numericId, input.topicName, input.category);
       return sessions;
     }),
 });

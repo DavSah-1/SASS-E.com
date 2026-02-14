@@ -51,4 +51,25 @@ export interface LearningAdapter {
   
   // Achievements
   getUserAchievements(userId: number, language?: string): Promise<any[]>;
+  
+  // Topic Progress Updates
+  updateTopicProgress(userId: number, topicName: string, category: string, updates: any): Promise<void>;
+  savePracticeSession(session: any): Promise<void>;
+  saveQuizResult(result: any): Promise<void>;
+  getQuizResults(userId: number, topicName: string, category: string, limit?: number): Promise<any[]>;
+  getPracticeSessions(userId: number, topicName: string, category: string, limit?: number): Promise<any[]>;
+  
+  // Math Operations
+  getMathProblems(topic?: string, difficulty?: string, limit?: number): Promise<any[]>;
+  getMathProblem(problemId: number): Promise<any | undefined>;
+  saveMathProblem(problem: any): Promise<number>;
+  saveMathSolution(solution: any): Promise<number>;
+  getUserMathSolutions(userId: number, limit?: number): Promise<any[]>;
+  
+  // Science Operations
+  getExperiments(filters: any): Promise<any[]>;
+  getExperimentById(experimentId: number): Promise<any | undefined>;
+  getExperimentSteps(experimentId: number): Promise<any[]>;
+  saveLabResult(result: any): Promise<number>;
+  getUserLabResults(userId: number, experimentId?: number): Promise<any[]>;
 }

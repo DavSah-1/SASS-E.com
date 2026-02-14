@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import * as dbRoleAware from "./dbRoleAware";
+// import * as dbRoleAware from "./dbRoleAware"; // Replaced by adapter pattern
 import { invokeLLM } from "./_core/llm";
 
 /**
@@ -16,7 +16,9 @@ export const languageLearningRouter = router({
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      const progress = await dbRoleAware.getUserLanguageProgress(ctx, ctx.user.numericId, input.language);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const progress = await ctx.learningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
       
       if (!progress) {
         // Initialize progress for new language
@@ -35,7 +37,7 @@ export const languageLearningRouter = router({
           dailyGoal: 15,
         };
         
-        await dbRoleAware.upsertUserLanguageProgress(ctx, newProgress);
+        await ctx.learningDb.upsertUserLanguageProgress(newProgress);
         return newProgress;
       }
       
@@ -52,8 +54,9 @@ export const languageLearningRouter = router({
       limit: z.number().default(20),
     }))
     .query(async ({ ctx, input }) => {
-      const items = await dbRoleAware.getVocabularyItems(ctx, input.language, input.difficulty, input.limit);
-      const userProgress = await dbRoleAware.getUserVocabularyProgress(ctx, ctx.user.numericId, input.language);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const items = await ctx.learningDb.getVocabularyItems(input.language, input.difficulty, input.limit);
+      const userProgress = await ctx.learningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
       
       // Merge vocabulary items with user progress
       const flashcards = items.map(item => {
@@ -81,8 +84,9 @@ export const languageLearningRouter = router({
       timeSpent: z.number(), // seconds
     }))
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       // Get existing progress
-      const existingProgress = await dbRoleAware.getUserVocabularyProgress(ctx, ctx.user.numericId, input.language);
+      const existingProgress = await ctx.learningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
       const itemProgress = existingProgress.find(p => p.vocabularyItemId === input.vocabularyItemId);
       
       // Calculate new mastery level
@@ -99,7 +103,7 @@ export const languageLearningRouter = router({
       const intervalDays = input.isCorrect ? Math.min(30, Math.pow(2, Math.floor(newMastery / 20))) : 1;
       const nextReview = new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
       
-      await dbRoleAware.saveUserVocabularyProgress(ctx, {
+      await ctx.learningDb.saveUserVocabularyProgress({
         userId: ctx.user.numericId,
         vocabularyItemId: input.vocabularyItemId,
         language: input.language,
@@ -112,12 +116,12 @@ export const languageLearningRouter = router({
       });
       
       // Update overall language progress
-      const overallProgress = await dbRoleAware.getUserLanguageProgress(ctx, ctx.user.numericId, input.language);
+      const overallProgress = await ctx.learningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
       if (overallProgress) {
-        const allProgress = await dbRoleAware.getUserVocabularyProgress(ctx, ctx.user.numericId, input.language);
+        const allProgress = await ctx.learningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
         const vocabularySize = allProgress.filter(p => p.masteryLevel >= 70).length;
         
-        await dbRoleAware.upsertUserLanguageProgress(ctx, {
+        await ctx.learningDb.upsertUserLanguageProgress({
           ...overallProgress,
           vocabularySize,
           lastStudied: now,
@@ -142,8 +146,9 @@ export const languageLearningRouter = router({
       difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
     }))
     .query(async ({ ctx, input }) => {
-      const lessons = await dbRoleAware.getGrammarLessons(ctx, input.language, input.difficulty);
-      const userProgress = await dbRoleAware.getUserGrammarProgress(ctx, ctx.user.numericId, input.language);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const lessons = await ctx.learningDb.getGrammarLessons(input.language, input.difficulty);
+      const userProgress = await ctx.learningDb.getUserGrammarProgress(ctx.user.numericId, input.language);
       
       // Merge lessons with user progress
       const lessonsWithProgress = lessons.map(lesson => {
@@ -170,6 +175,7 @@ export const languageLearningRouter = router({
       userLevel: z.enum(["beginner", "intermediate", "advanced"]),
     }))
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const prompt = `You are Agent Bob, a sarcastic but brilliant language teacher. Explain the grammar topic "${input.topic}" in ${input.language} for a ${input.userLevel} learner.
 
 Your explanation should:
@@ -246,7 +252,8 @@ Format your response as JSON with this structure:
       limit: z.number().default(10),
     }))
     .query(async ({ ctx, input }) => {
-      const exercises = await dbRoleAware.getLanguageExercises(ctx, 
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const exercises = await ctx.learningDb.getLanguageExercises(
         input.language,
         input.exerciseType,
         input.difficulty
@@ -267,6 +274,7 @@ Format your response as JSON with this structure:
       count: z.number().min(1).max(10).default(5),
     }))
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const prompt = `Generate ${input.count} ${input.exerciseType} exercises in ${input.language} for ${input.difficulty} learners on the topic: ${input.topic}.
 
 For each exercise:
@@ -342,8 +350,9 @@ Format as JSON array with this structure:
       timeSpent: z.number(), // seconds
     }))
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       // Get the exercise to check the answer
-      const exercises = await dbRoleAware.getLanguageExercises(ctx, input.language);
+      const exercises = await ctx.learningDb.getLanguageExercises(input.language);
       const exercise = exercises.find(e => e.id === input.exerciseId);
       
       if (!exercise) {
@@ -354,7 +363,7 @@ Format as JSON array with this structure:
       const isCorrect = input.userAnswer.trim().toLowerCase() === exercise.correctAnswer.trim().toLowerCase();
       
       // Save attempt
-      await dbRoleAware.saveExerciseAttempt(ctx, {
+      await ctx.learningDb.saveExerciseAttempt({
         userId: ctx.user.numericId,
         exerciseId: input.exerciseId,
         language: input.language,
@@ -365,9 +374,9 @@ Format as JSON array with this structure:
       });
       
       // Update overall progress
-      const progress = await dbRoleAware.getUserLanguageProgress(ctx, ctx.user.numericId, input.language);
+      const progress = await ctx.learningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
       if (progress) {
-        await dbRoleAware.upsertUserLanguageProgress(ctx, {
+        await ctx.learningDb.upsertUserLanguageProgress({
           ...progress,
           exercisesCompleted: progress.exercisesCompleted + 1,
           lastStudied: new Date(),
@@ -392,11 +401,12 @@ Format as JSON array with this structure:
       language: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
       // Check if lesson already exists for today
-      const existingLesson = await dbRoleAware.getDailyLesson(ctx, ctx.user.numericId, input.language, today);
+      const existingLesson = await ctx.learningDb.getDailyLesson(ctx.user.numericId, input.language, today);
       
       if (existingLesson) {
         return {
@@ -408,19 +418,19 @@ Format as JSON array with this structure:
       }
       
       // Generate new daily lesson
-      const userProgress = await dbRoleAware.getUserLanguageProgress(ctx, ctx.user.numericId, input.language);
+      const userProgress = await ctx.learningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
       const difficulty = userProgress?.level || "beginner";
       
       // Get vocabulary items for review (spaced repetition)
-      const vocabItems = await dbRoleAware.getVocabularyItems(ctx, input.language, difficulty, 10);
+      const vocabItems = await ctx.learningDb.getVocabularyItems(input.language, difficulty, 10);
       const vocabIds = vocabItems.map(v => v.id);
       
       // Get exercises
-      const exercises = await dbRoleAware.getLanguageExercises(ctx, input.language, undefined, difficulty);
+      const exercises = await ctx.learningDb.getLanguageExercises(input.language, undefined, difficulty);
       const exerciseIds = exercises.map(e => e.id);
       
       // Save daily lesson
-      await dbRoleAware.saveDailyLesson(ctx, {
+      await ctx.learningDb.saveDailyLesson({
         userId: ctx.user.numericId,
         language: input.language,
         lessonDate: today,
@@ -446,7 +456,8 @@ Format as JSON array with this structure:
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      const achievements = await dbRoleAware.getUserAchievements(ctx, ctx.user.numericId, input.language);
+      if (!ctx.learningDb) throw new Error("Learning adapter not available");
+      const achievements = await ctx.learningDb.getUserAchievements(ctx.user.numericId, input.language);
       return achievements;
     }),
 

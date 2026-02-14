@@ -550,4 +550,241 @@ export class SupabaseLearningAdapter implements LearningAdapter {
     if (error) throw new Error(`Supabase getUserAchievements error: ${error.message}`);
     return data || [];
   }
+
+  async updateTopicProgress(userId: number, topicName: string, category: string, updates: any): Promise<void> {
+    const supabase = await this.getClient();
+    const supabaseData: any = {
+      user_id: this.userId,
+      topic_name: topicName,
+      category: category,
+      last_accessed: new Date().toISOString(),
+    };
+    if (updates.status !== undefined) supabaseData.status = updates.status;
+    if (updates.lessonCompleted !== undefined) supabaseData.lesson_completed = updates.lessonCompleted;
+    if (updates.practiceCount !== undefined) supabaseData.practice_count = updates.practiceCount;
+    if (updates.quizzesTaken !== undefined) supabaseData.quizzes_taken = updates.quizzesTaken;
+    if (updates.bestQuizScore !== undefined) supabaseData.best_quiz_score = updates.bestQuizScore;
+    if (updates.masteryLevel !== undefined) supabaseData.mastery_level = updates.masteryLevel;
+    
+    const { error } = await supabase
+      .from('topic_progress')
+      .upsert(supabaseData, { onConflict: 'user_id,topic_name,category' });
+    
+    if (error) throw new Error(`Supabase updateTopicProgress error: ${error.message}`);
+  }
+
+  async savePracticeSession(session: any): Promise<void> {
+    const supabase = await this.getClient();
+    const { error } = await supabase
+      .from('practice_sessions')
+      .insert({
+        ...session,
+        user_id: this.userId,
+        session_date: new Date(),
+      });
+    
+    if (error) throw new Error(`Supabase savePracticeSession error: ${error.message}`);
+  }
+
+  async saveQuizResult(result: any): Promise<void> {
+    const supabase = await this.getClient();
+    const { error } = await supabase
+      .from('quiz_results')
+      .insert({
+        user_id: this.userId,
+        topic_id: result.topicName,
+        score: result.score,
+        total_questions: result.totalQuestions,
+        answers: result.answers ? JSON.stringify(result.answers) : null,
+        created_at: new Date(),
+      });
+    
+    if (error) throw new Error(`Supabase saveQuizResult error: ${error.message}`);
+  }
+
+  async getQuizResults(userId: number, topicName: string, category: string, limit?: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('quiz_results')
+      .select('*')
+      .eq('user_id', this.userId)
+      .eq('topic_name', topicName)
+      .eq('category', category)
+      .order('completed_at', { ascending: false });
+    
+    if (limit) query = query.limit(limit);
+    
+    const { data, error } = await query;
+    if (error) throw new Error(`Supabase getQuizResults error: ${error.message}`);
+    return data || [];
+  }
+
+  async getPracticeSessions(userId: number, topicName: string, category: string, limit?: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('practice_sessions')
+      .select('*')
+      .eq('user_id', this.userId)
+      .eq('topic_name', topicName)
+      .eq('category', category)
+      .order('session_date', { ascending: false });
+    
+    if (limit) query = query.limit(limit);
+    
+    const { data, error } = await query;
+    if (error) throw new Error(`Supabase getPracticeSessions error: ${error.message}`);
+    return data || [];
+  }
+
+  async getMathProblems(topic?: string, difficulty?: string, limit: number = 10): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase.from('math_problems').select('*');
+    
+    if (difficulty) query = query.eq('difficulty', difficulty);
+    
+    const { data, error } = await query
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (error) throw new Error(`Supabase getMathProblems error: ${error.message}`);
+    return data || [];
+  }
+
+  async getMathProblem(problemId: number): Promise<any | undefined> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('math_problems')
+      .select('*')
+      .eq('id', problemId)
+      .maybeSingle();
+    
+    if (error) throw new Error(`Supabase getMathProblem error: ${error.message}`);
+    return data;
+  }
+
+  async saveMathProblem(problem: any): Promise<number> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('math_problems')
+      .insert({
+        topic: problem.topic,
+        difficulty: problem.difficulty,
+        problem_text: problem.problemText,
+        solution: problem.solution,
+        hints: problem.hints,
+        created_at: problem.createdAt || new Date(),
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Supabase saveMathProblem error: ${error.message}`);
+    return data?.id || 0;
+  }
+
+  async saveMathSolution(solution: any): Promise<number> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('math_solutions')
+      .insert({
+        user_id: this.userId,
+        problem_id: solution.problemId,
+        user_solution: solution.userSolution,
+        is_correct: solution.isCorrect,
+        feedback: solution.feedback,
+        submitted_at: solution.submittedAt || new Date(),
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Supabase saveMathSolution error: ${error.message}`);
+    return data?.id || 0;
+  }
+
+  async getUserMathSolutions(userId: number, limit: number = 20): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('math_solutions')
+      .select(`
+        *,
+        math_problems(*)
+      `)
+      .eq('user_id', this.userId)
+      .order('submitted_at', { ascending: false })
+      .limit(limit);
+    
+    if (error) throw new Error(`Supabase getUserMathSolutions error: ${error.message}`);
+    return data || [];
+  }
+
+  async getExperiments(filters: any): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase.from('experiments').select('*');
+    
+    if (filters?.category) query = query.eq('category', filters.category);
+    if (filters?.difficulty) query = query.eq('difficulty', filters.difficulty);
+    if (filters?.limit) query = query.limit(filters.limit);
+    
+    const { data, error } = await query.order('title', { ascending: true });
+    
+    if (error) throw new Error(`Supabase getExperiments error: ${error.message}`);
+    return data || [];
+  }
+
+  async getExperimentById(experimentId: number): Promise<any | undefined> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('experiments')
+      .select('*')
+      .eq('id', experimentId)
+      .maybeSingle();
+    
+    if (error) throw new Error(`Supabase getExperimentById error: ${error.message}`);
+    return data;
+  }
+
+  async getExperimentSteps(experimentId: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('experiment_steps')
+      .select('*')
+      .eq('experiment_id', experimentId)
+      .order('step_number', { ascending: true });
+    
+    if (error) throw new Error(`Supabase getExperimentSteps error: ${error.message}`);
+    return data || [];
+  }
+
+  async saveLabResult(result: any): Promise<number> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('user_lab_results')
+      .insert({
+        user_id: this.userId,
+        experiment_id: result.experimentId,
+        observations: result.observations,
+        conclusion: result.conclusion,
+        score: result.score,
+        completed_at: result.completedAt || new Date(),
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Supabase saveLabResult error: ${error.message}`);
+    return data?.id || 0;
+  }
+
+  async getUserLabResults(userId: number, experimentId?: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('user_lab_results')
+      .select('*')
+      .eq('user_id', this.userId);
+    
+    if (experimentId) query = query.eq('experiment_id', experimentId);
+    
+    const { data, error } = await query.order('completed_at', { ascending: false });
+    
+    if (error) throw new Error(`Supabase getUserLabResults error: ${error.message}`);
+    return data || [];
+  }
 }
