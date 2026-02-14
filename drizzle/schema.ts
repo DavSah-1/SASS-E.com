@@ -978,6 +978,7 @@ export type InsertUserBudgetTemplate = typeof userBudgetTemplates.$inferInsert;
 export const notificationPreferences = mysqlTable("notification_preferences", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),
+  // Budget & Finance Notifications
   budgetAlertsEnabled: int("budgetAlertsEnabled").default(1).notNull(), // 1 to receive budget alerts
   threshold80Enabled: int("threshold80Enabled").default(1).notNull(), // Alert at 80% of limit
   threshold100Enabled: int("threshold100Enabled").default(1).notNull(), // Alert at 100% of limit
@@ -986,6 +987,19 @@ export const notificationPreferences = mysqlTable("notification_preferences", {
   monthlySummaryEnabled: int("monthlySummaryEnabled").default(1).notNull(), // Monthly budget report
   insightsEnabled: int("insightsEnabled").default(1).notNull(), // AI-generated insights
   recurringAlertsEnabled: int("recurringAlertsEnabled").default(1).notNull(), // Recurring transaction reminders
+  // Debt Management Notifications
+  debtMilestonesEnabled: int("debtMilestonesEnabled").default(1).notNull(), // Debt payoff milestones
+  debtPaymentRemindersEnabled: int("debtPaymentRemindersEnabled").default(1).notNull(), // Payment due reminders
+  debtStrategyUpdatesEnabled: int("debtStrategyUpdatesEnabled").default(1).notNull(), // Strategy recommendations
+  // Learning & Education Notifications
+  learningAchievementsEnabled: int("learningAchievementsEnabled").default(1).notNull(), // Learning milestones
+  streakRemindersEnabled: int("streakRemindersEnabled").default(1).notNull(), // Daily practice reminders
+  quizResultsEnabled: int("quizResultsEnabled").default(1).notNull(), // Quiz completion notifications
+  factUpdatesEnabled: int("factUpdatesEnabled").default(1).notNull(), // Verified fact updates
+  // System Notifications
+  systemAlertsEnabled: int("systemAlertsEnabled").default(1).notNull(), // Important system updates
+  securityAlertsEnabled: int("securityAlertsEnabled").default(1).notNull(), // Security-related alerts
+  // Delivery Settings
   notificationMethod: mysqlEnum("notificationMethod", ["in_app", "push", "both"]).default("both").notNull(),
   quietHoursStart: int("quietHoursStart"), // Hour (0-23) to start quiet period
   quietHoursEnd: int("quietHoursEnd"), // Hour (0-23) to end quiet period
@@ -995,6 +1009,28 @@ export const notificationPreferences = mysqlTable("notification_preferences", {
 
 export type NotificationPreference = typeof notificationPreferences.$inferSelect;
 export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+
+/**
+ * Push Subscriptions table - store web push notification subscriptions
+ */
+export const pushSubscriptions = mysqlTable("push_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  endpoint: text("endpoint").notNull(), // Push service endpoint URL
+  p256dh: text("p256dh").notNull(), // Public key for encryption
+  auth: text("auth").notNull(), // Authentication secret
+  userAgent: text("userAgent"), // Browser/device info
+  isActive: int("isActive").default(1).notNull(), // 1 if subscription is active
+  lastUsed: timestamp("lastUsed"), // Last successful push
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("idx_push_subscriptions_userId").on(table.userId),
+  endpointIdx: uniqueIndex("idx_push_subscriptions_endpoint").on(table.endpoint),
+}));
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
 
 /**
  * Recurring Transactions table - detected patterns and subscriptions
@@ -1570,15 +1606,34 @@ export const factUpdateNotifications = mysqlTable("fact_update_notifications", {
   oldVersion: text("oldVersion").notNull(), // JSON snapshot
   newVersion: text("newVersion").notNull(), // JSON snapshot
   // Notification metadata
+  notificationType: mysqlEnum("notificationType", [
+    "fact_update",
+    "debt_milestone",
+    "debt_payment_reminder",
+    "debt_strategy_update",
+    "learning_achievement",
+    "streak_reminder",
+    "quiz_result",
+    "budget_alert",
+    "system_alert",
+    "security_alert"
+  ]).default("fact_update").notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message").notNull(),
+  // Batching metadata
+  batchKey: varchar("batchKey", { length: 255 }), // Group notifications by this key (e.g., "debt_milestone_2024-02-14")
+  batchCount: int("batchCount").default(1).notNull(), // Number of notifications in this batch
   // User interaction
   isRead: int("isRead").default(0).notNull(),
   readAt: timestamp("readAt"),
   isDismissed: int("isDismissed").default(0).notNull(),
   dismissedAt: timestamp("dismissedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  userIdIdx: index("idx_fact_update_notifications_userId").on(table.userId),
+  batchKeyIdx: index("idx_fact_update_notifications_batchKey").on(table.batchKey),
+  typeIdx: index("idx_fact_update_notifications_type").on(table.notificationType),
+}));
 
 export type FactUpdateNotification = typeof factUpdateNotifications.$inferSelect;
 export type InsertFactUpdateNotification = typeof factUpdateNotifications.$inferInsert;

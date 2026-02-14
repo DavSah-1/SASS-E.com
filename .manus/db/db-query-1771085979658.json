@@ -1,0 +1,9 @@
+{
+  "query": "CREATE INDEX idx_fact_update_notifications_batchKey ON fact_update_notifications(batchKey);\nCREATE INDEX idx_fact_update_notifications_type ON fact_update_notifications(notificationType);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute CREATE INDEX idx_fact_update_notifications_batchKey ON fact_update_notifications(batchKey);\nCREATE INDEX idx_fact_update_notifications_type ON fact_update_notifications(notificationType);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1140
+}

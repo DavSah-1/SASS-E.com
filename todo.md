@@ -5379,3 +5379,36 @@
 - [ ] Remove parseInt calls since comparing string openIds now
 - [ ] Run RLS tests to verify all 19 tests pass
 - [ ] Verify test pass rate improves to ~90%
+
+
+## Notification System Enhancements
+### Database Schema
+- [x] Create notification_preferences table (user settings for notification types)
+- [x] Create push_subscriptions table (store web push subscription data)
+- [x] Add notification_type enum (debt_milestone, learning_achievement, system_alert, etc.)
+- [x] Add batching metadata to notifications table
+
+### Backend Implementation
+- [x] Add notification preferences CRUD procedures
+- [ ] Implement notification batching logic (group by type and time window)
+- [ ] Integrate web-push library for push notifications
+- [ ] Add push subscription registration endpoint
+- [ ] Add push notification sending procedure
+- [ ] Update notification creation to check user preferences
+- [ ] Add batch notification retrieval endpoint
+
+### Frontend Implementation
+- [ ] Create notification preferences settings page
+- [ ] Build notification type toggles UI
+- [ ] Implement push notification permission request flow
+- [ ] Add service worker for push notification handling
+- [ ] Create notification batching display component
+- [ ] Add "Enable Push Notifications" button
+- [ ] Show grouped notifications in notification center
+
+### Features
+- [ ] User can enable/disable specific notification types
+- [ ] Notifications are batched by type (e.g., "3 new debt milestones")
+- [ ] Push notifications work when app is closed
+- [ ] User can manage push subscriptions across devices
+- [ ] Notification preferences sync across sessions

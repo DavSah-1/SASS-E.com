@@ -2720,6 +2720,55 @@ export async function getUnreadNotificationCount(userId: number): Promise<number
   return notifications.length;
 }
 
+import { notificationPreferences } from "../drizzle/schema";
+
+/**
+ * Get user's notification preferences
+ */
+export async function getNotificationPreferences(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const prefs = await db
+    .select()
+    .from(notificationPreferences)
+    .where(eq(notificationPreferences.userId, userId))
+    .limit(1);
+  
+  return prefs.length > 0 ? prefs[0] : null;
+}
+
+/**
+ * Update user's notification preferences (creates if doesn't exist)
+ */
+export async function updateNotificationPreferences(userId: number, preferences: any) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  const existing = await getNotificationPreferences(userId);
+  
+  if (existing) {
+    // Update existing preferences
+    await db
+      .update(notificationPreferences)
+      .set({
+        ...preferences,
+        updatedAt: new Date()
+      })
+      .where(eq(notificationPreferences.userId, userId));
+  } else {
+    // Create new preferences
+    await db
+      .insert(notificationPreferences)
+      .values({
+        userId,
+        ...preferences
+      });
+  }
+  
+  return true;
+}
+
 
 // ============================================================================
 // Translation Phrasebook Functions

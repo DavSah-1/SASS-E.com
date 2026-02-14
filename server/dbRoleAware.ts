@@ -3916,6 +3916,69 @@ export async function dismissNotification(
   }
 }
 
+export async function getNotificationPreferences(
+  ctx: DbContext,
+  userId: number
+) {
+  if (ctx.user.role === "admin") {
+    return await db.getNotificationPreferences(userId);
+  } else {
+    const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    const { data, error } = await supabase
+      .from('notification_preferences')
+      .select('*')
+      .eq('user_id', String(ctx.user.id))
+      .maybeSingle();
+    
+    if (error) handleSupabaseError(error, 'getNotificationPreferences');
+    return data;
+  }
+}
+
+export async function updateNotificationPreferences(
+  ctx: DbContext,
+  userId: number,
+  preferences: any
+) {
+  if (ctx.user.role === "admin") {
+    return await db.updateNotificationPreferences(userId, preferences);
+  } else {
+    const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    
+    // Check if preferences exist
+    const { data: existing } = await supabase
+      .from('notification_preferences')
+      .select('id')
+      .eq('user_id', String(ctx.user.id))
+      .maybeSingle();
+    
+    if (existing) {
+      // Update existing
+      const { error } = await supabase
+        .from('notification_preferences')
+        .update({
+          ...preferences,
+          updated_at: new Date()
+        })
+        .eq('user_id', String(ctx.user.id));
+      
+      if (error) handleSupabaseError(error, 'updateNotificationPreferences');
+    } else {
+      // Create new
+      const { error } = await supabase
+        .from('notification_preferences')
+        .insert({
+          user_id: String(ctx.user.id),
+          ...preferences
+        });
+      
+      if (error) handleSupabaseError(error, 'updateNotificationPreferences');
+    }
+    
+    return true;
+  }
+}
+
 export async function createFactUpdateNotifications(
   ctx: DbContext,
   oldFact: any,

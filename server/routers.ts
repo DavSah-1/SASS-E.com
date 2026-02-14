@@ -2783,6 +2783,73 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           return { success: false };
         }
       }),
+    
+    // Get user's notification preferences
+    getPreferences: protectedProcedure.query(async ({ ctx }) => {
+      try {
+        const prefs = await dbRoleAware.getNotificationPreferences(ctx, ctx.user.numericId);
+        return prefs || {
+          // Default preferences if none exist
+          budgetAlertsEnabled: 1,
+          threshold80Enabled: 1,
+          threshold100Enabled: 1,
+          exceededEnabled: 1,
+          weeklySummaryEnabled: 1,
+          monthlySummaryEnabled: 1,
+          insightsEnabled: 1,
+          recurringAlertsEnabled: 1,
+          debtMilestonesEnabled: 1,
+          debtPaymentRemindersEnabled: 1,
+          debtStrategyUpdatesEnabled: 1,
+          learningAchievementsEnabled: 1,
+          streakRemindersEnabled: 1,
+          quizResultsEnabled: 1,
+          factUpdatesEnabled: 1,
+          systemAlertsEnabled: 1,
+          securityAlertsEnabled: 1,
+          notificationMethod: 'both' as const,
+          quietHoursStart: null,
+          quietHoursEnd: null,
+        };
+      } catch (error) {
+        handleError(error, 'Notifications Get Preferences');
+        return null;
+      }
+    }),
+    
+    // Update notification preferences
+    updatePreferences: protectedProcedure
+      .input(z.object({
+        budgetAlertsEnabled: z.number().optional(),
+        threshold80Enabled: z.number().optional(),
+        threshold100Enabled: z.number().optional(),
+        exceededEnabled: z.number().optional(),
+        weeklySummaryEnabled: z.number().optional(),
+        monthlySummaryEnabled: z.number().optional(),
+        insightsEnabled: z.number().optional(),
+        recurringAlertsEnabled: z.number().optional(),
+        debtMilestonesEnabled: z.number().optional(),
+        debtPaymentRemindersEnabled: z.number().optional(),
+        debtStrategyUpdatesEnabled: z.number().optional(),
+        learningAchievementsEnabled: z.number().optional(),
+        streakRemindersEnabled: z.number().optional(),
+        quizResultsEnabled: z.number().optional(),
+        factUpdatesEnabled: z.number().optional(),
+        systemAlertsEnabled: z.number().optional(),
+        securityAlertsEnabled: z.number().optional(),
+        notificationMethod: z.enum(['in_app', 'push', 'both']).optional(),
+        quietHoursStart: z.number().min(0).max(23).nullable().optional(),
+        quietHoursEnd: z.number().min(0).max(23).nullable().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          await dbRoleAware.updateNotificationPreferences(ctx, ctx.user.numericId, input);
+          return { success: true };
+        } catch (error) {
+          handleError(error, 'Notifications Update Preferences');
+          return { success: false };
+        }
+      }),
   }),
 
   translationApp: router({

@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE fact_update_notifications\nADD COLUMN IF NOT EXISTS notificationType ENUM('fact_update', 'debt_milestone', 'debt_payment_reminder', 'debt_strategy_update', 'learning_achievement', 'streak_reminder', 'quiz_result', 'budget_alert', 'system_alert', 'security_alert') DEFAULT 'fact_update' NOT NULL,\nADD COLUMN IF NOT EXISTS batchKey VARCHAR(255),\nADD COLUMN IF NOT EXISTS batchCount INT DEFAULT 1 NOT NULL,\nADD INDEX IF NOT EXISTS idx_fact_update_notifications_batchKey (batchKey),\nADD INDEX IF NOT EXISTS idx_fact_update_notifications_type (notificationType);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute ALTER TABLE fact_update_notifications\nADD COLUMN IF NOT EXISTS notificationType ENUM('fact_update', 'debt_milestone', 'debt_payment_reminder', 'debt_strategy_update', 'learning_achievement', 'streak_reminder', 'quiz_result', 'budget_alert', 'system_alert', 'security_alert') DEFAULT 'fact_update' NOT NULL,\nADD COLUMN IF NOT EXISTS batchKey VARCHAR(255),\nADD COLUMN IF NOT EXISTS batchCount INT DEFAULT 1 NOT NULL,\nADD INDEX IF NOT EXISTS idx_fact_update_notifications_batchKey (batchKey),\nADD INDEX IF NOT EXISTS idx_fact_update_notifications_type (notificationType);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1072 (42000) at line 1: column does not exist: batchKey"
+  ]
+}
