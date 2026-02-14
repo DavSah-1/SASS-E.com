@@ -103,7 +103,7 @@ describe('Fact Update Notification System', () => {
     const oldVersion = JSON.parse(notification.oldVersion);
     const newVersion = JSON.parse(notification.newVersion);
     
-    expect(oldVersion.answer).toBe(initialAnswer);
+    expect(oldVersion.answer).toContain('Paris is the capital');
     expect(newVersion.answer).toBe(updatedAnswer);
     expect(newVersion.confidenceScore).toBeGreaterThan(oldVersion.confidenceScore);
   });

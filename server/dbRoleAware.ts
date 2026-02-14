@@ -1660,20 +1660,28 @@ export async function addDebt(
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     // Always use ctx.user.id for Supabase (RLS policies enforce this)
     const userId = String(ctx.user.id);
+    // Convert cents to dollars for Supabase (MySQL uses cents, Supabase uses dollars)
+    const originalAmount = (debt.originalAmount || debt.originalBalance || debt.balance || debt.currentBalance || 0) / 100;
+    const currentBalance = (debt.currentBalance || debt.balance || 0) / 100;
+    const interestRate = (debt.interestRate || 0) / 100; // Convert basis points to percentage
+    const minimumPayment = (debt.minimumPayment || 0) / 100;
+    
     const { data, error } = await supabase
       .from('debts')
       .insert({
         user_id: userId,
         debt_name: debt.name || debt.debtName, // Support both 'name' and 'debtName'
-        // Note: 'balance' column not in schema cache, using current_balance only
-        original_amount: debt.originalAmount || debt.balance || debt.currentBalance || 0,
-        current_balance: debt.currentBalance || debt.balance || 0,
-        interest_rate: debt.interestRate || 0,
-        minimum_payment: debt.minimumPayment || 0,
+        original_amount: originalAmount,
+        current_balance: currentBalance,
+        interest_rate: interestRate,
+        minimum_payment: minimumPayment,
         due_date: debt.dueDate,
-        due_day: debt.dueDay || 1, // Default due_day if not provided
+        due_day: debt.dueDay || 1,
         debt_type: debt.debtType,
         status: debt.status || 'active',
+        creditor: debt.creditor,
+        account_number: debt.accountNumber,
+        notes: debt.notes,
         created_at: debt.createdAt || new Date(),
       })
       .select()
@@ -1699,32 +1707,32 @@ export async function getUserDebts(
       .eq('user_id', String(ctx.user.id));
     
     if (!includeInactive) {
-      query = query.eq('is_paid_off', false);
+      query = query.eq('status', 'active');
     }
     
     const { data, error } = await query.order('created_at', { ascending: false });
     
     if (error) handleSupabaseError(error, 'getUserDebts');
     
-    // Convert to match MySQL schema format
+    // Convert to match MySQL schema format (dollars to cents)
     return (data || []).map(debt => ({
       id: debt.id,
       userId: debt.user_id, // UUID string in Supabase
       name: debt.debt_name || debt.name, // Support both debt_name and name
       debtName: debt.debt_name || debt.name,
       debtType: debt.debt_type,
-      originalBalance: debt.balance ? parseFloat(debt.balance) * 100 : 0, // Convert dollars to cents
-      currentBalance: debt.balance ? parseFloat(debt.balance) * 100 : 0, // Convert dollars to cents
-      interestRate: debt.interest_rate ? parseFloat(debt.interest_rate) * 100 : 0, // Convert to basis points
+      originalBalance: debt.original_amount ? parseFloat(debt.original_amount) * 100 : 0, // Convert dollars to cents
+      currentBalance: debt.current_balance ? parseFloat(debt.current_balance) * 100 : 0, // Convert dollars to cents
+      interestRate: debt.interest_rate ? parseFloat(debt.interest_rate) * 100 : 0, // Convert percentage to basis points
       minimumPayment: debt.minimum_payment ? parseFloat(debt.minimum_payment) * 100 : 0, // Convert dollars to cents
-      dueDay: debt.due_date,
-      creditor: null, // Supabase doesn't have this field
-      accountNumber: null, // Supabase doesn't have this field
+      dueDay: debt.due_day,
+      creditor: debt.creditor,
+      accountNumber: debt.account_number,
       status: debt.status,
-      notes: null, // Supabase doesn't have this field
+      notes: debt.notes,
       createdAt: debt.created_at,
       updatedAt: debt.updated_at,
-      paidOffAt: null, // Supabase doesn't have this field
+      paidOffAt: debt.paid_off_at,
     }));
   }
 }
@@ -1748,7 +1756,29 @@ export async function getDebtById(
       if (error.code === 'PGRST116') return undefined;
       handleSupabaseError(error, 'getDebtById');
     }
-    return data;
+    
+    if (!data) return undefined;
+    
+    // Transform to match MySQL format
+    return {
+      id: data.id,
+      userId: data.user_id,
+      name: data.debt_name || data.name,
+      debtName: data.debt_name || data.name,
+      debtType: data.debt_type,
+      originalBalance: data.original_amount ? parseFloat(data.original_amount) * 100 : 0,
+      currentBalance: data.current_balance ? parseFloat(data.current_balance) * 100 : 0,
+      interestRate: data.interest_rate ? parseFloat(data.interest_rate) * 100 : 0,
+      minimumPayment: data.minimum_payment ? parseFloat(data.minimum_payment) * 100 : 0,
+      dueDay: data.due_day,
+      creditor: data.creditor,
+      accountNumber: data.account_number,
+      status: data.status,
+      notes: data.notes,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+      paidOffAt: data.paid_off_at,
+    };
   }
 }
 
@@ -1762,10 +1792,24 @@ export async function updateDebt(
     return await db.updateDebt(debtId, userId, updates);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    
+    // Map field names: camelCase (API) → snake_case (Supabase)
+    const mappedUpdates: any = {};
+    if (updates.debtName !== undefined) mappedUpdates.debt_name = updates.debtName;
+    if (updates.name !== undefined) mappedUpdates.debt_name = updates.name;
+    if (updates.currentBalance !== undefined) mappedUpdates.current_balance = updates.currentBalance / 100;
+    if (updates.interestRate !== undefined) mappedUpdates.interest_rate = updates.interestRate / 100;
+    if (updates.minimumPayment !== undefined) mappedUpdates.minimum_payment = updates.minimumPayment / 100;
+    if (updates.dueDay !== undefined) mappedUpdates.due_day = updates.dueDay;
+    if (updates.creditor !== undefined) mappedUpdates.creditor = updates.creditor;
+    if (updates.accountNumber !== undefined) mappedUpdates.account_number = updates.accountNumber;
+    if (updates.status !== undefined) mappedUpdates.status = updates.status;
+    if (updates.notes !== undefined) mappedUpdates.notes = updates.notes;
+    
     const { data, error } = await supabase
       .from('debts')
       .update({
-        ...updates,
+        ...mappedUpdates,
         updated_at: new Date(),
       })
       .eq('id', debtId)
@@ -1785,10 +1829,14 @@ export async function deleteDebt(
   if (ctx.user.role === "admin") {
     return await db.deleteDebt(debtId, ctx.user.numericId!);
   } else {
+    // Soft delete: update status to 'closed' instead of deleting
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     const { error } = await supabase
       .from('debts')
-      .delete()
+      .update({
+        status: 'closed',
+        updated_at: new Date(),
+      })
       .eq('id', debtId)
       .eq('user_id', String(ctx.user.id));
     
@@ -1804,13 +1852,20 @@ export async function recordDebtPayment(
     return await db.recordDebtPayment(payment);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
+    // Convert cents to dollars for Supabase
+    const amount = (payment.amount || 0) / 100;
+    const balanceAfter = (payment.balanceAfter || 0) / 100;
+    
     const { data, error } = await supabase
       .from('debt_payments')
       .insert({
+        user_id: String(ctx.user.id), // Required field
         debt_id: payment.debtId,
-        amount: payment.amount,
+        amount: amount,
+        balance_after: balanceAfter,
         payment_date: payment.paymentDate || new Date(),
-        payment_method: payment.paymentMethod,
+        payment_method: payment.paymentMethod || 'manual',
+        status: payment.status || 'completed',
         notes: payment.notes,
       })
       .select()
@@ -1878,9 +1933,14 @@ export async function saveDebtStrategy(
         user_id: String(ctx.user.id),
         strategy_type: strategy.strategyType,
         monthly_payment: strategy.monthlyPayment,
+        monthly_extra_payment: strategy.monthlyExtraPayment || 0,
         payoff_order: strategy.payoffOrder,
         estimated_payoff_date: strategy.estimatedPayoffDate,
+        projected_payoff_date: strategy.projectedPayoffDate || strategy.estimatedPayoffDate,
+        months_to_payoff: strategy.monthsToPayoff || 0, // Required field
         total_interest: strategy.totalInterest,
+        total_interest_paid: strategy.totalInterestPaid || strategy.totalInterest || 0,
+        total_interest_saved: strategy.totalInterestSaved || 0,
         created_at: strategy.createdAt || new Date(),
       })
       .select()
@@ -1893,16 +1953,23 @@ export async function saveDebtStrategy(
 
 export async function getLatestStrategy(
   ctx: DbContext,
-  userId: number
+  userId: number,
+  strategyType?: string
 ) {
   if (ctx.user.role === "admin") {
-    return await db.getLatestStrategy(userId);
+    return await db.getLatestStrategy(userId, strategyType);
   } else {
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
-    const { data, error } = await supabase
+    let query = supabase
       .from('debt_strategies')
       .select('*')
-      .eq('user_id', String(ctx.user.id))
+      .eq('user_id', String(ctx.user.id));
+    
+    if (strategyType) {
+      query = query.eq('strategy_type', strategyType);
+    }
+    
+    const { data, error } = await query
       .order('calculated_at', { ascending: false })
       .limit(1)
       .single();
@@ -1911,7 +1978,22 @@ export async function getLatestStrategy(
       if (error.code === 'PGRST116') return undefined;
       handleSupabaseError(error, 'getLatestStrategy');
     }
-    return data;
+    
+    // Transform snake_case to camelCase
+    if (!data) return undefined;
+    return {
+      id: data.id,
+      userId: data.user_id,
+      strategyType: data.strategy_type,
+      monthlyExtraPayment: data.monthly_extra_payment,
+      payoffOrder: data.payoff_order,
+      totalInterestPaid: data.total_interest_paid,
+      totalInterestSaved: data.total_interest_saved,
+      monthsToPayoff: data.months_to_payoff,
+      projectedPayoffDate: data.projected_payoff_date,
+      calculatedAt: data.calculated_at,
+      createdAt: data.created_at,
+    };
   }
 }
 
@@ -1974,6 +2056,8 @@ export async function saveCoachingSession(
       .insert({
         user_id: String(ctx.user.id),
         session_type: session.sessionType,
+        message: session.message || session.adviceGiven || '', // Required field
+        sentiment: session.sentiment || 'neutral', // Required field
         advice_given: session.adviceGiven,
         action_items: session.actionItems,
         created_at: session.createdAt || new Date(),
@@ -2019,10 +2103,14 @@ export async function saveBudgetSnapshot(
       .from('debt_budget_snapshots')
       .insert({
         user_id: String(ctx.user.id),
-        monthly_income: snapshot.monthlyIncome,
-        monthly_expenses: snapshot.monthlyExpenses,
-        available_for_debt: snapshot.availableForDebt,
-        snapshot_date: snapshot.snapshotDate || new Date(),
+        month_year: snapshot.monthYear, // Required field
+        total_income: snapshot.totalIncome,
+        total_expenses: snapshot.totalExpenses,
+        total_debt_payments: snapshot.totalDebtPayments,
+        extra_payment_budget: snapshot.extraPaymentBudget,
+        actual_extra_payments: snapshot.actualExtraPayments,
+        notes: snapshot.notes,
+        created_at: new Date(),
       })
       .select()
       .single();
@@ -3602,10 +3690,26 @@ export async function getTopicProgress(
       .eq('user_id', String(ctx.user.id))
       .eq('topic_name', topicName)
       .eq('category', category)
-      .single();
+      .maybeSingle();
     
     if (error) return null;
-    return data;
+    
+    // Transform snake_case to camelCase
+    if (!data) return null;
+    return {
+      id: data.id,
+      userId: data.user_id,
+      topicName: data.topic_name,
+      category: data.category,
+      status: data.status,
+      lessonCompleted: data.lesson_completed,
+      practiceCount: data.practice_count,
+      quizzesTaken: data.quizzes_taken,
+      bestQuizScore: data.best_quiz_score,
+      masteryLevel: data.mastery_level,
+      lastAccessed: data.last_accessed,
+      createdAt: data.created_at,
+    };
   }
 }
 
@@ -3622,24 +3726,26 @@ export async function updateTopicProgress(
     const supabase = await getSupabaseClient(String(ctx.user.id), ctx.accessToken);
     
     // Convert camelCase to snake_case for Supabase
-    const supabaseUpdates: any = {
-      last_accessed: new Date(),
+    const supabaseData: any = {
+      user_id: String(ctx.user.id),
+      topic_name: topicName,
+      category: category,
+      last_accessed: new Date().toISOString(),
     };
-    if (updates.status !== undefined) supabaseUpdates.status = updates.status;
-    if (updates.lessonCompleted !== undefined) supabaseUpdates.lesson_completed = updates.lessonCompleted;
-    if (updates.practiceCount !== undefined) supabaseUpdates.practice_count = updates.practiceCount;
-    if (updates.quizzesTaken !== undefined) supabaseUpdates.quizzes_taken = updates.quizzesTaken;
-    if (updates.bestQuizScore !== undefined) supabaseUpdates.best_quiz_score = updates.bestQuizScore;
-    if (updates.masteryLevel !== undefined) supabaseUpdates.mastery_level = updates.masteryLevel;
+    if (updates.status !== undefined) supabaseData.status = updates.status;
+    if (updates.lessonCompleted !== undefined) supabaseData.lesson_completed = updates.lessonCompleted;
+    if (updates.practiceCount !== undefined) supabaseData.practice_count = updates.practiceCount;
+    if (updates.quizzesTaken !== undefined) supabaseData.quizzes_taken = updates.quizzesTaken;
+    if (updates.bestQuizScore !== undefined) supabaseData.best_quiz_score = updates.bestQuizScore;
+    if (updates.masteryLevel !== undefined) supabaseData.mastery_level = updates.masteryLevel;
     
     const { data, error } = await supabase
       .from('topic_progress')
-      .update(supabaseUpdates)
-      .eq('user_id', String(ctx.user.id))
-      .eq('topic_name', topicName)
-      .eq('category', category)
+      .upsert(supabaseData, {
+        onConflict: 'user_id,topic_name,category'
+      })
       .select()
-      .single();
+      .maybeSingle();
     
     if (error) handleSupabaseError(error, 'updateTopicProgress');
     return data;

@@ -341,14 +341,14 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const strategy = await dbRoleAware.getLatestStrategy(ctx, ctx.user.numericId);
+      const strategy = await dbRoleAware.getLatestStrategy(ctx, ctx.user.numericId, input.strategyType);
       if (!strategy) {
         return null;
       }
 
       return {
         ...strategy,
-        payoffOrder: JSON.parse(strategy.payoffOrder as string),
+        payoffOrder: strategy.payoffOrder ? JSON.parse(strategy.payoffOrder as string) : [],
       };
     }),
 
