@@ -454,7 +454,7 @@ export class SupabaseLearningAdapter implements LearningAdapter {
       .select('*')
       .eq('user_id', this.userId)
       .eq('category', category)
-      .order('last_practiced', { ascending: false });
+      .order('last_studied', { ascending: false });
 
     if (error) throw new Error(`Supabase getCategoryProgress error: ${error.message}`);
 
@@ -463,10 +463,15 @@ export class SupabaseLearningAdapter implements LearningAdapter {
       userId: parseInt(this.userId),
       topicName: t.topic_name,
       category: t.category,
-      completed: t.completed === 1,
-      score: t.score,
-      lastPracticed: t.last_practiced,
+      status: t.status,
+      lessonCompleted: t.lesson_completed,
+      practiceCount: t.practice_count,
+      quizzesTaken: t.quizzes_taken,
+      bestQuizScore: t.best_quiz_score,
+      masteryLevel: t.mastery_level,
+      lastStudied: t.last_studied,
       createdAt: t.created_at,
+      updatedAt: t.updated_at,
     }));
   }
 
