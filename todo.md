@@ -6025,3 +6025,12 @@
 - [x] Document RLS strategy
 - [x] Document test coverage and testing strategy
 - [x] Push ARCHITECTURE.md to GitHub
+
+## supabaseDb.ts Refactor (82% Reduction)
+- [x] Replace supabaseDb.ts with refactored version (1,482 → 265 lines)
+- [x] Delete dead code: updateSupabaseUserTier(), updateSupabaseUserHubs()
+- [x] Remove 9 unused enum exports
+- [x] Add new learnFinanceDb.ts file (1,174 lines) - extracted learn-finance domain
+- [x] Update learnFinanceRouter.ts import path (1 line change)
+- [x] Run full test suite to verify zero breakage (269 tests passing)
+- [x] Save checkpoint and push to GitHub

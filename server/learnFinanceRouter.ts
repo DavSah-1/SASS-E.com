@@ -19,7 +19,7 @@ import {
   getAllBadges,
   getUserBadges,
   checkAndAwardBadges,
-} from "./supabaseDb";
+} from "./learnFinanceDb";
 
 export const learnFinanceRouter = router({
   /**
