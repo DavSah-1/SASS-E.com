@@ -2,6 +2,7 @@
 
 Meet **Assistant Bob**, your AI companion who answers questions with style, sass, and surprisingly helpful information. Bob combines voice interaction, real-time web search, and create an entertaining AI assistant experience.
 
+![CI Status](https://github.com/DavSah-1/SASS-E.com/actions/workflows/ci.yml/badge.svg)
 ![Assistant Bob](https://img.shields.io/badge/Sarcasm-Level%20100-purple?style=for-the-badge)
 ![Voice Enabled](https://img.shields.io/badge/Voice-Enabled-blue?style=for-the-badge)
 ![Web Search](https://img.shields.io/badge/Web-Search-green?style=for-the-badge)

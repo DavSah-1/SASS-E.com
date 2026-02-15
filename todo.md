@@ -6010,3 +6010,10 @@
 - [x] Verify Supabase users never access MySQL for all 9 adapters
 - [x] Verify admin users correctly access MySQL for all 9 adapters
 - [x] Test all adapter factory functions (createCoreAdapter, createBudgetAdapter, etc.)
+
+## GitHub Actions CI/CD Setup
+- [x] Create GitHub Actions workflow configuration file
+- [x] Configure test environment with Node.js and pnpm
+- [x] Set up environment variables for tests
+- [x] Configure workflow to run on push and pull requests
+- [x] Add status badge to README.md
