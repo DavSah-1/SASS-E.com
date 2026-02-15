@@ -15,7 +15,7 @@ export const languageLearningRouter = router({
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      const progress = await ctx.learningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
+      const progress = await ctx.languageLearningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
       
       if (!progress) {
         // Initialize progress for new language
@@ -34,7 +34,7 @@ export const languageLearningRouter = router({
           dailyGoal: 15,
         };
         
-        await ctx.learningDb.upsertUserLanguageProgress(newProgress);
+        await ctx.languageLearningDb.upsertUserLanguageProgress(newProgress);
         return newProgress;
       }
       
@@ -51,8 +51,8 @@ export const languageLearningRouter = router({
       limit: z.number().default(20),
     }))
     .query(async ({ ctx, input }) => {
-      const items = await ctx.learningDb.getVocabularyItems(input.language, input.difficulty, input.limit);
-      const userProgress = await ctx.learningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
+      const items = await ctx.languageLearningDb.getVocabularyItems(input.language, input.difficulty, input.limit);
+      const userProgress = await ctx.languageLearningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
       
       // Merge vocabulary items with user progress
       const flashcards = items.map(item => {
@@ -81,7 +81,7 @@ export const languageLearningRouter = router({
     }))
     .mutation(async ({ ctx, input }) => {
       // Get existing progress
-      const existingProgress = await ctx.learningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
+      const existingProgress = await ctx.languageLearningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
       const itemProgress = existingProgress.find(p => p.vocabularyItemId === input.vocabularyItemId);
       
       // Calculate new mastery level
@@ -98,7 +98,7 @@ export const languageLearningRouter = router({
       const intervalDays = input.isCorrect ? Math.min(30, Math.pow(2, Math.floor(newMastery / 20))) : 1;
       const nextReview = new Date(now.getTime() + intervalDays * 24 * 60 * 60 * 1000);
       
-      await ctx.learningDb.saveUserVocabularyProgress({
+      await ctx.languageLearningDb.saveUserVocabularyProgress({
         userId: ctx.user.numericId,
         vocabularyItemId: input.vocabularyItemId,
         language: input.language,
@@ -111,12 +111,12 @@ export const languageLearningRouter = router({
       });
       
       // Update overall language progress
-      const overallProgress = await ctx.learningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
+      const overallProgress = await ctx.languageLearningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
       if (overallProgress) {
-        const allProgress = await ctx.learningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
+        const allProgress = await ctx.languageLearningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
         const vocabularySize = allProgress.filter(p => p.masteryLevel >= 70).length;
         
-        await ctx.learningDb.upsertUserLanguageProgress({
+        await ctx.languageLearningDb.upsertUserLanguageProgress({
           ...overallProgress,
           vocabularySize,
           lastStudied: now,
@@ -141,8 +141,8 @@ export const languageLearningRouter = router({
       difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
     }))
     .query(async ({ ctx, input }) => {
-      const lessons = await ctx.learningDb.getGrammarLessons(input.language, input.difficulty);
-      const userProgress = await ctx.learningDb.getUserGrammarProgress(ctx.user.numericId, input.language);
+      const lessons = await ctx.languageLearningDb.getGrammarLessons(input.language, input.difficulty);
+      const userProgress = await ctx.languageLearningDb.getUserGrammarProgress(ctx.user.numericId, input.language);
       
       // Merge lessons with user progress
       const lessonsWithProgress = lessons.map(lesson => {
@@ -245,7 +245,7 @@ Format your response as JSON with this structure:
       limit: z.number().default(10),
     }))
     .query(async ({ ctx, input }) => {
-      const exercises = await ctx.learningDb.getLanguageExercises(
+      const exercises = await ctx.languageLearningDb.getLanguageExercises(
         input.language,
         input.exerciseType,
         input.difficulty
@@ -342,7 +342,7 @@ Format as JSON array with this structure:
     }))
     .mutation(async ({ ctx, input }) => {
       // Get the exercise to check the answer
-      const exercises = await ctx.learningDb.getLanguageExercises(input.language);
+      const exercises = await ctx.languageLearningDb.getLanguageExercises(input.language);
       const exercise = exercises.find(e => e.id === input.exerciseId);
       
       if (!exercise) {
@@ -353,7 +353,7 @@ Format as JSON array with this structure:
       const isCorrect = input.userAnswer.trim().toLowerCase() === exercise.correctAnswer.trim().toLowerCase();
       
       // Save attempt
-      await ctx.learningDb.saveExerciseAttempt({
+      await ctx.languageLearningDb.saveExerciseAttempt({
         userId: ctx.user.numericId,
         exerciseId: input.exerciseId,
         language: input.language,
@@ -364,9 +364,9 @@ Format as JSON array with this structure:
       });
       
       // Update overall progress
-      const progress = await ctx.learningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
+      const progress = await ctx.languageLearningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
       if (progress) {
-        await ctx.learningDb.upsertUserLanguageProgress({
+        await ctx.languageLearningDb.upsertUserLanguageProgress({
           ...progress,
           exercisesCompleted: progress.exercisesCompleted + 1,
           lastStudied: new Date(),
@@ -395,7 +395,7 @@ Format as JSON array with this structure:
       today.setHours(0, 0, 0, 0);
       
       // Check if lesson already exists for today
-      const existingLesson = await ctx.learningDb.getDailyLesson(ctx.user.numericId, input.language, today);
+      const existingLesson = await ctx.languageLearningDb.getDailyLesson(ctx.user.numericId, input.language, today);
       
       if (existingLesson) {
         return {
@@ -407,19 +407,19 @@ Format as JSON array with this structure:
       }
       
       // Generate new daily lesson
-      const userProgress = await ctx.learningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
+      const userProgress = await ctx.languageLearningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
       const difficulty = userProgress?.level || "beginner";
       
       // Get vocabulary items for review (spaced repetition)
-      const vocabItems = await ctx.learningDb.getVocabularyItems(input.language, difficulty, 10);
+      const vocabItems = await ctx.languageLearningDb.getVocabularyItems(input.language, difficulty, 10);
       const vocabIds = vocabItems.map(v => v.id);
       
       // Get exercises
-      const exercises = await ctx.learningDb.getLanguageExercises(input.language, undefined, difficulty);
+      const exercises = await ctx.languageLearningDb.getLanguageExercises(input.language, undefined, difficulty);
       const exerciseIds = exercises.map(e => e.id);
       
       // Save daily lesson
-      await ctx.learningDb.saveDailyLesson({
+      await ctx.languageLearningDb.saveDailyLesson({
         userId: ctx.user.numericId,
         language: input.language,
         lessonDate: today,
@@ -445,7 +445,7 @@ Format as JSON array with this structure:
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      const achievements = await ctx.learningDb.getUserAchievements(ctx.user.numericId, input.language);
+      const achievements = await ctx.languageLearningDb.getUserAchievements(ctx.user.numericId, input.language);
       return achievements;
     }),
 

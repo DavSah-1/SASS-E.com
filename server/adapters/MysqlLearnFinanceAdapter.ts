@@ -1,16 +1,13 @@
 /**
- * SupabaseLearnFinanceAdapter
+ * MysqlLearnFinanceAdapter
  * 
- * Supabase implementation of LearnFinanceAdapter - delegates to learnFinanceDb functions with RLS
+ * MySQL implementation of LearnFinanceAdapter - delegates to learnFinanceDb functions
  */
 
 import type { LearnFinanceAdapter } from './LearnFinanceAdapter';
-import type { UnifiedUser } from '../_core/dbRouter';
 import * as learnFinanceDb from '../learnFinanceDb';
 
-export class SupabaseLearnFinanceAdapter implements LearnFinanceAdapter {
-  constructor(private user: UnifiedUser, private accessToken?: string) {}
-
+export class MysqlLearnFinanceAdapter implements LearnFinanceAdapter {
   async getFinanceArticles(tier?: string): Promise<any[]> {
     return learnFinanceDb.getFinanceArticles(tier);
   }

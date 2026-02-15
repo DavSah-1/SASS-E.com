@@ -1,22 +1,21 @@
 /**
- * LearningHubAdapter
+ * LearningHubAdapter Interface
  * 
- * Handles learning hub operations across dual-database architecture.
+ * Specialized adapter for learning hub operations (topic progress, quizzes, practice sessions).
  * Covers 3 tables: topicProgress, topicQuizResults, practiceSessions
  */
 
 export interface LearningHubAdapter {
-  // Topic progress
-  getTopicProgress(userId: number, category?: string): Promise<any[]>;
-  getTopicProgressByName(userId: number, topicName: string): Promise<any | null>;
-  createTopicProgress(userId: number, topicName: string, category: string): Promise<any>;
-  updateTopicProgress(userId: number, topicName: string, updates: any): Promise<void>;
+  // Topic Progress
+  getTopicProgress(userId: number, topicName: string, category: string): Promise<any | undefined>;
+  getCategoryProgress(userId: number, category: string): Promise<any[]>;
+  updateTopicProgress(userId: number, topicName: string, category: string, updates: any): Promise<void>;
 
-  // Quiz results
-  getTopicQuizResults(userId: number, topicId?: string): Promise<any[]>;
-  submitTopicQuiz(userId: number, topicId: string, score: number, totalQuestions: number, answers: string): Promise<void>;
+  // Practice Sessions
+  savePracticeSession(session: any): Promise<void>;
+  getPracticeSessions(userId: number, topicName: string, category: string, limit?: number): Promise<any[]>;
 
-  // Practice sessions
-  getPracticeSessions(userId: number, topicId?: string): Promise<any[]>;
-  createPracticeSession(userId: number, topicId: string, problemsSolved: number, correctAnswers: number, duration?: number): Promise<void>;
+  // Quiz Results
+  saveQuizResult(result: any): Promise<void>;
+  getQuizResults(userId: number, topicName: string, category: string, limit?: number): Promise<any[]>;
 }

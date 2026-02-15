@@ -1,18 +1,17 @@
 /**
- * SupabaseLanguageLearningAdapter
+ * MysqlLanguageLearningAdapter
  * 
- * Supabase implementation of LanguageLearningAdapter - delegates to SupabaseLearningAdapter
+ * MySQL implementation of LanguageLearningAdapter - delegates to MysqlLearningAdapter
  */
 
-import { SupabaseLearningAdapter } from './SupabaseLearningAdapter';
+import { MysqlLearningAdapter } from './MysqlLearningAdapter';
 import type { LanguageLearningAdapter } from './LanguageLearningAdapter';
-import type { UnifiedUser } from '../_core/dbRouter';
 
-export class SupabaseLanguageLearningAdapter implements LanguageLearningAdapter {
-  private learningAdapter: SupabaseLearningAdapter;
+export class MysqlLanguageLearningAdapter implements LanguageLearningAdapter {
+  private learningAdapter: MysqlLearningAdapter;
 
-  constructor(user: UnifiedUser, accessToken?: string) {
-    this.learningAdapter = new SupabaseLearningAdapter(String(user.id), accessToken || "");
+  constructor() {
+    this.learningAdapter = new MysqlLearningAdapter();
   }
 
   async getUserVocabularyProgress(userId: number, language: string): Promise<any[]> {

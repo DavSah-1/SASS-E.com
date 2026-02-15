@@ -6172,3 +6172,17 @@
 - [ ] Save checkpoint with wired adapters
 
 **Status:** The 4 new adapters are wired into the context and available at `ctx.languageLearningDb`, `ctx.mathScienceDb`, `ctx.learningHubDb`, and `ctx.learnFinanceDb`, but they are empty placeholders. Routers continue using `ctx.learningDb` (the monolithic LearningAdapter) until the specialized adapters are properly implemented with delegated methods from LearningAdapter.
+
+## Implement Specialized Adapter Methods and Migrate Routers
+- [ ] Analyze LearningAdapter interface and map methods to 4 specialized adapters
+- [ ] Implement LanguageLearningAdapter methods (vocabulary, grammar, exercises, daily lessons, achievements)
+- [ ] Implement MathScienceAdapter methods (math problems, solutions, experiments, lab results)
+- [ ] Implement LearningHubAdapter methods (topic progress, quizzes, practice sessions)
+- [ ] Implement LearnFinanceAdapter methods (already has methods from learnFinanceDb)
+- [ ] Update languageLearningRouter.ts to use ctx.languageLearningDb
+- [ ] Update mathRouter.ts to use ctx.mathScienceDb
+- [ ] Update scienceRouter.ts to use ctx.mathScienceDb
+- [ ] Update topicRouter.ts to use ctx.learningHubDb
+- [ ] Update learnFinanceRouter.ts to use ctx.learnFinanceDb
+- [ ] Run full test suite to verify all migrations work
+- [ ] Save checkpoint with fully implemented adapters

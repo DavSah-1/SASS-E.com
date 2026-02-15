@@ -1,18 +1,17 @@
 /**
- * SupabaseLearningHubAdapter
+ * MysqlLearningHubAdapter
  * 
- * Supabase implementation of LearningHubAdapter - delegates to SupabaseLearningAdapter
+ * MySQL implementation of LearningHubAdapter - delegates to MysqlLearningAdapter
  */
 
-import { SupabaseLearningAdapter } from './SupabaseLearningAdapter';
+import { MysqlLearningAdapter } from './MysqlLearningAdapter';
 import type { LearningHubAdapter } from './LearningHubAdapter';
-import type { UnifiedUser } from '../_core/dbRouter';
 
-export class SupabaseLearningHubAdapter implements LearningHubAdapter {
-  private learningAdapter: SupabaseLearningAdapter;
+export class MysqlLearningHubAdapter implements LearningHubAdapter {
+  private learningAdapter: MysqlLearningAdapter;
 
-  constructor(user: UnifiedUser, accessToken?: string) {
-    this.learningAdapter = new SupabaseLearningAdapter(String(user.id), accessToken || "");
+  constructor() {
+    this.learningAdapter = new MysqlLearningAdapter();
   }
 
   async getTopicProgress(userId: number, topicName: string, category: string): Promise<any | undefined> {

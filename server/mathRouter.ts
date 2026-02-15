@@ -105,7 +105,7 @@ Format your response as JSON with this structure:
         const solutionData = JSON.parse(contentStr);
 
         // Save solution to database
-        const solutionId = await ctx.learningDb.saveMathSolution({
+        const solutionId = await ctx.mathScienceDb.saveMathSolution({
           userId,
           problemId: null, // Custom problem
           problemText: input.problemText,
@@ -117,14 +117,14 @@ Format your response as JSON with this structure:
         });
 
         // Update user progress
-        const progress = await ctx.learningDb.getMathProgress(userId);
+        const progress = await ctx.mathScienceDb.getMathProgress(userId);
         if (progress) {
           const topicsExplored = JSON.parse(progress.topicsExplored || "[]");
           if (input.topic && !topicsExplored.includes(input.topic)) {
             topicsExplored.push(input.topic);
           }
 
-          await ctx.learningDb.updateMathProgress(userId, {
+          await ctx.mathScienceDb.updateMathProgress(userId, {
             totalProblemsAttempted: progress.totalProblemsAttempted + 1,
             topicsExplored,
             lastPracticeDate: new Date(),
@@ -153,7 +153,7 @@ Format your response as JSON with this structure:
       })
     )
     .query(async ({ ctx, input }) => {
-      const problems = await ctx.learningDb.getMathProblems(input.topic ?? undefined, input.difficulty, input.limit);
+      const problems = await ctx.mathScienceDb.getMathProblems(input.topic ?? undefined, input.difficulty, input.limit);
       return problems;
     }),
 
@@ -163,7 +163,7 @@ Format your response as JSON with this structure:
   getProblem: protectedProcedure
     .input(z.object({ problemId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const problem = await ctx.learningDb.getMathProblem(input.problemId);
+      const problem = await ctx.mathScienceDb.getMathProblem(input.problemId);
       return problem;
     }),
 
@@ -184,7 +184,7 @@ Format your response as JSON with this structure:
       // Get problem details if problemId provided
       let correctAnswer = null;
       if (input.problemId) {
-        const problem = await ctx.learningDb.getMathProblem(input.problemId);
+        const problem = await ctx.mathScienceDb.getMathProblem(input.problemId);
         correctAnswer = problem?.answer || null;
       }
 
@@ -237,7 +237,7 @@ Is the student's answer correct?`;
         const checkResult = JSON.parse(contentStr);
 
         // Save solution attempt
-        await ctx.learningDb.saveMathSolution({
+        await ctx.mathScienceDb.saveMathSolution({
           userId,
           problemId: input.problemId || null,
           problemText: input.problemText,
@@ -249,9 +249,9 @@ Is the student's answer correct?`;
         });
 
         // Update progress
-        const progress = await ctx.learningDb.getMathProgress(userId);
+        const progress = await ctx.mathScienceDb.getMathProgress(userId);
         if (progress) {
-        await ctx.learningDb.updateMathProgress(userId, {totalProblemsAttempted: progress.totalProblemsAttempted + 1,
+        await ctx.mathScienceDb.updateMathProgress(userId, {totalProblemsAttempted: progress.totalProblemsAttempted + 1,
             totalProblemsSolved: checkResult.isCorrect
               ? progress.totalProblemsSolved + 1
               : progress.totalProblemsSolved,
@@ -272,7 +272,7 @@ Is the student's answer correct?`;
   getSolutionHistory: protectedProcedure
     .input(z.object({ limit: z.number().default(20) }))
     .query(async ({ ctx, input }) => {
-      const solutions = await ctx.learningDb.getUserMathSolutions(ctx.user.numericId, input.limit);
+      const solutions = await ctx.mathScienceDb.getUserMathSolutions(ctx.user.numericId, input.limit);
       return solutions;
     }),
 
@@ -280,7 +280,7 @@ Is the student's answer correct?`;
    * Get user's math progress
    */
   getProgress: protectedProcedure.query(async ({ ctx }) => {
-    const progress = await ctx.learningDb.getMathProgress(ctx.user.numericId);
+    const progress = await ctx.mathScienceDb.getMathProgress(ctx.user.numericId);
     return progress;
   }),
 
@@ -361,7 +361,7 @@ Format your response as JSON:
         // Save problems to database
         const savedProblems = [];
         for (const problem of generatedData.problems) {
-          const problemId = await ctx.learningDb.saveMathProblem({
+          const problemId = await ctx.mathScienceDb.saveMathProblem({
             topic: input.topic,
             subtopic: null,
             difficulty: input.difficulty,

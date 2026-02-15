@@ -1,18 +1,17 @@
 /**
- * SupabaseMathScienceAdapter
+ * MysqlMathScienceAdapter
  * 
- * Supabase implementation of MathScienceAdapter - delegates to SupabaseLearningAdapter
+ * MySQL implementation of MathScienceAdapter - delegates to MysqlLearningAdapter
  */
 
-import { SupabaseLearningAdapter } from './SupabaseLearningAdapter';
+import { MysqlLearningAdapter } from './MysqlLearningAdapter';
 import type { MathScienceAdapter } from './MathScienceAdapter';
-import type { UnifiedUser } from '../_core/dbRouter';
 
-export class SupabaseMathScienceAdapter implements MathScienceAdapter {
-  private learningAdapter: SupabaseLearningAdapter;
+export class MysqlMathScienceAdapter implements MathScienceAdapter {
+  private learningAdapter: MysqlLearningAdapter;
 
-  constructor(user: UnifiedUser, accessToken?: string) {
-    this.learningAdapter = new SupabaseLearningAdapter(String(user.id), accessToken || "");
+  constructor() {
+    this.learningAdapter = new MysqlLearningAdapter();
   }
 
   async getMathProgress(userId: number): Promise<any | undefined> {

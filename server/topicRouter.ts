@@ -20,7 +20,7 @@ export const topicRouter = router({
       const userId = ctx.user.numericId;
 
       // Get or create progress
-      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
+      const progress = await ctx.learningHubDb.getTopicProgress(userId, input.topicName, input.category);
 
       // Generate lesson content using LLM
       const systemPrompt = `You are SASS-E (Synthetic Adaptive Synaptic System - Entity), a witty and clever math tutor for young learners.
@@ -122,7 +122,7 @@ Format your response as JSON:
 
         // Update progress to "learning" status
         if (progress && progress.status === "not_started") {
-          await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
+          await ctx.learningHubDb.updateTopicProgress(userId, input.topicName, input.category, {
             status: "learning",
           });
         }
@@ -150,7 +150,7 @@ Format your response as JSON:
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.user.numericId;
 
-      await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
+      await ctx.learningHubDb.updateTopicProgress(userId, input.topicName, input.category, {
         lessonCompleted: 1,
         status: "practicing",
       });
@@ -173,7 +173,7 @@ Format your response as JSON:
       const userId = ctx.user.numericId;
 
       // Get current progress
-      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
+      const progress = await ctx.learningHubDb.getTopicProgress(userId, input.topicName, input.category);
 
       const systemPrompt = `You are SASS-E, creating practice problems for "${input.topicName}" for Pre-K to Grade 2 students.
 
@@ -270,9 +270,9 @@ Format your response as JSON:
         input.userAnswer.trim().toLowerCase() === input.correctAnswer.trim().toLowerCase();
 
       // Update practice count
-      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
+      const progress = await ctx.learningHubDb.getTopicProgress(userId, input.topicName, input.category);
       if (progress) {
-        await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
+        await ctx.learningHubDb.updateTopicProgress(userId, input.topicName, input.category, {
           practiceCount: progress.practiceCount + 1,
         });
       }
@@ -306,7 +306,7 @@ Format your response as JSON:
       const accuracy = Math.round((input.problemsCorrect / input.problemsSolved) * 100);
 
       // Save practice session
-      await ctx.learningDb.savePracticeSession({
+      await ctx.learningHubDb.savePracticeSession({
         userId,
         topicName: input.topicName,
         category: input.category,
@@ -318,7 +318,7 @@ Format your response as JSON:
       });
 
       // Update progress
-      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
+      const progress = await ctx.learningHubDb.getTopicProgress(userId, input.topicName, input.category);
       if (progress) {
         // Calculate new mastery level based on practice performance
         const newMastery = Math.min(
@@ -326,7 +326,7 @@ Format your response as JSON:
           Math.round((progress.masteryLevel + accuracy) / 2)
         );
 
-        await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
+        await ctx.learningHubDb.updateTopicProgress(userId, input.topicName, input.category, {
           masteryLevel: newMastery,
         });
       }
@@ -461,7 +461,7 @@ Format your response as JSON:
         .map((a) => a.question.substring(0, 50));
 
       // Save quiz result
-      await ctx.learningDb.saveQuizResult({
+      await ctx.learningHubDb.saveQuizResult({
         userId,
         topicName: input.topicName,
         category: input.category,
@@ -475,13 +475,13 @@ Format your response as JSON:
       });
 
       // Update progress
-      const progress = await ctx.learningDb.getTopicProgress(userId, input.topicName, input.category);
+      const progress = await ctx.learningHubDb.getTopicProgress(userId, input.topicName, input.category);
       if (progress) {
         const newQuizzesTaken = progress.quizzesTaken + 1;
         const newBestScore = Math.max(progress.bestQuizScore, score);
         const newMasteryLevel = Math.min(100, Math.round((progress.masteryLevel + score) / 2));
 
-        await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
+        await ctx.learningHubDb.updateTopicProgress(userId, input.topicName, input.category, {
           quizzesTaken: newQuizzesTaken,
           bestQuizScore: newBestScore,
           masteryLevel: newMasteryLevel,
@@ -517,7 +517,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const progress = await ctx.learningDb.getTopicProgress(ctx.user.numericId, input.topicName, input.category);
+      const progress = await ctx.learningHubDb.getTopicProgress(ctx.user.numericId, input.topicName, input.category);
       return progress;
     }),
 
@@ -531,7 +531,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const progressList = await ctx.learningDb.getCategoryProgress(ctx.user.numericId, input.category);
+      const progressList = await ctx.learningHubDb.getCategoryProgress(ctx.user.numericId, input.category);
       return progressList;
     }),
 
@@ -546,7 +546,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const results = await ctx.learningDb.getQuizResults(ctx.user.numericId, input.topicName, input.category);
+      const results = await ctx.learningHubDb.getQuizResults(ctx.user.numericId, input.topicName, input.category);
       return results;
     }),
 
@@ -561,7 +561,7 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      const sessions = await ctx.learningDb.getPracticeSessions(ctx.user.numericId, input.topicName, input.category);
+      const sessions = await ctx.learningHubDb.getPracticeSessions(ctx.user.numericId, input.topicName, input.category);
       return sessions;
     }),
 });

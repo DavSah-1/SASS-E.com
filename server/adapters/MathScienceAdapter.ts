@@ -1,30 +1,39 @@
 /**
- * MathScienceAdapter
+ * MathScienceAdapter Interface
  * 
- * Handles math and science learning operations across dual-database architecture.
- * Covers 10 tables: mathProblems, mathSolutions, mathProgress, experiments, experimentSteps,
+ * Specialized adapter for math and science operations (problems, experiments, lab quizzes).
+ * Covers 9 tables: mathProblems, mathSolutions, mathProgress, experiments, experimentSteps,
  * userLabResults, scienceProgress, labQuizQuestions, labQuizAttempts
  */
 
 export interface MathScienceAdapter {
-  // Math operations
-  getMathProblems(topic: string, difficulty?: string): Promise<any[]>;
-  submitMathSolution(userId: number, problemId: number, userSolution: string, isCorrect: boolean, feedback?: string): Promise<void>;
-  getMathProgress(userId: number, topic?: string): Promise<any[]>;
-  updateMathProgress(userId: number, topic: string, updates: any): Promise<void>;
+  // Math Progress
+  getMathProgress(userId: number): Promise<any | undefined>;
+  updateMathProgress(userId: number, updates: any): Promise<void>;
 
-  // Science experiments
-  getExperiments(subject?: string, difficulty?: string): Promise<any[]>;
+  // Math Operations
+  getMathProblems(topic?: string, difficulty?: string, limit?: number): Promise<any[]>;
+  getMathProblem(problemId: number): Promise<any | undefined>;
+  saveMathProblem(problem: any): Promise<number>;
+  saveMathSolution(solution: any): Promise<number>;
+  getUserMathSolutions(userId: number, limit?: number): Promise<any[]>;
+
+  // Science Progress
+  getScienceProgress(userId: number): Promise<any | undefined>;
+  initializeScienceProgress(userId: number): Promise<void>;
+  updateScienceProgress(userId: number, updates: any): Promise<void>;
+
+  // Science Operations
+  getExperiments(filters: any): Promise<any[]>;
+  getExperimentById(experimentId: number): Promise<any | undefined>;
   getExperimentSteps(experimentId: number): Promise<any[]>;
-  submitLabResult(userId: number, experimentId: number, observations: string, conclusion?: string, photos?: string): Promise<void>;
+  saveLabResult(result: any): Promise<number>;
   getUserLabResults(userId: number, experimentId?: number): Promise<any[]>;
 
-  // Science progress
-  getScienceProgress(userId: number, subject?: string): Promise<any[]>;
-  updateScienceProgress(userId: number, subject: string, updates: any): Promise<void>;
-
-  // Lab quizzes
+  // Lab Quiz Operations
   getLabQuizQuestions(experimentId: number): Promise<any[]>;
-  submitLabQuizAttempt(userId: number, experimentId: number, answers: string, score: number, totalQuestions: number): Promise<void>;
+  saveLabQuizQuestions(questions: any[]): Promise<boolean>;
+  saveLabQuizAttempt(attempt: any): Promise<any>;
   getLabQuizAttempts(userId: number, experimentId?: number): Promise<any[]>;
+  hasPassedLabQuiz(userId: number, experimentId: number): Promise<boolean>;
 }

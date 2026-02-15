@@ -13,7 +13,7 @@ export const scienceRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const experiments = await ctx.learningDb.getExperiments(input);
+      const experiments = await ctx.mathScienceDb.getExperiments(input);
       return experiments;
     }),
 
@@ -21,12 +21,12 @@ export const scienceRouter = router({
   getExperimentDetails: protectedProcedure
     .input(z.object({ experimentId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const experiment = await ctx.learningDb.getExperimentById(input.experimentId);
+      const experiment = await ctx.mathScienceDb.getExperimentById(input.experimentId);
       if (!experiment) {
         throw new Error("Experiment not found");
       }
 
-      const steps = await ctx.learningDb.getExperimentSteps(input.experimentId);
+      const steps = await ctx.mathScienceDb.getExperimentSteps(input.experimentId);
 
       return {
         experiment,
@@ -49,7 +49,7 @@ export const scienceRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const experiment = await ctx.learningDb.getExperimentById(input.experimentId);
+      const experiment = await ctx.mathScienceDb.getExperimentById(input.experimentId);
       if (!experiment) {
         throw new Error("Experiment not found");
       }
@@ -118,7 +118,7 @@ Format as JSON:
       const aiAnalysis = JSON.parse(llmResponse.choices[0].message.content as string);
 
       // Save lab result
-      const resultId = await ctx.learningDb.saveLabResult({
+      const resultId = await ctx.mathScienceDb.saveLabResult({
         userId: ctx.user.numericId,
         experimentId: input.experimentId,
         observations: input.observations,
@@ -133,10 +133,10 @@ Format as JSON:
       });
 
       // Update science progress
-      let progress = await ctx.learningDb.getScienceProgress(ctx.user.numericId);
+      let progress = await ctx.mathScienceDb.getScienceProgress(ctx.user.numericId);
       if (!progress) {
-        await ctx.learningDb.initializeScienceProgress(ctx.user.numericId);
-        progress = await ctx.learningDb.getScienceProgress(ctx.user.numericId);
+        await ctx.mathScienceDb.initializeScienceProgress(ctx.user.numericId);
+        progress = await ctx.mathScienceDb.getScienceProgress(ctx.user.numericId);
       }
 
       if (progress) {
@@ -154,7 +154,7 @@ Format as JSON:
             newTotal
         );
 
-        await ctx.learningDb.updateScienceProgress(ctx.user.numericId, {
+        await ctx.mathScienceDb.updateScienceProgress(ctx.user.numericId, {
           totalExperimentsCompleted: newTotal,
           [categoryField]: newCategoryCount,
           averageGrade: newAverageGrade,
@@ -175,16 +175,16 @@ Format as JSON:
   getMyLabResults: protectedProcedure
     .input(z.object({ experimentId: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      const results = await ctx.learningDb.getUserLabResults(ctx.user.numericId, input.experimentId);
+      const results = await ctx.mathScienceDb.getUserLabResults(ctx.user.numericId, input.experimentId);
       return results;
     }),
 
   // Get user's science progress
   getMyProgress: protectedProcedure.query(async ({ ctx }) => {
-    let progress = await ctx.learningDb.getScienceProgress(ctx.user.numericId);
+    let progress = await ctx.mathScienceDb.getScienceProgress(ctx.user.numericId);
     if (!progress) {
-      await ctx.learningDb.initializeScienceProgress(ctx.user.numericId);
-      progress = await ctx.learningDb.getScienceProgress(ctx.user.numericId);
+      await ctx.mathScienceDb.initializeScienceProgress(ctx.user.numericId);
+      progress = await ctx.mathScienceDb.getScienceProgress(ctx.user.numericId);
     }
     return progress;
   }),
@@ -195,7 +195,7 @@ Format as JSON:
     .query(async ({ ctx, input }) => {
       try {
         // Check if questions already exist
-        let questions = await ctx.learningDb.getLabQuizQuestions(input.experimentId);
+        let questions = await ctx.mathScienceDb.getLabQuizQuestions(input.experimentId);
         
         // If no questions exist, use fallback questions (LLM generation has compatibility issues)
         if (questions.length === 0) {
@@ -251,12 +251,12 @@ Format as JSON:
             }
           ];
           
-          await ctx.learningDb.saveLabQuizQuestions(fallbackQuestions);
-          questions = await ctx.learningDb.getLabQuizQuestions(input.experimentId);
+          await ctx.mathScienceDb.saveLabQuizQuestions(fallbackQuestions);
+          questions = await ctx.mathScienceDb.getLabQuizQuestions(input.experimentId);
         }
         /* LLM generation disabled due to json_schema compatibility issues
         if (questions.length === 0) {
-        const experiment = await ctx.learningDb.getExperimentById(input.experimentId);
+        const experiment = await ctx.mathScienceDb.getExperimentById(input.experimentId);
         if (!experiment) throw new Error("Experiment not found");
 
         const prompt = `Generate 6 multiple-choice quiz questions for a pre-lab quiz about the following science experiment:
@@ -320,8 +320,8 @@ Format as JSON array with structure:
           category: q.category,
         }));
 
-        await ctx.learningDb.saveLabQuizQuestions(generatedQuestions);
-        questions = await ctx.learningDb.getLabQuizQuestions(input.experimentId);
+        await ctx.mathScienceDb.saveLabQuizQuestions(generatedQuestions);
+        questions = await ctx.mathScienceDb.getLabQuizQuestions(input.experimentId);
       }
       */
 
@@ -343,7 +343,7 @@ Format as JSON array with structure:
     )
     .mutation(async ({ ctx, input }) => {
       
-      const questions = await ctx.learningDb.getLabQuizQuestions(input.experimentId);
+      const questions = await ctx.mathScienceDb.getLabQuizQuestions(input.experimentId);
       if (questions.length === 0) {
         throw new Error("Quiz questions not found");
       }
@@ -359,7 +359,7 @@ Format as JSON array with structure:
       const score = Math.round((correctCount / questions.length) * 100);
       const passed = score >= 70 ? 1 : 0;
 
-      await ctx.learningDb.saveLabQuizAttempt({
+      await ctx.mathScienceDb.saveLabQuizAttempt({
         userId: ctx.user.numericId,
         experimentId: input.experimentId,
         score,
@@ -382,7 +382,7 @@ Format as JSON array with structure:
   hasPassedQuiz: protectedProcedure
     .input(z.object({ experimentId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const passed = await ctx.learningDb.hasPassedLabQuiz(ctx.user.numericId, input.experimentId);
+      const passed = await ctx.mathScienceDb.hasPassedLabQuiz(ctx.user.numericId, input.experimentId);
       return { passed };
     }),
 });

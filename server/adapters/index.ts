@@ -53,17 +53,17 @@ import type { InsightsAdapter } from './InsightsAdapter';
 import { MySQLReceiptsAdapter } from './MySQLReceiptsAdapter';
 import { SupabaseReceiptsAdapter } from './SupabaseReceiptsAdapter';
 import type { ReceiptsAdapter } from './ReceiptsAdapter';
-import { MySQLLanguageLearningAdapter, createMySQLLanguageLearningAdapter } from './MySQLLanguageLearningAdapter';
-import { SupabaseLanguageLearningAdapter, createSupabaseLanguageLearningAdapter } from './SupabaseLanguageLearningAdapter';
+import { MysqlLanguageLearningAdapter } from './MysqlLanguageLearningAdapter';
+import { SupabaseLanguageLearningAdapter } from './SupabaseLanguageLearningAdapter';
 import type { LanguageLearningAdapter } from './LanguageLearningAdapter';
-import { MySQLMathScienceAdapter, createMySQLMathScienceAdapter } from './MySQLMathScienceAdapter';
-import { SupabaseMathScienceAdapter, createSupabaseMathScienceAdapter } from './SupabaseMathScienceAdapter';
+import { MysqlMathScienceAdapter } from './MysqlMathScienceAdapter';
+import { SupabaseMathScienceAdapter } from './SupabaseMathScienceAdapter';
 import type { MathScienceAdapter } from './MathScienceAdapter';
-import { MySQLLearningHubAdapter, createMySQLLearningHubAdapter } from './MySQLLearningHubAdapter';
-import { SupabaseLearningHubAdapter, createSupabaseLearningHubAdapter } from './SupabaseLearningHubAdapter';
+import { MysqlLearningHubAdapter } from './MysqlLearningHubAdapter';
+import { SupabaseLearningHubAdapter } from './SupabaseLearningHubAdapter';
 import type { LearningHubAdapter } from './LearningHubAdapter';
-import { MySQLLearnFinanceAdapter, createMySQLLearnFinanceAdapter } from './MySQLLearnFinanceAdapter';
-import { SupabaseLearnFinanceAdapter, createSupabaseLearnFinanceAdapter } from './SupabaseLearnFinanceAdapter';
+import { MysqlLearnFinanceAdapter } from './MysqlLearnFinanceAdapter';
+import { SupabaseLearnFinanceAdapter } from './SupabaseLearnFinanceAdapter';
 import type { LearnFinanceAdapter } from './LearnFinanceAdapter';
 
 export interface AdapterContext {
@@ -287,38 +287,37 @@ export function createReceiptsAdapter(ctx: AdapterContext): ReceiptsAdapter {
  * Create language learning adapter based on user role
  */
 export function createLanguageLearningAdapter(ctx: AdapterContext): LanguageLearningAdapter {
-  if (ctx.user.role === 'admin') {
-    return new MySQLLanguageLearningAdapter();
-  } else {
-    const userId = String(ctx.user.id);
-    const accessToken = ctx.accessToken || '';
-    return new SupabaseLanguageLearningAdapter(userId, accessToken);
-  }
+  console.log('[createLanguageLearningAdapter] Called with role:', ctx.user.role);
+  const adapter = ctx.user.role === 'admin' 
+    ? new MysqlLanguageLearningAdapter()
+    : new SupabaseLanguageLearningAdapter(ctx.user, ctx.accessToken);
+  console.log('[createLanguageLearningAdapter] Created:', !!adapter, typeof adapter);
+  return adapter;
 }
 
 /**
  * Create math science adapter based on user role
  */
 export function createMathScienceAdapter(ctx: AdapterContext): MathScienceAdapter {
-  if (ctx.user.role === 'admin') {
-    return new MySQLMathScienceAdapter();
-  } else {
-    const userId = String(ctx.user.id);
-    const accessToken = ctx.accessToken || '';
-    return new SupabaseMathScienceAdapter(userId, accessToken);
-  }
+  console.log('[createMathScienceAdapter] Called with role:', ctx.user.role);
+  const adapter = ctx.user.role === 'admin'
+    ? new MysqlMathScienceAdapter()
+    : new SupabaseMathScienceAdapter(ctx.user, ctx.accessToken);
+  console.log('[createMathScienceAdapter] Created:', !!adapter, typeof adapter);
+  return adapter;
 }
 
 /**
  * Create learning hub adapter based on user role
  */
 export function createLearningHubAdapter(ctx: AdapterContext): LearningHubAdapter {
+  console.log('[createLearningHubAdapter] Creating adapter for role:', ctx.user.role);
   if (ctx.user.role === 'admin') {
-    return new MySQLLearningHubAdapter();
+    return new MysqlLearningHubAdapter();
   } else {
-    const userId = String(ctx.user.id);
-    const accessToken = ctx.accessToken || '';
-    return new SupabaseLearningHubAdapter(userId, accessToken);
+    const adapter = new SupabaseLearningHubAdapter(ctx.user, ctx.accessToken);
+    console.log('[createLearningHubAdapter] Created adapter:', adapter);
+    return adapter;
   }
 }
 
@@ -326,13 +325,12 @@ export function createLearningHubAdapter(ctx: AdapterContext): LearningHubAdapte
  * Create learn finance adapter based on user role
  */
 export function createLearnFinanceAdapter(ctx: AdapterContext): LearnFinanceAdapter {
-  if (ctx.user.role === 'admin') {
-    return new MySQLLearnFinanceAdapter();
-  } else {
-    const userId = String(ctx.user.id);
-    const accessToken = ctx.accessToken || '';
-    return new SupabaseLearnFinanceAdapter(userId, accessToken);
-  }
+  console.log('[createLearnFinanceAdapter] Called with role:', ctx.user.role);
+  const adapter = ctx.user.role === 'admin'
+    ? new MysqlLearnFinanceAdapter()
+    : new SupabaseLearnFinanceAdapter(ctx.user, ctx.accessToken);
+  console.log('[createLearnFinanceAdapter] Created:', !!adapter, typeof adapter);
+  return adapter;
 }
 
 // Export adapters and interfaces
@@ -366,3 +364,4 @@ export { MysqlIoTAdapter } from './MysqlIoTAdapter';
 export { SupabaseIoTAdapter } from './SupabaseIoTAdapter';
 export { MySQLVerifiedFactAdapter } from './MySQLVerifiedFactAdapter';
 export { SupabaseVerifiedFactAdapter } from './SupabaseVerifiedFactAdapter';
+
