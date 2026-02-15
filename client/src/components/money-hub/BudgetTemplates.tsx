@@ -109,9 +109,9 @@ export function BudgetTemplates() {
           </CardHeader>
           <CardContent>
             <div className="text-sm text-muted-foreground">
-              Applied on: {new Date(activeTemplate.appliedAt).toLocaleDateString()}
+              Applied on: {new Date(activeTemplate.application.appliedAt).toLocaleDateString()}
               <br />
-              Monthly Income: ${(activeTemplate.monthlyIncome / 100).toFixed(2)}
+              Monthly Income: ${(activeTemplate.application.monthlyIncome / 100).toFixed(2)}
             </div>
           </CardContent>
         </Card>
@@ -175,11 +175,11 @@ export function BudgetTemplates() {
               <CardFooter>
                 <Button
                   className="w-full"
-                  variant={activeTemplate?.templateId === template.id ? "outline" : "default"}
+                  variant={activeTemplate?.application.templateId === template.id ? "outline" : "default"}
                   onClick={() => handleApplyClick(template.id)}
                   disabled={applyTemplate.isPending}
                 >
-                  {activeTemplate?.templateId === template.id ? "Reapply Template" : "Apply Template"}
+                  {activeTemplate?.application.templateId === template.id ? "Reapply Template" : "Apply Template"}
                 </Button>
               </CardFooter>
             </Card>

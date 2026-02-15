@@ -166,7 +166,7 @@ export const learnFinanceRouter = router({
    */
   getUserStats: protectedProcedure
     .query(async ({ ctx }) => {
-      return await ctx.learnFinanceDb.getUserLearnFinanceStats(String(ctx.user.id));
+      return await ctx.learnFinanceDb.getUserLearnFinanceStats(ctx.user.numericId);
     }),
 
   /**
@@ -182,7 +182,7 @@ export const learnFinanceRouter = router({
    */
   getUserBadges: protectedProcedure
     .query(async ({ ctx }) => {
-      return await ctx.learnFinanceDb.getUserBadges(String(ctx.user.id));
+      return await ctx.learnFinanceDb.getUserBadges(ctx.user.numericId);
     }),
 
   /**
@@ -190,6 +190,6 @@ export const learnFinanceRouter = router({
    */
   checkAndAwardBadges: protectedProcedure
     .mutation(async ({ ctx }) => {
-      return await ctx.learnFinanceDb.checkAndAwardBadges(String(ctx.user.id));
+      return await ctx.learnFinanceDb.checkAndAwardBadges(ctx.user.numericId);
     }),
 });

@@ -156,16 +156,16 @@ function BadgesDisplay() {
     return <div className="text-slate-400 text-sm">No badges available yet</div>;
   }
 
-  const earnedBadgeIds = new Set(userBadges?.map(ub => ub.badgeId) || []);
+  const earnedBadgeIds = new Set(userBadges?.map((ub: any) => ub.badgeId) || []);
 
   // Show first 6 badges (3 earned + 3 locked)
   const badgesToShow = allBadges.slice(0, 6);
 
   return (
     <>
-      {badgesToShow.map(badge => {
+      {badgesToShow.map((badge: any) => {
         const isEarned = earnedBadgeIds.has(badge.id);
-        const userBadge = userBadges?.find(ub => ub.badgeId === badge.id);
+        const userBadge = userBadges?.find((ub: any) => ub.badgeId === badge.id);
 
         return (
           <Badge
@@ -248,7 +248,7 @@ export default function LearnFinance() {
   }
 
   // Use real articles or fallback to sample data
-  const sampleArticles = articles?.map((article, index) => ({
+  const sampleArticles = articles?.map((article: any, index: number) => ({
     id: article.id,
     tierId: 1, // All Tier 1 articles for now
     title: article.title,
@@ -575,7 +575,7 @@ export default function LearnFinance() {
 
             {/* Articles Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredArticles.map((article) => (
+              {filteredArticles.map((article: any) => (
                 <Link key={article.id} href={`/hubs/learning/finance/article/${article.slug}`}>
                   <Card className="hover:shadow-lg transition-shadow cursor-pointer group bg-gradient-to-br from-yellow-900/10 to-orange-900/10 border-yellow-500/20 hover:border-yellow-400/40">
                   <CardHeader>

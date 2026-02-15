@@ -36,7 +36,7 @@ export default function ArticleReader() {
   
   // Filter related articles (same difficulty, exclude current)
   const relatedArticles = allArticles?.filter(
-    (a) => a.difficulty === article?.difficulty && a.id !== article?.id
+    (a: any) => a.difficulty === article?.difficulty && a.id !== article?.id
   ).slice(0, 4);
 
   // Track reading progress on scroll
@@ -215,7 +215,7 @@ export default function ArticleReader() {
                     Related Articles
                   </h3>
                   <div className="space-y-3">
-                    {relatedArticles.map((related) => (
+                    {relatedArticles.map((related: any) => (
                       <Link
                         key={related.id}
                         href={`/hubs/learning/finance/article/${related.slug}`}

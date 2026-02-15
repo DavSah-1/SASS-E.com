@@ -69,7 +69,7 @@ export function SpendingTrendsChart() {
     .map((c) => ({
       name: `${c.category.icon} ${c.category.name}`,
       value: c.total / 100,
-      color: c.category.color,
+      color: c.category.color || '#8884d8',
     })) || [];
 
   // Calculate trend indicators

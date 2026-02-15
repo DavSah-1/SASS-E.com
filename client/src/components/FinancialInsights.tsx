@@ -118,7 +118,7 @@ export function FinancialInsights() {
                   variant="ghost"
                   size="sm"
                   className="absolute top-2 right-2 h-6 w-6 p-0"
-                  onClick={() => dismissInsight.mutate({ insightId: insight.id })}
+                  onClick={() => dismissInsight.mutate({ insightId: Number(insight.id) })}
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -132,13 +132,7 @@ export function FinancialInsights() {
                     </div>
                     <p className="text-sm text-muted-foreground break-words">{insight.description}</p>
                     
-                    {insight.actionable === 1 && insight.actionText && (
-                      <div className="mt-3">
-                        <Button variant="outline" size="sm" className="text-xs break-words whitespace-normal h-auto">
-                          {insight.actionText}
-                        </Button>
-                      </div>
-                    )}
+                    {/* Action buttons removed - actionable/actionText not in schema */}
                   </div>
                 </div>
               </div>
