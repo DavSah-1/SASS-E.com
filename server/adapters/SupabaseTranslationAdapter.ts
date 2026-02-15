@@ -14,8 +14,12 @@ export class SupabaseTranslationAdapter implements TranslationAdapter {
   async createTranslateConversation(userId: string, title: string) {
     const supabase = await this.getClient();
     
-    // Generate shareable code
-    const shareableCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+    // Generate shareable code (12 characters)
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    let shareableCode = '';
+    for (let i = 0; i < 12; i++) {
+      shareableCode += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
     
     const { data, error } = await supabase
       .from('translate_conversations')
@@ -51,6 +55,8 @@ export class SupabaseTranslationAdapter implements TranslationAdapter {
       creatorId: data.creator_id,
       title: data.title,
       shareableCode: data.shareable_code,
+      isActive: data.is_active,
+      expiresAt: data.expires_at,
       createdAt: data.created_at,
     };
   }
@@ -71,6 +77,8 @@ export class SupabaseTranslationAdapter implements TranslationAdapter {
       creatorId: data.creator_id,
       title: data.title,
       shareableCode: data.shareable_code,
+      isActive: data.is_active,
+      expiresAt: data.expires_at,
       createdAt: data.created_at,
     };
   }
