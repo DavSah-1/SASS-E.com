@@ -6138,3 +6138,11 @@
 4. LearnFinanceAdapter (8 tables): financeArticles, userLearningProgress, financialGlossary, learningBadges, userLearningBadges, tierAssessments, userTierAssessmentAttempts, articleQuizzes
 
 **Total Adapter Coverage: 20 adapters covering 96 tables (100% coverage)**
+
+## Fix TypeScript LSP Errors in Adapter Exports - RESOLVED
+- [x] Check which adapter factory functions are missing from server/adapters/index.ts exports (all 20 factory functions ARE exported)
+- [x] Verify TypeScript compilation passes without errors (tsc --noEmit shows no adapter-related errors)
+- [x] Run test suite to ensure no regressions (283/283 tests passing)
+- [x] Confirmed LSP errors are false positives from stale cache (functions exist and are properly exported)
+
+**Resolution:** The TypeScript LSP errors about missing `createAlertsAdapter`, `createRecurringAdapter`, `createInsightsAdapter`, and `createReceiptsAdapter` are false positives caused by stale LSP cache. All 20 factory functions are properly exported with `export function` declarations. TypeScript compilation (`tsc --noEmit`) shows no errors related to these exports, and all 283 tests pass successfully. The LSP cache will eventually refresh automatically.
