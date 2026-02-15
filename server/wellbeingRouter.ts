@@ -33,7 +33,7 @@ import {
   addWellbeingReminder,
   deleteWellbeingReminder,
   toggleWellbeingReminder,
-} from "./wellbeingDb";
+} from "./db/wellbeing";
 
 export const wellbeingRouter = router({
   // ============================================================================
@@ -389,7 +389,7 @@ export const wellbeingRouter = router({
   // ============================================================================
 
   getWellnessProfile: protectedProcedure.query(async ({ ctx }) => {
-    const { getWellnessProfile } = await import("./wellbeingDb");
+    const { getWellnessProfile } = await import("./db/wellbeing");
     return getWellnessProfile(ctx.user.numericId);
   }),
 
@@ -410,7 +410,7 @@ export const wellbeingRouter = router({
       preferredWorkoutTime: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const { createWellnessProfile } = await import("./wellbeingDb");
+      const { createWellnessProfile } = await import("./db/wellbeing");
       return createWellnessProfile(ctx.user.numericId, input);
     }),
 
@@ -431,7 +431,7 @@ export const wellbeingRouter = router({
       preferredWorkoutTime: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const { updateWellnessProfile } = await import("./wellbeingDb");
+      const { updateWellnessProfile } = await import("./db/wellbeing");
       return updateWellnessProfile(ctx.user.numericId, input);
     }),
 
@@ -440,7 +440,7 @@ export const wellbeingRouter = router({
   // ============================================================================
 
   getCoachingRecommendations: protectedProcedure.query(async ({ ctx }) => {
-    const { getActiveCoachingRecommendations } = await import("./wellbeingDb");
+    const { getActiveCoachingRecommendations } = await import("./db/wellbeing");
     return getActiveCoachingRecommendations(ctx.user.numericId);
   }),
 
@@ -452,7 +452,7 @@ export const wellbeingRouter = router({
       getFoodLogByDateRange,
       getMoodLogByDateRange,
       getHealthMetricsByDateRange,
-    } = await import("./wellbeingDb");
+    } = await import("./db/wellbeing");
 
     // Gather user data
     const profile = await getWellnessProfile(ctx.user.numericId);
@@ -483,7 +483,7 @@ export const wellbeingRouter = router({
     });
 
     // Save to database
-    const { createCoachingRecommendation } = await import("./wellbeingDb");
+    const { createCoachingRecommendation } = await import("./db/wellbeing");
     for (const rec of recommendations) {
       await createCoachingRecommendation({
         userId: ctx.user.numericId,
@@ -508,21 +508,21 @@ export const wellbeingRouter = router({
   markRecommendationViewed: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const { markRecommendationViewed } = await import("./wellbeingDb");
+      const { markRecommendationViewed } = await import("./db/wellbeing");
       return markRecommendationViewed(input.id, ctx.user.numericId);
     }),
 
   dismissRecommendation: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const { dismissRecommendation } = await import("./wellbeingDb");
+      const { dismissRecommendation } = await import("./db/wellbeing");
       return dismissRecommendation(input.id, ctx.user.numericId);
     }),
 
   completeRecommendation: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const { completeRecommendation } = await import("./wellbeingDb");
+      const { completeRecommendation } = await import("./db/wellbeing");
       return completeRecommendation(input.id, ctx.user.numericId);
     }),
 
@@ -534,7 +534,7 @@ export const wellbeingRouter = router({
       comment: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const { addCoachingFeedback } = await import("./wellbeingDb");
+      const { addCoachingFeedback } = await import("./db/wellbeing");
       return addCoachingFeedback({
         recommendationId: input.recommendationId,
         userId: ctx.user.numericId,

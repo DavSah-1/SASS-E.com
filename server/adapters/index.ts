@@ -32,6 +32,9 @@ import type { TranslationAdapter } from './TranslationAdapter';
 import { MySQLVerifiedFactAdapter } from './MySQLVerifiedFactAdapter';
 import { SupabaseVerifiedFactAdapter } from './SupabaseVerifiedFactAdapter';
 import type { VerifiedFactAdapter } from './VerifiedFactAdapter';
+import { MySQLWellbeingAdapter } from './MySQLWellbeingAdapter';
+import { SupabaseWellbeingAdapter } from './SupabaseWellbeingAdapter';
+import type { WellbeingAdapter } from './WellbeingAdapter';
 
 export interface AdapterContext {
   user: {
@@ -156,6 +159,19 @@ export function createVerifiedFactAdapter(ctx: AdapterContext): VerifiedFactAdap
     const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
     return new SupabaseVerifiedFactAdapter(userId, accessToken);
+  }
+}
+
+/**
+ * Create wellbeing adapter based on user role
+ */
+export function createWellbeingAdapter(ctx: AdapterContext): WellbeingAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLWellbeingAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseWellbeingAdapter(userId, accessToken);
   }
 }
 

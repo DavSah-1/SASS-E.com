@@ -3,7 +3,7 @@
  */
 
 import { eq, and, desc, sql } from "drizzle-orm";
-import { getDb } from "./db";
+import { getDb } from "./connection";
 import {
   workouts,
   userWorkoutHistory,
@@ -33,7 +33,7 @@ import {
   type InsertWellnessProfile,
   type InsertCoachingRecommendation,
   type InsertCoachingFeedback,
-} from "../drizzle/schema";
+} from "../../drizzle/schema";
 
 // ============================================================================
 // WORKOUTS & FITNESS

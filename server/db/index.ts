@@ -12,3 +12,4 @@ export * from "./verifiedFacts";
 export * from "./translation";
 export * from "./hubTrials";
 export * from "./conversationQueries";
+export * from "./wellbeing";

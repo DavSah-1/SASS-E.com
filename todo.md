@@ -6052,3 +6052,18 @@
 - [x] Fix 19 TypeScript errors manually (imports, types, query chaining, JSON serialization)
 - [x] Run full test suite to verify zero breakage (269 tests passing)
 - [x] Save checkpoint and push to GitHub
+
+## Helper File Adapter Bypasses (87 getDb() calls) - CRITICAL SECURITY FIX
+- [ ] Audit all helper files and count getDb() calls
+- [ ] Refactor wellbeingDb.ts (40 calls) to accept adapters as parameters
+- [ ] Refactor sharingHelpers.ts (13 calls) to accept adapters as parameters
+- [ ] Refactor wearableService.ts (9 calls) to accept adapters as parameters
+- [ ] Refactor goalHelpers.ts (6 calls) to accept adapters as parameters
+- [ ] Refactor alertHelpers.ts (6 calls) to accept adapters as parameters
+- [ ] Refactor recurringHelpers.ts (5 calls) to accept adapters as parameters
+- [ ] Refactor accessControl.ts (4 calls) to accept adapters as parameters
+- [ ] Refactor insightsHelpers.ts (2 calls) to accept adapters as parameters
+- [ ] Refactor receiptHelpers.ts (2 calls) to accept adapters as parameters
+- [ ] Update all callers to pass correct adapters (routers, procedures)
+- [ ] Run full test suite to verify fixes (269 tests)
+- [ ] Save checkpoint and push to GitHub
