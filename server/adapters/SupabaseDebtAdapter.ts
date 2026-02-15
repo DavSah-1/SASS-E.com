@@ -162,9 +162,11 @@ export class SupabaseDebtAdapter implements DebtAdapter {
       .insert({
         debt_id: payment.debtId,
         user_id: this.userId,
-        payment_amount: payment.paymentAmount / 100,
+        amount: payment.paymentAmount / 100,
         payment_date: payment.paymentDate,
-        payment_method: payment.paymentMethod,
+        payment_method: payment.paymentMethod || 'manual',
+        is_extra_payment: payment.isExtraPayment ? 1 : 0,
+        status: 'completed',
         notes: payment.notes,
       });
 
@@ -202,9 +204,13 @@ export class SupabaseDebtAdapter implements DebtAdapter {
       .insert({
         user_id: this.userId,
         strategy_type: strategy.strategyType,
-        target_debt_free_date: strategy.targetDebtFreeDate,
-        monthly_extra_payment: strategy.monthlyExtraPayment / 100,
-        notes: strategy.notes,
+        monthly_extra_payment: strategy.monthlyExtraPayment || 0,
+        projected_payoff_date: strategy.projectedPayoffDate || strategy.targetDebtFreeDate || new Date().toISOString(),
+        total_interest_paid: strategy.totalInterestPaid || 0,
+        total_interest_saved: strategy.totalInterestSaved || 0,
+        months_to_payoff: strategy.monthsToPayoff || 0,
+        payoff_order: JSON.stringify(strategy.payoffOrder || []),
+        calculated_at: new Date().toISOString(),
       });
 
     if (error) throw new Error(`Supabase saveDebtStrategy error: ${error.message}`);
@@ -234,7 +240,7 @@ export class SupabaseDebtAdapter implements DebtAdapter {
       .from('debt_milestones')
       .select('*')
       .eq('user_id', this.userId)
-      .order('target_date', { ascending: true });
+      .order('created_at', { ascending: false });
 
     if (debtId) {
       query = query.eq('debt_id', debtId);
@@ -248,11 +254,9 @@ export class SupabaseDebtAdapter implements DebtAdapter {
       userId: parseInt(this.userId),
       debtId: m.debt_id,
       milestoneType: m.milestone_type,
-      targetDate: m.target_date,
-      targetAmount: Math.round((m.target_amount || 0) * 100),
-      achieved: m.achieved === 1,
+      milestoneValue: m.milestone_value,
       achievedDate: m.achieved_date,
-      notes: m.notes,
+      celebrationShown: m.celebration_shown === 1,
       createdAt: m.created_at,
     }));
   }
@@ -263,10 +267,13 @@ export class SupabaseDebtAdapter implements DebtAdapter {
       .from('debt_budget_snapshots')
       .insert({
         user_id: this.userId,
+        month_year: snapshot.monthYear || snapshot.snapshotDate,
         snapshot_date: snapshot.snapshotDate,
         total_income: snapshot.totalIncome / 100,
         total_expenses: snapshot.totalExpenses / 100,
-        available_for_debt: snapshot.availableForDebt / 100,
+        total_debt_payments: snapshot.totalDebtPayments || 0,
+        extra_payment_budget: snapshot.extraPaymentBudget || 0,
+        actual_extra_payments: snapshot.actualExtraPayments || 0,
         notes: snapshot.notes,
       });
 

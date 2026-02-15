@@ -5803,3 +5803,40 @@
 - [ ] Save checkpoint
 
 **Result:** All 8 debtCoach failures are due to Supabase schema column naming inconsistencies (some tables use snake_case, others camelCase). The adapter pattern implementation is correct. Fixing requires Supabase schema migration, not adapter changes.
+
+
+## Generate Supabase Schema Migration Scripts
+
+- [x] Analyze MySQL schema to identify all camelCase columns
+- [x] Generate SQL ALTER TABLE migration scripts
+- [x] Create rollback scripts for safety
+- [x] Document migration instructions
+- [ ] Deliver scripts to user
+
+## Generate Filtered Supabase Migration Scripts (Supabase-only tables)
+
+- [ ] Identify which tables exist in Supabase database
+- [ ] Filter out MySQL-only tables from migration script
+- [ ] Generate filtered migration SQL
+- [ ] Generate filtered rollback SQL
+- [ ] Update migration guide with filtered scripts
+
+## Verify Supabase Schema Column Naming
+
+- [x] Analyze user-provided Supabase schema dump
+- [x] Check if columns are already in snake_case
+- [x] Determine if migration is actually needed
+- [ ] Report findings to user
+
+## Audit and Fix Supabase Adapters (Column Name Mismatches)
+
+- [x] Audit SupabaseNotificationAdapter.ts for camelCase column references
+- [x] Audit SupabaseBudgetAdapter.ts for camelCase column references
+- [x] Audit SupabaseDebtAdapter.ts for camelCase column references
+- [x] Audit SupabaseLearningAdapter.ts for camelCase column references
+- [x] Audit SupabaseIoTAdapter.ts for camelCase column references
+- [x] Audit SupabaseGoalsAdapter.ts for camelCase column references
+- [x] Audit SupabaseTranslationAdapter.ts for camelCase column references
+- [x] Fix all column name mismatches to use snake_case
+- [x] Run test suite to verify fixes
+- [ ] Save checkpoint with adapter fixes
