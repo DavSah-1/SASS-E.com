@@ -325,7 +325,7 @@ export const budgetRouter = router({
   // ==================== Budget Alerts ====================
 
   /**
-   * Get user's budget alerts
+   * Get budget alerts for the user
    */
   getAlerts: protectedProcedure
     .input(
@@ -335,20 +335,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await import("./db").then(m => m.getDb());
-      if (!db) return [];
-
-      const { budgetAlerts } = await import("../drizzle/schema");
-      const { eq, and, desc } = await import("drizzle-orm");
-
-      let query = db
-        .select()
-        .from(budgetAlerts)
-        .where(eq(budgetAlerts.userId, ctx.user.numericId))
-        .orderBy(desc(budgetAlerts.createdAt))
-        .limit(input.limit);
-
-      const alerts = await query;
+      const alerts = await ctx.alertsDb.getAlerts(ctx.user.numericId, input.limit);
       
       if (input.unreadOnly) {
         return alerts.filter(a => a.isRead === 0);
@@ -381,32 +368,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await import("./db").then(m => m.getDb());
-      if (!db) return [];
-
-      const { financialInsights } = await import("../drizzle/schema");
-      const { eq, and, desc, or, isNull, gt } = await import("drizzle-orm");
-
-      let whereConditions = [eq(financialInsights.userId, ctx.user.numericId)];
-      
-      if (input.activeOnly) {
-        whereConditions.push(eq(financialInsights.isDismissed, 0));
-        whereConditions.push(
-          or(
-            isNull(financialInsights.expiresAt),
-            gt(financialInsights.expiresAt, new Date())
-          )!
-        );
-      }
-
-      const insights = await db
-        .select()
-        .from(financialInsights)
-        .where(and(...whereConditions))
-        .orderBy(desc(financialInsights.priority), desc(financialInsights.createdAt))
-        .limit(input.limit);
-
-      return insights;
+      return ctx.insightsDb.getInsights(ctx.user.numericId, input.activeOnly, input.limit);
     }),
 
   /**
@@ -419,18 +381,8 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await import("./db").then(m => m.getDb());
-      if (!db) return { success: false };
-
-      const { financialInsights } = await import("../drizzle/schema");
-      const { eq } = await import("drizzle-orm");
-
-      await db
-        .update(financialInsights)
-        .set({ isDismissed: 1 })
-        .where(eq(financialInsights.id, input.insightId));
-
-      return { success: true, message: "Insight dismissed" };
+      const success = await ctx.insightsDb.dismissInsight(input.insightId, ctx.user.numericId);
+      return { success, message: success ? "Insight dismissed" : "Failed to dismiss insight" };
     }),
 
   // ==================== Spending Trends Visualization ====================
@@ -724,29 +676,7 @@ export const budgetRouter = router({
    * Get all available budget templates
    */
   getTemplates: protectedProcedure.query(async ({ ctx }) => {
-    const db = await import("./db").then(m => m.getDb());
-    if (!db) return [];
-
-    const { budgetTemplates } = await import("../drizzle/schema");
-    const { or, eq, isNull } = await import("drizzle-orm");
-
-    // Get system templates and user's custom templates
-    const templates = await db
-      .select()
-      .from(budgetTemplates)
-      .where(
-        or(
-          eq(budgetTemplates.isSystemTemplate, 1),
-          eq(budgetTemplates.userId, ctx.user.numericId)
-        )
-      )
-      .orderBy(budgetTemplates.sortOrder);
-
-    return templates.map(t => ({
-      ...t,
-      allocations: JSON.parse(t.allocations),
-      categoryMappings: t.categoryMappings ? JSON.parse(t.categoryMappings) : null,
-    }));
+    return ctx.budgetDb.getTemplates(ctx.user.numericId);
   }),
 
   /**
@@ -1038,64 +968,23 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await import("./db").then(m => m.getDb());
-      if (!db) return { success: false };
-
-      const { budgetAlerts } = await import("../drizzle/schema");
-      const { eq, and } = await import("drizzle-orm");
-
-      await db
-        .update(budgetAlerts)
-        .set({ isRead: 1 })
-        .where(
-          and(
-            eq(budgetAlerts.id, input.alertId),
-            eq(budgetAlerts.userId, ctx.user.numericId)
-          )
-        );
-
-      return { success: true };
+      const success = await ctx.alertsDb.markAlertRead(input.alertId, ctx.user.numericId);
+      return { success };
     }),
 
   /**
    * Mark all alerts as read
    */
   markAllAlertsRead: protectedProcedure.mutation(async ({ ctx }) => {
-    const db = await import("./db").then(m => m.getDb());
-    if (!db) return { success: false };
-
-    const { budgetAlerts } = await import("../drizzle/schema");
-    const { eq } = await import("drizzle-orm");
-
-    await db
-      .update(budgetAlerts)
-      .set({ isRead: 1 })
-      .where(eq(budgetAlerts.userId, ctx.user.numericId));
-
-    return { success: true };
+    const success = await ctx.alertsDb.markAllAlertsRead(ctx.user.numericId);
+    return { success };
   }),
 
   /**
    * Get unread alert count
    */
   getUnreadAlertCount: protectedProcedure.query(async ({ ctx }) => {
-    const db = await import("./db").then(m => m.getDb());
-    if (!db) return 0;
-
-    const { budgetAlerts } = await import("../drizzle/schema");
-    const { eq, and, count } = await import("drizzle-orm");
-
-    const result = await db
-      .select({ count: count() })
-      .from(budgetAlerts)
-      .where(
-        and(
-          eq(budgetAlerts.userId, ctx.user.numericId),
-          eq(budgetAlerts.isRead, 0)
-        )
-      );
-
-    return result[0]?.count || 0;
+    return ctx.alertsDb.getUnreadAlertCount(ctx.user.numericId);
   }),
 
   /**

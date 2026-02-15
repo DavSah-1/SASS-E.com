@@ -304,4 +304,273 @@ export class SupabaseBudgetAdapter implements BudgetAdapter {
     if (error) throw new Error(`Supabase findDuplicateTransaction error: ${error.message}`);
     return data;
   }
+
+  async getTemplates(userId: number) {
+    const client = await this.getClient();
+
+    const { data, error } = await client
+      .from("budget_templates")
+      .select()
+      .or(`is_system_template.eq.true,user_id.eq.${userId}`)
+      .order("sort_order");
+
+    if (error) {
+      console.error("[SupabaseBudgetAdapter] getTemplates error:", error);
+      return [];
+    }
+
+    return (data || []).map(t => ({
+      ...t,
+      categories: typeof t.categories === 'string' ? JSON.parse(t.categories) : t.categories,
+    }));
+  }
+
+  async applyTemplate(userId: number, templateId: number, monthlyIncome: number) {
+    const client = await this.getClient();
+
+    // Get template
+    const { data: template, error: templateError } = await client
+      .from("budget_templates")
+      .select()
+      .eq("id", templateId)
+      .single();
+
+    if (templateError || !template) {
+      return { success: false, message: "Template not found" };
+    }
+
+    const categories = typeof template.categories === 'string' ? JSON.parse(template.categories) : template.categories;
+
+    // Create categories
+    let categoriesCreated = 0;
+    for (const cat of categories) {
+      const monthlyLimit = Math.round((monthlyIncome * cat.percentage) / 100);
+      
+      const { error } = await client
+        .from("budget_categories")
+        .insert({
+          user_id: userId,
+          name: cat.name,
+          type: cat.type || "expense",
+          monthly_limit: monthlyLimit,
+          icon: cat.icon || null,
+          color: cat.color || null,
+        });
+
+      if (!error) categoriesCreated++;
+    }
+
+    // Deactivate previous template applications
+    await client
+      .from("user_budget_templates")
+      .update({ is_active: false })
+      .eq("user_id", userId);
+
+    // Record template application
+    await client
+      .from("user_budget_templates")
+      .insert({
+        user_id: userId,
+        template_id: templateId,
+        monthly_income: monthlyIncome,
+        is_active: true,
+      });
+
+    // Increment usage count
+    await client
+      .from("budget_templates")
+      .update({ usage_count: template.usage_count + 1 })
+      .eq("id", templateId);
+
+    return {
+      success: true,
+      message: `Applied ${template.name} template`,
+      categoriesCreated,
+    };
+  }
+
+  async getActiveTemplate(userId: number) {
+    const client = await this.getClient();
+
+    const { data, error } = await client
+      .from("user_budget_templates")
+      .select(`
+        *,
+        template:budget_templates(*)
+      `)
+      .eq("user_id", userId)
+      .eq("is_active", true)
+      .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return {
+      application: data,
+      template: data.template,
+    };
+  }
+
+  async getCategoryTrend(userId: number, categoryId: number, months: number) {
+    const client = await this.getClient();
+
+    // Get category details
+    const { data: category, error: catError } = await client
+      .from("budget_categories")
+      .select()
+      .eq("id", categoryId)
+      .eq("user_id", userId)
+      .single();
+
+    if (catError || !category) {
+      return null;
+    }
+
+    // Calculate start date
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - months);
+    startDate.setDate(1);
+
+    // Get transactions
+    const { data: transactions, error: txError } = await client
+      .from("budget_transactions")
+      .select("amount, transaction_date")
+      .eq("user_id", userId)
+      .eq("category_id", categoryId)
+      .gte("transaction_date", startDate.toISOString())
+      .order("transaction_date");
+
+    if (txError || !transactions) {
+      return { category, trends: [], overallAverage: 0 };
+    }
+
+    // Aggregate by month
+    const monthlyTotals: Record<string, { total: number; count: number }> = {};
+
+    for (const tx of transactions) {
+      const monthKey = tx.transaction_date.slice(0, 7);
+      
+      if (!monthlyTotals[monthKey]) {
+        monthlyTotals[monthKey] = { total: 0, count: 0 };
+      }
+
+      monthlyTotals[monthKey].total += tx.amount;
+      monthlyTotals[monthKey].count += 1;
+    }
+
+    // Calculate trends
+    const monthKeys = Object.keys(monthlyTotals).sort();
+    const trends = monthKeys.map((month, index) => {
+      const current = monthlyTotals[month];
+      const previous = index > 0 ? monthlyTotals[monthKeys[index - 1]] : null;
+      
+      const percentageChange = previous && previous.total > 0
+        ? ((current.total - previous.total) / previous.total) * 100
+        : 0;
+
+      return {
+        month,
+        total: current.total,
+        count: current.count,
+        average: current.count > 0 ? Math.round(current.total / current.count) : 0,
+        percentageChange: Math.round(percentageChange * 100) / 100,
+        trend: percentageChange > 5 ? "increasing" : percentageChange < -5 ? "decreasing" : "stable",
+      };
+    });
+
+    return {
+      category,
+      trends,
+      overallAverage: trends.length > 0
+        ? Math.round(trends.reduce((sum, t) => sum + t.total, 0) / trends.length)
+        : 0,
+    };
+  }
+
+  async getSpendingTrendsSummary(userId: number, months: number) {
+    const client = await this.getClient();
+
+    // Calculate start date
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - months);
+    startDate.setDate(1);
+
+    // Get all transactions with category type
+    const { data: transactions, error } = await client
+      .from("budget_transactions")
+      .select(`
+        amount,
+        transaction_date,
+        category:budget_categories(type)
+      `)
+      .eq("user_id", userId)
+      .gte("transaction_date", startDate.toISOString());
+
+    if (error || !transactions) {
+      return null;
+    }
+
+    // Aggregate by month
+    const monthlyData: Record<string, { income: number; expenses: number }> = {};
+
+    for (const tx of transactions) {
+      const monthKey = tx.transaction_date.slice(0, 7);
+      
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = { income: 0, expenses: 0 };
+      }
+
+      const categoryType = (tx.category as any)?.type;
+      if (categoryType === "income") {
+        monthlyData[monthKey].income += tx.amount;
+      } else {
+        monthlyData[monthKey].expenses += tx.amount;
+      }
+    }
+
+    // Calculate trends
+    const monthKeys = Object.keys(monthlyData).sort();
+    const trends = monthKeys.map((month, index) => {
+      const current = monthlyData[month];
+      const previous = index > 0 ? monthlyData[monthKeys[index - 1]] : null;
+      
+      const netCashFlow = current.income - current.expenses;
+      const savingsRate = current.income > 0
+        ? Math.round((netCashFlow / current.income) * 10000) / 100
+        : 0;
+
+      const expenseChange = previous && previous.expenses > 0
+        ? ((current.expenses - previous.expenses) / previous.expenses) * 100
+        : 0;
+
+      return {
+        month,
+        income: current.income,
+        expenses: current.expenses,
+        netCashFlow,
+        savingsRate,
+        expenseChange: Math.round(expenseChange * 100) / 100,
+      };
+    });
+
+    // Calculate overall statistics
+    const totalIncome = trends.reduce((sum, t) => sum + t.income, 0);
+    const totalExpenses = trends.reduce((sum, t) => sum + t.expenses, 0);
+    const avgMonthlyIncome = trends.length > 0 ? Math.round(totalIncome / trends.length) : 0;
+    const avgMonthlyExpenses = trends.length > 0 ? Math.round(totalExpenses / trends.length) : 0;
+    const avgSavingsRate = trends.length > 0
+      ? Math.round(trends.reduce((sum, t) => sum + t.savingsRate, 0) / trends.length * 100) / 100
+      : 0;
+
+    return {
+      trends,
+      summary: {
+        avgMonthlyIncome,
+        avgMonthlyExpenses,
+        avgSavingsRate,
+        totalMonths: trends.length,
+      },
+    };
+  }
 }

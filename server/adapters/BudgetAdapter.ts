@@ -40,4 +40,44 @@ export interface BudgetAdapter {
    * Category Spending Analysis
    */
   getCategorySpendingBreakdown(userId: number, monthYear: string): Promise<any[]>;
+
+  /**
+   * Budget Templates
+   */
+  getTemplates(userId: number): Promise<any[]>;
+  applyTemplate(userId: number, templateId: number, monthlyIncome: number): Promise<{ success: boolean; message?: string; categoriesCreated?: number }>;
+  getActiveTemplate(userId: number): Promise<{ application: any; template: any } | null>;
+
+  /**
+   * Spending Trends
+   */
+  getCategoryTrend(userId: number, categoryId: number, months: number): Promise<{
+    category: any;
+    trends: Array<{
+      month: string;
+      total: number;
+      count: number;
+      average: number;
+      percentageChange: number;
+      trend: string;
+    }>;
+    overallAverage: number;
+  } | null>;
+  
+  getSpendingTrendsSummary(userId: number, months: number): Promise<{
+    trends: Array<{
+      month: string;
+      income: number;
+      expenses: number;
+      netCashFlow: number;
+      savingsRate: number;
+      expenseChange: number;
+    }>;
+    summary: {
+      avgMonthlyIncome: number;
+      avgMonthlyExpenses: number;
+      avgSavingsRate: number;
+      totalMonths: number;
+    };
+  } | null>;
 }
