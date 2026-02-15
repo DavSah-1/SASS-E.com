@@ -1527,15 +1527,14 @@ export const appRouter = router({
         // normalizeQuestion is a utility function, not wrapped in dbRoleAware
         const { normalizeQuestion } = await import('./db');
         const normalizedQ = normalizeQuestion(input.message);
-        // TODO: Move to VerifiedFactAdapter once created
-        const verifiedFact = await dbRoleAware.getVerifiedFact(dbCtx, normalizedQ);
+        const verifiedFact = await ctx.verifiedFactDb!.getVerifiedFact(normalizedQ);
         
         if (verifiedFact) {
           // We have a verified fact for this question!
           knowledgeBaseContext = `\n\nVerified Knowledge Base (Last verified: ${verifiedFact.verifiedAt.toLocaleDateString()}):\n${verifiedFact.answer}\n\nSources: ${JSON.parse(verifiedFact.sources).map((s: any) => s.title).join(', ')}`;
           
           // Log fact access for notification purposes
-          await dbRoleAware.logFactAccess(dbCtx, ctx.user.numericId, verifiedFact.id, verifiedFact, 'voice_assistant');
+          await ctx.verifiedFactDb!.logFactAccess(ctx.user.numericId, verifiedFact.id, verifiedFact, 'voice_assistant');
         }
 
         const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}${weatherContext}${knowledgeBaseContext}
@@ -2205,8 +2204,7 @@ If verified knowledge base information is provided above, use that as your prima
           expiresAt.setDate(expiresAt.getDate() + 30); // Facts expire after 30 days
           
           try {
-            // TODO: Move to VerifiedFactAdapter once created
-            await dbRoleAware.saveVerifiedFact(dbCtx, {
+            await ctx.verifiedFactDb!.saveVerifiedFact({
               question: input.question,
               normalizedQuestion: normalizedQuestion,
               answer: explanation,

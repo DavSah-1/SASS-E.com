@@ -5891,10 +5891,11 @@
 - [x] Add coreDb to context.ts
 
 ### Phase 2: Create VerifiedFactAdapter
-- [ ] Create VerifiedFactAdapter interface
-- [ ] Implement MySQLVerifiedFactAdapter
-- [ ] Implement SupabaseVerifiedFactAdapter  
-- [ ] Add verifiedFactDb to context.ts
+- [x] Create VerifiedFactAdapter interface
+- [x] Implement MySQLVerifiedFactAdapter
+- [x] Implement SupabaseVerifiedFactAdapter
+- [x] Add verifiedFactDb to context.ts
+- [x] Migrate verified fact calls in routers.ts to use ctx.verifiedFactDb
 
 ### Phase 3: Expand LearningAdapter
 - [ ] Add fact checking methods to LearningAdapter interface

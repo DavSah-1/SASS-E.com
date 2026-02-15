@@ -29,6 +29,9 @@ import type { GoalsAdapter } from './GoalsAdapter';
 import { MysqlTranslationAdapter } from './MysqlTranslationAdapter';
 import { SupabaseTranslationAdapter } from './SupabaseTranslationAdapter';
 import type { TranslationAdapter } from './TranslationAdapter';
+import { MySQLVerifiedFactAdapter } from './MySQLVerifiedFactAdapter';
+import { SupabaseVerifiedFactAdapter } from './SupabaseVerifiedFactAdapter';
+import type { VerifiedFactAdapter } from './VerifiedFactAdapter';
 
 export interface AdapterContext {
   user: {
@@ -153,6 +156,19 @@ export function createTranslationAdapter(ctx: AdapterContext): TranslationAdapte
   }
 }
 
+/**
+ * Create verified fact adapter based on user role
+ */
+export function createVerifiedFactAdapter(ctx: AdapterContext): VerifiedFactAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLVerifiedFactAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseVerifiedFactAdapter(userId, accessToken);
+  }
+}
+
 // Export adapters and interfaces
 export type { CoreAdapter } from './CoreAdapter';
 export type { NotificationAdapter } from './NotificationAdapter';
@@ -162,6 +178,7 @@ export type { LearningAdapter } from './LearningAdapter';
 export type { IoTAdapter } from './IoTAdapter';
 export type { GoalsAdapter } from './GoalsAdapter';
 export type { TranslationAdapter } from './TranslationAdapter';
+export type { VerifiedFactAdapter } from './VerifiedFactAdapter';
 export { MySQLCoreAdapter } from './MySQLCoreAdapter';
 export { SupabaseCoreAdapter } from './SupabaseCoreAdapter';
 export { MysqlNotificationAdapter } from './MysqlNotificationAdapter';
@@ -170,3 +187,5 @@ export { MysqlBudgetAdapter } from './MysqlBudgetAdapter';
 export { SupabaseBudgetAdapter } from './SupabaseBudgetAdapter';
 export { MysqlIoTAdapter } from './MysqlIoTAdapter';
 export { SupabaseIoTAdapter } from './SupabaseIoTAdapter';
+export { MySQLVerifiedFactAdapter } from './MySQLVerifiedFactAdapter';
+export { SupabaseVerifiedFactAdapter } from './SupabaseVerifiedFactAdapter';

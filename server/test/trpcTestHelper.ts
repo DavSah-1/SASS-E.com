@@ -10,7 +10,7 @@
 import { appRouter } from '../routers';
 import { createTestUser } from './supabaseTestHelper';
 import type { TrpcContext } from '../_core/context';
-import { createCoreAdapter, createNotificationAdapter, createBudgetAdapter, createDebtAdapter, createLearningAdapter, createIoTAdapter, createGoalsAdapter, createTranslationAdapter } from '../adapters';
+import { createCoreAdapter, createNotificationAdapter, createBudgetAdapter, createDebtAdapter, createLearningAdapter, createIoTAdapter, createGoalsAdapter, createTranslationAdapter, createVerifiedFactAdapter } from '../adapters';
 
 /**
  * Create a tRPC caller with test context
@@ -62,6 +62,7 @@ export async function createTestCaller(options: {
   const iotDb = createIoTAdapter(adapterContext);
   const goalsDb = createGoalsAdapter(adapterContext);
   const translationDb = createTranslationAdapter(adapterContext);
+  const verifiedFactDb = createVerifiedFactAdapter(adapterContext);
 
   // Create mock context
   const mockContext: TrpcContext = {
@@ -84,6 +85,7 @@ export async function createTestCaller(options: {
     iotDb,
     goalsDb,
     translationDb,
+    verifiedFactDb,
   };
 
   // Create caller with context
@@ -104,6 +106,7 @@ export function createUnauthenticatedCaller() {
     iotDb: null,
     goalsDb: null,
     translationDb: null,
+    verifiedFactDb: null,
     req: {
       headers: {},
       cookies: {},
