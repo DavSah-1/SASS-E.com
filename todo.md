@@ -5877,7 +5877,57 @@
 
 ## Push Latest Changes to GitHub
 
-- [ ] Check git status
-- [ ] Stage all changes
-- [ ] Commit with descriptive message
-- [ ] Push to GitHub repository
+- [x] Check git status
+- [x] Stage all changes
+- [x] Commit with descriptive message
+- [x] Push to GitHub repository
+
+## Complete Adapter Pattern Migration (67% → 100%)
+
+### Phase 1: Create CoreAdapter
+- [x] Create CoreAdapter interface for user/profile/conversation operations
+- [x] Implement MySQLCoreAdapter
+- [x] Implement SupabaseCoreAdapter
+- [x] Add coreDb to context.ts
+
+### Phase 2: Create VerifiedFactAdapter
+- [ ] Create VerifiedFactAdapter interface
+- [ ] Implement MySQLVerifiedFactAdapter
+- [ ] Implement SupabaseVerifiedFactAdapter  
+- [ ] Add verifiedFactDb to context.ts
+
+### Phase 3: Expand LearningAdapter
+- [ ] Add fact checking methods to LearningAdapter interface
+- [ ] Add study guide methods to LearningAdapter interface
+- [ ] Add quiz methods to LearningAdapter interface
+- [ ] Add conversation session methods to LearningAdapter interface
+- [ ] Implement missing methods in MySQLLearningAdapter
+- [ ] Implement missing methods in SupabaseLearningAdapter
+
+### Phase 4: Expand TranslationAdapter
+- [ ] Add saved translation methods to TranslationAdapter interface
+- [ ] Add category methods to TranslationAdapter interface
+- [ ] Implement missing methods in MySQLTranslationAdapter
+- [ ] Implement missing methods in SupabaseTranslationAdapter
+
+### Phase 5: Migrate routers.ts
+- [x] Replace 49 dbRoleAware calls with adapter calls in routers.ts (migrated to ctx.coreDb, ctx.iotDb, ctx.notificationDb, or marked with TODO)
+- [ ] Test all migrated procedures
+
+### Phase 6: Fix trpc.ts middleware
+- [ ] Narrow adapter types to non-null in requireUser middleware
+
+### Phase 7: Standardize Supabase clients
+- [ ] Update GoalsAdapter to use getSupabaseClient()
+- [ ] Update TranslationAdapter to use getSupabaseClient()
+
+### Phase 8: Delete dbRoleAware.ts
+- [ ] Verify no remaining dbRoleAware imports
+- [ ] Delete dbRoleAware.ts (127KB)
+- [ ] Rename dbRoleAware-cleanup.ts to notificationCleanup.ts
+- [ ] Remove commented imports from all routers
+- [ ] Fix helper files that bypass adapters
+
+### Phase 9: Final testing
+- [ ] Run full test suite
+- [ ] Save final checkpoint

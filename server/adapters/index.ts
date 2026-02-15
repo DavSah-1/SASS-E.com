@@ -5,6 +5,9 @@
  * This is the single point where routing decisions are made.
  */
 
+import { MySQLCoreAdapter } from './MySQLCoreAdapter';
+import { SupabaseCoreAdapter } from './SupabaseCoreAdapter';
+import type { CoreAdapter } from './CoreAdapter';
 import { MysqlNotificationAdapter } from './MysqlNotificationAdapter';
 import { SupabaseNotificationAdapter } from './SupabaseNotificationAdapter';
 import type { NotificationAdapter } from './NotificationAdapter';
@@ -34,6 +37,19 @@ export interface AdapterContext {
     role: 'admin' | 'user';
   };
   accessToken?: string;
+}
+
+/**
+ * Create core adapter based on user role
+ */
+export function createCoreAdapter(ctx: AdapterContext): CoreAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLCoreAdapter(ctx.user.numericId || Number(ctx.user.id));
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseCoreAdapter(userId, accessToken);
+  }
 }
 
 /**
@@ -138,6 +154,7 @@ export function createTranslationAdapter(ctx: AdapterContext): TranslationAdapte
 }
 
 // Export adapters and interfaces
+export type { CoreAdapter } from './CoreAdapter';
 export type { NotificationAdapter } from './NotificationAdapter';
 export type { BudgetAdapter } from './BudgetAdapter';
 export type { DebtAdapter } from './DebtAdapter';
@@ -145,6 +162,8 @@ export type { LearningAdapter } from './LearningAdapter';
 export type { IoTAdapter } from './IoTAdapter';
 export type { GoalsAdapter } from './GoalsAdapter';
 export type { TranslationAdapter } from './TranslationAdapter';
+export { MySQLCoreAdapter } from './MySQLCoreAdapter';
+export { SupabaseCoreAdapter } from './SupabaseCoreAdapter';
 export { MysqlNotificationAdapter } from './MysqlNotificationAdapter';
 export { SupabaseNotificationAdapter } from './SupabaseNotificationAdapter';
 export { MysqlBudgetAdapter } from './MysqlBudgetAdapter';

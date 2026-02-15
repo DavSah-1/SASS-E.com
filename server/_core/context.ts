@@ -1,13 +1,14 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { UnifiedUser } from "./dbRouter";
 import { sdk } from "./sdk";
-import { createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter, createIoTAdapter, type IoTAdapter, createGoalsAdapter, type GoalsAdapter, createTranslationAdapter, type TranslationAdapter } from "../adapters";
+import { createCoreAdapter, type CoreAdapter, createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter, createIoTAdapter, type IoTAdapter, createGoalsAdapter, type GoalsAdapter, createTranslationAdapter, type TranslationAdapter } from "../adapters";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
   res: CreateExpressContextOptions["res"];
   user: UnifiedUser | null;
   accessToken?: string; // JWT token for RLS enforcement
+  coreDb: CoreAdapter | null; // Core adapter (user/profile/conversation)
   notificationDb: NotificationAdapter | null; // Notification adapter
   budgetDb: BudgetAdapter | null; // Budget adapter
   debtDb: DebtAdapter | null; // Debt adapter
@@ -37,6 +38,7 @@ export async function createContext(
   }
 
   // Create adapters if user is authenticated
+  const coreDb = user ? createCoreAdapter({ user, accessToken }) : null;
   const notificationDb = user ? createNotificationAdapter({ user, accessToken }) : null;
   const budgetDb = user ? createBudgetAdapter({ user, accessToken }) : null;
   const debtDb = user ? createDebtAdapter({ user, accessToken }) : null;
@@ -50,6 +52,7 @@ export async function createContext(
     res: opts.res,
     user,
     accessToken,
+    coreDb,
     notificationDb,
     budgetDb,
     debtDb,
