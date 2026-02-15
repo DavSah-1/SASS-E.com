@@ -30,6 +30,13 @@ const requireUser = t.middleware(async opts => {
       goalsDb: ctx.goalsDb!,
       translationDb: ctx.translationDb!,
       verifiedFactDb: ctx.verifiedFactDb!,
+      wellbeingDb: ctx.wellbeingDb!,
+      sharingDb: ctx.sharingDb!,
+      wearableDb: ctx.wearableDb!,
+      alertsDb: ctx.alertsDb!,
+      recurringDb: ctx.recurringDb!,
+      insightsDb: ctx.insightsDb!,
+      receiptsDb: ctx.receiptsDb!,
     },
   });
 });
@@ -57,6 +64,13 @@ export const adminProcedure = t.procedure.use(
         goalsDb: ctx.goalsDb!,
         translationDb: ctx.translationDb!,
         verifiedFactDb: ctx.verifiedFactDb!,
+        wellbeingDb: ctx.wellbeingDb!,
+        sharingDb: ctx.sharingDb!,
+        wearableDb: ctx.wearableDb!,
+        alertsDb: ctx.alertsDb!,
+        recurringDb: ctx.recurringDb!,
+        insightsDb: ctx.insightsDb!,
+        receiptsDb: ctx.receiptsDb!,
       },
     });
   }),

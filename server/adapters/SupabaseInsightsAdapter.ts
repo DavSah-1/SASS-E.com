@@ -327,4 +327,61 @@ Be sarcastic but genuinely helpful. Make the insights actionable and specific.`;
 
     return recommendations;
   }
+
+  async getInsights(userId: number, options: { activeOnly?: boolean; limit?: number }) {
+    const client = await this.getClient();
+
+    let query = client
+      .from("financial_insights")
+      .select()
+      .eq("user_id", userId)
+      .order("priority", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (options.activeOnly) {
+      query = query.eq("is_dismissed", false);
+      // Filter for non-expired insights
+      query = query.or("expires_at.is.null,expires_at.gt." + new Date().toISOString());
+    }
+
+    if (options.limit) {
+      query = query.limit(options.limit);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("[SupabaseInsightsAdapter] getInsights error:", error);
+      return [];
+    }
+
+    return (data || []).map(insight => ({
+      id: insight.id,
+      userId: insight.user_id,
+      insightType: insight.insight_type,
+      title: insight.title,
+      description: insight.description,
+      priority: insight.priority,
+      isDismissed: insight.is_dismissed ? 1 : 0,
+      expiresAt: insight.expires_at ? new Date(insight.expires_at) : null,
+      createdAt: new Date(insight.created_at),
+    }));
+  }
+
+  async dismissInsight(userId: number, insightId: number): Promise<{ success: boolean; message?: string }> {
+    const client = await this.getClient();
+
+    const { error } = await client
+      .from("financial_insights")
+      .update({ is_dismissed: true })
+      .eq("id", insightId)
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("[SupabaseInsightsAdapter] dismissInsight error:", error);
+      return { success: false };
+    }
+
+    return { success: true, message: "Insight dismissed" };
+  }
 }

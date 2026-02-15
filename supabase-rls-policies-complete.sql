@@ -1,5 +1,5 @@
 -- ============================================================================
--- Supabase Row Level Security (RLS) Policies
+-- Supabase Row Level Security (RLS) Policies - COMPLETE
 -- ============================================================================
 -- This file defines RLS policies for user data isolation in Supabase (PostgreSQL)
 -- Execute these statements in Supabase SQL Editor
@@ -9,8 +9,8 @@
 -- 2. Wearable (wearable_connections, wearable_sync_logs, wearable_data_cache)
 -- 3. Alerts (budget_alerts)
 -- 4. Recurring (recurring_transactions)
---
--- Note: Insights and Receipts modules don't have dedicated tables
+-- 5. Insights (financial_insights)
+-- 6. Receipts (receipts, receipt_line_items)
 -- ============================================================================
 
 -- ============================================================================
@@ -57,19 +57,23 @@ USING (
 -- Enable RLS on shared_budget_members
 ALTER TABLE shared_budget_members ENABLE ROW LEVEL SECURITY;
 
--- Policy: Users can view members of budgets they have access to
+-- Policy: Users can view members of shared budgets they have access to
 CREATE POLICY "Users can view shared budget members"
 ON shared_budget_members FOR SELECT
 USING (
   shared_budget_id IN (
     SELECT id FROM shared_budgets 
     WHERE owner_id = (SELECT id FROM users WHERE open_id = auth.uid())
+    OR id IN (
+      SELECT shared_budget_id 
+      FROM shared_budget_members 
+      WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+    )
   )
-  OR user_id = (SELECT id FROM users WHERE open_id = auth.uid())
 );
 
--- Policy: Budget owners can add members
-CREATE POLICY "Budget owners can add members"
+-- Policy: Only owners can add members
+CREATE POLICY "Owners can add shared budget members"
 ON shared_budget_members FOR INSERT
 WITH CHECK (
   shared_budget_id IN (
@@ -78,8 +82,8 @@ WITH CHECK (
   )
 );
 
--- Policy: Budget owners can update member permissions
-CREATE POLICY "Budget owners can update members"
+-- Policy: Only owners can update member roles
+CREATE POLICY "Owners can update shared budget members"
 ON shared_budget_members FOR UPDATE
 USING (
   shared_budget_id IN (
@@ -88,8 +92,8 @@ USING (
   )
 );
 
--- Policy: Budget owners and members themselves can remove membership
-CREATE POLICY "Budget owners and members can remove membership"
+-- Policy: Owners can remove members, members can remove themselves
+CREATE POLICY "Owners and members can delete shared budget members"
 ON shared_budget_members FOR DELETE
 USING (
   shared_budget_id IN (
@@ -103,55 +107,55 @@ USING (
 -- Enable RLS on shared_budget_categories
 ALTER TABLE shared_budget_categories ENABLE ROW LEVEL SECURITY;
 
--- Policy: Users can view categories of budgets they have access to
+-- Policy: Users can view categories for shared budgets they have access to
 CREATE POLICY "Users can view shared budget categories"
 ON shared_budget_categories FOR SELECT
 USING (
   shared_budget_id IN (
     SELECT id FROM shared_budgets 
     WHERE owner_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      OR id IN (
-        SELECT shared_budget_id 
-        FROM shared_budget_members 
-        WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      )
+    OR id IN (
+      SELECT shared_budget_id 
+      FROM shared_budget_members 
+      WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+    )
   )
 );
 
--- Policy: Budget members with edit permission can create categories
-CREATE POLICY "Budget members can create categories"
+-- Policy: Owners and editors can create categories
+CREATE POLICY "Owners and editors can create shared budget categories"
 ON shared_budget_categories FOR INSERT
 WITH CHECK (
   shared_budget_id IN (
     SELECT id FROM shared_budgets 
     WHERE owner_id = (SELECT id FROM users WHERE open_id = auth.uid())
-  )
-  OR shared_budget_id IN (
-    SELECT shared_budget_id 
-    FROM shared_budget_members 
-    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      AND role IN ('editor', 'admin')
+    OR id IN (
+      SELECT shared_budget_id 
+      FROM shared_budget_members 
+      WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+      AND role IN ('owner', 'editor')
+    )
   )
 );
 
--- Policy: Budget members with edit permission can update categories
-CREATE POLICY "Budget members can update categories"
+-- Policy: Owners and editors can update categories
+CREATE POLICY "Owners and editors can update shared budget categories"
 ON shared_budget_categories FOR UPDATE
 USING (
   shared_budget_id IN (
     SELECT id FROM shared_budgets 
     WHERE owner_id = (SELECT id FROM users WHERE open_id = auth.uid())
-  )
-  OR shared_budget_id IN (
-    SELECT shared_budget_id 
-    FROM shared_budget_members 
-    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      AND role IN ('editor', 'admin')
+    OR id IN (
+      SELECT shared_budget_id 
+      FROM shared_budget_members 
+      WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+      AND role IN ('owner', 'editor')
+    )
   )
 );
 
--- Policy: Only budget owners can delete categories
-CREATE POLICY "Budget owners can delete categories"
+-- Policy: Only owners can delete categories
+CREATE POLICY "Owners can delete shared budget categories"
 ON shared_budget_categories FOR DELETE
 USING (
   shared_budget_id IN (
@@ -164,62 +168,66 @@ USING (
 -- Enable RLS on shared_budget_transactions
 ALTER TABLE shared_budget_transactions ENABLE ROW LEVEL SECURITY;
 
--- Policy: Users can view transactions of budgets they have access to
+-- Policy: Users can view transactions for shared budgets they have access to
 CREATE POLICY "Users can view shared budget transactions"
 ON shared_budget_transactions FOR SELECT
 USING (
   shared_budget_id IN (
     SELECT id FROM shared_budgets 
     WHERE owner_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      OR id IN (
-        SELECT shared_budget_id 
-        FROM shared_budget_members 
-        WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      )
+    OR id IN (
+      SELECT shared_budget_id 
+      FROM shared_budget_members 
+      WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+    )
   )
 );
 
--- Policy: Budget members with edit permission can create transactions
-CREATE POLICY "Budget members can create transactions"
+-- Policy: Owners and editors can create transactions
+CREATE POLICY "Owners and editors can create shared budget transactions"
 ON shared_budget_transactions FOR INSERT
 WITH CHECK (
   shared_budget_id IN (
     SELECT id FROM shared_budgets 
     WHERE owner_id = (SELECT id FROM users WHERE open_id = auth.uid())
-  )
-  OR shared_budget_id IN (
-    SELECT shared_budget_id 
-    FROM shared_budget_members 
-    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      AND role IN ('editor', 'admin')
+    OR id IN (
+      SELECT shared_budget_id 
+      FROM shared_budget_members 
+      WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+      AND role IN ('owner', 'editor')
+    )
   )
 );
 
--- Policy: Users can update their own transactions or if they have edit permission
-CREATE POLICY "Users can update shared budget transactions"
+-- Policy: Owners and editors can update transactions
+CREATE POLICY "Owners and editors can update shared budget transactions"
 ON shared_budget_transactions FOR UPDATE
 USING (
-  added_by = (SELECT id FROM users WHERE open_id = auth.uid())
-  OR shared_budget_id IN (
+  shared_budget_id IN (
     SELECT id FROM shared_budgets 
     WHERE owner_id = (SELECT id FROM users WHERE open_id = auth.uid())
-  )
-  OR shared_budget_id IN (
-    SELECT shared_budget_id 
-    FROM shared_budget_members 
-    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      AND role IN ('editor', 'admin')
+    OR id IN (
+      SELECT shared_budget_id 
+      FROM shared_budget_members 
+      WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+      AND role IN ('owner', 'editor')
+    )
   )
 );
 
--- Policy: Users can delete their own transactions or budget owners can delete any
-CREATE POLICY "Users can delete shared budget transactions"
+-- Policy: Owners and editors can delete transactions
+CREATE POLICY "Owners and editors can delete shared budget transactions"
 ON shared_budget_transactions FOR DELETE
 USING (
-  added_by = (SELECT id FROM users WHERE open_id = auth.uid())
-  OR shared_budget_id IN (
+  shared_budget_id IN (
     SELECT id FROM shared_budgets 
     WHERE owner_id = (SELECT id FROM users WHERE open_id = auth.uid())
+    OR id IN (
+      SELECT shared_budget_id 
+      FROM shared_budget_members 
+      WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+      AND role IN ('owner', 'editor')
+    )
   )
 );
 
@@ -227,23 +235,22 @@ USING (
 -- Enable RLS on shared_budget_activity
 ALTER TABLE shared_budget_activity ENABLE ROW LEVEL SECURITY;
 
--- Policy: Users can view activity of budgets they have access to
+-- Policy: Users can view activity for shared budgets they have access to
 CREATE POLICY "Users can view shared budget activity"
 ON shared_budget_activity FOR SELECT
 USING (
   shared_budget_id IN (
     SELECT id FROM shared_budgets 
     WHERE owner_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      OR id IN (
-        SELECT shared_budget_id 
-        FROM shared_budget_members 
-        WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
-      )
+    OR id IN (
+      SELECT shared_budget_id 
+      FROM shared_budget_members 
+      WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+    )
   )
 );
 
--- Policy: Activity logs are created automatically (no INSERT policy needed for users)
--- Policy: Activity logs cannot be updated or deleted by users (audit trail)
+-- Policy: System creates activity logs (users don't need INSERT permission)
 
 -- ============================================================================
 -- 2. WEARABLE MODULE - Wearable Device Integration
@@ -284,34 +291,27 @@ USING (
 -- Enable RLS on wearable_sync_logs
 ALTER TABLE wearable_sync_logs ENABLE ROW LEVEL SECURITY;
 
--- Policy: Users can view sync logs for their own connections
+-- Policy: Users can view their own wearable sync logs
 CREATE POLICY "Users can view their own wearable sync logs"
 ON wearable_sync_logs FOR SELECT
 USING (
-  connection_id IN (
-    SELECT id FROM wearable_connections 
-    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
-  )
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
 );
 
 -- Policy: System creates sync logs (users don't need INSERT permission)
--- Policy: Sync logs cannot be updated or deleted by users (audit trail)
 
 -- ============================================================================
 -- Enable RLS on wearable_data_cache
 ALTER TABLE wearable_data_cache ENABLE ROW LEVEL SECURITY;
 
--- Policy: Users can view cached data for their own connections
+-- Policy: Users can view their own wearable data cache
 CREATE POLICY "Users can view their own wearable data cache"
 ON wearable_data_cache FOR SELECT
 USING (
-  connection_id IN (
-    SELECT id FROM wearable_connections 
-    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
-  )
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
 );
 
--- Policy: System manages cache (users don't need write permissions)
+-- Policy: System manages cache (users don't need INSERT/UPDATE/DELETE permissions)
 
 -- ============================================================================
 -- 3. ALERTS MODULE - Budget Alerts
@@ -334,7 +334,7 @@ WITH CHECK (
   user_id = (SELECT id FROM users WHERE open_id = auth.uid())
 );
 
--- Policy: Users can update their own budget alerts (e.g., mark as read)
+-- Policy: Users can update their own budget alerts
 CREATE POLICY "Users can update their own budget alerts"
 ON budget_alerts FOR UPDATE
 USING (
@@ -384,11 +384,129 @@ USING (
 );
 
 -- ============================================================================
+-- 5. INSIGHTS MODULE - Financial Insights
+-- ============================================================================
+
+-- Enable RLS on financial_insights
+ALTER TABLE financial_insights ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can only view their own financial insights
+CREATE POLICY "Users can view their own financial insights"
+ON financial_insights FOR SELECT
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: System creates insights (users don't need INSERT permission)
+-- But if you want users to create their own insights, uncomment below:
+-- CREATE POLICY "Users can create their own financial insights"
+-- ON financial_insights FOR INSERT
+-- WITH CHECK (
+--   user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+-- );
+
+-- Policy: Users can update their own insights (e.g., dismiss)
+CREATE POLICY "Users can update their own financial insights"
+ON financial_insights FOR UPDATE
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: Users can delete their own insights
+CREATE POLICY "Users can delete their own financial insights"
+ON financial_insights FOR DELETE
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- ============================================================================
+-- 6. RECEIPTS MODULE - Receipt Management
+-- ============================================================================
+
+-- Enable RLS on receipts
+ALTER TABLE receipts ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can view their own receipts
+CREATE POLICY "Users can view their own receipts"
+ON receipts FOR SELECT
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: Users can create their own receipts
+CREATE POLICY "Users can create their own receipts"
+ON receipts FOR INSERT
+WITH CHECK (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: Users can update their own receipts
+CREATE POLICY "Users can update their own receipts"
+ON receipts FOR UPDATE
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: Users can delete their own receipts
+CREATE POLICY "Users can delete their own receipts"
+ON receipts FOR DELETE
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- ============================================================================
+-- Enable RLS on receipt_line_items
+ALTER TABLE receipt_line_items ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can view line items for their own receipts
+CREATE POLICY "Users can view their own receipt line items"
+ON receipt_line_items FOR SELECT
+USING (
+  receipt_id IN (
+    SELECT id FROM receipts 
+    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+  )
+);
+
+-- Policy: Users can create line items for their own receipts
+CREATE POLICY "Users can create their own receipt line items"
+ON receipt_line_items FOR INSERT
+WITH CHECK (
+  receipt_id IN (
+    SELECT id FROM receipts 
+    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+  )
+);
+
+-- Policy: Users can update line items for their own receipts
+CREATE POLICY "Users can update their own receipt line items"
+ON receipt_line_items FOR UPDATE
+USING (
+  receipt_id IN (
+    SELECT id FROM receipts 
+    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+  )
+);
+
+-- Policy: Users can delete line items for their own receipts
+CREATE POLICY "Users can delete their own receipt line items"
+ON receipt_line_items FOR DELETE
+USING (
+  receipt_id IN (
+    SELECT id FROM receipts 
+    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+  )
+);
+
+-- ============================================================================
 -- VERIFICATION QUERIES
 -- ============================================================================
 -- Run these queries to verify RLS policies are active:
 --
--- SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';
--- SELECT * FROM pg_policies WHERE schemaname = 'public';
+-- SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;
+-- SELECT schemaname, tablename, policyname FROM pg_policies WHERE schemaname = 'public' ORDER BY tablename, policyname;
+--
+-- Count policies per table:
+-- SELECT tablename, COUNT(*) as policy_count FROM pg_policies WHERE schemaname = 'public' GROUP BY tablename ORDER BY tablename;
 --
 -- ============================================================================

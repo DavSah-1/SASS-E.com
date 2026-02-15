@@ -42,4 +42,33 @@ export interface AlertsAdapter {
    * Generate monthly budget report alert
    */
   generateMonthlyReport(userId: number): Promise<void>;
+
+  /**
+   * Get user's budget alerts with optional filtering
+   */
+  getAlerts(userId: number, options: { limit?: number; unreadOnly?: boolean }): Promise<Array<{
+    id: number;
+    userId: number;
+    alertType: string;
+    message: string;
+    categoryId: number | null;
+    threshold: number | null;
+    isRead: number;
+    createdAt: Date;
+  }>>;
+
+  /**
+   * Mark a specific alert as read
+   */
+  markAlertRead(userId: number, alertId: number): Promise<{ success: boolean }>;
+
+  /**
+   * Mark all alerts as read for a user
+   */
+  markAllAlertsRead(userId: number): Promise<{ success: boolean }>;
+
+  /**
+   * Get count of unread alerts for a user
+   */
+  getUnreadAlertCount(userId: number): Promise<number>;
 }

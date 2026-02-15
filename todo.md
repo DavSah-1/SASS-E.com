@@ -6100,15 +6100,13 @@
 - [ ] Apply RLS policies to Supabase database
 - [ ] Test RLS policies to verify user isolation
 
-## Insights and Receipts Tables
-- [x] Design receipts table schema (metadata, OCR data, line items)
-- [x] Add receipts table to MySQL schema (drizzle/schema.ts)
-- [x] Add receipts table to Supabase schema (drizzle/supabaseSchema.ts)
-- [x] Add financial_insights mirror to Supabase schema
-- [x] Generate and run database migrations (MySQL done, Supabase SQL file created)
-- [x] Create RLS policies for financial_insights
-- [x] Create RLS policies for receipts (receipts + receipt_line_items)
-- [x] Update ReceiptsAdapter to use new table (already created)
-- [x] Update InsightsAdapter to use new table (already created)
-- [x] Test both adapters with new tables (283 tests passing)
-- [ ] Apply Supabase migrations (user needs to run SQL files in Supabase SQL Editor)
+## Critical Dual-Database Architecture Fixes
+- [x] Fix trpc.ts middleware to narrow 7 new adapters (wellbeing, sharing, wearable, alerts, recurring, insights, receipts)
+- [x] Add missing methods to AlertsAdapter (getAlerts, markAlertRead, markAllAlertsRead, getUnreadAlertCount)
+- [x] Add missing methods to InsightsAdapter (getInsights, dismissInsight)
+- [ ] Add missing methods to BudgetAdapter or create TemplatesAdapter (getTemplates, applyTemplate, getActiveTemplate, getCategoryTrend, getSpendingTrendsSummary)
+- [ ] Add missing methods to NotificationAdapter (getNotificationPreferences)
+- [ ] Update budgetRouter.ts to use adapters instead of 14 direct getDb() calls
+- [ ] Remove server/db.ts.backup-before-split file
+- [ ] Fix wearableRouter.ts to use adapter instead of direct db import for getOAuthUrl
+- [ ] Run tests and verify all changes work correctly

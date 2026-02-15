@@ -249,4 +249,90 @@ export class SupabaseAlertsAdapter implements AlertsAdapter {
 
     await this.createBudgetAlert(userId, "monthly_report", message);
   }
+
+  async getAlerts(userId: number, options: { limit?: number; unreadOnly?: boolean }) {
+    const client = await this.getClient();
+
+    let query = client
+      .from("budget_alerts")
+      .select()
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (options.unreadOnly) {
+      query = query.eq("is_read", false);
+    }
+
+    if (options.limit) {
+      query = query.limit(options.limit);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("[SupabaseAlertsAdapter] getAlerts error:", error);
+      return [];
+    }
+
+    return (data || []).map(alert => ({
+      id: alert.id,
+      userId: alert.user_id,
+      alertType: alert.alert_type,
+      message: alert.message,
+      categoryId: alert.category_id,
+      threshold: alert.threshold,
+      isRead: alert.is_read ? 1 : 0,
+      createdAt: new Date(alert.created_at),
+    }));
+  }
+
+  async markAlertRead(userId: number, alertId: number): Promise<{ success: boolean }> {
+    const client = await this.getClient();
+
+    const { error } = await client
+      .from("budget_alerts")
+      .update({ is_read: true })
+      .eq("id", alertId)
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("[SupabaseAlertsAdapter] markAlertRead error:", error);
+      return { success: false };
+    }
+
+    return { success: true };
+  }
+
+  async markAllAlertsRead(userId: number): Promise<{ success: boolean }> {
+    const client = await this.getClient();
+
+    const { error } = await client
+      .from("budget_alerts")
+      .update({ is_read: true })
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("[SupabaseAlertsAdapter] markAllAlertsRead error:", error);
+      return { success: false };
+    }
+
+    return { success: true };
+  }
+
+  async getUnreadAlertCount(userId: number): Promise<number> {
+    const client = await this.getClient();
+
+    const { count, error } = await client
+      .from("budget_alerts")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("is_read", false);
+
+    if (error) {
+      console.error("[SupabaseAlertsAdapter] getUnreadAlertCount error:", error);
+      return 0;
+    }
+
+    return count || 0;
+  }
 }
