@@ -8,16 +8,54 @@ import * as db from '../db';
 import type { LearningAdapter } from './LearningAdapter';
 
 export class MysqlLearningAdapter implements LearningAdapter {
-  async saveLearningSession(session: any): Promise<void> {
-    await db.saveLearningSession(session);
+  async saveLearningSession(session: any): Promise<any> {
+    return await db.saveLearningSession(session);
   }
 
   async getUserLearningSessions(userId: number, limit: number = 50): Promise<any[]> {
     return db.getUserLearningSessions(userId, limit);
   }
 
-  async saveLearningSource(source: any): Promise<void> {
-    await db.saveLearningSource(source);
+  async saveLearningSource(source: any): Promise<any> {
+    return await db.saveLearningSource(source);
+  }
+
+  async saveFactCheckResult(result: any): Promise<any> {
+    return await db.saveFactCheckResult(result);
+  }
+
+  async getFactCheckResultsBySession(sessionId: number): Promise<any[]> {
+    return await db.getFactCheckResultsBySession(sessionId);
+  }
+
+  async saveStudyGuide(guide: any): Promise<any> {
+    return await db.saveStudyGuide(guide);
+  }
+
+  async getUserStudyGuides(userId: number): Promise<any[]> {
+    return await db.getUserStudyGuides(userId);
+  }
+
+  async saveQuiz(quiz: any): Promise<any> {
+    return await db.saveQuiz(quiz);
+  }
+
+  async getUserQuizzes(userId: number): Promise<any[]> {
+    return await db.getUserQuizzes(userId);
+  }
+
+  async saveQuizAttempt(attempt: any): Promise<any> {
+    return await db.saveQuizAttempt(attempt);
+  }
+
+  async getUserQuizAttempts(userId: number, quizId?: number): Promise<any[]> {
+    // Note: db.getQuizAttempts only takes quizId, not userId
+    if (quizId) {
+      return await db.getQuizAttempts(quizId);
+    }
+    // For userId-based queries without quizId, return empty array
+    // (MySQL db doesn't have a getUserQuizAttempts function)
+    return [];
   }
 
   async getUserVocabularyProgress(userId: number, language: string): Promise<any[]> {

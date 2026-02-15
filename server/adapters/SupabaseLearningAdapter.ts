@@ -17,21 +17,22 @@ export class SupabaseLearningAdapter implements LearningAdapter {
     return getSupabaseClient(this.userId, this.accessToken);
   }
 
-  async saveLearningSession(session: any): Promise<void> {
+  async saveLearningSession(session: any): Promise<any> {
     const supabase = await this.getClient();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('learning_sessions')
       .insert({
         user_id: this.userId,
-        session_type: session.sessionType,
-        language: session.language,
-        duration_minutes: session.durationMinutes,
-        topics_covered: session.topicsCovered,
-        notes: session.notes,
-        session_date: session.sessionDate,
-      });
+        topic: session.topic,
+        summary: session.summary,
+        key_points: session.keyPoints,
+        created_at: session.createdAt || new Date(),
+      })
+      .select()
+      .single();
 
     if (error) throw new Error(`Supabase saveLearningSession error: ${error.message}`);
+    return data;
   }
 
   async getUserLearningSessions(userId: number, limit: number = 50): Promise<any[]> {
@@ -58,20 +59,151 @@ export class SupabaseLearningAdapter implements LearningAdapter {
     }));
   }
 
-  async saveLearningSource(source: any): Promise<void> {
+  async saveLearningSource(source: any): Promise<any> {
     const supabase = await this.getClient();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('learning_sources')
       .insert({
-        user_id: this.userId,
+        session_id: source.sessionId,
+        title: source.title,
+        url: source.url,
         source_type: source.sourceType,
-        source_name: source.sourceName,
-        source_url: source.sourceUrl,
-        language: source.language,
-        notes: source.notes,
-      });
+        credibility_score: source.credibilityScore,
+        created_at: source.createdAt || new Date(),
+      })
+      .select()
+      .single();
 
     if (error) throw new Error(`Supabase saveLearningSource error: ${error.message}`);
+    return data;
+  }
+
+  async saveFactCheckResult(result: any): Promise<any> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('fact_check_results')
+      .insert({
+        session_id: result.sessionId,
+        claim: result.claim,
+        verdict: result.verdict,
+        confidence: result.confidence,
+        sources: result.sources,
+        explanation: result.explanation,
+        created_at: result.createdAt || new Date(),
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(`Supabase saveFactCheckResult error: ${error.message}`);
+    return data;
+  }
+
+  async getFactCheckResultsBySession(sessionId: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('fact_check_results')
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(`Supabase getFactCheckResultsBySession error: ${error.message}`);
+    return data || [];
+  }
+
+  async saveStudyGuide(guide: any): Promise<any> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('study_guides')
+      .insert({
+        user_id: this.userId,
+        topic: guide.topic,
+        content: guide.content,
+        difficulty: guide.difficulty,
+        estimated_time: guide.estimatedTime,
+        created_at: guide.createdAt || new Date(),
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(`Supabase saveStudyGuide error: ${error.message}`);
+    return data;
+  }
+
+  async getUserStudyGuides(userId: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('study_guides')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(`Supabase getUserStudyGuides error: ${error.message}`);
+    return data || [];
+  }
+
+  async saveQuiz(quiz: any): Promise<any> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('quizzes')
+      .insert({
+        user_id: this.userId,
+        topic: quiz.topic,
+        questions: quiz.questions,
+        difficulty: quiz.difficulty,
+        created_at: quiz.createdAt || new Date(),
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(`Supabase saveQuiz error: ${error.message}`);
+    return data;
+  }
+
+  async getUserQuizzes(userId: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('quizzes')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(`Supabase getUserQuizzes error: ${error.message}`);
+    return data || [];
+  }
+
+  async saveQuizAttempt(attempt: any): Promise<any> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('quiz_attempts')
+      .insert({
+        quiz_id: attempt.quizId,
+        user_id: this.userId,
+        score: attempt.score,
+        answers: attempt.answers,
+        completed_at: attempt.completedAt || new Date(),
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(`Supabase saveQuizAttempt error: ${error.message}`);
+    return data;
+  }
+
+  async getUserQuizAttempts(userId: number, quizId?: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('quiz_attempts')
+      .select('*')
+      .eq('user_id', this.userId);
+
+    if (quizId) {
+      query = query.eq('quiz_id', quizId);
+    }
+
+    const { data, error } = await query.order('completed_at', { ascending: false });
+
+    if (error) throw new Error(`Supabase getUserQuizAttempts error: ${error.message}`);
+    return data || [];
   }
 
   async getUserVocabularyProgress(userId: number, language: string): Promise<any[]> {

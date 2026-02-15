@@ -2222,8 +2222,7 @@ If verified knowledge base information is provided above, use that as your prima
         }
 
         // Step 6: Save to database
-        // TODO: Move to LearningAdapter once expanded
-        const sessionResult = await dbRoleAware.saveLearningSession(dbCtx, {
+        const sessionResult = await ctx.learningDb!.saveLearningSession({
           userId: ctx.user.numericId,
           topic: input.topic,
           question: input.question,
@@ -2237,7 +2236,7 @@ If verified knowledge base information is provided above, use that as your prima
 
         // Save fact-check results
         for (const factCheck of factCheckResults) {
-          const factCheckResult = await dbRoleAware.saveFactCheckResult(dbCtx, {
+          const factCheckResult = await ctx.learningDb!.saveFactCheckResult({
             learningSessionId: sessionId,
             claim: factCheck.claim,
             verificationStatus: factCheck.status,
@@ -2249,7 +2248,7 @@ If verified knowledge base information is provided above, use that as your prima
           // Save individual sources
           const factCheckId = factCheckResult ? Number(factCheckResult[0].insertId) : 0;
           for (const source of factCheck.sources) {
-            await dbRoleAware.saveLearningSource(dbCtx, {
+            await ctx.learningDb!.saveLearningSource({
               factCheckResultId: factCheckId,
               title: source.title,
               url: source.url,
@@ -2275,11 +2274,7 @@ If verified knowledge base information is provided above, use that as your prima
     // Get user's learning history
     getHistory: protectedProcedure.query(async ({ ctx }) => {
       try {
-        // TODO: Move to LearningAdapter once expanded
-        const dbRoleAware = await import("./dbRoleAware");
-        const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-        const sessions = await dbRoleAware.getUserLearningSessions(dbCtx, ctx.user.numericId, 50);
-        return sessions;
+        return await ctx.learningDb!.getUserLearningSessions(ctx.user.numericId, 20);
       } catch (error) {
         handleError(error, 'Learning Get History');
       }
@@ -2290,11 +2285,7 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ ctx, input }) => {
         try {
-          // TODO: Move to LearningAdapter once expanded
-          const dbRoleAware = await import("./dbRoleAware");
-          const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-          const factChecks = await dbRoleAware.getFactCheckResultsBySession(dbCtx, input.sessionId);
-          return factChecks;
+          return await ctx.learningDb!.getFactCheckResultsBySession(input.sessionId);
         } catch (error) {
           handleError(error, 'Learning Get Fact Checks');
         }
@@ -2306,11 +2297,8 @@ If verified knowledge base information is provided above, use that as your prima
       .mutation(async ({ ctx, input }) => {
         try {
           // Get the learning session
-          // TODO: Move to LearningAdapter once expanded
-          const dbRoleAware = await import("./dbRoleAware");
-          const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-          const sessions = await dbRoleAware.getUserLearningSessions(dbCtx, ctx.user.numericId, 100);
-        const session = sessions.find(s => s.id === input.sessionId);
+          const sessions = await ctx.learningDb!.getUserLearningSessions(ctx.user.numericId, 100);
+          const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
           throw new Error('Learning session not found');
@@ -2383,8 +2371,7 @@ Maintain a ${personalityDesc} tone while being educational.`;
         const studyGuide = JSON.parse(studyGuideText);
 
         // Save to database
-        // TODO: Move to LearningAdapter once expanded
-        await dbRoleAware.saveStudyGuide(dbCtx, {
+        await ctx.learningDb!.saveStudyGuide({
           userId: ctx.user.numericId,
           learningSessionId: input.sessionId,
           title: `Study Guide: ${session.topic}`,
@@ -2408,11 +2395,8 @@ Maintain a ${personalityDesc} tone while being educational.`;
       .mutation(async ({ ctx, input }) => {
         try {
           // Get the learning session
-          // TODO: Move to LearningAdapter once expanded
-          const dbRoleAware = await import("./dbRoleAware");
-          const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-          const sessions = await dbRoleAware.getUserLearningSessions(dbCtx, ctx.user.numericId, 100);
-        const session = sessions.find(s => s.id === input.sessionId);
+          const sessions = await ctx.learningDb!.getUserLearningSessions(ctx.user.numericId, 50);
+          const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
           throw new Error('Learning session not found');
@@ -2504,8 +2488,7 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
         const quiz = JSON.parse(quizText);
 
         // Save to database
-        // TODO: Move to LearningAdapter once expanded
-        const quizResult = await dbRoleAware.saveQuiz(dbCtx, {
+        const quizResult = await ctx.learningDb!.saveQuiz({
           userId: ctx.user.numericId,
           learningSessionId: input.sessionId,
           title: `Quiz: ${session.topic}`,
@@ -2699,11 +2682,8 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .mutation(async ({ ctx, input }) => {
         try {
           // Get user's quizzes to find the one being attempted
-          // TODO: Move to LearningAdapter once expanded
-          const dbRoleAware = await import("./dbRoleAware");
-          const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-          const userQuizzes = await dbRoleAware.getUserQuizzes(dbCtx, ctx.user.numericId);
-          const quiz = userQuizzes.find(q => q.id === input.quizId);
+          const quizzes = await ctx.learningDb!.getUserQuizzes(ctx.user.numericId);
+          const quiz = quizzes.find(q => q.id === input.quizId);
           
           if (!quiz) {
             throw new Error('Quiz not found');
@@ -2725,7 +2705,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
           const score = Math.round((correctCount / questions.length) * 100);
 
-          await dbRoleAware.saveQuizAttempt(dbCtx, {
+          await ctx.learningDb!.saveQuizAttempt({
             quizId: input.quizId,
             userId: ctx.user.numericId,
             answers: JSON.stringify(input.answers),
@@ -3315,10 +3295,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          // TODO: Move to TranslationAdapter once expanded
-          const dbRoleAware = await import("./dbRoleAware");
-          const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-          const sessionId = await dbRoleAware.createConversationSession(dbCtx, 
+          const sessionId = await ctx.translationDb!.createConversationSession(
             ctx.user.numericId,
             input.title,
             input.language1,
@@ -3332,10 +3309,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
     getConversations: protectedProcedure.query(async ({ ctx }) => {
       try {
-        // TODO: Move to TranslationAdapter once expanded
-        const dbRoleAware = await import("./dbRoleAware");
-        const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-        return await dbRoleAware.getUserConversationSessions(dbCtx, ctx.user.numericId);
+        return await ctx.translationDb!.getUserConversationSessions(ctx.user.numericId);
       } catch (error) {
         handleError(error, 'Translation Get Conversations');
       }
@@ -3345,12 +3319,9 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ ctx, input }) => {
         try {
-          // TODO: Move to TranslationAdapter once expanded
-          const dbRoleAware = await import("./dbRoleAware");
-          const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-          const session = await dbRoleAware.getConversationSession(dbCtx, input.sessionId, ctx.user.numericId);
+          const session = await ctx.translationDb!.getConversationSession(input.sessionId, ctx.user.numericId);
           if (!session) throw new Error("Conversation not found");
-          const messages = await dbRoleAware.getConversationMessages(dbCtx, input.sessionId);
+          const messages = await ctx.translationDb!.getConversationMessages(input.sessionId);
           return { session, messages };
         } catch (error) {
           handleError(error, 'Translation Get Conversation');
@@ -3369,10 +3340,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .mutation(async ({ ctx, input }) => {
         try {
           // Get the conversation session to determine target language
-          // TODO: Move to TranslationAdapter once expanded
-          const dbRoleAware = await import("./dbRoleAware");
-          const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-          const session = await dbRoleAware.getConversationSession(dbCtx, input.sessionId, ctx.user.numericId);
+          const session = await ctx.translationDb!.getConversationSession(input.sessionId, ctx.user.numericId);
           if (!session) throw new Error("Conversation not found");
 
           // Determine target language (translate to the other language)
@@ -3392,7 +3360,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           const translatedContent = response.choices[0].message.content;
           const translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
           // Save the message
-          const messageId = await dbRoleAware.addConversationMessage(dbCtx, 
+          const messageId = await ctx.translationDb!.addConversationMessage(
             input.sessionId,
             input.messageText,
             translatedText,
@@ -3416,10 +3384,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          // TODO: Move to TranslationAdapter once expanded
-          const dbRoleAware = await import("./dbRoleAware");
-          const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-          return await dbRoleAware.deleteConversationSession(dbCtx, input.sessionId, ctx.user.numericId);
+          return await ctx.translationDb!.deleteConversationSession(input.sessionId, ctx.user.numericId);
         } catch (error) {
           handleError(error, 'Translation Delete Conversation');
         }
@@ -3433,10 +3398,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        // TODO: Move to TranslationAdapter once expanded
-        const dbRoleAware = await import("./dbRoleAware");
-        const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
-        return await dbRoleAware.saveConversationSessionToPhrasebook(dbCtx, 
+        await ctx.translationDb!.saveConversationSessionToPhrasebook(
           input.sessionId,
           ctx.user.numericId,
           input.categoryId

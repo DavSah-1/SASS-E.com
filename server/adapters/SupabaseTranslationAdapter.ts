@@ -277,4 +277,121 @@ export class SupabaseTranslationAdapter implements TranslationAdapter {
     if (error) return undefined;
     return data;
   }
+
+  async createConversationSession(userId: number, title: string, language1: string, language2: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('conversation_sessions')
+      .insert({
+        user_id: this.userId,
+        title,
+        language1,
+        language2,
+        created_at: new Date(),
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Supabase createConversationSession error: ${error.message}`);
+    return data;
+  }
+
+  async getUserConversationSessions(userId: number) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('conversation_sessions')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw new Error(`Supabase getUserConversationSessions error: ${error.message}`);
+    return data || [];
+  }
+
+  async getConversationSession(sessionId: number, userId: number) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('conversation_sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .eq('user_id', this.userId)
+      .single();
+    
+    if (error) return null;
+    return data;
+  }
+
+  async deleteConversationSession(sessionId: number, userId: number) {
+    const supabase = await this.getClient();
+    const { error } = await supabase
+      .from('conversation_sessions')
+      .delete()
+      .eq('id', sessionId)
+      .eq('user_id', this.userId);
+    
+    if (error) throw new Error(`Supabase deleteConversationSession error: ${error.message}`);
+    return true;
+  }
+
+  async addConversationMessage(sessionId: number, messageText: string, translatedText: string, language: string, sender: 'user' | 'practice') {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('conversation_messages')
+      .insert({
+        session_id: sessionId,
+        message_text: messageText,
+        translated_text: translatedText,
+        language,
+        sender,
+        sent_at: new Date(),
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Supabase addConversationMessage error: ${error.message}`);
+    return data;
+  }
+
+  async getConversationMessages(sessionId: number) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('conversation_messages')
+      .select('*')
+      .eq('session_id', sessionId)
+      .order('sent_at', { ascending: true });
+    
+    if (error) throw new Error(`Supabase getConversationMessages error: ${error.message}`);
+    return data || [];
+  }
+
+  async saveConversationSessionToPhrasebook(sessionId: number, userId: number, categoryId?: number) {
+    const supabase = await this.getClient();
+    
+    // Get all messages from the session
+    const { data: messages, error: messagesError } = await supabase
+      .from('conversation_messages')
+      .select('*')
+      .eq('session_id', sessionId);
+    
+    if (messagesError) throw new Error(`Supabase saveConversationSessionToPhrasebook (messages) error: ${messagesError.message}`);
+    
+    // Save each message as a translation
+    const translations = (messages || []).map(msg => ({
+      user_id: this.userId,
+      original_text: msg.message_text,
+      translated_text: msg.translated_text,
+      source_language: msg.language,
+      target_language: msg.language === 'en' ? 'es' : 'en', // Simple toggle for demo
+      category_id: categoryId,
+      created_at: new Date(),
+    }));
+    
+    if (translations.length > 0) {
+      const { error: insertError } = await supabase
+        .from('saved_translations')
+        .insert(translations);
+      
+      if (insertError) throw new Error(`Supabase saveConversationSessionToPhrasebook (insert) error: ${insertError.message}`);
+    }
+  }
 }

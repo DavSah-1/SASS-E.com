@@ -38,4 +38,15 @@ export interface TranslationAdapter {
    * User Management
    */
   getUserById(userId: number): Promise<any | null>;
+
+  /**
+   * Conversation Sessions (for practice conversations)
+   */
+  createConversationSession(userId: number, title: string, language1: string, language2: string): Promise<any>;
+  getUserConversationSessions(userId: number): Promise<any[]>;
+  getConversationSession(sessionId: number, userId: number): Promise<any | null>;
+  deleteConversationSession(sessionId: number, userId: number): Promise<boolean>;
+  addConversationMessage(sessionId: number, messageText: string, translatedText: string, language: string, sender: 'user' | 'practice'): Promise<any>;
+  getConversationMessages(sessionId: number): Promise<any[]>;
+  saveConversationSessionToPhrasebook(sessionId: number, userId: number, categoryId?: number): Promise<void>;
 }

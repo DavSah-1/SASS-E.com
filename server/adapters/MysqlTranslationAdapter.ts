@@ -57,4 +57,32 @@ export class MysqlTranslationAdapter implements TranslationAdapter {
   async getUserById(userId: number) {
     return db.getUserById(userId);
   }
+
+  async createConversationSession(userId: number, title: string, language1: string, language2: string) {
+    return db.createConversationSession(userId, title, language1, language2);
+  }
+
+  async getUserConversationSessions(userId: number) {
+    return db.getUserConversationSessions(userId);
+  }
+
+  async getConversationSession(sessionId: number, userId: number) {
+    return db.getConversationSession(sessionId, userId);
+  }
+
+  async deleteConversationSession(sessionId: number, userId: number) {
+    return db.deleteConversationSession(sessionId, userId);
+  }
+
+  async addConversationMessage(sessionId: number, messageText: string, translatedText: string, language: string, sender: 'user' | 'practice') {
+    return db.addConversationMessage(sessionId, messageText, translatedText, language, sender);
+  }
+
+  async getConversationMessages(sessionId: number) {
+    return db.getConversationMessages(sessionId);
+  }
+
+  async saveConversationSessionToPhrasebook(sessionId: number, userId: number, categoryId?: number): Promise<void> {
+    await db.saveConversationSessionToPhrasebook(sessionId, userId, categoryId);
+  }
 }

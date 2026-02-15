@@ -6,9 +6,23 @@
 
 export interface LearningAdapter {
   // Learning Sessions
-  saveLearningSession(session: any): Promise<void>;
+  saveLearningSession(session: any): Promise<any>;
   getUserLearningSessions(userId: number, limit?: number): Promise<any[]>;
-  saveLearningSource(source: any): Promise<void>;
+  saveLearningSource(source: any): Promise<any>;
+  
+  // Fact Checking
+  saveFactCheckResult(result: any): Promise<any>;
+  getFactCheckResultsBySession(sessionId: number): Promise<any[]>;
+  
+  // Study Guides
+  saveStudyGuide(guide: any): Promise<any>;
+  getUserStudyGuides(userId: number): Promise<any[]>;
+  
+  // Quizzes
+  saveQuiz(quiz: any): Promise<any>;
+  getUserQuizzes(userId: number): Promise<any[]>;
+  saveQuizAttempt(attempt: any): Promise<any>;
+  getUserQuizAttempts(userId: number, quizId?: number): Promise<any[]>;
 
   // Vocabulary Progress
   getUserVocabularyProgress(userId: number, language: string): Promise<any[]>;
