@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
-import { checkCategoryAlerts, checkAllCategoryAlerts } from "./db";
+// Alerts are now accessed via ctx.alertsDb adapter
 
 export const budgetRouter = router({
   // ==================== Category Management ====================
@@ -112,7 +112,9 @@ export const budgetRouter = router({
 
       // Check for budget alerts after creating transaction
       try {
-        await checkCategoryAlerts(ctx.user.numericId, input.categoryId);
+        if (ctx.alertsDb) {
+          await ctx.alertsDb.checkCategoryAlerts(ctx.user.numericId, input.categoryId);
+        }
       } catch (error) {
         console.error("[createTransaction] Failed to check alerts:", error);
       }
@@ -361,8 +363,10 @@ export const budgetRouter = router({
    * Generate AI-powered spending insights
    */
   generateInsights: protectedProcedure.mutation(async ({ ctx }) => {
-    const { generateSpendingInsights } = await import("./db");
-    const result = await generateSpendingInsights(ctx.user.numericId);
+    if (!ctx.insightsDb) {
+      return { success: false, insightsCount: 0 };
+    }
+    const result = await ctx.insightsDb.generateSpendingInsights(ctx.user.numericId);
     return result;
   }),
 
@@ -1099,7 +1103,9 @@ export const budgetRouter = router({
    */
   checkAlerts: protectedProcedure.mutation(async ({ ctx }) => {
     try {
-      await checkAllCategoryAlerts(ctx.user.numericId);
+      if (ctx.alertsDb) {
+        await ctx.alertsDb.checkAllCategoryAlerts(ctx.user.numericId);
+      }
       return { success: true, message: "Alert check completed" };
     } catch (error) {
       console.error("[checkAlerts] Error:", error);
@@ -1113,8 +1119,10 @@ export const budgetRouter = router({
    * Detect recurring transaction patterns
    */
   detectRecurring: protectedProcedure.mutation(async ({ ctx }) => {
-    const { detectRecurringPatterns } = await import("./db");
-    const result = await detectRecurringPatterns(ctx.user.numericId);
+    if (!ctx.recurringDb) {
+      return { success: false, patternsFound: 0 };
+    }
+    const result = await ctx.recurringDb.detectRecurringPatterns(ctx.user.numericId);
     return result;
   }),
 
@@ -1273,8 +1281,10 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { processReceiptImage } = await import("./db");
-      const result = await processReceiptImage(input.imageUrl, ctx.user.numericId);
+      if (!ctx.receiptsDb) {
+        return { success: false, error: "Receipts service not available" };
+      }
+      const result = await ctx.receiptsDb.processReceiptImage(input.imageUrl, ctx.user.numericId);
       return result;
     }),
 
@@ -1326,8 +1336,10 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { createSharedBudget } = await import("./db");
-      const result = await createSharedBudget(ctx.user.numericId, input.name, input.description);
+      if (!ctx.sharingDb) {
+        return { success: false };
+      }
+      const result = await ctx.sharingDb.createSharedBudget(ctx.user.numericId, input.name, input.description);
       return result;
     }),
 
@@ -1352,8 +1364,10 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { inviteToSharedBudget } = await import("./db");
-      const result = await inviteToSharedBudget(
+      if (!ctx.sharingDb) {
+        return { success: false, error: "Sharing service not available" };
+      }
+      const result = await ctx.sharingDb.inviteToSharedBudget(
         input.budgetId,
         ctx.user.numericId,
         input.inviteeId,

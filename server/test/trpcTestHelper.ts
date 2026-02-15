@@ -10,7 +10,7 @@
 import { appRouter } from '../routers';
 import { createTestUser } from './supabaseTestHelper';
 import type { TrpcContext } from '../_core/context';
-import { createCoreAdapter, createNotificationAdapter, createBudgetAdapter, createDebtAdapter, createLearningAdapter, createIoTAdapter, createGoalsAdapter, createTranslationAdapter, createVerifiedFactAdapter } from '../adapters';
+import { createCoreAdapter, createNotificationAdapter, createBudgetAdapter, createDebtAdapter, createLearningAdapter, createIoTAdapter, createGoalsAdapter, createTranslationAdapter, createVerifiedFactAdapter, createWellbeingAdapter, createSharingAdapter, createWearableAdapter, createAlertsAdapter, createRecurringAdapter, createInsightsAdapter, createReceiptsAdapter } from '../adapters';
 
 /**
  * Create a tRPC caller with test context
@@ -63,6 +63,13 @@ export async function createTestCaller(options: {
   const goalsDb = createGoalsAdapter(adapterContext);
   const translationDb = createTranslationAdapter(adapterContext);
   const verifiedFactDb = createVerifiedFactAdapter(adapterContext);
+  const wellbeingDb = createWellbeingAdapter(adapterContext);
+  const sharingDb = createSharingAdapter(adapterContext);
+  const wearableDb = createWearableAdapter(adapterContext);
+  const alertsDb = createAlertsAdapter(adapterContext);
+  const recurringDb = createRecurringAdapter(adapterContext);
+  const insightsDb = createInsightsAdapter(adapterContext);
+  const receiptsDb = createReceiptsAdapter(adapterContext);
 
   // Create mock context
   const mockContext: TrpcContext = {
@@ -86,6 +93,13 @@ export async function createTestCaller(options: {
     goalsDb,
     translationDb,
     verifiedFactDb,
+    wellbeingDb,
+    sharingDb,
+    wearableDb,
+    alertsDb,
+    recurringDb,
+    insightsDb,
+    receiptsDb,
   };
 
   // Create caller with context
@@ -107,6 +121,13 @@ export function createUnauthenticatedCaller() {
     goalsDb: null,
     translationDb: null,
     verifiedFactDb: null,
+    wellbeingDb: null,
+    sharingDb: null,
+    wearableDb: null,
+    alertsDb: null,
+    recurringDb: null,
+    insightsDb: null,
+    receiptsDb: null,
     req: {
       headers: {},
       cookies: {},

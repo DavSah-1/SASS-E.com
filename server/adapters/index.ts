@@ -35,6 +35,24 @@ import type { VerifiedFactAdapter } from './VerifiedFactAdapter';
 import { MySQLWellbeingAdapter } from './MySQLWellbeingAdapter';
 import { SupabaseWellbeingAdapter } from './SupabaseWellbeingAdapter';
 import type { WellbeingAdapter } from './WellbeingAdapter';
+import { MySQLSharingAdapter } from './MySQLSharingAdapter';
+import { SupabaseSharingAdapter } from './SupabaseSharingAdapter';
+import type { SharingAdapter } from './SharingAdapter';
+import { MySQLWearableAdapter } from './MySQLWearableAdapter';
+import { SupabaseWearableAdapter } from './SupabaseWearableAdapter';
+import type { WearableAdapter } from './WearableAdapter';
+import { MySQLAlertsAdapter } from './MySQLAlertsAdapter';
+import { SupabaseAlertsAdapter } from './SupabaseAlertsAdapter';
+import type { AlertsAdapter } from './AlertsAdapter';
+import { MySQLRecurringAdapter } from './MySQLRecurringAdapter';
+import { SupabaseRecurringAdapter } from './SupabaseRecurringAdapter';
+import type { RecurringAdapter } from './RecurringAdapter';
+import { MySQLInsightsAdapter } from './MySQLInsightsAdapter';
+import { SupabaseInsightsAdapter } from './SupabaseInsightsAdapter';
+import type { InsightsAdapter } from './InsightsAdapter';
+import { MySQLReceiptsAdapter } from './MySQLReceiptsAdapter';
+import { SupabaseReceiptsAdapter } from './SupabaseReceiptsAdapter';
+import type { ReceiptsAdapter } from './ReceiptsAdapter';
 
 export interface AdapterContext {
   user: {
@@ -175,6 +193,84 @@ export function createWellbeingAdapter(ctx: AdapterContext): WellbeingAdapter {
   }
 }
 
+/**
+ * Create sharing adapter based on user role
+ */
+export function createSharingAdapter(ctx: AdapterContext): SharingAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLSharingAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseSharingAdapter(userId, accessToken);
+  }
+}
+
+/**
+ * Create wearable adapter based on user role
+ */
+export function createWearableAdapter(ctx: AdapterContext): WearableAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLWearableAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseWearableAdapter(userId, accessToken);
+  }
+}
+
+/**
+ * Create alerts adapter based on user role
+ */
+export function createAlertsAdapter(ctx: AdapterContext): AlertsAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLAlertsAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseAlertsAdapter(userId, accessToken);
+  }
+}
+
+/**
+ * Create recurring adapter based on user role
+ */
+export function createRecurringAdapter(ctx: AdapterContext): RecurringAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLRecurringAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseRecurringAdapter(userId, accessToken);
+  }
+}
+
+/**
+ * Create insights adapter based on user role
+ */
+export function createInsightsAdapter(ctx: AdapterContext): InsightsAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLInsightsAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseInsightsAdapter(userId, accessToken);
+  }
+}
+
+/**
+ * Create receipts adapter based on user role
+ */
+export function createReceiptsAdapter(ctx: AdapterContext): ReceiptsAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLReceiptsAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseReceiptsAdapter(userId, accessToken);
+  }
+}
+
 // Export adapters and interfaces
 export type { CoreAdapter } from './CoreAdapter';
 export type { NotificationAdapter } from './NotificationAdapter';
@@ -185,6 +281,13 @@ export type { IoTAdapter } from './IoTAdapter';
 export type { GoalsAdapter } from './GoalsAdapter';
 export type { TranslationAdapter } from './TranslationAdapter';
 export type { VerifiedFactAdapter } from './VerifiedFactAdapter';
+export type { WellbeingAdapter } from './WellbeingAdapter';
+export type { SharingAdapter } from './SharingAdapter';
+export type { WearableAdapter } from './WearableAdapter';
+export type { AlertsAdapter} from './AlertsAdapter';
+export type { RecurringAdapter } from './RecurringAdapter';
+export type { InsightsAdapter } from './InsightsAdapter';
+export type { ReceiptsAdapter } from './ReceiptsAdapter';
 export { MySQLCoreAdapter } from './MySQLCoreAdapter';
 export { SupabaseCoreAdapter } from './SupabaseCoreAdapter';
 export { MysqlNotificationAdapter } from './MysqlNotificationAdapter';

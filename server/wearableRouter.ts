@@ -4,22 +4,15 @@
  */
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
-import {
-  getUserWearableConnections,
-  getWearableConnection,
-  addWearableConnection,
-  disconnectWearable,
-  getSyncHistory,
-  syncWearableData,
-  getOAuthUrl,
-} from "./db";
+import { getOAuthUrl } from "./db/wearable";
 
 export const wearableRouter = router({
   /**
    * Get all wearable connections for the current user
    */
   getConnections: protectedProcedure.query(async ({ ctx }) => {
-    return getUserWearableConnections(ctx.user.numericId);
+    if (!ctx.wearableDb) return [];
+    return ctx.wearableDb.getUserWearableConnections(ctx.user.numericId);
   }),
 
   /**
@@ -28,7 +21,8 @@ export const wearableRouter = router({
   getConnection: protectedProcedure
     .input(z.object({ connectionId: z.number() }))
     .query(async ({ ctx, input }) => {
-      return getWearableConnection(input.connectionId, ctx.user.numericId);
+      if (!ctx.wearableDb) return null;
+      return ctx.wearableDb.getWearableConnection(input.connectionId, ctx.user.numericId);
     }),
 
   /**
@@ -42,7 +36,8 @@ export const wearableRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const connectionId = await addWearableConnection({
+      if (!ctx.wearableDb) return { success: false };
+      const connectionId = await ctx.wearableDb.addWearableConnection({
         userId: ctx.user.numericId,
         provider: input.provider,
         deviceName: input.deviceName,
@@ -80,7 +75,8 @@ export const wearableRouter = router({
   disconnect: protectedProcedure
     .input(z.object({ connectionId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await disconnectWearable(input.connectionId, ctx.user.numericId);
+      if (!ctx.wearableDb) return { success: false };
+      await ctx.wearableDb.disconnectWearable(input.connectionId, ctx.user.numericId);
       return { success: true };
     }),
 
@@ -95,7 +91,8 @@ export const wearableRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      return getSyncHistory(input.connectionId, ctx.user.numericId, input.limit);
+      if (!ctx.wearableDb) return [];
+      return ctx.wearableDb.getSyncHistory(input.connectionId, ctx.user.numericId, input.limit);
     }),
 
   /**
@@ -122,7 +119,8 @@ export const wearableRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return syncWearableData(input.connectionId, ctx.user.numericId, input.dataTypes);
+      if (!ctx.wearableDb) return { success: false };
+      return ctx.wearableDb.syncWearableData(input.connectionId, ctx.user.numericId, input.dataTypes);
     }),
 
   /**

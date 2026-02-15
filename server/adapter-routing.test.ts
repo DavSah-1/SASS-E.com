@@ -9,6 +9,13 @@ import {
   createTranslationAdapter,
   createNotificationAdapter,
   createVerifiedFactAdapter,
+  createWellbeingAdapter,
+  createSharingAdapter,
+  createWearableAdapter,
+  createAlertsAdapter,
+  createRecurringAdapter,
+  createInsightsAdapter,
+  createReceiptsAdapter,
   type AdapterContext,
 } from './adapters/index';
 import { MySQLCoreAdapter } from './adapters/MySQLCoreAdapter';
@@ -29,6 +36,20 @@ import { MysqlNotificationAdapter } from './adapters/MysqlNotificationAdapter';
 import { SupabaseNotificationAdapter } from './adapters/SupabaseNotificationAdapter';
 import { MySQLVerifiedFactAdapter } from './adapters/MySQLVerifiedFactAdapter';
 import { SupabaseVerifiedFactAdapter } from './adapters/SupabaseVerifiedFactAdapter';
+import { MySQLWellbeingAdapter } from './adapters/MySQLWellbeingAdapter';
+import { SupabaseWellbeingAdapter } from './adapters/SupabaseWellbeingAdapter';
+import { MySQLSharingAdapter } from './adapters/MySQLSharingAdapter';
+import { SupabaseSharingAdapter } from './adapters/SupabaseSharingAdapter';
+import { MySQLWearableAdapter } from './adapters/MySQLWearableAdapter';
+import { SupabaseWearableAdapter } from './adapters/SupabaseWearableAdapter';
+import { MySQLAlertsAdapter } from './adapters/MySQLAlertsAdapter';
+import { SupabaseAlertsAdapter } from './adapters/SupabaseAlertsAdapter';
+import { MySQLRecurringAdapter } from './adapters/MySQLRecurringAdapter';
+import { SupabaseRecurringAdapter } from './adapters/SupabaseRecurringAdapter';
+import { MySQLInsightsAdapter } from './adapters/MySQLInsightsAdapter';
+import { SupabaseInsightsAdapter } from './adapters/SupabaseInsightsAdapter';
+import { MySQLReceiptsAdapter } from './adapters/MySQLReceiptsAdapter';
+import { SupabaseReceiptsAdapter } from './adapters/SupabaseReceiptsAdapter';
 
 /**
  * Adapter Routing Integration Tests
@@ -183,6 +204,13 @@ describe('Adapter Routing Integration Tests', () => {
       const translationAdapter = createTranslationAdapter(adminContext);
       const notificationAdapter = createNotificationAdapter(adminContext);
       const verifiedFactAdapter = createVerifiedFactAdapter(adminContext);
+      const wellbeingAdapter = createWellbeingAdapter(adminContext);
+      const sharingAdapter = createSharingAdapter(adminContext);
+      const wearableAdapter = createWearableAdapter(adminContext);
+      const alertsAdapter = createAlertsAdapter(adminContext);
+      const recurringAdapter = createRecurringAdapter(adminContext);
+      const insightsAdapter = createInsightsAdapter(adminContext);
+      const receiptsAdapter = createReceiptsAdapter(adminContext);
 
       expect(coreAdapter).toBeInstanceOf(MySQLCoreAdapter);
       expect(budgetAdapter).toBeInstanceOf(MysqlBudgetAdapter);
@@ -193,6 +221,13 @@ describe('Adapter Routing Integration Tests', () => {
       expect(translationAdapter).toBeInstanceOf(MysqlTranslationAdapter);
       expect(notificationAdapter).toBeInstanceOf(MysqlNotificationAdapter);
       expect(verifiedFactAdapter).toBeInstanceOf(MySQLVerifiedFactAdapter);
+      expect(wellbeingAdapter).toBeInstanceOf(MySQLWellbeingAdapter);
+      expect(sharingAdapter).toBeInstanceOf(MySQLSharingAdapter);
+      expect(wearableAdapter).toBeInstanceOf(MySQLWearableAdapter);
+      expect(alertsAdapter).toBeInstanceOf(MySQLAlertsAdapter);
+      expect(recurringAdapter).toBeInstanceOf(MySQLRecurringAdapter);
+      expect(insightsAdapter).toBeInstanceOf(MySQLInsightsAdapter);
+      expect(receiptsAdapter).toBeInstanceOf(MySQLReceiptsAdapter);
     });
 
     it('should consistently route all adapters for regular users to Supabase', () => {
@@ -205,6 +240,13 @@ describe('Adapter Routing Integration Tests', () => {
       const translationAdapter = createTranslationAdapter(userContext);
       const notificationAdapter = createNotificationAdapter(userContext);
       const verifiedFactAdapter = createVerifiedFactAdapter(userContext);
+      const wellbeingAdapter = createWellbeingAdapter(userContext);
+      const sharingAdapter = createSharingAdapter(userContext);
+      const wearableAdapter = createWearableAdapter(userContext);
+      const alertsAdapter = createAlertsAdapter(userContext);
+      const recurringAdapter = createRecurringAdapter(userContext);
+      const insightsAdapter = createInsightsAdapter(userContext);
+      const receiptsAdapter = createReceiptsAdapter(userContext);
 
       expect(coreAdapter).toBeInstanceOf(SupabaseCoreAdapter);
       expect(budgetAdapter).toBeInstanceOf(SupabaseBudgetAdapter);
@@ -215,12 +257,19 @@ describe('Adapter Routing Integration Tests', () => {
       expect(translationAdapter).toBeInstanceOf(SupabaseTranslationAdapter);
       expect(notificationAdapter).toBeInstanceOf(SupabaseNotificationAdapter);
       expect(verifiedFactAdapter).toBeInstanceOf(SupabaseVerifiedFactAdapter);
+      expect(wellbeingAdapter).toBeInstanceOf(SupabaseWellbeingAdapter);
+      expect(sharingAdapter).toBeInstanceOf(SupabaseSharingAdapter);
+      expect(wearableAdapter).toBeInstanceOf(SupabaseWearableAdapter);
+      expect(alertsAdapter).toBeInstanceOf(SupabaseAlertsAdapter);
+      expect(recurringAdapter).toBeInstanceOf(SupabaseRecurringAdapter);
+      expect(insightsAdapter).toBeInstanceOf(SupabaseInsightsAdapter);
+      expect(receiptsAdapter).toBeInstanceOf(SupabaseReceiptsAdapter);
     });
   });
 
   describe('Role-Based Routing Security', () => {
     it('should never route regular users to MySQL adapters', () => {
-      // Test all 9 adapters
+      // Test all 16 adapters
       const adapters = [
         createCoreAdapter(userContext),
         createBudgetAdapter(userContext),
@@ -231,6 +280,13 @@ describe('Adapter Routing Integration Tests', () => {
         createTranslationAdapter(userContext),
         createNotificationAdapter(userContext),
         createVerifiedFactAdapter(userContext),
+        createWellbeingAdapter(userContext),
+        createSharingAdapter(userContext),
+        createWearableAdapter(userContext),
+        createAlertsAdapter(userContext),
+        createRecurringAdapter(userContext),
+        createInsightsAdapter(userContext),
+        createReceiptsAdapter(userContext),
       ];
 
       // None should be MySQL adapters
@@ -244,6 +300,13 @@ describe('Adapter Routing Integration Tests', () => {
         MysqlTranslationAdapter,
         MysqlNotificationAdapter,
         MySQLVerifiedFactAdapter,
+        MySQLWellbeingAdapter,
+        MySQLSharingAdapter,
+        MySQLWearableAdapter,
+        MySQLAlertsAdapter,
+        MySQLRecurringAdapter,
+        MySQLInsightsAdapter,
+        MySQLReceiptsAdapter,
       ];
 
       adapters.forEach((adapter) => {
@@ -254,7 +317,7 @@ describe('Adapter Routing Integration Tests', () => {
     });
 
     it('should never route admin users to Supabase adapters', () => {
-      // Test all 9 adapters
+      // Test all 16 adapters
       const adapters = [
         createCoreAdapter(adminContext),
         createBudgetAdapter(adminContext),
@@ -265,6 +328,13 @@ describe('Adapter Routing Integration Tests', () => {
         createTranslationAdapter(adminContext),
         createNotificationAdapter(adminContext),
         createVerifiedFactAdapter(adminContext),
+        createWellbeingAdapter(adminContext),
+        createSharingAdapter(adminContext),
+        createWearableAdapter(adminContext),
+        createAlertsAdapter(adminContext),
+        createRecurringAdapter(adminContext),
+        createInsightsAdapter(adminContext),
+        createReceiptsAdapter(adminContext),
       ];
 
       // None should be Supabase adapters
@@ -278,6 +348,13 @@ describe('Adapter Routing Integration Tests', () => {
         SupabaseTranslationAdapter,
         SupabaseNotificationAdapter,
         SupabaseVerifiedFactAdapter,
+        SupabaseWellbeingAdapter,
+        SupabaseSharingAdapter,
+        SupabaseWearableAdapter,
+        SupabaseAlertsAdapter,
+        SupabaseRecurringAdapter,
+        SupabaseInsightsAdapter,
+        SupabaseReceiptsAdapter,
       ];
 
       adapters.forEach((adapter) => {
@@ -307,6 +384,90 @@ describe('Adapter Routing Integration Tests', () => {
       const adapter = createCoreAdapter(adminContext) as MySQLCoreAdapter;
       expect(adapter).toBeInstanceOf(MySQLCoreAdapter);
       // MySQL adapters don't need userId or accessToken
+    });
+  });
+
+  describe('WellbeingAdapter Routing', () => {
+    it('should route admin users to MySQLWellbeingAdapter', () => {
+      const adapter = createWellbeingAdapter(adminContext);
+      expect(adapter).toBeInstanceOf(MySQLWellbeingAdapter);
+    });
+
+    it('should route regular users to SupabaseWellbeingAdapter', () => {
+      const adapter = createWellbeingAdapter(userContext);
+      expect(adapter).toBeInstanceOf(SupabaseWellbeingAdapter);
+    });
+  });
+
+  describe('SharingAdapter Routing', () => {
+    it('should route admin users to MySQLSharingAdapter', () => {
+      const adapter = createSharingAdapter(adminContext);
+      expect(adapter).toBeInstanceOf(MySQLSharingAdapter);
+    });
+
+    it('should route regular users to SupabaseSharingAdapter', () => {
+      const adapter = createSharingAdapter(userContext);
+      expect(adapter).toBeInstanceOf(SupabaseSharingAdapter);
+    });
+  });
+
+  describe('WearableAdapter Routing', () => {
+    it('should route admin users to MySQLWearableAdapter', () => {
+      const adapter = createWearableAdapter(adminContext);
+      expect(adapter).toBeInstanceOf(MySQLWearableAdapter);
+    });
+
+    it('should route regular users to SupabaseWearableAdapter', () => {
+      const adapter = createWearableAdapter(userContext);
+      expect(adapter).toBeInstanceOf(SupabaseWearableAdapter);
+    });
+  });
+
+  describe('AlertsAdapter Routing', () => {
+    it('should route admin users to MySQLAlertsAdapter', () => {
+      const adapter = createAlertsAdapter(adminContext);
+      expect(adapter).toBeInstanceOf(MySQLAlertsAdapter);
+    });
+
+    it('should route regular users to SupabaseAlertsAdapter', () => {
+      const adapter = createAlertsAdapter(userContext);
+      expect(adapter).toBeInstanceOf(SupabaseAlertsAdapter);
+    });
+  });
+
+  describe('RecurringAdapter Routing', () => {
+    it('should route admin users to MySQLRecurringAdapter', () => {
+      const adapter = createRecurringAdapter(adminContext);
+      expect(adapter).toBeInstanceOf(MySQLRecurringAdapter);
+    });
+
+    it('should route regular users to SupabaseRecurringAdapter', () => {
+      const adapter = createRecurringAdapter(userContext);
+      expect(adapter).toBeInstanceOf(SupabaseRecurringAdapter);
+    });
+  });
+
+  describe('InsightsAdapter Routing', () => {
+    it('should route admin users to MySQLInsightsAdapter', () => {
+      const adapter = createInsightsAdapter(adminContext);
+      expect(adapter).toBeInstanceOf(MySQLInsightsAdapter);
+    });
+
+    it('should route regular users to SupabaseInsightsAdapter', () => {
+      const adapter = createInsightsAdapter(userContext);
+      expect(adapter).toBeInstanceOf(SupabaseInsightsAdapter);
+    });
+  });
+
+  describe('ReceiptsAdapter Routing', () => {
+    it('should route admin users to MySQLReceiptsAdapter', () => {
+      const adapter = createReceiptsAdapter(adminContext);
+      expect(adapter).toBeInstanceOf(MySQLReceiptsAdapter);
+    });
+
+    it('should route regular users to SupabaseReceiptsAdapter', () => {
+      const adapter = createReceiptsAdapter(userContext);
+      expect(adapter).toBeInstanceOf(SupabaseReceiptsAdapter);
     });
   });
 });

@@ -1,7 +1,7 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { UnifiedUser } from "./dbRouter";
 import { sdk } from "./sdk";
-import { createCoreAdapter, type CoreAdapter, createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter, createIoTAdapter, type IoTAdapter, createGoalsAdapter, type GoalsAdapter, createTranslationAdapter, type TranslationAdapter, createVerifiedFactAdapter, type VerifiedFactAdapter } from "../adapters";
+import { createCoreAdapter, type CoreAdapter, createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter, createIoTAdapter, type IoTAdapter, createGoalsAdapter, type GoalsAdapter, createTranslationAdapter, type TranslationAdapter, createVerifiedFactAdapter, type VerifiedFactAdapter, createWellbeingAdapter, type WellbeingAdapter, createSharingAdapter, type SharingAdapter, createWearableAdapter, type WearableAdapter, createAlertsAdapter, type AlertsAdapter, createRecurringAdapter, type RecurringAdapter, createInsightsAdapter, type InsightsAdapter, createReceiptsAdapter, type ReceiptsAdapter } from "../adapters";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -17,6 +17,13 @@ export type TrpcContext = {
   goalsDb: GoalsAdapter | null; // Goals adapter
   translationDb: TranslationAdapter | null; // Translation adapter
   verifiedFactDb: VerifiedFactAdapter | null; // Verified fact adapter
+  wellbeingDb: WellbeingAdapter | null; // Wellbeing adapter
+  sharingDb: SharingAdapter | null; // Sharing adapter
+  wearableDb: WearableAdapter | null; // Wearable adapter
+  alertsDb: AlertsAdapter | null; // Alerts adapter
+  recurringDb: RecurringAdapter | null; // Recurring adapter
+  insightsDb: InsightsAdapter | null; // Insights adapter
+  receiptsDb: ReceiptsAdapter | null; // Receipts adapter
 };
 
 export async function createContext(
@@ -48,6 +55,13 @@ export async function createContext(
   const goalsDb = user ? createGoalsAdapter({ user, accessToken }) : null;
   const translationDb = user ? createTranslationAdapter({ user, accessToken }) : null;
   const verifiedFactDb = user ? createVerifiedFactAdapter({ user, accessToken }) : null;
+  const wellbeingDb = user ? createWellbeingAdapter({ user, accessToken }) : null;
+  const sharingDb = user ? createSharingAdapter({ user, accessToken }) : null;
+  const wearableDb = user ? createWearableAdapter({ user, accessToken }) : null;
+  const alertsDb = user ? createAlertsAdapter({ user, accessToken }) : null;
+  const recurringDb = user ? createRecurringAdapter({ user, accessToken }) : null;
+  const insightsDb = user ? createInsightsAdapter({ user, accessToken }) : null;
+  const receiptsDb = user ? createReceiptsAdapter({ user, accessToken }) : null;
 
   return {
     req: opts.req,
@@ -63,5 +77,12 @@ export async function createContext(
     goalsDb,
     translationDb,
     verifiedFactDb,
+    wellbeingDb,
+    sharingDb,
+    wearableDb,
+    alertsDb,
+    recurringDb,
+    insightsDb,
+    receiptsDb,
   };
 }
