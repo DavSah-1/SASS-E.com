@@ -2,13 +2,26 @@ import { describe, it, expect } from 'vitest';
 import { appRouter } from './routers';
 import type { Context } from './_core/context';
 import { 
+  createCoreAdapter,
   createNotificationAdapter, 
   createBudgetAdapter, 
   createDebtAdapter, 
   createLearningAdapter, 
   createIoTAdapter, 
   createGoalsAdapter, 
-  createTranslationAdapter 
+  createTranslationAdapter,
+  createVerifiedFactAdapter,
+  createWellbeingAdapter,
+  createSharingAdapter,
+  createWearableAdapter,
+  createAlertsAdapter,
+  createRecurringAdapter,
+  createInsightsAdapter,
+  createReceiptsAdapter,
+  createLanguageLearningAdapter,
+  createMathScienceAdapter,
+  createLearningHubAdapter,
+  createLearnFinanceAdapter
 } from './adapters';
 
 describe('Topic Learning System', () => {
@@ -26,6 +39,7 @@ describe('Topic Learning System', () => {
     req: {} as any,
     res: {} as any,
     user: mockUser,
+    coreDb: createCoreAdapter(adapterContext),
     notificationDb: createNotificationAdapter(adapterContext),
     budgetDb: createBudgetAdapter(adapterContext),
     debtDb: createDebtAdapter(adapterContext),
@@ -33,6 +47,18 @@ describe('Topic Learning System', () => {
     iotDb: createIoTAdapter(adapterContext),
     goalsDb: createGoalsAdapter(adapterContext),
     translationDb: createTranslationAdapter(adapterContext),
+    verifiedFactDb: createVerifiedFactAdapter(adapterContext),
+    wellbeingDb: createWellbeingAdapter(adapterContext),
+    sharingDb: createSharingAdapter(adapterContext),
+    wearableDb: createWearableAdapter(adapterContext),
+    alertsDb: createAlertsAdapter(adapterContext),
+    recurringDb: createRecurringAdapter(adapterContext),
+    insightsDb: createInsightsAdapter(adapterContext),
+    receiptsDb: createReceiptsAdapter(adapterContext),
+    languageLearningDb: createLanguageLearningAdapter(adapterContext),
+    mathScienceDb: createMathScienceAdapter(adapterContext),
+    learningHubDb: createLearningHubAdapter(adapterContext),
+    learnFinanceDb: createLearnFinanceAdapter(adapterContext),
   };
 
   it('should generate lesson content for a topic', async () => {
