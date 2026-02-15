@@ -12,21 +12,18 @@ export const wellbeingRouter = router({
   // ============================================================================
   
   getWorkouts: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.wellbeingDb) return [];
     return ctx.wellbeingDb.getAllWorkouts();
   }),
 
   getWorkoutById: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return null;
       return ctx.wellbeingDb.getWorkoutById(input.id);
     }),
 
   getWorkoutHistory: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return [];
       return ctx.wellbeingDb.getUserWorkoutHistory(ctx.user.numericId, input.limit);
     }),
 
@@ -39,7 +36,6 @@ export const wellbeingRouter = router({
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.logWorkout({
         userId: ctx.user.numericId,
         workoutId: input.workoutId,
@@ -54,7 +50,6 @@ export const wellbeingRouter = router({
   getDailyActivity: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return null;
       return ctx.wellbeingDb.getDailyActivityStats(ctx.user.numericId, input.date);
     }),
 
@@ -67,7 +62,6 @@ export const wellbeingRouter = router({
       activeMinutes: z.number().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.upsertDailyActivityStats({
         userId: ctx.user.numericId,
         date: input.date,
@@ -86,7 +80,6 @@ export const wellbeingRouter = router({
   getFoodLog: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return [];
       return ctx.wellbeingDb.getFoodLogByDate(ctx.user.numericId, input.date);
     }),
 
@@ -138,7 +131,6 @@ export const wellbeingRouter = router({
         iron: input.iron?.toString(),
         notes: input.notes,
       };
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.addFoodLog(foodLogData);
       return { success: true };
     }),
@@ -146,7 +138,6 @@ export const wellbeingRouter = router({
   deleteFoodLog: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.deleteFoodLog(input.id, ctx.user.numericId);
       return { success: true };
     }),
@@ -169,7 +160,6 @@ export const wellbeingRouter = router({
   getHydrationLog: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { logs: [], total: 0 };
       const logs = await ctx.wellbeingDb.getHydrationLogByDate(ctx.user.numericId, input.date);
       const total = await ctx.wellbeingDb.getDailyHydrationTotal(ctx.user.numericId, input.date);
       return { logs, total };
@@ -181,7 +171,6 @@ export const wellbeingRouter = router({
       amount: z.number(), // in ml
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.addHydrationLog({
         userId: ctx.user.numericId,
         date: input.date,
@@ -197,7 +186,6 @@ export const wellbeingRouter = router({
   getMeditationSessions: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return [];
       return ctx.wellbeingDb.getMeditationSessions(ctx.user.numericId, input.limit);
     }),
 
@@ -209,7 +197,6 @@ export const wellbeingRouter = router({
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.logMeditationSession({
         userId: ctx.user.numericId,
         ...input,
@@ -220,7 +207,6 @@ export const wellbeingRouter = router({
   getMoodLog: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return null;
       return ctx.wellbeingDb.getMoodLogByDate(ctx.user.numericId, input.date);
     }),
 
@@ -234,7 +220,6 @@ export const wellbeingRouter = router({
       factors: z.string().optional(), // JSON array
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.upsertMoodLog({
         userId: ctx.user.numericId,
         ...input,
@@ -245,7 +230,6 @@ export const wellbeingRouter = router({
   getJournalEntries: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return [];
       return ctx.wellbeingDb.getJournalEntries(ctx.user.numericId, input.limit);
     }),
 
@@ -257,7 +241,6 @@ export const wellbeingRouter = router({
       prompt: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.addJournalEntry({
         userId: ctx.user.numericId,
         ...input,
@@ -272,7 +255,6 @@ export const wellbeingRouter = router({
       content: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.updateJournalEntry(input.id, ctx.user.numericId, input.content, input.title);
       return { success: true };
     }),
@@ -280,7 +262,6 @@ export const wellbeingRouter = router({
   deleteJournalEntry: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.deleteJournalEntry(input.id, ctx.user.numericId);
       return { success: true };
     }),
@@ -288,7 +269,6 @@ export const wellbeingRouter = router({
   getSleepTracking: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return [];
       return ctx.wellbeingDb.getSleepTracking(ctx.user.numericId, input.limit);
     }),
 
@@ -302,7 +282,6 @@ export const wellbeingRouter = router({
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.addSleepTracking({
         userId: ctx.user.numericId,
         ...input,
@@ -317,7 +296,6 @@ export const wellbeingRouter = router({
   getHealthMetrics: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return [];
       return ctx.wellbeingDb.getHealthMetrics(ctx.user.numericId, input.limit);
     }),
 
@@ -333,7 +311,6 @@ export const wellbeingRouter = router({
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.addHealthMetric({
         userId: ctx.user.numericId,
         ...input,
@@ -342,7 +319,6 @@ export const wellbeingRouter = router({
     }),
 
   getReminders: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.wellbeingDb) return [];
     return ctx.wellbeingDb.getWellbeingReminders(ctx.user.numericId);
   }),
 
@@ -355,7 +331,6 @@ export const wellbeingRouter = router({
       frequency: z.enum(["daily", "weekly", "custom"]),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.addWellbeingReminder({
         userId: ctx.user.numericId,
         ...input,
@@ -366,7 +341,6 @@ export const wellbeingRouter = router({
   deleteReminder: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.deleteWellbeingReminder(input.id, ctx.user.numericId);
       return { success: true };
     }),
@@ -377,7 +351,6 @@ export const wellbeingRouter = router({
       isActive: z.boolean(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.wellbeingDb) return { success: false };
       await ctx.wellbeingDb.toggleWellbeingReminder(input.id, ctx.user.numericId, input.isActive);
       return { success: true };
     }),

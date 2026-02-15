@@ -350,9 +350,7 @@ export const budgetRouter = router({
    * Generate AI-powered spending insights
    */
   generateInsights: protectedProcedure.mutation(async ({ ctx }) => {
-    if (!ctx.insightsDb) {
-      return { success: false, insightsCount: 0 };
-    }
+
     const result = await ctx.insightsDb.generateSpendingInsights(ctx.user.numericId);
     return result;
   }),
@@ -889,9 +887,7 @@ export const budgetRouter = router({
    * Detect recurring transaction patterns
    */
   detectRecurring: protectedProcedure.mutation(async ({ ctx }) => {
-    if (!ctx.recurringDb) {
-      return { success: false, patternsFound: 0 };
-    }
+
     const result = await ctx.recurringDb.detectRecurringPatterns(ctx.user.numericId);
     return result;
   }),
@@ -1051,9 +1047,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.receiptsDb) {
-        return { success: false, error: "Receipts service not available" };
-      }
+
       const result = await ctx.receiptsDb.processReceiptImage(input.imageUrl, ctx.user.numericId);
       return result;
     }),
@@ -1106,9 +1100,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.sharingDb) {
-        return { success: false };
-      }
+
       const result = await ctx.sharingDb.createSharedBudget(ctx.user.numericId, input.name, input.description);
       return result;
     }),
@@ -1134,9 +1126,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.sharingDb) {
-        return { success: false, error: "Sharing service not available" };
-      }
+
       const result = await ctx.sharingDb.inviteToSharedBudget(
         input.budgetId,
         ctx.user.numericId,
