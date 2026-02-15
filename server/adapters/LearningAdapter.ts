@@ -92,4 +92,5 @@ export interface LearningAdapter {
   saveLabQuizQuestions(questions: any[]): Promise<boolean>;
   saveLabQuizAttempt(attempt: any): Promise<any>;
   getLabQuizAttempts(userId: number, experimentId?: number): Promise<any[]>;
+  hasPassedLabQuiz(userId: number, experimentId: number): Promise<boolean>;
 }

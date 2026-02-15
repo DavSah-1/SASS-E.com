@@ -989,4 +989,18 @@ export class SupabaseLearningAdapter implements LearningAdapter {
     if (error) throw new Error(`Supabase getLabQuizAttempts error: ${error.message}`);
     return data || [];
   }
+
+  async hasPassedLabQuiz(userId: number, experimentId: number): Promise<boolean> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('lab_quiz_attempts')
+      .select('*')
+      .eq('user_id', this.userId)
+      .eq('experiment_id', experimentId)
+      .eq('passed', true)
+      .limit(1);
+    
+    if (error) throw new Error(`Supabase hasPassedLabQuiz error: ${error.message}`);
+    return (data && data.length > 0) || false;
+  }
 }

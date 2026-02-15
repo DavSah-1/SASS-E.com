@@ -887,7 +887,6 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         try {
-          const { updateUserHubSelection } = await import("./db");
           const { checkFeatureAccess } = await import("./accessControl");
           
           // Check if user can change hubs
@@ -908,7 +907,7 @@ export const appRouter = router({
             throw new Error(`You can only select ${maxHubs} hub${maxHubs > 1 ? 's' : ''} with your ${user.subscriptionTier} plan`);
           }
           
-          await updateUserHubSelection(toNumericId(ctx.user.numericId), input.hubs);
+          await ctx.coreDb!.updateUserHubSelection(toNumericId(ctx.user.numericId), input.hubs);
           return { success: true, hubs: input.hubs };
         } catch (error) {
           handleError(error, 'Subscription Select Hubs');
@@ -1296,8 +1295,7 @@ export const appRouter = router({
       .input(z.object({ language: z.string().length(2).or(z.string().length(5)) }))
       .mutation(async ({ ctx, input }) => {
         try {
-          const { updateUserLanguage } = await import("./db");
-          await updateUserLanguage(ctx.user.numericId, input.language);
+          await ctx.coreDb!.updateUserLanguage(ctx.user.numericId, input.language);
           return { success: true, language: input.language };
         } catch (error) {
           handleError(error, 'Auth Set Language');
@@ -1307,8 +1305,7 @@ export const appRouter = router({
       .input(z.object({ staySignedIn: z.boolean() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          const { updateUserStaySignedIn } = await import("./db");
-          await updateUserStaySignedIn(ctx.user.numericId, input.staySignedIn);
+          await ctx.coreDb!.updateUserStaySignedIn(ctx.user.numericId, input.staySignedIn);
           return { success: true, staySignedIn: input.staySignedIn };
         } catch (error) {
           handleError(error, 'Auth Set Stay Signed In');
@@ -1682,8 +1679,7 @@ If verified knowledge base information is provided above, use that as your prima
     }),
     clearAllConversations: protectedProcedure.mutation(async ({ ctx }) => {
       try {
-        const { deleteAllUserConversations } = await import('./db');
-        await deleteAllUserConversations(ctx.user.numericId);
+        await ctx.coreDb!.deleteAllUserConversations(ctx.user.numericId);
         return { success: true };
       } catch (error) {
         handleError(error, 'Clear Conversations');
@@ -3201,8 +3197,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ translationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          const { toggleTranslationFavorite } = await import("./db");
-          return await toggleTranslationFavorite(input.translationId, ctx.user.numericId);
+          return await ctx.translationDb!.toggleTranslationFavorite(input.translationId, ctx.user.numericId);
         } catch (error) {
           handleError(error, 'Translation Toggle Favorite');
         }

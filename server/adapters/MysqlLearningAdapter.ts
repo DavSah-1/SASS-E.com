@@ -230,4 +230,8 @@ export class MysqlLearningAdapter implements LearningAdapter {
   async getLabQuizAttempts(userId: number, experimentId?: number): Promise<any[]> {
     return db.getLabQuizAttempts(userId, experimentId);
   }
+
+  async hasPassedLabQuiz(userId: number, experimentId: number): Promise<boolean> {
+    return db.hasPassedLabQuiz(userId, experimentId);
+  }
 }

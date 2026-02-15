@@ -133,4 +133,9 @@ export class MysqlTranslationAdapter implements TranslationAdapter {
   async getTranslationsByLanguage(userId: number, sourceLanguage: string, targetLanguage: string) {
     return db.getTranslationsByLanguage(userId, sourceLanguage, targetLanguage);
   }
+
+  // Translation Favorites
+  async toggleTranslationFavorite(translationId: number, userId: number) {
+    return db.toggleTranslationFavorite(translationId, userId);
+  }
 }

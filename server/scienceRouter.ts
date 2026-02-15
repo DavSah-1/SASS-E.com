@@ -390,8 +390,7 @@ Format as JSON array with structure:
     .input(z.object({ experimentId: z.number() }))
     .query(async ({ ctx, input }) => {
       if (!ctx.learningDb) throw new Error("Learning adapter not available");
-      const { hasPassedLabQuiz } = await import("./db");
-      const passed = await hasPassedLabQuiz(ctx.user.numericId, input.experimentId);
+      const passed = await ctx.learningDb.hasPassedLabQuiz(ctx.user.numericId, input.experimentId);
       return { passed };
     }),
 });

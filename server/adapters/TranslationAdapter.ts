@@ -72,4 +72,9 @@ export interface TranslationAdapter {
    */
   searchSavedTranslations(userId: number, searchTerm: string): Promise<any[]>;
   getTranslationsByLanguage(userId: number, sourceLanguage: string, targetLanguage: string): Promise<any[]>;
+
+  /**
+   * Translation Favorites
+   */
+  toggleTranslationFavorite(translationId: number, userId: number): Promise<any>;
 }

@@ -5985,3 +5985,11 @@
 - [ ] Test cascade deletion works correctly
 - [ ] Remove manual cascade deletion code from db.ts (now handled by database)
 - [ ] Save checkpoint
+
+## Adapter Bypass Bugs (Critical)
+- [x] BUG 1: Add toggleTranslationFavorite to TranslationAdapter (bypasses adapter → Supabase users hit MySQL)
+- [x] BUG 2: Add hasPassedLabQuiz to LearningAdapter (bypasses adapter → Supabase users hit MySQL)
+- [x] BUG 3: Fix updateUserLanguage to use ctx.coreDb (bypasses CoreAdapter → Supabase users hit MySQL)
+- [x] BUG 4: Fix updateUserStaySignedIn to use ctx.coreDb (bypasses CoreAdapter → Supabase users hit MySQL)
+- [x] BUG 5: Fix updateUserHubSelection to use ctx.coreDb (bypasses CoreAdapter → Supabase users hit MySQL)
+- [x] BUG 6: Fix deleteAllUserConversations to use ctx.coreDb (bypasses CoreAdapter → Supabase users hit MySQL)

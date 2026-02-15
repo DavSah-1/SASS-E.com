@@ -572,4 +572,32 @@ export class SupabaseTranslationAdapter implements TranslationAdapter {
     if (error) throw new Error(`Supabase getTranslationsByLanguage error: ${error.message}`);
     return data || [];
   }
+
+  // Translation Favorites
+  async toggleTranslationFavorite(translationId: number, userId: number) {
+    const supabase = await this.getClient();
+    
+    // Get current translation
+    const { data: translation, error: fetchError } = await supabase
+      .from('saved_translations')
+      .select('*')
+      .eq('id', translationId)
+      .eq('user_id', this.userId)
+      .single();
+    
+    if (fetchError || !translation) return null;
+    
+    // Toggle favorite status
+    const newFavoriteStatus = translation.is_favorite ? false : true;
+    
+    const { data, error } = await supabase
+      .from('saved_translations')
+      .update({ is_favorite: newFavoriteStatus })
+      .eq('id', translationId)
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Supabase toggleTranslationFavorite error: ${error.message}`);
+    return data;
+  }
 }
