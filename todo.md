@@ -6088,3 +6088,14 @@
 - [ ] Update budgetRouter.ts to use new adapters (ctx.sharingDb, ctx.alertsDb, etc.)
 - [ ] Update wearableRouter.ts to use ctx.wearableDb
 - [ ] Run tests to verify all features work for both MySQL and Supabase users
+
+## Adapter Wiring and RLS Policies
+- [x] Wire up WellbeingAdapter in wellbeingRouter.ts to use ctx.wellbeingDb
+- [x] Create Supabase RLS policies for sharing module tables (5 tables)
+- [x] Create Supabase RLS policies for wearable module tables (3 tables)
+- [x] Create Supabase RLS policies for alerts module tables (1 table)
+- [x] Create Supabase RLS policies for recurring module tables (1 table)
+- [x] Create Supabase RLS policies for insights module (no dedicated table - generated on-the-fly)
+- [x] Create Supabase RLS policies for receipts module (no dedicated table - stored as metadata)
+- [ ] Apply RLS policies to Supabase database
+- [ ] Test RLS policies to verify user isolation

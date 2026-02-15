@@ -4,56 +4,30 @@
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { lookupProductByBarcode, searchProducts } from "./_core/openFoodFactsApi";
-import {
-  getAllWorkouts,
-  getWorkoutById,
-  getUserWorkoutHistory,
-  logWorkout,
-  getDailyActivityStats,
-  upsertDailyActivityStats,
-  getFoodLogByDate,
-  addFoodLog,
-  deleteFoodLog,
-  getHydrationLogByDate,
-  addHydrationLog,
-  getDailyHydrationTotal,
-  getMeditationSessions,
-  logMeditationSession,
-  getMoodLogByDate,
-  upsertMoodLog,
-  getJournalEntries,
-  addJournalEntry,
-  updateJournalEntry,
-  deleteJournalEntry,
-  getSleepTracking,
-  addSleepTracking,
-  getHealthMetrics,
-  addHealthMetric,
-  getWellbeingReminders,
-  addWellbeingReminder,
-  deleteWellbeingReminder,
-  toggleWellbeingReminder,
-} from "./db/wellbeing";
+// Wellbeing functions now accessed via ctx.wellbeingDb adapter
 
 export const wellbeingRouter = router({
   // ============================================================================
   // FITNESS & WORKOUTS
   // ============================================================================
   
-  getWorkouts: protectedProcedure.query(async () => {
-    return getAllWorkouts();
+  getWorkouts: protectedProcedure.query(async ({ ctx }) => {
+    if (!ctx.wellbeingDb) return [];
+    return ctx.wellbeingDb.getAllWorkouts();
   }),
 
   getWorkoutById: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
-      return getWorkoutById(input.id);
+    .query(async ({ ctx, input }) => {
+      if (!ctx.wellbeingDb) return null;
+      return ctx.wellbeingDb.getWorkoutById(input.id);
     }),
 
   getWorkoutHistory: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getUserWorkoutHistory(ctx.user.numericId, input.limit);
+      if (!ctx.wellbeingDb) return [];
+      return ctx.wellbeingDb.getUserWorkoutHistory(ctx.user.numericId, input.limit);
     }),
 
   logWorkout: protectedProcedure
@@ -65,7 +39,8 @@ export const wellbeingRouter = router({
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await logWorkout({
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.logWorkout({
         userId: ctx.user.numericId,
         workoutId: input.workoutId,
         workoutTitle: input.workoutTitle,
@@ -79,7 +54,8 @@ export const wellbeingRouter = router({
   getDailyActivity: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      return getDailyActivityStats(ctx.user.numericId, input.date);
+      if (!ctx.wellbeingDb) return null;
+      return ctx.wellbeingDb.getDailyActivityStats(ctx.user.numericId, input.date);
     }),
 
   updateDailyActivity: protectedProcedure
@@ -91,7 +67,8 @@ export const wellbeingRouter = router({
       activeMinutes: z.number().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await upsertDailyActivityStats({
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.upsertDailyActivityStats({
         userId: ctx.user.numericId,
         date: input.date,
         steps: input.steps || 0,
@@ -109,7 +86,8 @@ export const wellbeingRouter = router({
   getFoodLog: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      return getFoodLogByDate(ctx.user.numericId, input.date);
+      if (!ctx.wellbeingDb) return [];
+      return ctx.wellbeingDb.getFoodLogByDate(ctx.user.numericId, input.date);
     }),
 
   addFoodLog: protectedProcedure
@@ -160,28 +138,30 @@ export const wellbeingRouter = router({
         iron: input.iron?.toString(),
         notes: input.notes,
       };
-      await addFoodLog(foodLogData);
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.addFoodLog(foodLogData);
       return { success: true };
     }),
 
   deleteFoodLog: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await deleteFoodLog(input.id, ctx.user.numericId);
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.deleteFoodLog(input.id, ctx.user.numericId);
       return { success: true };
     }),
 
   // Food Database - Barcode Scanning & Search
   lookupFoodByBarcode: publicProcedure
     .input(z.object({ barcode: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const product = await lookupProductByBarcode(input.barcode);
       return product;
     }),
 
   searchFoods: publicProcedure
     .input(z.object({ query: z.string(), limit: z.number().optional() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       const products = await searchProducts(input.query, input.limit);
       return products;
     }),
@@ -189,8 +169,9 @@ export const wellbeingRouter = router({
   getHydrationLog: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      const logs = await getHydrationLogByDate(ctx.user.numericId, input.date);
-      const total = await getDailyHydrationTotal(ctx.user.numericId, input.date);
+      if (!ctx.wellbeingDb) return { logs: [], total: 0 };
+      const logs = await ctx.wellbeingDb.getHydrationLogByDate(ctx.user.numericId, input.date);
+      const total = await ctx.wellbeingDb.getDailyHydrationTotal(ctx.user.numericId, input.date);
       return { logs, total };
     }),
 
@@ -200,7 +181,8 @@ export const wellbeingRouter = router({
       amount: z.number(), // in ml
     }))
     .mutation(async ({ ctx, input }) => {
-      await addHydrationLog({
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.addHydrationLog({
         userId: ctx.user.numericId,
         date: input.date,
         amount: input.amount,
@@ -215,7 +197,8 @@ export const wellbeingRouter = router({
   getMeditationSessions: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getMeditationSessions(ctx.user.numericId, input.limit);
+      if (!ctx.wellbeingDb) return [];
+      return ctx.wellbeingDb.getMeditationSessions(ctx.user.numericId, input.limit);
     }),
 
   logMeditationSession: protectedProcedure
@@ -226,7 +209,8 @@ export const wellbeingRouter = router({
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await logMeditationSession({
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.logMeditationSession({
         userId: ctx.user.numericId,
         ...input,
       });
@@ -236,7 +220,8 @@ export const wellbeingRouter = router({
   getMoodLog: protectedProcedure
     .input(z.object({ date: z.string() }))
     .query(async ({ ctx, input }) => {
-      return getMoodLogByDate(ctx.user.numericId, input.date);
+      if (!ctx.wellbeingDb) return null;
+      return ctx.wellbeingDb.getMoodLogByDate(ctx.user.numericId, input.date);
     }),
 
   updateMoodLog: protectedProcedure
@@ -249,7 +234,8 @@ export const wellbeingRouter = router({
       factors: z.string().optional(), // JSON array
     }))
     .mutation(async ({ ctx, input }) => {
-      await upsertMoodLog({
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.upsertMoodLog({
         userId: ctx.user.numericId,
         ...input,
       });
@@ -259,7 +245,8 @@ export const wellbeingRouter = router({
   getJournalEntries: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getJournalEntries(ctx.user.numericId, input.limit);
+      if (!ctx.wellbeingDb) return [];
+      return ctx.wellbeingDb.getJournalEntries(ctx.user.numericId, input.limit);
     }),
 
   addJournalEntry: protectedProcedure
@@ -270,7 +257,8 @@ export const wellbeingRouter = router({
       prompt: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await addJournalEntry({
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.addJournalEntry({
         userId: ctx.user.numericId,
         ...input,
       });
@@ -284,21 +272,24 @@ export const wellbeingRouter = router({
       content: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await updateJournalEntry(input.id, ctx.user.numericId, input.content, input.title);
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.updateJournalEntry(input.id, ctx.user.numericId, input.content, input.title);
       return { success: true };
     }),
 
   deleteJournalEntry: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await deleteJournalEntry(input.id, ctx.user.numericId);
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.deleteJournalEntry(input.id, ctx.user.numericId);
       return { success: true };
     }),
 
   getSleepTracking: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getSleepTracking(ctx.user.numericId, input.limit);
+      if (!ctx.wellbeingDb) return [];
+      return ctx.wellbeingDb.getSleepTracking(ctx.user.numericId, input.limit);
     }),
 
   addSleepTracking: protectedProcedure
@@ -311,7 +302,8 @@ export const wellbeingRouter = router({
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await addSleepTracking({
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.addSleepTracking({
         userId: ctx.user.numericId,
         ...input,
       });
@@ -325,7 +317,8 @@ export const wellbeingRouter = router({
   getHealthMetrics: protectedProcedure
     .input(z.object({ limit: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      return getHealthMetrics(ctx.user.numericId, input.limit);
+      if (!ctx.wellbeingDb) return [];
+      return ctx.wellbeingDb.getHealthMetrics(ctx.user.numericId, input.limit);
     }),
 
   addHealthMetric: protectedProcedure
@@ -340,7 +333,8 @@ export const wellbeingRouter = router({
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await addHealthMetric({
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.addHealthMetric({
         userId: ctx.user.numericId,
         ...input,
       });
@@ -348,7 +342,8 @@ export const wellbeingRouter = router({
     }),
 
   getReminders: protectedProcedure.query(async ({ ctx }) => {
-    return getWellbeingReminders(ctx.user.numericId);
+    if (!ctx.wellbeingDb) return [];
+    return ctx.wellbeingDb.getWellbeingReminders(ctx.user.numericId);
   }),
 
   addReminder: protectedProcedure
@@ -360,7 +355,8 @@ export const wellbeingRouter = router({
       frequency: z.enum(["daily", "weekly", "custom"]),
     }))
     .mutation(async ({ ctx, input }) => {
-      await addWellbeingReminder({
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.addWellbeingReminder({
         userId: ctx.user.numericId,
         ...input,
       });
@@ -370,7 +366,8 @@ export const wellbeingRouter = router({
   deleteReminder: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      await deleteWellbeingReminder(input.id, ctx.user.numericId);
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.deleteWellbeingReminder(input.id, ctx.user.numericId);
       return { success: true };
     }),
 
@@ -380,7 +377,8 @@ export const wellbeingRouter = router({
       isActive: z.boolean(),
     }))
     .mutation(async ({ ctx, input }) => {
-      await toggleWellbeingReminder(input.id, ctx.user.numericId, input.isActive);
+      if (!ctx.wellbeingDb) return { success: false };
+      await ctx.wellbeingDb.toggleWellbeingReminder(input.id, ctx.user.numericId, input.isActive);
       return { success: true };
     }),
 
@@ -463,7 +461,7 @@ export const wellbeingRouter = router({
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const recentWorkouts = await getUserWorkoutHistory(ctx.user.numericId, 7);
+    const recentWorkouts = ctx.wellbeingDb ? await ctx.wellbeingDb.getUserWorkoutHistory(ctx.user.numericId, 7) : [];
     const recentMeals = await getFoodLogByDateRange(ctx.user.numericId, sevenDaysAgo, new Date());
     const recentMoods = await getMoodLogByDateRange(ctx.user.numericId, sevenDaysAgo, new Date());
     const recentMetrics = await getHealthMetricsByDateRange(ctx.user.numericId, sevenDaysAgo, new Date());
