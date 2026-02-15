@@ -6004,3 +6004,9 @@
 - [x] Remove 128 ! assertions from router adapter calls (ctx.xxxDb!. → ctx.xxxDb.)
 - [x] Remove 64 null guard checks from routers (if (!ctx.xxxDb) throw...)
 - [x] Standardize SupabaseTranslationAdapter client creation to use getSupabaseClient()
+
+## Adapter Routing Integration Tests
+- [x] Create comprehensive integration test suite for adapter routing
+- [x] Verify Supabase users never access MySQL for all 9 adapters
+- [x] Verify admin users correctly access MySQL for all 9 adapters
+- [x] Test all adapter factory functions (createCoreAdapter, createBudgetAdapter, etc.)
