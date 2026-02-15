@@ -18,6 +18,13 @@ export class SupabaseWearableAdapter implements WearableAdapter {
     return getSupabaseClient(this.accessToken);
   }
 
+  getOAuthUrl(provider: string, redirectUri: string): string {
+    // OAuth URL generation is the same for both MySQL and Supabase
+    // Import the function from db/wearable
+    const { getOAuthUrl } = require("../db/wearable");
+    return getOAuthUrl(provider, redirectUri);
+  }
+
   async getUserWearableConnections(userId: number): Promise<any[]> {
     const client = await this.getClient();
 

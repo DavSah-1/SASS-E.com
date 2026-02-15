@@ -8,6 +8,11 @@
 
 export interface WearableAdapter {
   /**
+   * Get OAuth URL for wearable provider
+   */
+  getOAuthUrl(provider: string, redirectUri: string): string;
+
+  /**
    * Get all wearable connections for a user
    */
   getUserWearableConnections(userId: number): Promise<any[]>;

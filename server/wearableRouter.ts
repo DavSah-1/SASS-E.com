@@ -4,7 +4,6 @@
  */
 import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
-import { getOAuthUrl } from "./db/wearable";
 
 export const wearableRouter = router({
   /**
@@ -53,9 +52,9 @@ export const wearableRouter = router({
         redirectUri: z.string(),
       })
     )
-    .query(({ input }) => {
+    .query(({ ctx, input }) => {
       try {
-        const url = getOAuthUrl(input.provider, input.redirectUri);
+        const url = ctx.wearableDb.getOAuthUrl(input.provider, input.redirectUri);
         return { url, success: true };
       } catch (error) {
         return {

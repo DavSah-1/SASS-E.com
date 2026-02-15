@@ -6252,3 +6252,14 @@
 - [x] Remove 3 _legacy* procedures from budgetRouter (adapter versions work)
 - [x] Run tests to verify cleanup didn't break anything
 - [x] Save checkpoint with clean codebase
+
+
+## WearableRouter Adapter Consistency Fix (Current)
+- [x] Identify direct imports from db/wearable in wearableRouter.ts
+- [x] Add getOAuthUrl method to WearableAdapter interface
+- [x] Implement getOAuthUrl in MySQLWearableAdapter
+- [x] Implement getOAuthUrl in SupabaseWearableAdapter
+- [x] Update wearableRouter.ts to use ctx.wearableDb.getOAuthUrl()
+- [x] Remove direct import from db/wearable
+- [x] Run tests to verify adapter pattern works (all 283 passing)
+- [x] Save checkpoint with consistent adapter usage

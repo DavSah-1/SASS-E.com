@@ -8,6 +8,10 @@ import { WearableAdapter } from "./WearableAdapter";
 import * as wearableDb from "../db/wearable";
 
 export class MySQLWearableAdapter implements WearableAdapter {
+  getOAuthUrl(provider: string, redirectUri: string): string {
+    return wearableDb.getOAuthUrl(provider, redirectUri);
+  }
+
   async getUserWearableConnections(userId: number): Promise<any[]> {
     return wearableDb.getUserWearableConnections(userId);
   }
