@@ -399,85 +399,12 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const db = await import("./db").then(m => m.getDb());
-      if (!db) return [];
-
-      const { budgetTransactions, budgetCategories } = await import("../drizzle/schema");
-      const { eq, and, gte, lte, sql } = await import("drizzle-orm");
-
-      // Parse start and end dates
-      const startDate = new Date(input.startMonth + "-01");
-      const endDate = new Date(input.endMonth + "-01");
-      endDate.setMonth(endDate.getMonth() + 1); // End of month
-
-      // Build query conditions
-      const conditions = [
-        eq(budgetTransactions.userId, ctx.user.numericId),
-        gte(budgetTransactions.transactionDate, startDate),
-        lte(budgetTransactions.transactionDate, endDate),
-      ];
-
-      if (input.categoryId) {
-        conditions.push(eq(budgetTransactions.categoryId, input.categoryId));
-      }
-
-      // Get all transactions in date range
-      const transactions = await db
-        .select({
-          amount: budgetTransactions.amount,
-          transactionDate: budgetTransactions.transactionDate,
-          categoryId: budgetTransactions.categoryId,
-          categoryName: budgetCategories.name,
-          categoryType: budgetCategories.type,
-          categoryColor: budgetCategories.color,
-          categoryIcon: budgetCategories.icon,
-        })
-        .from(budgetTransactions)
-        .innerJoin(budgetCategories, eq(budgetTransactions.categoryId, budgetCategories.id))
-        .where(and(...conditions))
-        .orderBy(budgetTransactions.transactionDate);
-
-      // Aggregate by month and category
-      const monthlyData: Record<string, Record<number, { total: number; count: number; category: any }>> = {};
-
-      for (const tx of transactions) {
-        const monthKey = tx.transactionDate.toISOString().slice(0, 7); // "YYYY-MM"
-        
-        if (!monthlyData[monthKey]) {
-          monthlyData[monthKey] = {};
-        }
-
-        if (!monthlyData[monthKey][tx.categoryId]) {
-          monthlyData[monthKey][tx.categoryId] = {
-            total: 0,
-            count: 0,
-            category: {
-              id: tx.categoryId,
-              name: tx.categoryName,
-              type: tx.categoryType,
-              color: tx.categoryColor,
-              icon: tx.categoryIcon,
-            },
-          };
-        }
-
-        monthlyData[monthKey][tx.categoryId].total += tx.amount;
-        monthlyData[monthKey][tx.categoryId].count += 1;
-      }
-
-      // Convert to array format for charts
-      const trends = Object.entries(monthlyData).map(([month, categories]) => ({
-        month,
-        categories: Object.values(categories),
-        totalSpending: Object.values(categories)
-          .filter(c => c.category.type === "expense")
-          .reduce((sum, c) => sum + c.total, 0),
-        totalIncome: Object.values(categories)
-          .filter(c => c.category.type === "income")
-          .reduce((sum, c) => sum + c.total, 0),
-      }));
-
-      return trends.sort((a, b) => a.month.localeCompare(b.month));
+      return ctx.budgetDb.getSpendingTrends(
+        ctx.user.numericId,
+        input.startMonth,
+        input.endMonth,
+        input.categoryId
+      );
     }),
 
   /**
@@ -488,6 +415,20 @@ export const budgetRouter = router({
       z.object({
         categoryId: z.number().int(),
         months: z.number().int().default(6), // Number of months to look back
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.budgetDb.getCategoryTrend(ctx.user.numericId, input.categoryId, input.months);
+    }),
+
+  /**
+   * Get overall spending trends summary (LEGACY)
+   */
+  _legacyGetCategoryTrend: protectedProcedure
+    .input(
+      z.object({
+        categoryId: z.number().int(),
+        months: z.number().int().default(6),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -577,6 +518,19 @@ export const budgetRouter = router({
    * Get overall spending trends summary
    */
   getSpendingTrendsSummary: protectedProcedure
+    .input(
+      z.object({
+        months: z.number().int().default(6),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.budgetDb.getSpendingTrendsSummary(ctx.user.numericId, input.months);
+    }),
+
+  /**
+   * Get overall spending trends summary (LEGACY)
+   */
+  _legacyGetSpendingTrendsSummary: protectedProcedure
     .input(
       z.object({
         months: z.number().int().default(6),
@@ -687,6 +641,20 @@ export const budgetRouter = router({
       z.object({
         templateId: z.number().int(),
         monthlyIncome: z.number().int(), // In cents
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.budgetDb.applyTemplate(ctx.user.numericId, input.templateId, input.monthlyIncome);
+    }),
+
+  /**
+   * Get user's active budget template (LEGACY - keeping for reference)
+   */
+  _legacyApplyTemplate: protectedProcedure
+    .input(
+      z.object({
+        templateId: z.number().int(),
+        monthlyIncome: z.number().int(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -832,43 +800,8 @@ export const budgetRouter = router({
    * Get user's active budget template
    */
   getActiveTemplate: protectedProcedure.query(async ({ ctx }) => {
-    const db = await import("./db").then(m => m.getDb());
-    if (!db) return null;
-
-    const { userBudgetTemplates, budgetTemplates } = await import("../drizzle/schema");
-    const { eq, and } = await import("drizzle-orm");
-
-    const active = await db
-      .select({
-        application: userBudgetTemplates,
-        template: budgetTemplates,
-      })
-      .from(userBudgetTemplates)
-      .innerJoin(budgetTemplates, eq(userBudgetTemplates.templateId, budgetTemplates.id))
-      .where(
-        and(
-          eq(userBudgetTemplates.userId, ctx.user.numericId),
-          eq(userBudgetTemplates.isActive, 1)
-        )
-      )
-      .limit(1);
-
-    if (active.length === 0) {
-      return null;
-    }
-
-    return {
-      ...active[0].application,
-      appliedAllocations: JSON.parse(active[0].application.appliedAllocations),
-      template: {
-        ...active[0].template,
-        allocations: JSON.parse(active[0].template.allocations),
-        categoryMappings: active[0].template.categoryMappings
-          ? JSON.parse(active[0].template.categoryMappings)
-          : null,
-      },
-      };
-    }),
+    return ctx.budgetDb.getActiveTemplate(ctx.user.numericId);
+  }),
 
   // ==================== Notifications & Alerts ====================
 
@@ -876,36 +809,7 @@ export const budgetRouter = router({
    * Get user's notification preferences
    */
   getNotificationPreferences: protectedProcedure.query(async ({ ctx }) => {
-    const db = await import("./db").then(m => m.getDb());
-    if (!db) return null;
-
-    const { notificationPreferences } = await import("../drizzle/schema");
-    const { eq } = await import("drizzle-orm");
-
-    const prefs = await db
-      .select()
-      .from(notificationPreferences)
-      .where(eq(notificationPreferences.userId, ctx.user.numericId))
-      .limit(1);
-
-    if (prefs.length === 0) {
-      // Return default preferences
-      return {
-        budgetAlertsEnabled: 1,
-        threshold80Enabled: 1,
-        threshold100Enabled: 1,
-        exceededEnabled: 1,
-        weeklySummaryEnabled: 1,
-        monthlySummaryEnabled: 1,
-        insightsEnabled: 1,
-        recurringAlertsEnabled: 1,
-        notificationMethod: "both" as const,
-        quietHoursStart: null,
-        quietHoursEnd: null,
-      };
-    }
-
-    return prefs[0];
+    return ctx.notificationDb.getNotificationPreferences(ctx.user.numericId);
   }),
 
   /**
@@ -928,34 +832,11 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await import("./db").then(m => m.getDb());
-      if (!db) return { success: false, message: "Database unavailable" };
-
-      const { notificationPreferences } = await import("../drizzle/schema");
-      const { eq } = await import("drizzle-orm");
-
-      // Check if preferences exist
-      const existing = await db
-        .select()
-        .from(notificationPreferences)
-        .where(eq(notificationPreferences.userId, ctx.user.numericId))
-        .limit(1);
-
-      if (existing.length === 0) {
-        // Create new preferences (reuse existing db and notificationPreferences from above)
-        await db.insert(notificationPreferences).values({
-          userId: ctx.user.numericId,
-          ...input,
-        });
-      } else {
-        // Update existing preferences
-        await db
-          .update(notificationPreferences)
-          .set(input)
-          .where(eq(notificationPreferences.userId, ctx.user.numericId));
-      }
-
-      return { success: true, message: "Notification preferences updated" };
+      const success = await ctx.notificationDb.updateNotificationPreferences(ctx.user.numericId, input);
+      return {
+        success,
+        message: success ? "Notification preferences updated" : "Failed to update notification preferences"
+      };
     }),
 
   /**

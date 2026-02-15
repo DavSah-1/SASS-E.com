@@ -182,6 +182,88 @@ export class MysqlBudgetAdapter implements BudgetAdapter {
     return active.length > 0 ? active[0] : null;
   }
 
+  async getSpendingTrends(userId: number, startMonth: string, endMonth: string, categoryId?: number) {
+    const dbConn = await import("../db").then(m => m.getDb());
+    if (!dbConn) return [];
+
+    const { budgetTransactions, budgetCategories } = await import("../../drizzle/schema");
+    const { eq, and, gte, lte } = await import("drizzle-orm");
+
+    // Parse start and end dates
+    const startDate = new Date(startMonth + "-01");
+    const endDate = new Date(endMonth + "-01");
+    endDate.setMonth(endDate.getMonth() + 1); // End of month
+
+    // Build query conditions
+    const conditions = [
+      eq(budgetTransactions.userId, userId),
+      gte(budgetTransactions.transactionDate, startDate),
+      lte(budgetTransactions.transactionDate, endDate),
+    ];
+
+    if (categoryId) {
+      conditions.push(eq(budgetTransactions.categoryId, categoryId));
+    }
+
+    // Get all transactions in date range
+    const transactions = await dbConn
+      .select({
+        amount: budgetTransactions.amount,
+        transactionDate: budgetTransactions.transactionDate,
+        categoryId: budgetTransactions.categoryId,
+        categoryName: budgetCategories.name,
+        categoryType: budgetCategories.type,
+        categoryColor: budgetCategories.color,
+        categoryIcon: budgetCategories.icon,
+      })
+      .from(budgetTransactions)
+      .innerJoin(budgetCategories, eq(budgetTransactions.categoryId, budgetCategories.id))
+      .where(and(...conditions))
+      .orderBy(budgetTransactions.transactionDate);
+
+    // Aggregate by month and category
+    const monthlyData: Record<string, Record<number, { total: number; count: number; category: any }>> = {};
+
+    for (const tx of transactions) {
+      const monthKey = tx.transactionDate.toISOString().slice(0, 7); // "YYYY-MM"
+      
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = {};
+      }
+
+      if (!monthlyData[monthKey][tx.categoryId]) {
+        monthlyData[monthKey][tx.categoryId] = {
+          total: 0,
+          count: 0,
+          category: {
+            id: tx.categoryId,
+            name: tx.categoryName,
+            type: tx.categoryType,
+            color: tx.categoryColor,
+            icon: tx.categoryIcon,
+          },
+        };
+      }
+
+      monthlyData[monthKey][tx.categoryId].total += tx.amount;
+      monthlyData[monthKey][tx.categoryId].count += 1;
+    }
+
+    // Convert to array format for charts
+    const trends = Object.entries(monthlyData).map(([month, categories]) => ({
+      month,
+      categories: Object.values(categories),
+      totalSpending: Object.values(categories)
+        .filter(c => c.category.type === "expense")
+        .reduce((sum, c) => sum + c.total, 0),
+      totalIncome: Object.values(categories)
+        .filter(c => c.category.type === "income")
+        .reduce((sum, c) => sum + c.total, 0),
+    }));
+
+    return trends.sort((a, b) => a.month.localeCompare(b.month));
+  }
+
   async getCategoryTrend(userId: number, categoryId: number, months: number) {
     const dbConn = await import("../db").then(m => m.getDb());
     if (!dbConn) return null;

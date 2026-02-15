@@ -412,6 +412,88 @@ export class SupabaseBudgetAdapter implements BudgetAdapter {
     };
   }
 
+  async getSpendingTrends(userId: number, startMonth: string, endMonth: string, categoryId?: number) {
+    const client = await this.getClient();
+
+    // Parse start and end dates
+    const startDate = new Date(startMonth + "-01");
+    const endDate = new Date(endMonth + "-01");
+    endDate.setMonth(endDate.getMonth() + 1); // End of month
+
+    // Build query
+    let query = client
+      .from("budget_transactions")
+      .select(`
+        amount,
+        transaction_date,
+        category_id,
+        category:budget_categories(
+          id,
+          name,
+          type,
+          color,
+          icon
+        )
+      `)
+      .eq("user_id", userId)
+      .gte("transaction_date", startDate.toISOString())
+      .lte("transaction_date", endDate.toISOString())
+      .order("transaction_date");
+
+    if (categoryId) {
+      query = query.eq("category_id", categoryId);
+    }
+
+    const { data: transactions, error } = await query;
+
+    if (error || !transactions) {
+      return [];
+    }
+
+    // Aggregate by month and category
+    const monthlyData: Record<string, Record<number, { total: number; count: number; category: any }>> = {};
+
+    for (const tx of transactions) {
+      const monthKey = tx.transaction_date.slice(0, 7); // "YYYY-MM"
+      
+      if (!monthlyData[monthKey]) {
+        monthlyData[monthKey] = {};
+      }
+
+      const catId = tx.category_id;
+      if (!monthlyData[monthKey][catId]) {
+        monthlyData[monthKey][catId] = {
+          total: 0,
+          count: 0,
+          category: {
+            id: catId,
+            name: (tx.category as any)?.name || null,
+            type: (tx.category as any)?.type || null,
+            color: (tx.category as any)?.color || null,
+            icon: (tx.category as any)?.icon || null,
+          },
+        };
+      }
+
+      monthlyData[monthKey][catId].total += tx.amount;
+      monthlyData[monthKey][catId].count += 1;
+    }
+
+    // Convert to array format for charts
+    const trends = Object.entries(monthlyData).map(([month, categories]) => ({
+      month,
+      categories: Object.values(categories),
+      totalSpending: Object.values(categories)
+        .filter(c => c.category.type === "expense")
+        .reduce((sum, c) => sum + c.total, 0),
+      totalIncome: Object.values(categories)
+        .filter(c => c.category.type === "income")
+        .reduce((sum, c) => sum + c.total, 0),
+    }));
+
+    return trends.sort((a, b) => a.month.localeCompare(b.month));
+  }
+
   async getCategoryTrend(userId: number, categoryId: number, months: number) {
     const client = await this.getClient();
 

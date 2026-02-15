@@ -6104,9 +6104,8 @@
 - [x] Fix trpc.ts middleware to narrow 7 new adapters (wellbeing, sharing, wearable, alerts, recurring, insights, receipts)
 - [x] Add missing methods to AlertsAdapter (getAlerts, markAlertRead, markAllAlertsRead, getUnreadAlertCount)
 - [x] Add missing methods to InsightsAdapter (getInsights, dismissInsight)
-- [ ] Add missing methods to BudgetAdapter or create TemplatesAdapter (getTemplates, applyTemplate, getActiveTemplate, getCategoryTrend, getSpendingTrendsSummary)
-- [ ] Add missing methods to NotificationAdapter (getNotificationPreferences)
-- [ ] Update budgetRouter.ts to use adapters instead of 14 direct getDb() calls
+- [x] Add missing methods to BudgetAdapter (getTemplates, applyTemplate, getActiveTemplate, getCategoryTrend, getSpendingTrendsSummary, getSpendingTrends)
+- [x] Update budgetRouter.ts to use adapters instead of 14 direct getDb() calls (14/14 procedures migrated)
 - [ ] Remove server/db.ts.backup-before-split file
 - [ ] Fix wearableRouter.ts to use adapter instead of direct db import for getOAuthUrl
 - [ ] Run tests and verify all changes work correctly

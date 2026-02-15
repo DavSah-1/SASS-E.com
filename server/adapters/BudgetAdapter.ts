@@ -51,6 +51,23 @@ export interface BudgetAdapter {
   /**
    * Spending Trends
    */
+  getSpendingTrends(userId: number, startMonth: string, endMonth: string, categoryId?: number): Promise<Array<{
+    month: string;
+    categories: Array<{
+      total: number;
+      count: number;
+      category: {
+        id: number;
+        name: string | null;
+        type: string | null;
+        color: string | null;
+        icon: string | null;
+      };
+    }>;
+    totalSpending: number;
+    totalIncome: number;
+  }>>;
+  
   getCategoryTrend(userId: number, categoryId: number, months: number): Promise<{
     category: any;
     trends: Array<{
