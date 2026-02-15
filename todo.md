@@ -5860,3 +5860,10 @@
 - [x] Implement fixes for remaining failures
 - [x] Verify all debt tests pass
 - [ ] Save checkpoint
+
+## Fix Translation targetLanguage Bug
+
+- [x] Analyze failing translation test expectations
+- [x] Fix getConversationMessages to return recipient's preferred language
+- [x] Run translation tests to verify fix
+- [ ] Save checkpoint

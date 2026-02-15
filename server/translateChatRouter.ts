@@ -253,7 +253,7 @@ export const translateChatRouter = router({
             originalText: msg.originalText,
             originalLanguage: msg.originalLanguage,
             translatedText: translation?.translatedText || msg.originalText,
-            targetLanguage: translation?.targetLanguage || msg.originalLanguage,
+            targetLanguage: translation?.targetLanguage || ctx.user.preferredLanguage || 'en',
             createdAt: msg.createdAt,
             isMine: msg.senderId === String(ctx.user.id),
           };
