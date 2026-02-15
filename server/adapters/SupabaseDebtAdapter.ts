@@ -146,9 +146,10 @@ export class SupabaseDebtAdapter implements DebtAdapter {
 
   async deleteDebt(debtId: number, userId: number): Promise<void> {
     const supabase = await this.getClient();
+    // Soft delete: set status to 'closed' instead of hard delete
     const { error } = await supabase
       .from('debts')
-      .delete()
+      .update({ status: 'closed' })
       .eq('id', debtId)
       .eq('user_id', this.userId);
 

@@ -5840,3 +5840,9 @@
 - [x] Fix all column name mismatches to use snake_case
 - [x] Run test suite to verify fixes
 - [ ] Save checkpoint with adapter fixes
+
+## Implement Soft Delete for Debts
+
+- [x] Update SupabaseDebtAdapter deleteDebt to set status='closed' instead of hard delete
+- [x] Run tests to verify soft delete functionality
+- [ ] Save checkpoint with soft delete implementation
