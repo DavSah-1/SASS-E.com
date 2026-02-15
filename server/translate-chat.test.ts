@@ -118,11 +118,20 @@ describe("Translate Chat System", () => {
       throw user2Error;
     }
 
+    // Create adapters for second user
+    const secondAdapterContext = { user: secondUser, accessToken: process.env.SUPABASE_SERVICE_KEY || "" };
     const secondCaller = appRouter.createCaller({
       user: secondUser,
       accessToken: process.env.SUPABASE_SERVICE_KEY || "",
       req: {} as any,
       res: {} as any,
+      notificationDb: createNotificationAdapter(secondAdapterContext),
+      budgetDb: createBudgetAdapter(secondAdapterContext),
+      debtDb: createDebtAdapter(secondAdapterContext),
+      learningDb: createLearningAdapter(secondAdapterContext),
+      iotDb: createIoTAdapter(secondAdapterContext),
+      goalsDb: createGoalsAdapter(secondAdapterContext),
+      translationDb: createTranslationAdapter(secondAdapterContext),
     });
 
     // Join the conversation
@@ -225,11 +234,20 @@ describe("Translate Chat System", () => {
       throw user3Error;
     }
 
+    // Create adapters for Spanish user
+    const spanishAdapterContext = { user: spanishUser, accessToken: process.env.SUPABASE_SERVICE_KEY || "" };
     const spanishCaller = appRouter.createCaller({
       user: spanishUser,
       accessToken: process.env.SUPABASE_SERVICE_KEY || "",
       req: {} as any,
       res: {} as any,
+      notificationDb: createNotificationAdapter(spanishAdapterContext),
+      budgetDb: createBudgetAdapter(spanishAdapterContext),
+      debtDb: createDebtAdapter(spanishAdapterContext),
+      learningDb: createLearningAdapter(spanishAdapterContext),
+      iotDb: createIoTAdapter(spanishAdapterContext),
+      goalsDb: createGoalsAdapter(spanishAdapterContext),
+      translationDb: createTranslationAdapter(spanishAdapterContext),
     });
 
     // Join the conversation
