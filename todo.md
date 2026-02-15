@@ -6034,3 +6034,21 @@
 - [x] Update learnFinanceRouter.ts import path (1 line change)
 - [x] Run full test suite to verify zero breakage (269 tests passing)
 - [x] Save checkpoint and push to GitHub
+
+## db.ts Domain Split (4,806 lines → 13 files)
+- [ ] Create server/db/ directory structure
+- [ ] Copy 13 domain-specific modules from upload to server/db/
+- [ ] Verify barrel index.ts re-exports all functions correctly
+- [ ] Backup original db.ts file
+- [ ] Verify all 32 import sites work unchanged (adapters, routers, helpers)
+- [ ] Run full test suite to verify zero breakage (269 tests)
+- [ ] Save checkpoint and push to GitHub
+
+## db.ts Domain Split (4,806 → 13 modules) - COMPLETED
+- [x] Create server/db/ directory with 13 domain files (connection.ts, core.ts, budget.ts, debt.ts, iot.ts, goals.ts, learning.ts, notifications.ts, sharing.ts, conversationQueries.ts, verifiedFacts.ts, wearables.ts, wellbeing.ts)
+- [x] Add barrel index.ts that re-exports all functions
+- [x] Backup original db.ts (4,806 lines)
+- [x] Verify all 32 import sites work unchanged (zero breaking changes)
+- [x] Fix 19 TypeScript errors manually (imports, types, query chaining, JSON serialization)
+- [x] Run full test suite to verify zero breakage (269 tests passing)
+- [x] Save checkpoint and push to GitHub
