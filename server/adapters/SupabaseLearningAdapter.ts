@@ -440,6 +440,7 @@ export class SupabaseLearningAdapter implements LearningAdapter {
       userId: parseInt(this.userId),
       topicName: data.topic_name,
       category: data.category,
+      status: data.status || 'not_started',
       completed: data.completed === 1,
       score: data.score,
       lastPracticed: data.last_practiced,
