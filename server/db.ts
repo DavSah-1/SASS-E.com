@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, gte, isNull, like, lte, or, sql, count, asc, isNotNull } from "drizzle-orm";
+import { and, desc, eq, gt, gte, inArray, isNull, like, lte, or, sql, count, asc, isNotNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   conversations, 
@@ -4733,14 +4733,27 @@ export async function deleteTranslateConversation(conversationId: number, userId
   const db = await getDb();
   if (!db) return false;
   
-  await db
-    .delete(translateConversations)
+  // Verify ownership before deletion
+  const conversation = await db
+    .select()
+    .from(translateConversations)
     .where(
       and(
         eq(translateConversations.id, conversationId),
         eq(translateConversations.creatorId, userId)
       )
-    );
+    )
+    .limit(1);
+  
+  if (conversation.length === 0) {
+    return false; // Not found or not owner
+  }
+  
+  // Delete conversation - CASCADE DELETE handles related records automatically
+  // (participants, messages, message translations)
+  await db
+    .delete(translateConversations)
+    .where(eq(translateConversations.id, conversationId));
   
   return true;
 }

@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `translate_conversation_participants` ADD CONSTRAINT `fk_tc_participants_conv` FOREIGN KEY (`conversationId`) REFERENCES `translate_conversations`(`id`) ON DELETE CASCADE;\n\nALTER TABLE `translate_message_translations` ADD CONSTRAINT `fk_tc_msg_translations` FOREIGN KEY (`messageId`) REFERENCES `translate_messages`(`id`) ON DELETE CASCADE;\n\nALTER TABLE `translate_messages` ADD CONSTRAINT `fk_tc_messages_conv` FOREIGN KEY (`conversationId`) REFERENCES `translate_conversations`(`id`) ON DELETE CASCADE;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute ALTER TABLE `translate_conversation_participants` ADD CONSTRAINT `fk_tc_participants_conv` FOREIGN KEY (`conversationId`) REFERENCES `translate_conversations`(`id`) ON DELETE CASCADE;\n\nALTER TABLE `translate_message_translations` ADD CONSTRAINT `fk_tc_msg_translations` FOREIGN KEY (`messageId`) REFERENCES `translate_messages`(`id`) ON DELETE CASCADE;\n\nALTER TABLE `translate_messages` ADD CONSTRAINT `fk_tc_messages_conv` FOREIGN KEY (`conversationId`) REFERENCES `translate_conversations`(`id`) ON DELETE CASCADE;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2777
+}

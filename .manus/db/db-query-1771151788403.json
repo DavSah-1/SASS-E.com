@@ -1,0 +1,9 @@
+{
+  "query": "-- Clean up orphaned participants\nDELETE FROM translate_conversation_participants \nWHERE conversationId NOT IN (SELECT id FROM translate_conversations);\n\n-- Clean up orphaned messages\nDELETE FROM translate_messages \nWHERE conversationId NOT IN (SELECT id FROM translate_conversations);\n\n-- Clean up orphaned message translations\nDELETE FROM translate_message_translations \nWHERE messageId NOT IN (SELECT id FROM translate_messages);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3nggiiWQDu5Xrc9.root --database 8mC6ZNEwokHKmKSGT6E4hn --execute -- Clean up orphaned participants\nDELETE FROM translate_conversation_participants \nWHERE conversationId NOT IN (SELECT id FROM translate_conversations);\n\n-- Clean up orphaned messages\nDELETE FROM translate_messages \nWHERE conversationId NOT IN (SELECT id FROM translate_conversations);\n\n-- Clean up orphaned message translations\nDELETE FROM translate_message_translations \nWHERE messageId NOT IN (SELECT id FROM translate_messages);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 76
+}

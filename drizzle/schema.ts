@@ -1792,7 +1792,7 @@ export type InsertTranslateConversation = typeof translateConversations.$inferIn
  */
 export const translateConversationParticipants = mysqlTable("translate_conversation_participants", {
   id: int("id").autoincrement().primaryKey(),
-  conversationId: int("conversationId").notNull(),
+  conversationId: int("conversationId").notNull().references(() => translateConversations.id, { onDelete: 'cascade' }),
   userId: text("userId").notNull(), // Changed to text for UUID support
   preferredLanguage: varchar("preferredLanguage", { length: 10 }).notNull(), // ISO language code
   joinedAt: timestamp("joinedAt").defaultNow().notNull(),
@@ -1806,7 +1806,7 @@ export type InsertTranslateConversationParticipant = typeof translateConversatio
  */
 export const translateMessages = mysqlTable("translate_messages", {
   id: int("id").autoincrement().primaryKey(),
-  conversationId: int("conversationId").notNull(),
+  conversationId: int("conversationId").notNull().references(() => translateConversations.id, { onDelete: 'cascade' }),
   senderId: int("senderId").notNull(),
   originalText: text("originalText").notNull(),
   originalLanguage: varchar("originalLanguage", { length: 10 }).notNull(), // ISO language code
@@ -1821,7 +1821,7 @@ export type InsertTranslateMessage = typeof translateMessages.$inferInsert;
  */
 export const translateMessageTranslations = mysqlTable("translate_message_translations", {
   id: int("id").autoincrement().primaryKey(),
-  messageId: int("messageId").notNull(),
+  messageId: int("messageId").notNull().references(() => translateMessages.id, { onDelete: 'cascade' }),
   userId: text("userId").notNull(), // Changed to text for UUID support
   translatedText: text("translatedText").notNull(),
   targetLanguage: varchar("targetLanguage", { length: 10 }).notNull(), // ISO language code

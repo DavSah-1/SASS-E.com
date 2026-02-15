@@ -5967,3 +5967,21 @@
 - [ ] Run full test suite to verify 287/287 passing
 - [ ] Save final checkpoint at 100% completion
 - [ ] Push to GitHub
+
+## Properly Implement Stub Functions in db.ts
+
+- [ ] Implement deleteTranslateConversation with cascade deletion (messages, translations, participants)
+- [ ] Implement searchSavedTranslations with full-text search on originalText and translatedText
+- [ ] Implement getTranslationsByLanguage with proper sourceLanguage/targetLanguage filtering
+- [ ] Run tests to verify implementations
+- [ ] Save checkpoint with proper implementations
+
+## Add CASCADE DELETE Foreign Key Constraints
+
+- [ ] Add foreign key constraint to translateConversationParticipants.conversationId → translateConversations.id (CASCADE DELETE)
+- [ ] Add foreign key constraint to translateMessages.conversationId → translateConversations.id (CASCADE DELETE)
+- [ ] Add foreign key constraint to translateMessageTranslations.messageId → translateMessages.id (CASCADE DELETE)
+- [ ] Generate database migration with pnpm db:push
+- [ ] Test cascade deletion works correctly
+- [ ] Remove manual cascade deletion code from db.ts (now handled by database)
+- [ ] Save checkpoint
