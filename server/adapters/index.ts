@@ -53,6 +53,18 @@ import type { InsightsAdapter } from './InsightsAdapter';
 import { MySQLReceiptsAdapter } from './MySQLReceiptsAdapter';
 import { SupabaseReceiptsAdapter } from './SupabaseReceiptsAdapter';
 import type { ReceiptsAdapter } from './ReceiptsAdapter';
+import { MySQLLanguageLearningAdapter, createMySQLLanguageLearningAdapter } from './MySQLLanguageLearningAdapter';
+import { SupabaseLanguageLearningAdapter, createSupabaseLanguageLearningAdapter } from './SupabaseLanguageLearningAdapter';
+import type { LanguageLearningAdapter } from './LanguageLearningAdapter';
+import { MySQLMathScienceAdapter, createMySQLMathScienceAdapter } from './MySQLMathScienceAdapter';
+import { SupabaseMathScienceAdapter, createSupabaseMathScienceAdapter } from './SupabaseMathScienceAdapter';
+import type { MathScienceAdapter } from './MathScienceAdapter';
+import { MySQLLearningHubAdapter, createMySQLLearningHubAdapter } from './MySQLLearningHubAdapter';
+import { SupabaseLearningHubAdapter, createSupabaseLearningHubAdapter } from './SupabaseLearningHubAdapter';
+import type { LearningHubAdapter } from './LearningHubAdapter';
+import { MySQLLearnFinanceAdapter, createMySQLLearnFinanceAdapter } from './MySQLLearnFinanceAdapter';
+import { SupabaseLearnFinanceAdapter, createSupabaseLearnFinanceAdapter } from './SupabaseLearnFinanceAdapter';
+import type { LearnFinanceAdapter } from './LearnFinanceAdapter';
 
 export interface AdapterContext {
   user: {
@@ -271,6 +283,58 @@ export function createReceiptsAdapter(ctx: AdapterContext): ReceiptsAdapter {
   }
 }
 
+/**
+ * Create language learning adapter based on user role
+ */
+export function createLanguageLearningAdapter(ctx: AdapterContext): LanguageLearningAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLLanguageLearningAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseLanguageLearningAdapter(userId, accessToken);
+  }
+}
+
+/**
+ * Create math science adapter based on user role
+ */
+export function createMathScienceAdapter(ctx: AdapterContext): MathScienceAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLMathScienceAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseMathScienceAdapter(userId, accessToken);
+  }
+}
+
+/**
+ * Create learning hub adapter based on user role
+ */
+export function createLearningHubAdapter(ctx: AdapterContext): LearningHubAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLLearningHubAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseLearningHubAdapter(userId, accessToken);
+  }
+}
+
+/**
+ * Create learn finance adapter based on user role
+ */
+export function createLearnFinanceAdapter(ctx: AdapterContext): LearnFinanceAdapter {
+  if (ctx.user.role === 'admin') {
+    return new MySQLLearnFinanceAdapter();
+  } else {
+    const userId = String(ctx.user.id);
+    const accessToken = ctx.accessToken || '';
+    return new SupabaseLearnFinanceAdapter(userId, accessToken);
+  }
+}
+
 // Export adapters and interfaces
 export type { CoreAdapter } from './CoreAdapter';
 export type { NotificationAdapter } from './NotificationAdapter';
@@ -288,6 +352,10 @@ export type { AlertsAdapter} from './AlertsAdapter';
 export type { RecurringAdapter } from './RecurringAdapter';
 export type { InsightsAdapter } from './InsightsAdapter';
 export type { ReceiptsAdapter } from './ReceiptsAdapter';
+export type { LanguageLearningAdapter } from './LanguageLearningAdapter';
+export type { MathScienceAdapter } from './MathScienceAdapter';
+export type { LearningHubAdapter } from './LearningHubAdapter';
+export type { LearnFinanceAdapter } from './LearnFinanceAdapter';
 export { MySQLCoreAdapter } from './MySQLCoreAdapter';
 export { SupabaseCoreAdapter } from './SupabaseCoreAdapter';
 export { MysqlNotificationAdapter } from './MysqlNotificationAdapter';
