@@ -6244,3 +6244,11 @@
 - [x] Fix LearnFinance.tsx implicit any types
 - [x] Verify all 283 tests still passing
 - [x] Reduced TypeScript errors from 69 to ~55 (20% reduction)
+
+
+## Code Cleanup Tasks (Current)
+- [x] Delete server/db.ts.backup-before-split (121KB backup file - split is proven stable)
+- [x] Delete server/adapters/fix-adapters.sh (development artifact)
+- [x] Remove 3 _legacy* procedures from budgetRouter (adapter versions work)
+- [x] Run tests to verify cleanup didn't break anything
+- [x] Save checkpoint with clean codebase
