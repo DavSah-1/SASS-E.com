@@ -42,6 +42,7 @@ export class SupabaseLearnFinanceAdapter implements LearnFinanceAdapter {
   }
 
   async getUserQuizAttempts(userId: number, articleId?: number): Promise<any[]> {
+    if (!articleId) return [];
     return learnFinanceDb.getUserQuizAttempts(String(userId), articleId);
   }
 

@@ -65,13 +65,10 @@ import type { LearningHubAdapter } from './LearningHubAdapter';
 import { MysqlLearnFinanceAdapter } from './MysqlLearnFinanceAdapter';
 import { SupabaseLearnFinanceAdapter } from './SupabaseLearnFinanceAdapter';
 import type { LearnFinanceAdapter } from './LearnFinanceAdapter';
+import type { UnifiedUser } from '../_core/dbRouter';
 
 export interface AdapterContext {
-  user: {
-    id: string | number;
-    numericId?: number;
-    role: 'admin' | 'user';
-  };
+  user: UnifiedUser;
   accessToken?: string;
 }
 

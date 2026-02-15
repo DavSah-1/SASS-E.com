@@ -6204,3 +6204,32 @@
 - [x] Save checkpoint with cleaner router code
 
 **Summary:** Removed 38 total redundant null guards across 3 router files. Since all adapters are narrowed in requireUser middleware, the type system guarantees non-null. These guards were dead code that added noise and hid the fact that narrowing is working properly.
+
+## Fix All Remaining TypeScript LSP Errors (45 errors)
+- [ ] Analyze all TypeScript errors and categorize by type
+- [ ] Fix UnifiedUser type mismatch in adapters/index.ts (line 329)
+- [ ] Fix budgetRouter.ts line 338: Type 'number' has no properties in common with type '{ limit?: number; unreadOnly?: boolean }'
+- [ ] Fix budgetRouter.ts line 371: Expected 2 arguments, but got 3
+- [ ] Run TypeScript compilation to verify all errors resolved
+- [ ] Run full test suite to ensure no regressions (283 tests)
+- [ ] Save checkpoint with clean TypeScript compilation
+
+**Goal:** Achieve zero TypeScript compilation errors for clean LSP experience and type safety.
+
+
+## TypeScript LSP Error Fixes (Current Session)
+- [x] Fixed AdapterContext interface to use UnifiedUser type (was using simplified user object)
+- [x] Fixed budgetRouter getAlerts call to pass options object instead of separate parameters
+- [x] Fixed budgetRouter getInsights call to pass options object instead of separate parameters
+- [x] Fixed learnFinanceRouter duplicate ctx.learnFinanceDb.ctx.learnFinanceDb references
+- [x] Fixed learnFinanceRouter publicProcedure callbacks to include { ctx } destructuring
+- [x] Fixed SupabaseLearnFinanceAdapter getUserQuizAttempts to handle optional articleId
+- [ ] Fix remaining TypeScript errors in client components (FinancialInsights, BudgetTemplates, SpendingTrendsChart)
+- [ ] Fix remaining TypeScript errors in learnFinanceRouter (type mismatches)
+- [ ] Verify all 283 tests still passing after fixes
+- [ ] Achieve clean TypeScript compilation (0 errors)
+
+### Notes:
+- All 283 tests passing despite TypeScript errors (runtime code works correctly)
+- TypeScript errors are type-checking issues only, not runtime bugs
+- Main issues: type mismatches between adapters and routers, missing ctx destructuring

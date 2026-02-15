@@ -335,7 +335,10 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const alerts = await ctx.alertsDb.getAlerts(ctx.user.numericId, input.limit);
+      const alerts = await ctx.alertsDb.getAlerts(ctx.user.numericId, { 
+        limit: input.limit,
+        unreadOnly: input.unreadOnly 
+      });
       
       if (input.unreadOnly) {
         return alerts.filter(a => a.isRead === 0);
@@ -366,7 +369,10 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      return ctx.insightsDb.getInsights(ctx.user.numericId, input.activeOnly, input.limit);
+      return ctx.insightsDb.getInsights(ctx.user.numericId, { 
+        activeOnly: input.activeOnly,
+        limit: input.limit 
+      });
     }),
 
   /**

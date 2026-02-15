@@ -5,8 +5,8 @@ export const learnFinanceRouter = router({
   /**
    * Get all published finance articles
    */
-  getArticles: publicProcedure.query(async () => {
-    return await ctx.learnFinanceDb.ctx.learnFinanceDb.getFinanceArticles();
+  getArticles: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.learnFinanceDb.getFinanceArticles();
   }),
 
   /**
@@ -14,15 +14,15 @@ export const learnFinanceRouter = router({
    */
   getArticle: publicProcedure
     .input(z.object({ slug: z.string() }))
-    .query(async ({ input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getFinanceArticleBySlug(input.slug);
+    .query(async ({ ctx, input }) => {
+      return await ctx.learnFinanceDb.getFinanceArticleBySlug(input.slug);
     }),
 
   /**
    * Get user's learning progress (requires authentication)
    */
   getProgress: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.learnFinanceDb.ctx.learnFinanceDb.getUserLearningProgress(String(ctx.user.id));
+    return await ctx.learnFinanceDb.getUserLearningProgress(String(ctx.user.id));
   }),
 
   /**
@@ -37,7 +37,7 @@ export const learnFinanceRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.learnFinanceDb.ctx.learnFinanceDb.updateUserLearningProgress(
+      await ctx.learnFinanceDb.updateUserLearningProgress(
         String(ctx.user.id),
         input.articleId,
         input.progress,
@@ -51,8 +51,8 @@ export const learnFinanceRouter = router({
    */
   getGlossary: publicProcedure
     .input(z.object({ category: z.string().optional() }).optional())
-    .query(async ({ input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getFinancialGlossaryTerms(input?.category);
+    .query(async ({ ctx, input }) => {
+      return await ctx.learnFinanceDb.getFinancialGlossaryTerms(input?.category);
     }),
 
   /**
@@ -60,8 +60,8 @@ export const learnFinanceRouter = router({
    */
   getArticleQuiz: publicProcedure
     .input(z.object({ articleId: z.number() }))
-    .query(async ({ input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getArticleQuiz(input.articleId);
+    .query(async ({ ctx, input }) => {
+      return await ctx.learnFinanceDb.getArticleQuiz(input.articleId);
     }),
 
   /**
@@ -77,7 +77,7 @@ export const learnFinanceRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.submitQuizAttempt(
+      return await ctx.learnFinanceDb.submitQuizAttempt(
         String(ctx.user.id),
         input.articleId,
         input.answers,
@@ -92,7 +92,7 @@ export const learnFinanceRouter = router({
   getQuizAttempts: protectedProcedure
     .input(z.object({ articleId: z.number() }))
     .query(async ({ ctx, input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getUserQuizAttempts(String(ctx.user.id), input.articleId);
+      return await ctx.learnFinanceDb.getUserQuizAttempts(String(ctx.user.id), input.articleId);
     }),
 
   /**
@@ -100,8 +100,8 @@ export const learnFinanceRouter = router({
    */
   getTierAssessment: publicProcedure
     .input(z.object({ tierId: z.number() }))
-    .query(async ({ input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getTierAssessment(input.tierId);
+    .query(async ({ ctx, input }) => {
+      return await ctx.learnFinanceDb.getTierAssessment(input.tierId);
     }),
 
   /**
@@ -117,7 +117,7 @@ export const learnFinanceRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.submitTierAssessmentAttempt(
+      return await ctx.learnFinanceDb.submitTierAssessmentAttempt(
         String(ctx.user.id),
         input.tierId,
         input.answers,
@@ -132,7 +132,7 @@ export const learnFinanceRouter = router({
   getTierAssessmentAttempts: protectedProcedure
     .input(z.object({ tierId: z.number() }))
     .query(async ({ ctx, input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getUserTierAssessmentAttempts(String(ctx.user.id), input.tierId);
+      return await ctx.learnFinanceDb.getUserTierAssessmentAttempts(String(ctx.user.id), input.tierId);
     }),
 
   /**
@@ -141,7 +141,7 @@ export const learnFinanceRouter = router({
   hasPassedTierAssessment: protectedProcedure
     .input(z.object({ tierId: z.number() }))
     .query(async ({ ctx, input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.hasUserPassedTierAssessment(String(ctx.user.id), input.tierId);
+      return await ctx.learnFinanceDb.hasUserPassedTierAssessment(String(ctx.user.id), input.tierId);
     }),
 
   /**
@@ -150,7 +150,7 @@ export const learnFinanceRouter = router({
   hasPassedAllTierQuizzes: protectedProcedure
     .input(z.object({ tierId: z.number() }))
     .query(async ({ ctx, input }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.hasUserPassedAllTierQuizzes(String(ctx.user.id), input.tierId);
+      return await ctx.learnFinanceDb.hasUserPassedAllTierQuizzes(String(ctx.user.id), input.tierId);
     }),
 
   /**
@@ -158,7 +158,7 @@ export const learnFinanceRouter = router({
    */
   getTierProgressionStatus: protectedProcedure
     .query(async ({ ctx }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getUserTierProgressionStatus(String(ctx.user.id));
+      return await ctx.learnFinanceDb.getUserTierProgressionStatus(String(ctx.user.id));
     }),
 
   /**
@@ -166,15 +166,15 @@ export const learnFinanceRouter = router({
    */
   getUserStats: protectedProcedure
     .query(async ({ ctx }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getUserLearnFinanceStats(String(ctx.user.id));
+      return await ctx.learnFinanceDb.getUserLearnFinanceStats(String(ctx.user.id));
     }),
 
   /**
    * Get all available badges
    */
   getAllBadges: publicProcedure
-    .query(async () => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getAllBadges();
+    .query(async ({ ctx }) => {
+      return await ctx.learnFinanceDb.getAllBadges();
     }),
 
   /**
@@ -182,7 +182,7 @@ export const learnFinanceRouter = router({
    */
   getUserBadges: protectedProcedure
     .query(async ({ ctx }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.getUserBadges(String(ctx.user.id));
+      return await ctx.learnFinanceDb.getUserBadges(String(ctx.user.id));
     }),
 
   /**
@@ -190,6 +190,6 @@ export const learnFinanceRouter = router({
    */
   checkAndAwardBadges: protectedProcedure
     .mutation(async ({ ctx }) => {
-      return await ctx.learnFinanceDb.ctx.learnFinanceDb.checkAndAwardBadges(String(ctx.user.id));
+      return await ctx.learnFinanceDb.checkAndAwardBadges(String(ctx.user.id));
     }),
 });
