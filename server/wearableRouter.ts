@@ -12,7 +12,7 @@ import {
   getSyncHistory,
   syncWearableData,
   getOAuthUrl,
-} from "./wearableService";
+} from "./db";
 
 export const wearableRouter = router({
   /**

@@ -1,7 +1,7 @@
-import { getDb } from "./db";
-import { budgetTransactions, budgetCategories, financialInsights, budgetTemplates, userBudgetTemplates } from "../drizzle/schema";
+import { getDb } from "./connection";
+import { budgetTransactions, budgetCategories, financialInsights, budgetTemplates, userBudgetTemplates } from "../../drizzle/schema";
 import { eq, and, gte, sql, desc } from "drizzle-orm";
-import { invokeLLM } from "./_core/llm";
+import { invokeLLM } from "../_core/llm";
 
 /**
  * Analyze spending patterns and generate AI-powered insights

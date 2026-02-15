@@ -9,9 +9,9 @@ import {
   budgetCategories,
 } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
-import { checkCategoryAlerts, createBudgetAlert } from "./alertHelpers";
-import { generateSpendingInsights } from "./insightsHelpers";
-import { detectRecurringPatterns, calculateRecurringProjections } from "./recurringHelpers";
+import { checkCategoryAlerts, createBudgetAlert } from "./db";
+import { generateSpendingInsights } from "./db";
+import { detectRecurringPatterns, calculateRecurringProjections } from "./db";
 
 describe("Money Hub Advanced Features", () => {
   let db: Awaited<ReturnType<typeof getDb>>;

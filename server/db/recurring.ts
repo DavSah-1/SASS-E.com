@@ -1,5 +1,5 @@
-import { getDb } from "./db";
-import { budgetTransactions, budgetCategories, recurringTransactions } from "../drizzle/schema";
+import { getDb } from "./connection";
+import { budgetTransactions, budgetCategories, recurringTransactions } from "../../drizzle/schema";
 import { eq, and, gte, desc, sql } from "drizzle-orm";
 
 /**

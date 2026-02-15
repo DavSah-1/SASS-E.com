@@ -1,4 +1,4 @@
-import { getDb } from "./db";
+import { getDb } from "./connection";
 import {
   sharedBudgets,
   sharedBudgetMembers,
@@ -7,7 +7,7 @@ import {
   splitExpenses,
   sharedBudgetActivity,
   users,
-} from "../drizzle/schema";
+} from "../../drizzle/schema";
 import { eq, and, or, desc, sql } from "drizzle-orm";
 
 /**

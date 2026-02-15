@@ -1,10 +1,10 @@
 import { eq, and, gte } from "drizzle-orm";
-import { getDb } from "./db";
+import { getDb } from "./connection";
 import { getSupabaseDb } from "./supabaseDb";
-import { users, dailyUsage } from "../drizzle/schema";
+import { users, dailyUsage } from "../../drizzle/schema";
 import { supabaseUsers } from "./supabaseDb";
-import { PRICING_TIERS, type SubscriptionTier, type SpecializedHub } from "../shared/pricing";
-import type { UnifiedUser } from "./_core/dbRouter";
+import { PRICING_TIERS, type SubscriptionTier, type SpecializedHub } from "../../shared/pricing";
+import type { UnifiedUser } from "../_core/dbRouter";
 
 export type FeatureType =
   | "voice_assistant"
@@ -64,7 +64,7 @@ export async function checkFeatureAccess(
     }
 
     // Hub not selected - check for active trial (Free, Starter, Pro can all trial)
-    const { getActiveTrial } = await import("./db");
+    const { getActiveTrial } = await import("./index");
     const activeTrial = await getActiveTrial(user.numericId, specializedHub);
     
     if (activeTrial) {

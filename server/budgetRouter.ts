@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
-import { checkCategoryAlerts, checkAllCategoryAlerts } from "./alertHelpers";
+import { checkCategoryAlerts, checkAllCategoryAlerts } from "./db";
 
 export const budgetRouter = router({
   // ==================== Category Management ====================
@@ -361,7 +361,7 @@ export const budgetRouter = router({
    * Generate AI-powered spending insights
    */
   generateInsights: protectedProcedure.mutation(async ({ ctx }) => {
-    const { generateSpendingInsights } = await import("./insightsHelpers");
+    const { generateSpendingInsights } = await import("./db");
     const result = await generateSpendingInsights(ctx.user.numericId);
     return result;
   }),
@@ -1113,7 +1113,7 @@ export const budgetRouter = router({
    * Detect recurring transaction patterns
    */
   detectRecurring: protectedProcedure.mutation(async ({ ctx }) => {
-    const { detectRecurringPatterns } = await import("./recurringHelpers");
+    const { detectRecurringPatterns } = await import("./db");
     const result = await detectRecurringPatterns(ctx.user.numericId);
     return result;
   }),
@@ -1128,7 +1128,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const { getUserRecurringTransactions } = await import("./recurringHelpers");
+      const { getUserRecurringTransactions } = await import("./db");
       const recurring = await getUserRecurringTransactions(ctx.user.numericId, input.activeOnly);
       return recurring;
     }),
@@ -1137,7 +1137,7 @@ export const budgetRouter = router({
    * Get recurring expense projections
    */
   getRecurringProjections: protectedProcedure.query(async ({ ctx }) => {
-    const { calculateRecurringProjections } = await import("./recurringHelpers");
+    const { calculateRecurringProjections } = await import("./db");
     const projections = await calculateRecurringProjections(ctx.user.numericId);
     return projections;
   }),
@@ -1146,7 +1146,7 @@ export const budgetRouter = router({
    * Get upcoming recurring transactions (next 30 days)
    */
   getUpcomingRecurring: protectedProcedure.query(async ({ ctx }) => {
-    const { getUpcomingRecurring } = await import("./recurringHelpers");
+    const { getUpcomingRecurring } = await import("./db");
     const upcoming = await getUpcomingRecurring(ctx.user.numericId);
     return upcoming;
   }),
@@ -1165,7 +1165,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { updateRecurringTransaction } = await import("./recurringHelpers");
+      const { updateRecurringTransaction } = await import("./db");
       const { recurringId, ...updates } = input;
       const result = await updateRecurringTransaction(ctx.user.numericId, recurringId, updates);
       return result;
@@ -1177,7 +1177,7 @@ export const budgetRouter = router({
    * Get all goals for user with progress
    */
   getGoals: protectedProcedure.query(async ({ ctx }) => {
-    const { getUserGoalsWithProgress } = await import("./goalHelpers");
+    const { getUserGoalsWithProgress } = await import("./db");
     const goals = await getUserGoalsWithProgress(ctx.user.numericId);
     return goals;
   }),
@@ -1192,7 +1192,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const { calculateGoalStats } = await import("./goalHelpers");
+      const { calculateGoalStats } = await import("./db");
       const stats = await calculateGoalStats(input.goalId, ctx.user.numericId);
       return stats;
     }),
@@ -1208,7 +1208,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { updateGoalProgress } = await import("./goalHelpers");
+      const { updateGoalProgress } = await import("./db");
       const result = await updateGoalProgress(input.goalId, input.newAmount, ctx.user.numericId);
       return result;
     }),
@@ -1223,7 +1223,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { generateGoalInsights } = await import("./goalHelpers");
+      const { generateGoalInsights } = await import("./db");
       const insights = await generateGoalInsights(input.goalId, ctx.user.numericId);
       return insights;
     }),
@@ -1232,7 +1232,7 @@ export const budgetRouter = router({
    * Get uncelebrated milestones
    */
   getUncelebratedMilestones: protectedProcedure.query(async ({ ctx }) => {
-    const { getUncelebratedMilestones } = await import("./goalHelpers");
+    const { getUncelebratedMilestones } = await import("./db");
     const milestones = await getUncelebratedMilestones(ctx.user.numericId);
     return milestones;
   }),
@@ -1247,7 +1247,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { markMilestoneCelebrated } = await import("./goalHelpers");
+      const { markMilestoneCelebrated } = await import("./db");
       const result = await markMilestoneCelebrated(input.milestoneId);
       return result;
     }),
@@ -1256,7 +1256,7 @@ export const budgetRouter = router({
    * Auto-update linked goals
    */
   autoUpdateLinkedGoals: protectedProcedure.mutation(async ({ ctx }) => {
-    const { autoUpdateLinkedGoals } = await import("./goalHelpers");
+    const { autoUpdateLinkedGoals } = await import("./db");
     const result = await autoUpdateLinkedGoals(ctx.user.numericId);
     return result;
   }),
@@ -1273,7 +1273,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { processReceiptImage } = await import("./receiptHelpers");
+      const { processReceiptImage } = await import("./db");
       const result = await processReceiptImage(input.imageUrl, ctx.user.numericId);
       return result;
     }),
@@ -1288,7 +1288,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { suggestCategory } = await import("./receiptHelpers");
+      const { suggestCategory } = await import("./db");
       const result = await suggestCategory(input.merchantName, ctx.user.numericId);
       return result;
     }),
@@ -1304,7 +1304,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { learnFromCorrection } = await import("./receiptHelpers");
+      const { learnFromCorrection } = await import("./db");
       const result = await learnFromCorrection(
         input.merchantName,
         input.categoryId,
@@ -1326,7 +1326,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { createSharedBudget } = await import("./sharingHelpers");
+      const { createSharedBudget } = await import("./db");
       const result = await createSharedBudget(ctx.user.numericId, input.name, input.description);
       return result;
     }),
@@ -1335,7 +1335,7 @@ export const budgetRouter = router({
    * Get user's shared budgets
    */
   getUserSharedBudgets: protectedProcedure.query(async ({ ctx }) => {
-    const { getUserSharedBudgets } = await import("./sharingHelpers");
+    const { getUserSharedBudgets } = await import("./db");
     const budgets = await getUserSharedBudgets(ctx.user.numericId);
     return budgets;
   }),
@@ -1352,7 +1352,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { inviteToSharedBudget } = await import("./sharingHelpers");
+      const { inviteToSharedBudget } = await import("./db");
       const result = await inviteToSharedBudget(
         input.budgetId,
         ctx.user.numericId,
@@ -1372,7 +1372,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const { getSettlementSummary } = await import("./sharingHelpers");
+      const { getSettlementSummary } = await import("./db");
       const summary = await getSettlementSummary(input.budgetId);
       return summary;
     }),

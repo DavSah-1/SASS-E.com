@@ -1,13 +1,13 @@
-import { getDb } from "./db";
+import { getDb } from "./connection";
 import {
   financialGoals,
   goalMilestones,
   goalProgressHistory,
   budgetTransactions,
   budgetCategories,
-} from "../drizzle/schema";
+} from "../../drizzle/schema";
 import { eq, and, desc, gte, sql } from "drizzle-orm";
-import { invokeLLM } from "./_core/llm";
+import { invokeLLM } from "../_core/llm";
 
 /**
  * Update goal progress and check for milestone achievements

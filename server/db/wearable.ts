@@ -3,8 +3,8 @@
  * Handles OAuth flows and data syncing for Apple Health, Google Fit, Fitbit, etc.
  */
 
-import { getDb } from "./db";
-import { wearableConnections, wearableSyncLogs, wearableDataCache } from "../drizzle/schema";
+import { getDb } from "./connection";
+import { wearableConnections, wearableSyncLogs, wearableDataCache } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 /**

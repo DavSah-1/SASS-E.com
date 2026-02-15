@@ -1,7 +1,7 @@
-import { getDb } from "./db";
-import { budgetAlerts, budgetCategories, budgetTransactions, notificationPreferences } from "../drizzle/schema";
+import { getDb } from "./connection";
+import { budgetAlerts, budgetCategories, budgetTransactions, notificationPreferences } from "../../drizzle/schema";
 import { eq, and, gte, sql } from "drizzle-orm";
-import { notifyOwner } from "./_core/notification";
+import { notifyOwner } from "../_core/notification";
 
 /**
  * Check if user should receive a specific type of alert based on preferences
