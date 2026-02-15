@@ -129,9 +129,7 @@ export function createGoalsAdapter(ctx: AdapterContext): GoalsAdapter {
   } else {
     const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
-    const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-    const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
-    return new SupabaseGoalsAdapter(userId, accessToken, supabaseUrl, supabaseKey);
+    return new SupabaseGoalsAdapter(userId, accessToken);
   }
 }
 

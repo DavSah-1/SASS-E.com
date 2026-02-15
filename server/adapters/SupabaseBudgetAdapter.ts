@@ -29,12 +29,14 @@ export class SupabaseBudgetAdapter implements BudgetAdapter {
       .from('debt_budget_snapshots')
       .insert({
         user_id: this.userId,
-        total_debt: snapshot.totalDebt,
-        total_monthly_payment: snapshot.totalMonthlyPayment,
-        total_budget: snapshot.totalBudget,
-        total_income: snapshot.totalIncome,
-        total_expenses: snapshot.totalExpenses,
+        month_year: snapshot.monthYear || snapshot.snapshotDate,
         snapshot_date: snapshot.snapshotDate || new Date(),
+        total_income: snapshot.totalIncome || 0,
+        total_expenses: snapshot.totalExpenses || 0,
+        total_debt_payments: snapshot.totalDebtPayments || 0,
+        extra_payment_budget: snapshot.extraPaymentBudget || 0,
+        actual_extra_payments: snapshot.actualExtraPayments || 0,
+        notes: snapshot.notes || null,
       })
       .select()
       .single();

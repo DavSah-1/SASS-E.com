@@ -1,5 +1,6 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { GoalsAdapter } from './GoalsAdapter';
+import { getSupabaseClient } from '../supabaseClient';
 
 function handleSupabaseError(error: any, operation: string): never {
   console.error(`[SupabaseGoalsAdapter] ${operation} error:`, error);
@@ -13,29 +14,16 @@ function handleSupabaseError(error: any, operation: string): never {
 export class SupabaseGoalsAdapter implements GoalsAdapter {
   private userId: string;
   private accessToken: string;
-  private supabaseUrl: string;
-  private supabaseKey: string;
   private clientPromise: Promise<SupabaseClient> | null = null;
 
-  constructor(userId: string, accessToken: string, supabaseUrl: string, supabaseKey: string) {
+  constructor(userId: string, accessToken: string) {
     this.userId = userId;
     this.accessToken = accessToken;
-    this.supabaseUrl = supabaseUrl;
-    this.supabaseKey = supabaseKey;
   }
 
   private async getClient(): Promise<SupabaseClient> {
     if (!this.clientPromise) {
-      this.clientPromise = (async () => {
-        const client = createClient(this.supabaseUrl, this.supabaseKey, {
-          global: {
-            headers: {
-              Authorization: `Bearer ${this.accessToken}`,
-            },
-          },
-        });
-        return client;
-      })();
+      this.clientPromise = getSupabaseClient(this.userId, this.accessToken);
     }
     return this.clientPromise;
   }

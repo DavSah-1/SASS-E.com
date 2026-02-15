@@ -21,9 +21,6 @@ export interface DebtAdapter {
   saveDebtMilestone(milestone: any): Promise<void>;
   getUserMilestones(userId: number, debtId?: number): Promise<any[]>;
 
-  // Budget Snapshots
-  saveBudgetSnapshot(snapshot: any): Promise<void>;
-
   // Summary & Analytics
   getDebtSummary(userId: number): Promise<any>;
   getAllUserPayments(userId: number, limit?: number): Promise<any[]>;
@@ -32,7 +29,4 @@ export interface DebtAdapter {
   // Coaching & Sessions
   saveCoachingSession(session: any): Promise<void>;
   getRecentCoachingSessions(userId: number, limit?: number): Promise<any[]>;
-  
-  // Budget Snapshots
-  getBudgetSnapshots(userId: number, limit?: number): Promise<any[]>;
 }

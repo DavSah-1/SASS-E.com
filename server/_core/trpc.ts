@@ -21,6 +21,15 @@ const requireUser = t.middleware(async opts => {
     ctx: {
       ...ctx,
       user: ctx.user,
+      coreDb: ctx.coreDb!,
+      notificationDb: ctx.notificationDb!,
+      budgetDb: ctx.budgetDb!,
+      debtDb: ctx.debtDb!,
+      learningDb: ctx.learningDb!,
+      iotDb: ctx.iotDb!,
+      goalsDb: ctx.goalsDb!,
+      translationDb: ctx.translationDb!,
+      verifiedFactDb: ctx.verifiedFactDb!,
     },
   });
 });
@@ -39,6 +48,15 @@ export const adminProcedure = t.procedure.use(
       ctx: {
         ...ctx,
         user: ctx.user,
+        coreDb: ctx.coreDb!,
+        notificationDb: ctx.notificationDb!,
+        budgetDb: ctx.budgetDb!,
+        debtDb: ctx.debtDb!,
+        learningDb: ctx.learningDb!,
+        iotDb: ctx.iotDb!,
+        goalsDb: ctx.goalsDb!,
+        translationDb: ctx.translationDb!,
+        verifiedFactDb: ctx.verifiedFactDb!,
       },
     });
   }),

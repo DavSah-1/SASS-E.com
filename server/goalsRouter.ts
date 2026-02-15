@@ -1,7 +1,6 @@
 // Migrated to use ctx.goalsDb adapter
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-// import * as dbRoleAware from "./dbRoleAware";
 import { invokeLLM } from "./_core/llm";
 
 export const goalsRouter = router({

@@ -263,25 +263,6 @@ export class SupabaseDebtAdapter implements DebtAdapter {
     }));
   }
 
-  async saveBudgetSnapshot(snapshot: any): Promise<void> {
-    const supabase = await this.getClient();
-    const { error } = await supabase
-      .from('debt_budget_snapshots')
-      .insert({
-        user_id: this.userId,
-        month_year: snapshot.monthYear || snapshot.snapshotDate,
-        snapshot_date: snapshot.snapshotDate,
-        total_income: snapshot.totalIncome / 100,
-        total_expenses: snapshot.totalExpenses / 100,
-        total_debt_payments: snapshot.totalDebtPayments || 0,
-        extra_payment_budget: snapshot.extraPaymentBudget || 0,
-        actual_extra_payments: snapshot.actualExtraPayments || 0,
-        notes: snapshot.notes,
-      });
-
-    if (error) throw new Error(`Supabase saveBudgetSnapshot error: ${error.message}`);
-  }
-
   async getDebtSummary(userId: number): Promise<any> {
     const supabase = await this.getClient();
     
@@ -391,16 +372,4 @@ export class SupabaseDebtAdapter implements DebtAdapter {
     return data || [];
   }
 
-  async getBudgetSnapshots(userId: number, limit: number = 12): Promise<any[]> {
-    const supabase = await this.getClient();
-    const { data, error } = await supabase
-      .from('debt_budget_snapshots')
-      .select('*')
-      .eq('user_id', this.userId)
-      .order('snapshot_date', { ascending: false })
-      .limit(limit);
-    
-    if (error) throw new Error(`Supabase getBudgetSnapshots error: ${error.message}`);
-    return data || [];
-  }
 }

@@ -48,10 +48,6 @@ export class MysqlDebtAdapter implements DebtAdapter {
     return db.getUserMilestones(userId, debtId);
   }
 
-  async saveBudgetSnapshot(snapshot: any): Promise<void> {
-    await db.saveBudgetSnapshot(snapshot);
-  }
-
   async getDebtSummary(userId: number): Promise<any> {
     return db.getDebtSummary(userId);
   }
@@ -70,9 +66,5 @@ export class MysqlDebtAdapter implements DebtAdapter {
 
   async getRecentCoachingSessions(userId: number, limit?: number): Promise<any[]> {
     return db.getRecentCoachingSessions(userId, limit);
-  }
-
-  async getBudgetSnapshots(userId: number, limit?: number): Promise<any[]> {
-    return db.getBudgetSnapshots(userId, limit);
   }
 }

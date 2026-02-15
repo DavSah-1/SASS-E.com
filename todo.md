@@ -5993,3 +5993,9 @@
 - [x] BUG 4: Fix updateUserStaySignedIn to use ctx.coreDb (bypasses CoreAdapter → Supabase users hit MySQL)
 - [x] BUG 5: Fix updateUserHubSelection to use ctx.coreDb (bypasses CoreAdapter → Supabase users hit MySQL)
 - [x] BUG 6: Fix deleteAllUserConversations to use ctx.coreDb (bypasses CoreAdapter → Supabase users hit MySQL)
+
+## Adapter Pattern Cleanup Tasks
+- [x] Remove 9 commented-out dbRoleAware imports from router files
+- [x] Update trpc.ts middleware with adapter type narrowing (remove ! and null checks)
+- [x] Standardize Supabase client creation in SupabaseGoalsAdapter and SupabaseTranslationAdapter
+- [x] Remove duplicate saveBudgetSnapshot/getBudgetSnapshots methods from DebtAdapter

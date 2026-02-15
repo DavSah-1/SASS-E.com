@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
-// import * as dbRoleAware from "./dbRoleAware"; // Replaced by adapter pattern
 
 /**
  * Debt Elimination Financial Coach Router
@@ -449,9 +448,9 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       
-      await ctx.debtDb.saveBudgetSnapshot({
+      await ctx.budgetDb.saveBudgetSnapshot({
         userId: ctx.user.numericId,
         ...input,
       });
@@ -469,8 +468,8 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
-      const snapshots = await ctx.debtDb.getBudgetSnapshots(ctx.user.numericId, input.limit);
+      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
+      const snapshots = await ctx.budgetDb.getBudgetSnapshots(ctx.user.numericId, input.limit);
       return snapshots;
     }),
 });
