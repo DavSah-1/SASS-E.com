@@ -314,10 +314,7 @@ export const translateChatRouter = router({
       }
 
       // Delete conversation (cascade will handle participants, messages, translations)
-      const db = await (await import("./db")).getDb();
-      if (!db) throw new Error("Database not available");
-
-      await db.delete(translateConversations).where(eq(translateConversations.id, input.conversationId));
+      await ctx.translationDb!.deleteTranslateConversation(input.conversationId, Number(ctx.user.id));
       
       return { success: true };
     }),

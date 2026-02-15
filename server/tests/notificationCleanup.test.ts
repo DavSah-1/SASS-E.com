@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { dismissOldNotifications, getOldNotificationCount } from '../db-cleanup';
-import { dismissOldSupabaseNotifications, getOldSupabaseNotificationCount } from '../dbRoleAware-cleanup';
+import { dismissOldSupabaseNotifications, getOldSupabaseNotificationCount } from '../notificationCleanup';
 import { runCleanupNow } from '../scheduledJobs';
 
 describe('Notification Cleanup System', () => {

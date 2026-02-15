@@ -198,12 +198,10 @@ Format as JSON:
   // Generate and get quiz questions for an experiment
   getLabQuiz: protectedProcedure
     .input(z.object({ experimentId: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       try {
-        const { getLabQuizQuestions, saveLabQuizQuestions } = await import("./db");
-        
         // Check if questions already exist
-        let questions = await getLabQuizQuestions(input.experimentId);
+        let questions = await ctx.learningDb!.getLabQuizQuestions(input.experimentId);
         
         // If no questions exist, use fallback questions (LLM generation has compatibility issues)
         if (questions.length === 0) {
@@ -259,8 +257,8 @@ Format as JSON:
             }
           ];
           
-          await saveLabQuizQuestions(fallbackQuestions);
-          questions = await getLabQuizQuestions(input.experimentId);
+          await ctx.learningDb!.saveLabQuizQuestions(fallbackQuestions);
+          questions = await ctx.learningDb!.getLabQuizQuestions(input.experimentId);
         }
         /* LLM generation disabled due to json_schema compatibility issues
         if (questions.length === 0) {
@@ -328,8 +326,8 @@ Format as JSON array with structure:
           category: q.category,
         }));
 
-        await saveLabQuizQuestions(generatedQuestions);
-        questions = await getLabQuizQuestions(input.experimentId);
+        await ctx.learningDb!.saveLabQuizQuestions(generatedQuestions);
+        questions = await ctx.learningDb!.getLabQuizQuestions(input.experimentId);
       }
       */
 
@@ -351,9 +349,8 @@ Format as JSON array with structure:
     )
     .mutation(async ({ ctx, input }) => {
       if (!ctx.learningDb) throw new Error("Learning adapter not available");
-      const { getLabQuizQuestions, saveLabQuizAttempt } = await import("./db");
       
-      const questions = await getLabQuizQuestions(input.experimentId);
+      const questions = await ctx.learningDb!.getLabQuizQuestions(input.experimentId);
       if (questions.length === 0) {
         throw new Error("Quiz questions not found");
       }
@@ -369,7 +366,7 @@ Format as JSON array with structure:
       const score = Math.round((correctCount / questions.length) * 100);
       const passed = score >= 70 ? 1 : 0;
 
-      await saveLabQuizAttempt({
+      await ctx.learningDb!.saveLabQuizAttempt({
         userId: ctx.user.numericId,
         experimentId: input.experimentId,
         score,

@@ -394,4 +394,182 @@ export class SupabaseTranslationAdapter implements TranslationAdapter {
       if (insertError) throw new Error(`Supabase saveConversationSessionToPhrasebook (insert) error: ${insertError.message}`);
     }
   }
+
+  async deleteTranslateConversation(conversationId: number, userId: number) {
+    const supabase = await this.getClient();
+    const { error } = await supabase
+      .from('translate_conversations')
+      .delete()
+      .eq('id', conversationId)
+      .eq('creator_id', userId);
+    
+    if (error) throw new Error(`Supabase deleteTranslateConversation error: ${error.message}`);
+    return true;
+  }
+
+  // Saved Translations (phrasebook)
+  async saveTranslation(translation: any) {
+    const supabase = await this.getClient();
+    
+    // Check if translation already exists
+    const { data: existing } = await supabase
+      .from('saved_translations')
+      .select('id')
+      .eq('user_id', this.userId)
+      .eq('original_text', translation.originalText)
+      .eq('translated_text', translation.translatedText)
+      .single();
+    
+    if (existing) return existing.id;
+    
+    const { data, error } = await supabase
+      .from('saved_translations')
+      .insert({
+        user_id: this.userId,
+        original_text: translation.originalText,
+        translated_text: translation.translatedText,
+        source_language: translation.sourceLanguage,
+        target_language: translation.targetLanguage,
+        category_id: translation.categoryId,
+        created_at: new Date(),
+      })
+      .select('id')
+      .single();
+    
+    if (error) throw new Error(`Supabase saveTranslation error: ${error.message}`);
+    return data?.id || null;
+  }
+
+  async getSavedTranslations(userId: number, categoryId?: number) {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('saved_translations')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('created_at', { ascending: false });
+    
+    if (categoryId !== undefined) {
+      query = query.eq('category_id', categoryId);
+    }
+    
+    const { data, error } = await query;
+    if (error) throw new Error(`Supabase getSavedTranslations error: ${error.message}`);
+    return data || [];
+  }
+
+  async getFrequentTranslations(userId: number) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('saved_translations')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('use_count', { ascending: false })
+      .limit(10);
+    
+    if (error) throw new Error(`Supabase getFrequentTranslations error: ${error.message}`);
+    return data || [];
+  }
+
+  async deleteSavedTranslation(translationId: number, userId: number) {
+    const supabase = await this.getClient();
+    const { error } = await supabase
+      .from('saved_translations')
+      .delete()
+      .eq('id', translationId)
+      .eq('user_id', this.userId);
+    
+    if (error) throw new Error(`Supabase deleteSavedTranslation error: ${error.message}`);
+    return true;
+  }
+
+  async updateTranslationCategory(translationId: number, userId: number, categoryId: number | null) {
+    const supabase = await this.getClient();
+    const { error } = await supabase
+      .from('saved_translations')
+      .update({ category_id: categoryId })
+      .eq('id', translationId)
+      .eq('user_id', this.userId);
+    
+    if (error) throw new Error(`Supabase updateTranslationCategory error: ${error.message}`);
+    return true;
+  }
+
+  // Translation Categories
+  async createTranslationCategory(category: any) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('translation_categories')
+      .insert({
+        user_id: this.userId,
+        name: category.name,
+        color: category.color,
+        created_at: new Date(),
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Supabase createTranslationCategory error: ${error.message}`);
+    return data;
+  }
+
+  async getTranslationCategories(userId: number) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('translation_categories')
+      .select('*')
+      .eq('user_id', this.userId)
+      .order('name', { ascending: true });
+    
+    if (error) throw new Error(`Supabase getTranslationCategories error: ${error.message}`);
+    return data || [];
+  }
+
+  async deleteTranslationCategory(categoryId: number, userId: number) {
+    const supabase = await this.getClient();
+    
+    // Remove category from all translations
+    await supabase
+      .from('saved_translations')
+      .update({ category_id: null })
+      .eq('category_id', categoryId)
+      .eq('user_id', this.userId);
+    
+    // Delete the category
+    const { error } = await supabase
+      .from('translation_categories')
+      .delete()
+      .eq('id', categoryId)
+      .eq('user_id', this.userId);
+    
+    if (error) throw new Error(`Supabase deleteTranslationCategory error: ${error.message}`);
+    return true;
+  }
+
+  // Translation Search
+  async searchSavedTranslations(userId: number, searchTerm: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('saved_translations')
+      .select('*')
+      .eq('user_id', this.userId)
+      .or(`original_text.ilike.%${searchTerm}%,translated_text.ilike.%${searchTerm}%`)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw new Error(`Supabase searchSavedTranslations error: ${error.message}`);
+    return data || [];
+  }
+
+  async getTranslationsByLanguage(userId: number, sourceLanguage: string, targetLanguage: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('saved_translations')
+      .select('*')
+      .eq('user_id', this.userId)
+      .eq('source_language', sourceLanguage)
+      .eq('target_language', targetLanguage)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw new Error(`Supabase getTranslationsByLanguage error: ${error.message}`);
+    return data || [];
+  }
 }

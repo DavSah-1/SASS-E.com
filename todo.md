@@ -5932,3 +5932,38 @@
 ### Phase 9: Final testing
 - [ ] Run full test suite
 - [ ] Save final checkpoint
+
+## Complete Adapter Pattern Migration (95% → 100%)
+
+### Phase 1: Fix Critical Regressions
+- [ ] Add 10 saved-translation methods to TranslationAdapter interface
+- [ ] Implement 10 saved-translation methods in MySQLTranslationAdapter
+- [ ] Implement 10 saved-translation methods in SupabaseTranslationAdapter
+- [ ] Add 4 lab-quiz methods to LearningAdapter interface
+- [ ] Implement 4 lab-quiz methods in MySQLLearningAdapter
+- [ ] Implement 4 lab-quiz methods in SupabaseLearningAdapter
+- [ ] Update routers.ts lines 3159-3281 to use ctx.translationDb
+- [ ] Update scienceRouter.ts to use ctx.learningDb
+- [ ] Fix translationRouter.ts:48 to use ctx.coreDb.updateUserLanguage()
+- [ ] Fix translateChatRouter.ts:317 - add deleteTranslateConversation to TranslationAdapter
+
+### Phase 2: Remove Dead Code
+- [ ] Delete dead dbRoleAware imports from routers.ts (lines 10, 1482-1483, 2059-2060)
+- [ ] Delete 9 commented-out dbRoleAware imports from other routers
+- [ ] Delete server/dbRoleAware.ts (127KB)
+- [ ] Delete dbRoleAware.test.ts
+- [ ] Rename dbRoleAware-cleanup.ts → notificationCleanup.ts
+- [ ] Rename dbRoleAware-deleteAll.ts → notificationDelete.ts
+
+### Phase 3: Type Safety & Consistency
+- [ ] Update trpc.ts middleware to narrow adapter types to non-null
+- [ ] Remove 106 ! assertions from routers
+- [ ] Remove 64 null guards from routers
+- [ ] Standardize Goals adapter to use getSupabaseClient()
+- [ ] Standardize Translation adapter to use getSupabaseClient()
+- [ ] Remove duplicate saveBudgetSnapshot/getBudgetSnapshots from DebtAdapter
+
+### Final Steps
+- [ ] Run full test suite to verify 287/287 passing
+- [ ] Save final checkpoint at 100% completion
+- [ ] Push to GitHub

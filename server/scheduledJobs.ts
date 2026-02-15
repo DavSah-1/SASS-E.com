@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { dismissOldNotifications, getOldNotificationCount } from './db-cleanup';
-import { dismissOldSupabaseNotifications, getOldSupabaseNotificationCount } from './dbRoleAware-cleanup';
+import { dismissOldSupabaseNotifications, getOldSupabaseNotificationCount } from './notificationCleanup';
 
 /**
  * Scheduled job to clean up old notifications

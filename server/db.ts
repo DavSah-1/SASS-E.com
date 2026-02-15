@@ -4725,3 +4725,69 @@ export async function searchConversations(
     },
   };
 }
+
+/**
+ * Delete translate conversation
+ */
+export async function deleteTranslateConversation(conversationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  await db
+    .delete(translateConversations)
+    .where(
+      and(
+        eq(translateConversations.id, conversationId),
+        eq(translateConversations.creatorId, userId)
+      )
+    );
+  
+  return true;
+}
+
+/**
+ * Search saved translations
+ */
+export async function searchSavedTranslations(userId: number, searchTerm: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const translations = await db
+    .select()
+    .from(savedTranslations)
+    .where(
+      and(
+        eq(savedTranslations.userId, userId),
+        or(
+          like(savedTranslations.originalText, `%${searchTerm}%`),
+          like(savedTranslations.translatedText, `%${searchTerm}%`)
+        )
+      )
+    )
+    .orderBy(desc(savedTranslations.lastUsedAt))
+    .limit(50);
+  
+  return translations;
+}
+
+/**
+ * Get translations by language pair
+ */
+export async function getTranslationsByLanguage(userId: number, sourceLanguage: string, targetLanguage: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const translations = await db
+    .select()
+    .from(savedTranslations)
+    .where(
+      and(
+        eq(savedTranslations.userId, userId),
+        eq(savedTranslations.sourceLanguage, sourceLanguage),
+        eq(savedTranslations.targetLanguage, targetLanguage)
+      )
+    )
+    .orderBy(desc(savedTranslations.lastUsedAt));
+  
+  return translations;
+}

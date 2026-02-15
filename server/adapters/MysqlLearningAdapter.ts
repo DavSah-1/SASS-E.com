@@ -214,4 +214,20 @@ export class MysqlLearningAdapter implements LearningAdapter {
   async getUserLabResults(userId: number, experimentId?: number): Promise<any[]> {
     return db.getUserLabResults(userId, experimentId);
   }
+
+  async getLabQuizQuestions(experimentId: number): Promise<any[]> {
+    return db.getLabQuizQuestions(experimentId);
+  }
+
+  async saveLabQuizQuestions(questions: any[]): Promise<boolean> {
+    return db.saveLabQuizQuestions(questions);
+  }
+
+  async saveLabQuizAttempt(attempt: any): Promise<any> {
+    return db.saveLabQuizAttempt(attempt);
+  }
+
+  async getLabQuizAttempts(userId: number, experimentId?: number): Promise<any[]> {
+    return db.getLabQuizAttempts(userId, experimentId);
+  }
 }

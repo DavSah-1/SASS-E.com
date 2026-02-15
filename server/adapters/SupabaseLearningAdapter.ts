@@ -925,4 +925,68 @@ export class SupabaseLearningAdapter implements LearningAdapter {
     if (error) throw new Error(`Supabase getUserLabResults error: ${error.message}`);
     return data || [];
   }
+
+  async getLabQuizQuestions(experimentId: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('lab_quiz_questions')
+      .select('*')
+      .eq('experiment_id', experimentId)
+      .order('question_number', { ascending: true });
+    
+    if (error) throw new Error(`Supabase getLabQuizQuestions error: ${error.message}`);
+    return data || [];
+  }
+
+  async saveLabQuizQuestions(questions: any[]): Promise<boolean> {
+    const supabase = await this.getClient();
+    const { error } = await supabase
+      .from('lab_quiz_questions')
+      .insert(questions.map(q => ({
+        experiment_id: q.experimentId,
+        question_number: q.questionNumber,
+        question_text: q.questionText,
+        question_type: q.questionType,
+        options: q.options,
+        correct_answer: q.correctAnswer,
+        explanation: q.explanation,
+      })));
+    
+    if (error) throw new Error(`Supabase saveLabQuizQuestions error: ${error.message}`);
+    return true;
+  }
+
+  async saveLabQuizAttempt(attempt: any): Promise<any> {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from('lab_quiz_attempts')
+      .insert({
+        user_id: this.userId,
+        experiment_id: attempt.experimentId,
+        score: attempt.score,
+        total_questions: attempt.totalQuestions,
+        answers: attempt.answers,
+        completed_at: attempt.completedAt || new Date(),
+      })
+      .select()
+      .single();
+    
+    if (error) throw new Error(`Supabase saveLabQuizAttempt error: ${error.message}`);
+    return data;
+  }
+
+  async getLabQuizAttempts(userId: number, experimentId?: number): Promise<any[]> {
+    const supabase = await this.getClient();
+    let query = supabase
+      .from('lab_quiz_attempts')
+      .select('*')
+      .eq('user_id', this.userId);
+    
+    if (experimentId) query = query.eq('experiment_id', experimentId);
+    
+    const { data, error } = await query.order('completed_at', { ascending: false });
+    
+    if (error) throw new Error(`Supabase getLabQuizAttempts error: ${error.message}`);
+    return data || [];
+  }
 }

@@ -7,7 +7,7 @@ import { transcribeAudio } from "./_core/voiceTranscription";
 import { formatSearchResults, searchWeb } from "./_core/webSearch";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { handleError } from "./_core/errorHandler";
-import * as dbRoleAware from "./dbRoleAware";
+
 import { getConversationsPaginated, getConversationsByDateRange, getConversationStats, searchConversations } from "./db";
 import { iotController } from "./_core/iotController";
 import { learningEngine } from "./_core/learningEngine";
@@ -1478,9 +1478,6 @@ export const appRouter = router({
       )
       .mutation(async ({ ctx, input }) => {
         try {
-        // Import role-aware database functions
-        const dbRoleAware = await import("./dbRoleAware");
-        const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
         
         // Get or create user profile for adaptive learning
         let userProfile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
@@ -2056,8 +2053,7 @@ If verified knowledge base information is provided above, use that as your prima
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const dbRoleAware = await import("./dbRoleAware");
-          const dbCtx = { user: ctx.user, accessToken: ctx.accessToken };
+
           const userProfile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
           const sarcasmLevel = userProfile?.sarcasmLevel || 5;
           const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
@@ -3168,8 +3164,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const { saveTranslation } = await import("./db");
-          return await saveTranslation({
+          return await ctx.translationDb!.saveTranslation({
             userId: ctx.user.numericId,
             ...input,
           });
@@ -3186,8 +3181,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .query(async ({ ctx, input }) => {
         try {
-          const { getSavedTranslations } = await import("./db");
-          return await getSavedTranslations(ctx.user.numericId, input.categoryId);
+          return await ctx.translationDb!.getSavedTranslations(ctx.user.numericId, input.categoryId);
         } catch (error) {
           handleError(error, 'Translation Get Saved Translations');
         }
@@ -3197,8 +3191,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ translationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          const { deleteSavedTranslation } = await import("./db");
-          return await deleteSavedTranslation(input.translationId, ctx.user.numericId);
+          return await ctx.translationDb!.deleteSavedTranslation(input.translationId, ctx.user.numericId);
         } catch (error) {
           handleError(error, 'Translation Delete Saved Translation');
         }
@@ -3224,8 +3217,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const { updateTranslationCategory } = await import("./db");
-          return await updateTranslationCategory(
+          return await ctx.translationDb!.updateTranslationCategory(
             input.translationId,
             ctx.user.numericId,
             input.categoryId
@@ -3245,8 +3237,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const { createTranslationCategory } = await import("./db");
-          return await createTranslationCategory({
+          return await ctx.translationDb!.createTranslationCategory({
             userId: ctx.user.numericId,
             ...input,
           });
@@ -3257,8 +3248,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
     getCategories: protectedProcedure.query(async ({ ctx }) => {
       try {
-        const { getTranslationCategories } = await import("./db");
-        return await getTranslationCategories(ctx.user.numericId);
+        return await ctx.translationDb!.getTranslationCategories(ctx.user.numericId);
       } catch (error) {
         handleError(error, 'Translation Get Categories');
       }
@@ -3268,8 +3258,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ categoryId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          const { deleteTranslationCategory } = await import("./db");
-          return await deleteTranslationCategory(input.categoryId, ctx.user.numericId);
+          return await ctx.translationDb!.deleteTranslationCategory(input.categoryId, ctx.user.numericId);
         } catch (error) {
           handleError(error, 'Translation Delete Category');
         }
@@ -3277,8 +3266,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
     getFrequentTranslations: protectedProcedure.query(async ({ ctx }) => {
       try {
-        const { getFrequentTranslations } = await import("./db");
-        return await getFrequentTranslations(ctx.user.numericId);
+        return await ctx.translationDb!.getFrequentTranslations(ctx.user.numericId);
       } catch (error) {
         handleError(error, 'Translation Get Frequent Translations');
       }

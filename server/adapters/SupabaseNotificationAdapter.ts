@@ -8,7 +8,7 @@
  */
 
 import { getSupabaseClient } from '../supabaseClient';
-import { deleteAllSupabaseUserNotifications } from '../dbRoleAware-deleteAll';
+import { deleteAllSupabaseUserNotifications } from '../notificationDelete';
 
 /**
  * Helper function to handle Supabase errors consistently

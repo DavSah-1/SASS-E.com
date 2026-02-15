@@ -45,13 +45,7 @@ export const translationRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const db = await (await import("./db")).getDb();
-      if (!db) throw new Error("Database not available");
-
-      await db
-        .update(users)
-        .set({ preferredLanguage: input.language })
-        .where(eq(users.id, ctx.user.numericId));
+      await ctx.coreDb!.updateUserLanguage(ctx.user.numericId, input.language);
 
       return { success: true };
     }),

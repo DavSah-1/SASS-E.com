@@ -85,4 +85,52 @@ export class MysqlTranslationAdapter implements TranslationAdapter {
   async saveConversationSessionToPhrasebook(sessionId: number, userId: number, categoryId?: number): Promise<void> {
     await db.saveConversationSessionToPhrasebook(sessionId, userId, categoryId);
   }
+
+  async deleteTranslateConversation(conversationId: number, userId: number) {
+    return db.deleteTranslateConversation(conversationId, userId);
+  }
+
+  // Saved Translations (phrasebook)
+  async saveTranslation(translation: any) {
+    const result = await db.saveTranslation(translation);
+    return result?.id || null;
+  }
+
+  async getSavedTranslations(userId: number, categoryId?: number) {
+    return db.getSavedTranslations(userId, categoryId);
+  }
+
+  async getFrequentTranslations(userId: number) {
+    return db.getFrequentTranslations(userId);
+  }
+
+  async deleteSavedTranslation(translationId: number, userId: number) {
+    return db.deleteSavedTranslation(translationId, userId);
+  }
+
+  async updateTranslationCategory(translationId: number, userId: number, categoryId: number | null) {
+    return db.updateTranslationCategory(translationId, userId, categoryId);
+  }
+
+  // Translation Categories
+  async createTranslationCategory(category: any) {
+    return db.createTranslationCategory(category);
+  }
+
+  async getTranslationCategories(userId: number) {
+    return db.getTranslationCategories(userId);
+  }
+
+  async deleteTranslationCategory(categoryId: number, userId: number) {
+    return db.deleteTranslationCategory(categoryId, userId);
+  }
+
+  // Translation Search
+  async searchSavedTranslations(userId: number, searchTerm: string) {
+    return db.searchSavedTranslations(userId, searchTerm);
+  }
+
+  async getTranslationsByLanguage(userId: number, sourceLanguage: string, targetLanguage: string) {
+    return db.getTranslationsByLanguage(userId, sourceLanguage, targetLanguage);
+  }
 }
