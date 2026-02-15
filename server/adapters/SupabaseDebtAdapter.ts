@@ -163,12 +163,13 @@ export class SupabaseDebtAdapter implements DebtAdapter {
       .insert({
         debt_id: payment.debtId,
         user_id: this.userId,
-        amount: payment.paymentAmount / 100,
+        amount: (payment.amount || payment.paymentAmount || 0) / 100,
         payment_date: payment.paymentDate,
         payment_method: payment.paymentMethod || 'manual',
-        is_extra_payment: payment.isExtraPayment ? 1 : 0,
+        is_extra_payment: (payment.paymentType === 'extra' || payment.isExtraPayment) ? 1 : 0,
         status: 'completed',
         notes: payment.notes,
+        balance_after: payment.balanceAfter ? payment.balanceAfter / 100 : null,
       });
 
     if (error) throw new Error(`Supabase recordDebtPayment error: ${error.message}`);
@@ -350,7 +351,7 @@ export class SupabaseDebtAdapter implements DebtAdapter {
       userId: data.user_id,
       strategyType: data.strategy_type,
       monthlyExtraPayment: data.monthly_extra_payment,
-      payoffOrder: data.payoff_order,
+      payoffOrder: typeof data.payoff_order === 'string' ? JSON.parse(data.payoff_order) : data.payoff_order,
       totalInterestPaid: data.total_interest_paid,
       totalInterestSaved: data.total_interest_saved,
       monthsToPayoff: data.months_to_payoff,

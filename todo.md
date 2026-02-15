@@ -5852,3 +5852,11 @@
 - [x] Add totalDebts and totalOriginalBalance fields to getDebtSummary
 - [x] Run tests to verify fix
 - [ ] Save checkpoint
+
+## Debug Remaining Debt Test Failures
+
+- [x] Run debt tests with verbose output
+- [x] Analyze failure causes
+- [x] Implement fixes for remaining failures
+- [x] Verify all debt tests pass
+- [ ] Save checkpoint
