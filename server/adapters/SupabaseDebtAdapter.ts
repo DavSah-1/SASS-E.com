@@ -294,11 +294,16 @@ export class SupabaseDebtAdapter implements DebtAdapter {
     if (debtsError) throw new Error(`Supabase getDebtSummary error: ${debtsError.message}`);
 
     const totalBalance = (debts || []).reduce((sum: number, d: any) => sum + (d.current_balance || 0), 0);
+    const totalOriginalBalance = (debts || []).reduce((sum: number, d: any) => sum + (d.original_amount || 0), 0);
+    const totalPaid = (debts || []).reduce((sum: number, d: any) => sum + ((d.original_amount || 0) - (d.current_balance || 0)), 0);
     const totalMonthlyMinimum = (debts || []).reduce((sum: number, d: any) => sum + (d.minimum_payment || 0), 0);
     const debtCount = (debts || []).length;
 
     return {
+      totalDebts: debtCount,
       totalBalance: Math.round(totalBalance * 100),
+      totalOriginalBalance: Math.round(totalOriginalBalance * 100),
+      totalPaid: Math.round(totalPaid * 100),
       totalMonthlyMinimum: Math.round(totalMonthlyMinimum * 100),
       debtCount,
     };

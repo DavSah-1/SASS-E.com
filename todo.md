@@ -5846,3 +5846,9 @@
 - [x] Update SupabaseDebtAdapter deleteDebt to set status='closed' instead of hard delete
 - [x] Run tests to verify soft delete functionality
 - [ ] Save checkpoint with soft delete implementation
+
+## Fix getDebtSummary Return Type
+
+- [x] Add totalDebts and totalOriginalBalance fields to getDebtSummary
+- [x] Run tests to verify fix
+- [ ] Save checkpoint
