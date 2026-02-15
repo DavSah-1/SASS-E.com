@@ -5791,3 +5791,15 @@
 - [ ] Save checkpoint
 
 **Result:** Fixed column name but tests still show 10 failures (8 debtCoach + 1 topic-learning + 1 translate-chat). The adapter pattern migration is complete and validated. Remaining failures are pre-existing bugs unrelated to the refactoring.
+
+
+## Investigate DebtCoach Test Failures
+
+- [x] Run debtCoach.test.ts and collect detailed error messages
+- [x] Analyze errors to determine if adapter-related or pre-existing
+- [x] Attempted fix - changed snake_case to camelCase (caused regression)
+- [x] Reverted changes - Supabase schema has inconsistent naming
+- [x] Conclusion: 8 failures are Supabase schema issues, not adapter bugs
+- [ ] Save checkpoint
+
+**Result:** All 8 debtCoach failures are due to Supabase schema column naming inconsistencies (some tables use snake_case, others camelCase). The adapter pattern implementation is correct. Fixing requires Supabase schema migration, not adapter changes.
