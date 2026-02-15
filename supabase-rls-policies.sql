@@ -384,6 +384,114 @@ USING (
 );
 
 -- ============================================================================
+-- 5. INSIGHTS MODULE - Financial Insights
+-- ============================================================================
+
+-- Enable RLS on financial_insights
+ALTER TABLE financial_insights ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can only view their own financial insights
+CREATE POLICY "Users can view their own financial insights"
+ON financial_insights FOR SELECT
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: System creates insights (users don't need INSERT permission)
+-- Policy: Users can update their own insights (e.g., dismiss)
+CREATE POLICY "Users can update their own financial insights"
+ON financial_insights FOR UPDATE
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: Users can delete their own insights
+CREATE POLICY "Users can delete their own financial insights"
+ON financial_insights FOR DELETE
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- ============================================================================
+-- 6. RECEIPTS MODULE - Receipt Management
+-- ============================================================================
+
+-- Enable RLS on receipts
+ALTER TABLE receipts ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can view their own receipts
+CREATE POLICY "Users can view their own receipts"
+ON receipts FOR SELECT
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: Users can create their own receipts
+CREATE POLICY "Users can create their own receipts"
+ON receipts FOR INSERT
+WITH CHECK (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: Users can update their own receipts
+CREATE POLICY "Users can update their own receipts"
+ON receipts FOR UPDATE
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- Policy: Users can delete their own receipts
+CREATE POLICY "Users can delete their own receipts"
+ON receipts FOR DELETE
+USING (
+  user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+);
+
+-- ============================================================================
+-- Enable RLS on receipt_line_items
+ALTER TABLE receipt_line_items ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Users can view line items for their own receipts
+CREATE POLICY "Users can view their own receipt line items"
+ON receipt_line_items FOR SELECT
+USING (
+  receipt_id IN (
+    SELECT id FROM receipts 
+    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+  )
+);
+
+-- Policy: Users can create line items for their own receipts
+CREATE POLICY "Users can create their own receipt line items"
+ON receipt_line_items FOR INSERT
+WITH CHECK (
+  receipt_id IN (
+    SELECT id FROM receipts 
+    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+  )
+);
+
+-- Policy: Users can update line items for their own receipts
+CREATE POLICY "Users can update their own receipt line items"
+ON receipt_line_items FOR UPDATE
+USING (
+  receipt_id IN (
+    SELECT id FROM receipts 
+    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+  )
+);
+
+-- Policy: Users can delete line items for their own receipts
+CREATE POLICY "Users can delete their own receipt line items"
+ON receipt_line_items FOR DELETE
+USING (
+  receipt_id IN (
+    SELECT id FROM receipts 
+    WHERE user_id = (SELECT id FROM users WHERE open_id = auth.uid())
+  )
+);
+
+-- ============================================================================
 -- VERIFICATION QUERIES
 -- ============================================================================
 -- Run these queries to verify RLS policies are active:

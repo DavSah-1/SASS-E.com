@@ -6099,3 +6099,16 @@
 - [x] Create Supabase RLS policies for receipts module (no dedicated table - stored as metadata)
 - [ ] Apply RLS policies to Supabase database
 - [ ] Test RLS policies to verify user isolation
+
+## Insights and Receipts Tables
+- [x] Design receipts table schema (metadata, OCR data, line items)
+- [x] Add receipts table to MySQL schema (drizzle/schema.ts)
+- [x] Add receipts table to Supabase schema (drizzle/supabaseSchema.ts)
+- [x] Add financial_insights mirror to Supabase schema
+- [x] Generate and run database migrations (MySQL done, Supabase SQL file created)
+- [x] Create RLS policies for financial_insights
+- [x] Create RLS policies for receipts (receipts + receipt_line_items)
+- [x] Update ReceiptsAdapter to use new table (already created)
+- [x] Update InsightsAdapter to use new table (already created)
+- [x] Test both adapters with new tables (283 tests passing)
+- [ ] Apply Supabase migrations (user needs to run SQL files in Supabase SQL Editor)
