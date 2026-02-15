@@ -37,6 +37,10 @@ const requireUser = t.middleware(async opts => {
       recurringDb: ctx.recurringDb!,
       insightsDb: ctx.insightsDb!,
       receiptsDb: ctx.receiptsDb!,
+      languageLearningDb: ctx.languageLearningDb!,
+      mathScienceDb: ctx.mathScienceDb!,
+      learningHubDb: ctx.learningHubDb!,
+      learnFinanceDb: ctx.learnFinanceDb!,
     },
   });
 });
@@ -71,6 +75,10 @@ export const adminProcedure = t.procedure.use(
         recurringDb: ctx.recurringDb!,
         insightsDb: ctx.insightsDb!,
         receiptsDb: ctx.receiptsDb!,
+        languageLearningDb: ctx.languageLearningDb!,
+        mathScienceDb: ctx.mathScienceDb!,
+        learningHubDb: ctx.learningHubDb!,
+        learnFinanceDb: ctx.learnFinanceDb!,
       },
     });
   }),

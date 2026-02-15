@@ -1,7 +1,7 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { UnifiedUser } from "./dbRouter";
 import { sdk } from "./sdk";
-import { createCoreAdapter, type CoreAdapter, createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter, createIoTAdapter, type IoTAdapter, createGoalsAdapter, type GoalsAdapter, createTranslationAdapter, type TranslationAdapter, createVerifiedFactAdapter, type VerifiedFactAdapter, createWellbeingAdapter, type WellbeingAdapter, createSharingAdapter, type SharingAdapter, createWearableAdapter, type WearableAdapter, createAlertsAdapter, type AlertsAdapter, createRecurringAdapter, type RecurringAdapter, createInsightsAdapter, type InsightsAdapter, createReceiptsAdapter, type ReceiptsAdapter } from "../adapters";
+import { createCoreAdapter, type CoreAdapter, createNotificationAdapter, type NotificationAdapter, createBudgetAdapter, type BudgetAdapter, createDebtAdapter, type DebtAdapter, createLearningAdapter, type LearningAdapter, createIoTAdapter, type IoTAdapter, createGoalsAdapter, type GoalsAdapter, createTranslationAdapter, type TranslationAdapter, createVerifiedFactAdapter, type VerifiedFactAdapter, createWellbeingAdapter, type WellbeingAdapter, createSharingAdapter, type SharingAdapter, createWearableAdapter, type WearableAdapter, createAlertsAdapter, type AlertsAdapter, createRecurringAdapter, type RecurringAdapter, createInsightsAdapter, type InsightsAdapter, createReceiptsAdapter, type ReceiptsAdapter, createLanguageLearningAdapter, type LanguageLearningAdapter, createMathScienceAdapter, type MathScienceAdapter, createLearningHubAdapter, type LearningHubAdapter, createLearnFinanceAdapter, type LearnFinanceAdapter } from "../adapters";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -24,6 +24,10 @@ export type TrpcContext = {
   recurringDb: RecurringAdapter | null; // Recurring adapter
   insightsDb: InsightsAdapter | null; // Insights adapter
   receiptsDb: ReceiptsAdapter | null; // Receipts adapter
+  languageLearningDb: LanguageLearningAdapter | null; // Language learning adapter
+  mathScienceDb: MathScienceAdapter | null; // Math & science adapter
+  learningHubDb: LearningHubAdapter | null; // Learning hub adapter
+  learnFinanceDb: LearnFinanceAdapter | null; // Learn finance adapter
 };
 
 export async function createContext(
@@ -62,6 +66,10 @@ export async function createContext(
   const recurringDb = user ? createRecurringAdapter({ user, accessToken }) : null;
   const insightsDb = user ? createInsightsAdapter({ user, accessToken }) : null;
   const receiptsDb = user ? createReceiptsAdapter({ user, accessToken }) : null;
+  const languageLearningDb = user ? createLanguageLearningAdapter({ user, accessToken }) : null;
+  const mathScienceDb = user ? createMathScienceAdapter({ user, accessToken }) : null;
+  const learningHubDb = user ? createLearningHubAdapter({ user, accessToken }) : null;
+  const learnFinanceDb = user ? createLearnFinanceAdapter({ user, accessToken }) : null;
 
   return {
     req: opts.req,
@@ -84,5 +92,9 @@ export async function createContext(
     recurringDb,
     insightsDb,
     receiptsDb,
+    languageLearningDb,
+    mathScienceDb,
+    learningHubDb,
+    learnFinanceDb,
   };
 }

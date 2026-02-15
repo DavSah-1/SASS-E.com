@@ -10,7 +10,7 @@
 import { appRouter } from '../routers';
 import { createTestUser } from './supabaseTestHelper';
 import type { TrpcContext } from '../_core/context';
-import { createCoreAdapter, createNotificationAdapter, createBudgetAdapter, createDebtAdapter, createLearningAdapter, createIoTAdapter, createGoalsAdapter, createTranslationAdapter, createVerifiedFactAdapter, createWellbeingAdapter, createSharingAdapter, createWearableAdapter, createAlertsAdapter, createRecurringAdapter, createInsightsAdapter, createReceiptsAdapter } from '../adapters';
+import { createCoreAdapter, createNotificationAdapter, createBudgetAdapter, createDebtAdapter, createLearningAdapter, createIoTAdapter, createGoalsAdapter, createTranslationAdapter, createVerifiedFactAdapter, createWellbeingAdapter, createSharingAdapter, createWearableAdapter, createAlertsAdapter, createRecurringAdapter, createInsightsAdapter, createReceiptsAdapter, createLanguageLearningAdapter, createMathScienceAdapter, createLearningHubAdapter, createLearnFinanceAdapter } from '../adapters';
 
 /**
  * Create a tRPC caller with test context
@@ -70,6 +70,10 @@ export async function createTestCaller(options: {
   const recurringDb = createRecurringAdapter(adapterContext);
   const insightsDb = createInsightsAdapter(adapterContext);
   const receiptsDb = createReceiptsAdapter(adapterContext);
+  const languageLearningDb = createLanguageLearningAdapter(adapterContext);
+  const mathScienceDb = createMathScienceAdapter(adapterContext);
+  const learningHubDb = createLearningHubAdapter(adapterContext);
+  const learnFinanceDb = createLearnFinanceAdapter(adapterContext);
 
   // Create mock context
   const mockContext: TrpcContext = {
@@ -100,6 +104,10 @@ export async function createTestCaller(options: {
     recurringDb,
     insightsDb,
     receiptsDb,
+    languageLearningDb,
+    mathScienceDb,
+    learningHubDb,
+    learnFinanceDb,
   };
 
   // Create caller with context
@@ -128,6 +136,10 @@ export function createUnauthenticatedCaller() {
     recurringDb: null,
     insightsDb: null,
     receiptsDb: null,
+    languageLearningDb: null,
+    mathScienceDb: null,
+    learningHubDb: null,
+    learnFinanceDb: null,
     req: {
       headers: {},
       cookies: {},
