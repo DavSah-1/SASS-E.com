@@ -1,8 +1,8 @@
 import { eq, and, gte } from "drizzle-orm";
 import { getDb } from "./connection";
-import { getSupabaseDb } from "./supabaseDb";
+import { getSupabaseDb } from "../supabaseDb";
 import { users, dailyUsage } from "../../drizzle/schema";
-import { supabaseUsers } from "./supabaseDb";
+import { supabaseUsers } from "../supabaseDb";
 import { PRICING_TIERS, type SubscriptionTier, type SpecializedHub } from "../../shared/pricing";
 import type { UnifiedUser } from "../_core/dbRouter";
 

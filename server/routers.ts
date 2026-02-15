@@ -887,7 +887,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         try {
-          const { checkFeatureAccess } = await import("./accessControl");
+          const { checkFeatureAccess } = await import("./db");
           
           // Check if user can change hubs
           const user = ctx.user;
@@ -950,7 +950,7 @@ export const appRouter = router({
       }))
       .query(async ({ ctx, input }) => {
         try {
-          const { checkFeatureAccess } = await import("./accessControl");
+          const { checkFeatureAccess } = await import("./db");
           return await checkFeatureAccess(
             ctx.user,
             input.featureType,
@@ -966,7 +966,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ ctx, input }) => {
         try {
-          const { recordUsage } = await import("./accessControl");
+          const { recordUsage } = await import("./db");
           await recordUsage(ctx.user, input.featureType);
           return { success: true };
         } catch (error) {
@@ -976,7 +976,7 @@ export const appRouter = router({
     getUsageStats: protectedProcedure
       .query(async ({ ctx }) => {
         try {
-          const { getUsageStats } = await import("./accessControl");
+          const { getUsageStats } = await import("./db");
           return await getUsageStats(ctx.user);
         } catch (error) {
           handleError(error, 'Subscription Get Usage Stats');

@@ -6067,3 +6067,24 @@
 - [ ] Update all callers to pass correct adapters (routers, procedures)
 - [ ] Run full test suite to verify fixes (269 tests)
 - [ ] Save checkpoint and push to GitHub
+
+## budgetRouter.ts Direct getDb() Bypasses
+- [ ] Analyze budgetRouter.ts to find all direct getDb() calls
+- [ ] Add missing methods to BudgetAdapter interface
+- [ ] Implement methods in MySQLBudgetAdapter
+- [ ] Implement methods in SupabaseBudgetAdapter
+- [ ] Update budgetRouter.ts to use ctx.budgetDb instead of getDb()
+- [ ] Run tests to verify all budget features work for both MySQL and Supabase users
+
+## Create Adapters for New Domains (6 adapters)
+- [ ] Create SharingAdapter (interface + MySQLSharingAdapter + SupabaseSharingAdapter)
+- [ ] Create WearableAdapter (interface + MySQLWearableAdapter + SupabaseWearableAdapter)
+- [ ] Create AlertsAdapter (interface + MySQLAlertsAdapter + SupabaseAlertsAdapter)
+- [ ] Create RecurringAdapter (interface + MySQLRecurringAdapter + SupabaseRecurringAdapter)
+- [ ] Create InsightsAdapter (interface + MySQLInsightsAdapter + SupabaseInsightsAdapter)
+- [ ] Create ReceiptsAdapter (interface + MySQLReceiptsAdapter + SupabaseReceiptsAdapter)
+- [ ] Add all 6 adapters to factory (server/adapters/index.ts)
+- [ ] Add all 6 adapters to tRPC context (server/_core/context.ts)
+- [ ] Update budgetRouter.ts to use new adapters (ctx.sharingDb, ctx.alertsDb, etc.)
+- [ ] Update wearableRouter.ts to use ctx.wearableDb
+- [ ] Run tests to verify all features work for both MySQL and Supabase users
