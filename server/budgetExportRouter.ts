@@ -18,7 +18,6 @@ export const budgetExportRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       const transactions = await ctx.budgetDb.getUserBudgetTransactions(
         ctx.user.numericId
       );
@@ -71,7 +70,6 @@ export const budgetExportRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       const transactions = await ctx.budgetDb.getUserBudgetTransactions(
         ctx.user.numericId
       );
@@ -144,7 +142,6 @@ export const budgetExportRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       const transactions = await ctx.budgetDb.getUserBudgetTransactions(
         ctx.user.numericId
       );

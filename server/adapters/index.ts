@@ -142,15 +142,7 @@ export function createTranslationAdapter(ctx: AdapterContext): TranslationAdapte
   } else {
     const userId = String(ctx.user.id);
     const accessToken = ctx.accessToken || '';
-    const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-    const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
-    const getClient = async () => {
-      const { createClient } = await import('@supabase/supabase-js');
-      return createClient(supabaseUrl, supabaseKey, {
-        global: { headers: { Authorization: `Bearer ${accessToken}` } },
-      });
-    };
-    return new SupabaseTranslationAdapter(userId, getClient);
+    return new SupabaseTranslationAdapter(userId, accessToken);
   }
 }
 

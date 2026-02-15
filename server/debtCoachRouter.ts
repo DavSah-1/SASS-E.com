@@ -34,7 +34,6 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       
       await ctx.debtDb.addDebt({
         userId: ctx.user.numericId,
@@ -71,7 +70,6 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       const debts = await ctx.debtDb.getUserDebts(ctx.user.numericId, input.includeInactive);
       return debts;
     }),
@@ -82,7 +80,6 @@ export const debtCoachRouter = router({
   getDebt: protectedProcedure
     .input(z.object({ debtId: z.number().int().positive() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       const debt = await ctx.debtDb.getDebtById(input.debtId, ctx.user.numericId);
       if (!debt) {
         throw new Error("Debt not found");
@@ -110,7 +107,6 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       await ctx.debtDb.updateDebt(input.debtId, ctx.user.numericId, input.updates);
       return { success: true, message: "Debt updated successfully" };
     }),
@@ -121,7 +117,6 @@ export const debtCoachRouter = router({
   deleteDebt: protectedProcedure
     .input(z.object({ debtId: z.number().int().positive() }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       await ctx.debtDb.deleteDebt(input.debtId, ctx.user.numericId);
       return { success: true, message: "Debt deleted successfully" };
     }),
@@ -140,7 +135,6 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       
       // Get current debt to calculate new balance
       const debt = await ctx.debtDb.getDebtById(input.debtId, ctx.user.numericId);
@@ -211,7 +205,6 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       const payments = await ctx.debtDb.getDebtPaymentHistory(input.debtId, ctx.user.numericId);
       return payments;
     }),
@@ -226,7 +219,6 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       const payments = await ctx.debtDb.getAllUserPayments(ctx.user.numericId);
       return payments;
     }),
@@ -242,7 +234,6 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       
       const debts = await ctx.debtDb.getUserDebts(ctx.user.numericId, false);
 
@@ -352,7 +343,6 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       
       const strategy = await ctx.debtDb.getLatestStrategy(ctx.user.numericId, input.strategyType);
       if (!strategy) {
@@ -375,7 +365,6 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       const milestones = await ctx.debtDb.getUserMilestones(ctx.user.numericId);
       return milestones;
     }),
@@ -390,7 +379,6 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
       const sessions = await ctx.debtDb.getRecentCoachingSessions(ctx.user.numericId, input.limit);
       return sessions;
     }),
@@ -399,7 +387,6 @@ export const debtCoachRouter = router({
    * Get motivational coaching message
    */
   getMotivation: protectedProcedure.mutation(async ({ ctx }) => {
-    if (!ctx.debtDb) throw new Error("Debt adapter not available");
     
     const summary = await ctx.debtDb.getDebtSummary(ctx.user.numericId);
     const recentPayments = await ctx.debtDb.getAllUserPayments(ctx.user.numericId, 5);
@@ -427,7 +414,6 @@ export const debtCoachRouter = router({
    * Get debt summary statistics
    */
   getSummary: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.debtDb) throw new Error("Debt adapter not available");
     const summary = await ctx.debtDb.getDebtSummary(ctx.user.numericId);
     return summary;
   }),
@@ -448,7 +434,6 @@ export const debtCoachRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       
       await ctx.budgetDb.saveBudgetSnapshot({
         userId: ctx.user.numericId,
@@ -468,7 +453,6 @@ export const debtCoachRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       const snapshots = await ctx.budgetDb.getBudgetSnapshots(ctx.user.numericId, input.limit);
       return snapshots;
     }),
@@ -531,8 +515,6 @@ async function checkAndAwardMilestones(
   debt: any,
   newBalance: number
 ) {
-  if (!ctx.debtDb) return;
-  
   const percentPaid =
     ((debt.originalBalance - newBalance) / debt.originalBalance) * 100;
 

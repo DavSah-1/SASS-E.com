@@ -15,8 +15,6 @@ export const languageLearningRouter = router({
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const progress = await ctx.learningDb.getUserLanguageProgress(ctx.user.numericId, input.language);
       
       if (!progress) {
@@ -53,7 +51,6 @@ export const languageLearningRouter = router({
       limit: z.number().default(20),
     }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const items = await ctx.learningDb.getVocabularyItems(input.language, input.difficulty, input.limit);
       const userProgress = await ctx.learningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
       
@@ -83,7 +80,6 @@ export const languageLearningRouter = router({
       timeSpent: z.number(), // seconds
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       // Get existing progress
       const existingProgress = await ctx.learningDb.getUserVocabularyProgress(ctx.user.numericId, input.language);
       const itemProgress = existingProgress.find(p => p.vocabularyItemId === input.vocabularyItemId);
@@ -145,7 +141,6 @@ export const languageLearningRouter = router({
       difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
     }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const lessons = await ctx.learningDb.getGrammarLessons(input.language, input.difficulty);
       const userProgress = await ctx.learningDb.getUserGrammarProgress(ctx.user.numericId, input.language);
       
@@ -174,7 +169,6 @@ export const languageLearningRouter = router({
       userLevel: z.enum(["beginner", "intermediate", "advanced"]),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const prompt = `You are Agent Bob, a sarcastic but brilliant language teacher. Explain the grammar topic "${input.topic}" in ${input.language} for a ${input.userLevel} learner.
 
 Your explanation should:
@@ -251,7 +245,6 @@ Format your response as JSON with this structure:
       limit: z.number().default(10),
     }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const exercises = await ctx.learningDb.getLanguageExercises(
         input.language,
         input.exerciseType,
@@ -273,7 +266,6 @@ Format your response as JSON with this structure:
       count: z.number().min(1).max(10).default(5),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const prompt = `Generate ${input.count} ${input.exerciseType} exercises in ${input.language} for ${input.difficulty} learners on the topic: ${input.topic}.
 
 For each exercise:
@@ -349,7 +341,6 @@ Format as JSON array with this structure:
       timeSpent: z.number(), // seconds
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       // Get the exercise to check the answer
       const exercises = await ctx.learningDb.getLanguageExercises(input.language);
       const exercise = exercises.find(e => e.id === input.exerciseId);
@@ -400,7 +391,6 @@ Format as JSON array with this structure:
       language: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
@@ -455,7 +445,6 @@ Format as JSON array with this structure:
       language: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const achievements = await ctx.learningDb.getUserAchievements(ctx.user.numericId, input.language);
       return achievements;
     }),

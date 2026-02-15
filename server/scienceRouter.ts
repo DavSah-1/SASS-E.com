@@ -13,7 +13,6 @@ export const scienceRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const experiments = await ctx.learningDb.getExperiments(input);
       return experiments;
     }),
@@ -22,7 +21,6 @@ export const scienceRouter = router({
   getExperimentDetails: protectedProcedure
     .input(z.object({ experimentId: z.number() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const experiment = await ctx.learningDb.getExperimentById(input.experimentId);
       if (!experiment) {
         throw new Error("Experiment not found");
@@ -51,7 +49,6 @@ export const scienceRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const experiment = await ctx.learningDb.getExperimentById(input.experimentId);
       if (!experiment) {
         throw new Error("Experiment not found");
@@ -178,14 +175,12 @@ Format as JSON:
   getMyLabResults: protectedProcedure
     .input(z.object({ experimentId: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const results = await ctx.learningDb.getUserLabResults(ctx.user.numericId, input.experimentId);
       return results;
     }),
 
   // Get user's science progress
   getMyProgress: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.learningDb) throw new Error("Learning adapter not available");
     let progress = await ctx.learningDb.getScienceProgress(ctx.user.numericId);
     if (!progress) {
       await ctx.learningDb.initializeScienceProgress(ctx.user.numericId);
@@ -200,7 +195,7 @@ Format as JSON:
     .query(async ({ ctx, input }) => {
       try {
         // Check if questions already exist
-        let questions = await ctx.learningDb!.getLabQuizQuestions(input.experimentId);
+        let questions = await ctx.learningDb.getLabQuizQuestions(input.experimentId);
         
         // If no questions exist, use fallback questions (LLM generation has compatibility issues)
         if (questions.length === 0) {
@@ -256,8 +251,8 @@ Format as JSON:
             }
           ];
           
-          await ctx.learningDb!.saveLabQuizQuestions(fallbackQuestions);
-          questions = await ctx.learningDb!.getLabQuizQuestions(input.experimentId);
+          await ctx.learningDb.saveLabQuizQuestions(fallbackQuestions);
+          questions = await ctx.learningDb.getLabQuizQuestions(input.experimentId);
         }
         /* LLM generation disabled due to json_schema compatibility issues
         if (questions.length === 0) {
@@ -325,8 +320,8 @@ Format as JSON array with structure:
           category: q.category,
         }));
 
-        await ctx.learningDb!.saveLabQuizQuestions(generatedQuestions);
-        questions = await ctx.learningDb!.getLabQuizQuestions(input.experimentId);
+        await ctx.learningDb.saveLabQuizQuestions(generatedQuestions);
+        questions = await ctx.learningDb.getLabQuizQuestions(input.experimentId);
       }
       */
 
@@ -347,9 +342,8 @@ Format as JSON array with structure:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       
-      const questions = await ctx.learningDb!.getLabQuizQuestions(input.experimentId);
+      const questions = await ctx.learningDb.getLabQuizQuestions(input.experimentId);
       if (questions.length === 0) {
         throw new Error("Quiz questions not found");
       }
@@ -365,7 +359,7 @@ Format as JSON array with structure:
       const score = Math.round((correctCount / questions.length) * 100);
       const passed = score >= 70 ? 1 : 0;
 
-      await ctx.learningDb!.saveLabQuizAttempt({
+      await ctx.learningDb.saveLabQuizAttempt({
         userId: ctx.user.numericId,
         experimentId: input.experimentId,
         score,
@@ -388,7 +382,6 @@ Format as JSON array with structure:
   hasPassedQuiz: protectedProcedure
     .input(z.object({ experimentId: z.number() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const passed = await ctx.learningDb.hasPassedLabQuiz(ctx.user.numericId, input.experimentId);
       return { passed };
     }),

@@ -45,7 +45,7 @@ export const translationRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.coreDb!.updateUserLanguage(ctx.user.numericId, input.language);
+      await ctx.coreDb.updateUserLanguage(ctx.user.numericId, input.language);
 
       return { success: true };
     }),

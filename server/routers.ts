@@ -907,7 +907,7 @@ export const appRouter = router({
             throw new Error(`You can only select ${maxHubs} hub${maxHubs > 1 ? 's' : ''} with your ${user.subscriptionTier} plan`);
           }
           
-          await ctx.coreDb!.updateUserHubSelection(toNumericId(ctx.user.numericId), input.hubs);
+          await ctx.coreDb.updateUserHubSelection(toNumericId(ctx.user.numericId), input.hubs);
           return { success: true, hubs: input.hubs };
         } catch (error) {
           handleError(error, 'Subscription Select Hubs');
@@ -1295,7 +1295,7 @@ export const appRouter = router({
       .input(z.object({ language: z.string().length(2).or(z.string().length(5)) }))
       .mutation(async ({ ctx, input }) => {
         try {
-          await ctx.coreDb!.updateUserLanguage(ctx.user.numericId, input.language);
+          await ctx.coreDb.updateUserLanguage(ctx.user.numericId, input.language);
           return { success: true, language: input.language };
         } catch (error) {
           handleError(error, 'Auth Set Language');
@@ -1305,7 +1305,7 @@ export const appRouter = router({
       .input(z.object({ staySignedIn: z.boolean() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          await ctx.coreDb!.updateUserStaySignedIn(ctx.user.numericId, input.staySignedIn);
+          await ctx.coreDb.updateUserStaySignedIn(ctx.user.numericId, input.staySignedIn);
           return { success: true, staySignedIn: input.staySignedIn };
         } catch (error) {
           handleError(error, 'Auth Set Stay Signed In');
@@ -1477,9 +1477,9 @@ export const appRouter = router({
         try {
         
         // Get or create user profile for adaptive learning
-        let userProfile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
+        let userProfile = await ctx.coreDb.getUserProfile(ctx.user.numericId);
         if (!userProfile) {
-          await ctx.coreDb!.createUserProfile({
+          await ctx.coreDb.createUserProfile({
             userId: ctx.user.numericId,
             sarcasmLevel: 5, // Start at medium
             totalInteractions: 0,
@@ -1489,7 +1489,7 @@ export const appRouter = router({
             preferredTopics: JSON.stringify([]),
             interactionPatterns: JSON.stringify({}),
           });
-          userProfile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
+          userProfile = await ctx.coreDb.getUserProfile(ctx.user.numericId);
         }
 
         // Build adaptive system prompt based on user's sarcasm level
@@ -1521,14 +1521,14 @@ export const appRouter = router({
         // normalizeQuestion is a utility function, not wrapped in dbRoleAware
         const { normalizeQuestion } = await import('./db');
         const normalizedQ = normalizeQuestion(input.message);
-        const verifiedFact = await ctx.verifiedFactDb!.getVerifiedFact(normalizedQ);
+        const verifiedFact = await ctx.verifiedFactDb.getVerifiedFact(normalizedQ);
         
         if (verifiedFact) {
           // We have a verified fact for this question!
           knowledgeBaseContext = `\n\nVerified Knowledge Base (Last verified: ${verifiedFact.verifiedAt.toLocaleDateString()}):\n${verifiedFact.answer}\n\nSources: ${JSON.parse(verifiedFact.sources).map((s: any) => s.title).join(', ')}`;
           
           // Log fact access for notification purposes
-          await ctx.verifiedFactDb!.logFactAccess(ctx.user.numericId, verifiedFact.id, verifiedFact, 'voice_assistant');
+          await ctx.verifiedFactDb.logFactAccess(ctx.user.numericId, verifiedFact.id, verifiedFact, 'voice_assistant');
         }
 
         const sarcasticSystemPrompt = `${baseSarcasmPrompt}${dateTimeContext}${weatherContext}${knowledgeBaseContext}
@@ -1593,7 +1593,7 @@ If verified knowledge base information is provided above, use that as your prima
           : "Oh great, I seem to have lost my ability to be sarcastic. How tragic.";
 
         // Save conversation (role-aware)
-        await ctx.coreDb!.saveConversation({
+        await ctx.coreDb.saveConversation({
           userId: ctx.user.numericId,
           userMessage: input.message,
           assistantResponse,
@@ -1623,7 +1623,7 @@ If verified knowledge base information is provided above, use that as your prima
             newSarcasmLevel = Math.min(10, userProfile.sarcasmLevel + 0.5);
           }
 
-          await ctx.coreDb!.updateUserProfile(ctx.user.numericId, {
+          await ctx.coreDb.updateUserProfile(ctx.user.numericId, {
             totalInteractions: newTotalInteractions,
             averageResponseLength: newAvgLength,
             interactionPatterns: JSON.stringify(updatedPatterns),
@@ -1671,7 +1671,7 @@ If verified knowledge base information is provided above, use that as your prima
 
     getConversations: protectedProcedure.query(async ({ ctx }) => {
       try {
-        const conversations = await ctx.coreDb!.getUserConversations(ctx.user.numericId);
+        const conversations = await ctx.coreDb.getUserConversations(ctx.user.numericId);
         return conversations;
       } catch (error) {
         handleError(error, 'Get Conversations');
@@ -1679,7 +1679,7 @@ If verified knowledge base information is provided above, use that as your prima
     }),
     clearAllConversations: protectedProcedure.mutation(async ({ ctx }) => {
       try {
-        await ctx.coreDb!.deleteAllUserConversations(ctx.user.numericId);
+        await ctx.coreDb.deleteAllUserConversations(ctx.user.numericId);
         return { success: true };
       } catch (error) {
         handleError(error, 'Clear Conversations');
@@ -1690,9 +1690,9 @@ If verified knowledge base information is provided above, use that as your prima
     // Get user's learning profile
     getProfile: protectedProcedure.query(async ({ ctx }) => {
       try {
-      let profile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
+      let profile = await ctx.coreDb.getUserProfile(ctx.user.numericId);
       if (!profile) {
-        await ctx.coreDb!.createUserProfile({
+        await ctx.coreDb.createUserProfile({
           userId: ctx.user.numericId,
           sarcasmLevel: 5,
           totalInteractions: 0,
@@ -1702,7 +1702,7 @@ If verified knowledge base information is provided above, use that as your prima
           preferredTopics: JSON.stringify([]),
           interactionPatterns: JSON.stringify({}),
         });
-        profile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
+        profile = await ctx.coreDb.getUserProfile(ctx.user.numericId);
       }
 
       return {
@@ -1728,7 +1728,7 @@ If verified knowledge base information is provided above, use that as your prima
       .mutation(async ({ ctx, input }) => {
         try {
         // Save feedback
-        await ctx.coreDb!.saveConversationFeedback({
+        await ctx.coreDb.saveConversationFeedback({
           conversationId: input.conversationId,
           userId: ctx.user.numericId,
           feedbackType: input.feedbackType,
@@ -1736,7 +1736,7 @@ If verified knowledge base information is provided above, use that as your prima
         });
 
         // Update user profile based on feedback
-        const profile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
+        const profile = await ctx.coreDb.getUserProfile(ctx.user.numericId);
         if (profile) {
           const learningData = {
             sarcasmLevel: profile.sarcasmLevel,
@@ -1760,7 +1760,7 @@ If verified knowledge base information is provided above, use that as your prima
             updates.negativeResponses = profile.negativeResponses + 1;
           }
 
-          await ctx.coreDb!.updateUserProfile(ctx.user.numericId, updates);
+          await ctx.coreDb.updateUserProfile(ctx.user.numericId, updates);
 
           return {
             success: true,
@@ -1844,7 +1844,7 @@ If verified knowledge base information is provided above, use that as your prima
   iot: router({
     // List all user's IoT devices
     listDevices: protectedProcedure.query(async ({ ctx }) => {
-      const devices = await ctx.iotDb!.getUserIoTDevices(ctx.user.numericId);
+      const devices = await ctx.iotDb.getUserIoTDevices(ctx.user.numericId);
       return devices.map(device => ({
         ...device,
         state: device.state ? JSON.parse(device.state) : {},
@@ -1869,7 +1869,7 @@ If verified knowledge base information is provided above, use that as your prima
         })
       )
       .mutation(async ({ ctx, input }) => {
-        await ctx.iotDb!.addIoTDevice({
+        await ctx.iotDb.addIoTDevice({
           userId: ctx.user.numericId,
           deviceId: input.deviceId,
           deviceName: input.deviceName,
@@ -1897,7 +1897,7 @@ If verified knowledge base information is provided above, use that as your prima
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const device = await ctx.iotDb!.getIoTDeviceById(input.deviceId);
+          const device = await ctx.iotDb.getIoTDeviceById(input.deviceId);
         if (!device) {
           throw new Error("Device not found");
         }
@@ -1946,11 +1946,11 @@ If verified knowledge base information is provided above, use that as your prima
         if (result.success && result.newState) {
           const currentState = device.state ? JSON.parse(device.state) : {};
           const updatedState = { ...currentState, ...result.newState };
-          await ctx.iotDb!.updateIoTDeviceState(device.deviceId, JSON.stringify(updatedState), "online");
+          await ctx.iotDb.updateIoTDeviceState(device.deviceId, JSON.stringify(updatedState), "online");
         }
 
         // Save command history
-        await ctx.iotDb!.saveIoTCommand({
+        await ctx.iotDb.saveIoTCommand({
           userId: ctx.user.numericId,
           deviceId: device.deviceId,
           command: iotCommand.action,
@@ -1985,7 +1985,7 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ deviceId: z.string() }))
       .query(async ({ ctx, input }) => {
         try {
-          const device = await ctx.iotDb!.getIoTDeviceById(input.deviceId);
+          const device = await ctx.iotDb.getIoTDeviceById(input.deviceId);
         if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
@@ -2005,12 +2005,12 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ deviceId: z.string() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          const device = await ctx.iotDb!.getIoTDeviceById(input.deviceId);
+          const device = await ctx.iotDb.getIoTDeviceById(input.deviceId);
         if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
 
-        await ctx.iotDb!.deleteIoTDevice(input.deviceId);
+        await ctx.iotDb.deleteIoTDevice(input.deviceId);
         return { success: true, message: "Device deleted successfully" };
         } catch (error) {
           handleError(error, 'IoT Delete Device');
@@ -2022,12 +2022,12 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ deviceId: z.string() }))
       .query(async ({ ctx, input }) => {
         try {
-          const device = await ctx.iotDb!.getIoTDeviceById(input.deviceId);
+          const device = await ctx.iotDb.getIoTDeviceById(input.deviceId);
         if (!device || device.userId !== ctx.user.numericId) {
           throw new Error("Device not found");
         }
 
-        const history = await ctx.iotDb!.getDeviceCommandHistory(input.deviceId, 50);
+        const history = await ctx.iotDb.getDeviceCommandHistory(input.deviceId, 50);
         return history.map(cmd => ({
           ...cmd,
           parameters: cmd.parameters ? JSON.parse(cmd.parameters) : {},
@@ -2050,7 +2050,7 @@ If verified knowledge base information is provided above, use that as your prima
       .mutation(async ({ ctx, input }) => {
         try {
 
-          const userProfile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
+          const userProfile = await ctx.coreDb.getUserProfile(ctx.user.numericId);
           const sarcasmLevel = userProfile?.sarcasmLevel || 5;
           const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -2196,7 +2196,7 @@ If verified knowledge base information is provided above, use that as your prima
           expiresAt.setDate(expiresAt.getDate() + 30); // Facts expire after 30 days
           
           try {
-            await ctx.verifiedFactDb!.saveVerifiedFact({
+            await ctx.verifiedFactDb.saveVerifiedFact({
               question: input.question,
               normalizedQuestion: normalizedQuestion,
               answer: explanation,
@@ -2214,7 +2214,7 @@ If verified knowledge base information is provided above, use that as your prima
         }
 
         // Step 6: Save to database
-        const sessionResult = await ctx.learningDb!.saveLearningSession({
+        const sessionResult = await ctx.learningDb.saveLearningSession({
           userId: ctx.user.numericId,
           topic: input.topic,
           question: input.question,
@@ -2228,7 +2228,7 @@ If verified knowledge base information is provided above, use that as your prima
 
         // Save fact-check results
         for (const factCheck of factCheckResults) {
-          const factCheckResult = await ctx.learningDb!.saveFactCheckResult({
+          const factCheckResult = await ctx.learningDb.saveFactCheckResult({
             learningSessionId: sessionId,
             claim: factCheck.claim,
             verificationStatus: factCheck.status,
@@ -2240,7 +2240,7 @@ If verified knowledge base information is provided above, use that as your prima
           // Save individual sources
           const factCheckId = factCheckResult ? Number(factCheckResult[0].insertId) : 0;
           for (const source of factCheck.sources) {
-            await ctx.learningDb!.saveLearningSource({
+            await ctx.learningDb.saveLearningSource({
               factCheckResultId: factCheckId,
               title: source.title,
               url: source.url,
@@ -2266,7 +2266,7 @@ If verified knowledge base information is provided above, use that as your prima
     // Get user's learning history
     getHistory: protectedProcedure.query(async ({ ctx }) => {
       try {
-        return await ctx.learningDb!.getUserLearningSessions(ctx.user.numericId, 20);
+        return await ctx.learningDb.getUserLearningSessions(ctx.user.numericId, 20);
       } catch (error) {
         handleError(error, 'Learning Get History');
       }
@@ -2277,7 +2277,7 @@ If verified knowledge base information is provided above, use that as your prima
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ ctx, input }) => {
         try {
-          return await ctx.learningDb!.getFactCheckResultsBySession(input.sessionId);
+          return await ctx.learningDb.getFactCheckResultsBySession(input.sessionId);
         } catch (error) {
           handleError(error, 'Learning Get Fact Checks');
         }
@@ -2289,14 +2289,14 @@ If verified knowledge base information is provided above, use that as your prima
       .mutation(async ({ ctx, input }) => {
         try {
           // Get the learning session
-          const sessions = await ctx.learningDb!.getUserLearningSessions(ctx.user.numericId, 100);
+          const sessions = await ctx.learningDb.getUserLearningSessions(ctx.user.numericId, 100);
           const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
           throw new Error('Learning session not found');
         }
 
-        const userProfile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
+        const userProfile = await ctx.coreDb.getUserProfile(ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -2363,7 +2363,7 @@ Maintain a ${personalityDesc} tone while being educational.`;
         const studyGuide = JSON.parse(studyGuideText);
 
         // Save to database
-        await ctx.learningDb!.saveStudyGuide({
+        await ctx.learningDb.saveStudyGuide({
           userId: ctx.user.numericId,
           learningSessionId: input.sessionId,
           title: `Study Guide: ${session.topic}`,
@@ -2387,14 +2387,14 @@ Maintain a ${personalityDesc} tone while being educational.`;
       .mutation(async ({ ctx, input }) => {
         try {
           // Get the learning session
-          const sessions = await ctx.learningDb!.getUserLearningSessions(ctx.user.numericId, 50);
+          const sessions = await ctx.learningDb.getUserLearningSessions(ctx.user.numericId, 50);
           const session = sessions.find(s => s.id === input.sessionId);
         
         if (!session) {
           throw new Error('Learning session not found');
         }
 
-        const userProfile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
+        const userProfile = await ctx.coreDb.getUserProfile(ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -2480,7 +2480,7 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
         const quiz = JSON.parse(quizText);
 
         // Save to database
-        const quizResult = await ctx.learningDb!.saveQuiz({
+        const quizResult = await ctx.learningDb.saveQuiz({
           userId: ctx.user.numericId,
           learningSessionId: input.sessionId,
           title: `Quiz: ${session.topic}`,
@@ -2520,7 +2520,7 @@ Maintain a ${personalityDesc} tone in questions and explanations.`;
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const userProfile = await ctx.coreDb!.getUserProfile(ctx.user.numericId);
+          const userProfile = await ctx.coreDb.getUserProfile(ctx.user.numericId);
         const sarcasmLevel = userProfile?.sarcasmLevel || 5;
         const personalityDesc = learningEngine.getSarcasmIntensity(sarcasmLevel);
 
@@ -2674,7 +2674,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .mutation(async ({ ctx, input }) => {
         try {
           // Get user's quizzes to find the one being attempted
-          const quizzes = await ctx.learningDb!.getUserQuizzes(ctx.user.numericId);
+          const quizzes = await ctx.learningDb.getUserQuizzes(ctx.user.numericId);
           const quiz = quizzes.find(q => q.id === input.quizId);
           
           if (!quiz) {
@@ -2697,7 +2697,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
           const score = Math.round((correctCount / questions.length) * 100);
 
-          await ctx.learningDb!.saveQuizAttempt({
+          await ctx.learningDb.saveQuizAttempt({
             quizId: input.quizId,
             userId: ctx.user.numericId,
             answers: JSON.stringify(input.answers),
@@ -2889,7 +2889,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       }))
       .mutation(async ({ ctx, input }) => {
         try {
-          await ctx.notificationDb!.updateNotificationPreferences(ctx.user.numericId, input);
+          await ctx.notificationDb.updateNotificationPreferences(ctx.user.numericId, input);
           return { success: true };
         } catch (error) {
           handleError(error, 'Notifications Update Preferences');
@@ -3160,7 +3160,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          return await ctx.translationDb!.saveTranslation({
+          return await ctx.translationDb.saveTranslation({
             userId: ctx.user.numericId,
             ...input,
           });
@@ -3177,7 +3177,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .query(async ({ ctx, input }) => {
         try {
-          return await ctx.translationDb!.getSavedTranslations(ctx.user.numericId, input.categoryId);
+          return await ctx.translationDb.getSavedTranslations(ctx.user.numericId, input.categoryId);
         } catch (error) {
           handleError(error, 'Translation Get Saved Translations');
         }
@@ -3187,7 +3187,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ translationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          return await ctx.translationDb!.deleteSavedTranslation(input.translationId, ctx.user.numericId);
+          return await ctx.translationDb.deleteSavedTranslation(input.translationId, ctx.user.numericId);
         } catch (error) {
           handleError(error, 'Translation Delete Saved Translation');
         }
@@ -3197,7 +3197,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ translationId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          return await ctx.translationDb!.toggleTranslationFavorite(input.translationId, ctx.user.numericId);
+          return await ctx.translationDb.toggleTranslationFavorite(input.translationId, ctx.user.numericId);
         } catch (error) {
           handleError(error, 'Translation Toggle Favorite');
         }
@@ -3212,7 +3212,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          return await ctx.translationDb!.updateTranslationCategory(
+          return await ctx.translationDb.updateTranslationCategory(
             input.translationId,
             ctx.user.numericId,
             input.categoryId
@@ -3232,7 +3232,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          return await ctx.translationDb!.createTranslationCategory({
+          return await ctx.translationDb.createTranslationCategory({
             userId: ctx.user.numericId,
             ...input,
           });
@@ -3243,7 +3243,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
     getCategories: protectedProcedure.query(async ({ ctx }) => {
       try {
-        return await ctx.translationDb!.getTranslationCategories(ctx.user.numericId);
+        return await ctx.translationDb.getTranslationCategories(ctx.user.numericId);
       } catch (error) {
         handleError(error, 'Translation Get Categories');
       }
@@ -3253,7 +3253,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ categoryId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          return await ctx.translationDb!.deleteTranslationCategory(input.categoryId, ctx.user.numericId);
+          return await ctx.translationDb.deleteTranslationCategory(input.categoryId, ctx.user.numericId);
         } catch (error) {
           handleError(error, 'Translation Delete Category');
         }
@@ -3261,7 +3261,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
     getFrequentTranslations: protectedProcedure.query(async ({ ctx }) => {
       try {
-        return await ctx.translationDb!.getFrequentTranslations(ctx.user.numericId);
+        return await ctx.translationDb.getFrequentTranslations(ctx.user.numericId);
       } catch (error) {
         handleError(error, 'Translation Get Frequent Translations');
       }
@@ -3278,7 +3278,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       )
       .mutation(async ({ ctx, input }) => {
         try {
-          const sessionId = await ctx.translationDb!.createConversationSession(
+          const sessionId = await ctx.translationDb.createConversationSession(
             ctx.user.numericId,
             input.title,
             input.language1,
@@ -3292,7 +3292,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
 
     getConversations: protectedProcedure.query(async ({ ctx }) => {
       try {
-        return await ctx.translationDb!.getUserConversationSessions(ctx.user.numericId);
+        return await ctx.translationDb.getUserConversationSessions(ctx.user.numericId);
       } catch (error) {
         handleError(error, 'Translation Get Conversations');
       }
@@ -3302,9 +3302,9 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ ctx, input }) => {
         try {
-          const session = await ctx.translationDb!.getConversationSession(input.sessionId, ctx.user.numericId);
+          const session = await ctx.translationDb.getConversationSession(input.sessionId, ctx.user.numericId);
           if (!session) throw new Error("Conversation not found");
-          const messages = await ctx.translationDb!.getConversationMessages(input.sessionId);
+          const messages = await ctx.translationDb.getConversationMessages(input.sessionId);
           return { session, messages };
         } catch (error) {
           handleError(error, 'Translation Get Conversation');
@@ -3323,7 +3323,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .mutation(async ({ ctx, input }) => {
         try {
           // Get the conversation session to determine target language
-          const session = await ctx.translationDb!.getConversationSession(input.sessionId, ctx.user.numericId);
+          const session = await ctx.translationDb.getConversationSession(input.sessionId, ctx.user.numericId);
           if (!session) throw new Error("Conversation not found");
 
           // Determine target language (translate to the other language)
@@ -3343,7 +3343,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
           const translatedContent = response.choices[0].message.content;
           const translatedText = (typeof translatedContent === 'string' ? translatedContent : JSON.stringify(translatedContent)).trim();
           // Save the message
-          const messageId = await ctx.translationDb!.addConversationMessage(
+          const messageId = await ctx.translationDb.addConversationMessage(
             input.sessionId,
             input.messageText,
             translatedText,
@@ -3367,7 +3367,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ ctx, input }) => {
         try {
-          return await ctx.translationDb!.deleteConversationSession(input.sessionId, ctx.user.numericId);
+          return await ctx.translationDb.deleteConversationSession(input.sessionId, ctx.user.numericId);
         } catch (error) {
           handleError(error, 'Translation Delete Conversation');
         }
@@ -3381,7 +3381,7 @@ Give a brief, encouraging feedback (1-2 sentences) about their pronunciation. Be
         })
       )
       .mutation(async ({ ctx, input }) => {
-        await ctx.translationDb!.saveConversationSessionToPhrasebook(
+        await ctx.translationDb.saveConversationSessionToPhrasebook(
           input.sessionId,
           ctx.user.numericId,
           input.categoryId

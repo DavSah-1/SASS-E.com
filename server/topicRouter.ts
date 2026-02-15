@@ -17,7 +17,6 @@ export const topicRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Get or create progress
@@ -149,7 +148,6 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       await ctx.learningDb.updateTopicProgress(userId, input.topicName, input.category, {
@@ -172,7 +170,6 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Get current progress
@@ -266,7 +263,6 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Simple answer checking (can be enhanced with LLM for more flexible matching)
@@ -305,7 +301,6 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       const accuracy = Math.round((input.problemsCorrect / input.problemsSolved) * 100);
@@ -357,7 +352,6 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       const systemPrompt = `You are SASS-E, creating a quiz for "${input.topicName}" for Pre-K to Grade 2 students.
@@ -455,7 +449,6 @@ Format your response as JSON:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       const totalQuestions = input.answers.length;
@@ -524,7 +517,6 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const progress = await ctx.learningDb.getTopicProgress(ctx.user.numericId, input.topicName, input.category);
       return progress;
     }),
@@ -539,7 +531,6 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const progressList = await ctx.learningDb.getCategoryProgress(ctx.user.numericId, input.category);
       return progressList;
     }),
@@ -555,7 +546,6 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const results = await ctx.learningDb.getQuizResults(ctx.user.numericId, input.topicName, input.category);
       return results;
     }),
@@ -571,7 +561,6 @@ Format your response as JSON:
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const sessions = await ctx.learningDb.getPracticeSessions(ctx.user.numericId, input.topicName, input.category);
       return sessions;
     }),

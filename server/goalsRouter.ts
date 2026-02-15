@@ -24,7 +24,7 @@ export const goalsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const goalId = await ctx.goalsDb!.createFinancialGoal({
+      const goalId = await ctx.goalsDb.createFinancialGoal({
         userId: ctx.user.numericId,
         name: input.name,
         description: input.description,
@@ -52,7 +52,7 @@ export const goalsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const goals = await ctx.goalsDb!.getUserGoals(ctx.user.numericId);
+      const goals = await ctx.goalsDb.getUserGoals(ctx.user.numericId);
       return goals;
     }),
 
@@ -62,7 +62,7 @@ export const goalsRouter = router({
   getGoal: protectedProcedure
     .input(z.object({ goalId: z.number().int() }))
     .query(async ({ ctx, input }) => {
-      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
+      const goal = await ctx.goalsDb.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
@@ -89,7 +89,7 @@ export const goalsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
+      const goal = await ctx.goalsDb.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
@@ -105,7 +105,7 @@ export const goalsRouter = router({
       if (input.icon !== undefined) updates.icon = input.icon;
       if (input.color !== undefined) updates.color = input.color;
 
-      await ctx.goalsDb!.updateFinancialGoal(input.goalId, updates);
+      await ctx.goalsDb.updateFinancialGoal(input.goalId, updates);
 
       return { success: true };
     }),
@@ -116,13 +116,13 @@ export const goalsRouter = router({
   deleteGoal: protectedProcedure
     .input(z.object({ goalId: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
-      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
+      const goal = await ctx.goalsDb.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
       }
 
-      await ctx.goalsDb!.deleteFinancialGoal(input.goalId);
+      await ctx.goalsDb.deleteFinancialGoal(input.goalId);
 
       return { success: true };
     }),
@@ -140,13 +140,13 @@ export const goalsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
+      const goal = await ctx.goalsDb.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
       }
 
-      const newTotal = await ctx.goalsDb!.recordGoalProgress(
+      const newTotal = await ctx.goalsDb.recordGoalProgress(
         input.goalId,
         input.amount,
         input.note,
@@ -167,13 +167,13 @@ export const goalsRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
+      const goal = await ctx.goalsDb.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
       }
 
-      const history = await ctx.goalsDb!.getGoalProgressHistory(input.goalId);
+      const history = await ctx.goalsDb.getGoalProgressHistory(input.goalId);
       return history;
     }),
 
@@ -183,13 +183,13 @@ export const goalsRouter = router({
   getMilestones: protectedProcedure
     .input(z.object({ goalId: z.number().int() }))
     .query(async ({ ctx, input }) => {
-      const goal = await ctx.goalsDb!.getGoalById(input.goalId);
+      const goal = await ctx.goalsDb.getGoalById(input.goalId);
       
       if (!goal || goal.userId !== ctx.user.numericId) {
         throw new Error("Goal not found or access denied");
       }
 
-      const milestones = await ctx.goalsDb!.getGoalMilestones(input.goalId);
+      const milestones = await ctx.goalsDb.getGoalMilestones(input.goalId);
       return milestones;
     }),
 
@@ -197,7 +197,7 @@ export const goalsRouter = router({
    * Get unshown milestone celebrations
    */
   getUnshownCelebrations: protectedProcedure.query(async ({ ctx }) => {
-    const celebrations = await ctx.goalsDb!.getUnshownCelebrations(ctx.user.numericId);
+    const celebrations = await ctx.goalsDb.getUnshownCelebrations(ctx.user.numericId);
     return celebrations;
   }),
 
@@ -207,7 +207,7 @@ export const goalsRouter = router({
   markCelebrationShown: protectedProcedure
     .input(z.object({ milestoneId: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.goalsDb!.markMilestoneCelebrationShown(input.milestoneId);
+      await ctx.goalsDb.markMilestoneCelebrationShown(input.milestoneId);
       return { success: true };
     }),
 
@@ -215,7 +215,7 @@ export const goalsRouter = router({
    * Get AI-powered goal recommendations
    */
   getGoalRecommendations: protectedProcedure.query(async ({ ctx }) => {
-    const goals = await ctx.goalsDb!.getUserGoals(ctx.user.numericId);
+    const goals = await ctx.goalsDb.getUserGoals(ctx.user.numericId);
     
     // Generate recommendations using LLM
     const response = await invokeLLM({
@@ -243,8 +243,8 @@ export const goalsRouter = router({
    * Get goal summary statistics
    */
   getSummary: protectedProcedure.query(async ({ ctx }) => {
-    const goals = await ctx.goalsDb!.getUserGoals(ctx.user.numericId);
-    const completedGoals = await ctx.goalsDb!.getUserGoals(ctx.user.numericId);
+    const goals = await ctx.goalsDb.getUserGoals(ctx.user.numericId);
+    const completedGoals = await ctx.goalsDb.getUserGoals(ctx.user.numericId);
 
     const activeGoals = goals.filter(g => g.status === "active");
     const totalTargetAmount = activeGoals.reduce((sum, g) => sum + g.targetAmount, 0);

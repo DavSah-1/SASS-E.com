@@ -21,7 +21,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.budgetDb!.createBudgetCategory({
+      await ctx.budgetDb.createBudgetCategory({
         userId: ctx.user.numericId,
         ...input,
         isDefault: 0,
@@ -40,7 +40,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const categories = await ctx.budgetDb!.getUserBudgetCategories(ctx.user.numericId, input.type);
+      const categories = await ctx.budgetDb.getUserBudgetCategories(ctx.user.numericId, input.type);
       return categories;
     }),
 
@@ -61,7 +61,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.budgetDb!.updateBudgetCategory(input.categoryId, input.updates);
+      await ctx.budgetDb.updateBudgetCategory(input.categoryId, input.updates);
       return { success: true, message: "Category updated successfully" };
     }),
 
@@ -75,7 +75,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.budgetDb!.deleteBudgetCategory(input.categoryId);
+      await ctx.budgetDb.deleteBudgetCategory(input.categoryId);
       return { success: true, message: "Category deleted successfully" };
     }),
 
@@ -98,7 +98,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.budgetDb!.createBudgetTransaction({
+      await ctx.budgetDb.createBudgetTransaction({
         userId: ctx.user.numericId,
         categoryId: input.categoryId,
         amount: input.amount,
@@ -133,7 +133,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const transactions = await ctx.budgetDb!.getUserBudgetTransactions(ctx.user.numericId, {
+      const transactions = await ctx.budgetDb.getUserBudgetTransactions(ctx.user.numericId, {
         categoryId: input.categoryId,
         startDate: input.startDate ? new Date(input.startDate) : undefined,
         endDate: input.endDate ? new Date(input.endDate) : undefined,
@@ -165,7 +165,7 @@ export const budgetRouter = router({
         updates.transactionDate = new Date(updates.transactionDate);
       }
 
-      await ctx.budgetDb!.updateBudgetTransaction(input.transactionId, updates);
+      await ctx.budgetDb.updateBudgetTransaction(input.transactionId, updates);
       return { success: true, message: "Transaction updated successfully" };
     }),
 
@@ -179,7 +179,7 @@ export const budgetRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.budgetDb!.deleteBudgetTransaction(input.transactionId);
+      await ctx.budgetDb.deleteBudgetTransaction(input.transactionId);
       return { success: true, message: "Transaction deleted successfully" };
     }),
 
@@ -195,7 +195,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const summary = await ctx.budgetDb!.calculateMonthlyBudgetSummary(ctx.user.numericId, input.monthYear);
+      const summary = await ctx.budgetDb.calculateMonthlyBudgetSummary(ctx.user.numericId, input.monthYear);
       return summary;
     }),
 
@@ -209,7 +209,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const summaries = await ctx.budgetDb!.getUserMonthlyBudgetSummaries(ctx.user.numericId, input.limit);
+      const summaries = await ctx.budgetDb.getUserMonthlyBudgetSummaries(ctx.user.numericId, input.limit);
       return summaries;
     }),
 
@@ -223,7 +223,6 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.budgetDb) throw new Error("Budget adapter not available");
       const breakdown = await ctx.budgetDb.getCategorySpendingBreakdown(ctx.user.numericId, input.monthYear);
       return breakdown;
     }),
@@ -238,8 +237,7 @@ export const budgetRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const summary = await ctx.budgetDb!.calculateMonthlyBudgetSummary(ctx.user.numericId, input.monthYear);
-      if (!ctx.debtDb) throw new Error("Debt adapter not available");
+      const summary = await ctx.budgetDb.calculateMonthlyBudgetSummary(ctx.user.numericId, input.monthYear);
       const debtSummary = await ctx.debtDb.getDebtSummary(ctx.user.numericId);
 
       if (!summary) {
@@ -275,7 +273,7 @@ export const budgetRouter = router({
    * Initialize default budget categories for new users
    */
   initializeDefaultCategories: protectedProcedure.mutation(async ({ ctx }) => {
-    const existingCategories = await ctx.budgetDb!.getUserBudgetCategories(ctx.user.numericId);
+    const existingCategories = await ctx.budgetDb.getUserBudgetCategories(ctx.user.numericId);
     
     if (existingCategories.length > 0) {
       return { success: true, message: "Categories already initialized" };
@@ -302,7 +300,7 @@ export const budgetRouter = router({
     ];
 
     for (const cat of incomeCategories) {
-      await ctx.budgetDb!.createBudgetCategory({
+      await ctx.budgetDb.createBudgetCategory({
         userId: ctx.user.numericId,
         type: "income",
         isDefault: 1,
@@ -311,7 +309,7 @@ export const budgetRouter = router({
     }
 
     for (const cat of expenseCategories) {
-      await ctx.budgetDb!.createBudgetCategory({
+      await ctx.budgetDb.createBudgetCategory({
         userId: ctx.user.numericId,
         type: "expense",
         isDefault: 1,

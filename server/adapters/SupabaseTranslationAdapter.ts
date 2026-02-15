@@ -1,15 +1,25 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient } from '@supabase/supabase-js';
 import { TranslationAdapter } from "./TranslationAdapter";
+import { getSupabaseClient } from '../supabaseClient';
 
 /**
  * Supabase implementation of TranslationAdapter
  * All operations are scoped to the current user via RLS
  */
 export class SupabaseTranslationAdapter implements TranslationAdapter {
+  private clientPromise: Promise<SupabaseClient> | null = null;
+
   constructor(
     private userId: string,
-    private getClient: () => Promise<SupabaseClient>
+    private accessToken: string
   ) {}
+
+  private async getClient(): Promise<SupabaseClient> {
+    if (!this.clientPromise) {
+      this.clientPromise = getSupabaseClient(this.userId, this.accessToken);
+    }
+    return this.clientPromise;
+  }
 
   async createTranslateConversation(userId: string, title: string) {
     const supabase = await this.getClient();

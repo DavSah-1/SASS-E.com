@@ -166,7 +166,7 @@ async function detectCategory(
   userId: number,
   description: string
 ): Promise<number | null> {
-  const categories = await ctx.budgetDb!.getUserBudgetCategories(userId);
+  const categories = await ctx.budgetDb.getUserBudgetCategories(userId);
 
   // Simple keyword matching
   const descLower = description.toLowerCase();
@@ -291,7 +291,7 @@ export const transactionImportRouter = router({
           // Check for duplicates if requested
           if (input.skipDuplicates) {
             const existing =
-              await ctx.budgetDb!.findDuplicateTransaction(
+              await ctx.budgetDb.findDuplicateTransaction(
                 ctx.user.numericId,
                 tx.date,
                 tx.amount,
@@ -305,7 +305,7 @@ export const transactionImportRouter = router({
           }
 
           // Create transaction
-          await ctx.budgetDb!.createBudgetTransaction({
+          await ctx.budgetDb.createBudgetTransaction({
             userId: ctx.user.numericId,
             categoryId: tx.categoryId,
             amount: tx.amount,

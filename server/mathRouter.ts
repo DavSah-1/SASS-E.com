@@ -18,7 +18,6 @@ export const mathRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Use LLM to generate step-by-step solution with SASS-E personality
@@ -154,7 +153,6 @@ Format your response as JSON with this structure:
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const problems = await ctx.learningDb.getMathProblems(input.topic ?? undefined, input.difficulty, input.limit);
       return problems;
     }),
@@ -165,7 +163,6 @@ Format your response as JSON with this structure:
   getProblem: protectedProcedure
     .input(z.object({ problemId: z.number() }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const problem = await ctx.learningDb.getMathProblem(input.problemId);
       return problem;
     }),
@@ -182,7 +179,6 @@ Format your response as JSON with this structure:
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const userId = ctx.user.numericId;
 
       // Get problem details if problemId provided
@@ -276,7 +272,6 @@ Is the student's answer correct?`;
   getSolutionHistory: protectedProcedure
     .input(z.object({ limit: z.number().default(20) }))
     .query(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       const solutions = await ctx.learningDb.getUserMathSolutions(ctx.user.numericId, input.limit);
       return solutions;
     }),
@@ -285,7 +280,6 @@ Is the student's answer correct?`;
    * Get user's math progress
    */
   getProgress: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.learningDb) throw new Error("Learning adapter not available");
     const progress = await ctx.learningDb.getMathProgress(ctx.user.numericId);
     return progress;
   }),
@@ -302,7 +296,6 @@ Is the student's answer correct?`;
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.learningDb) throw new Error("Learning adapter not available");
       // Use LLM to generate practice problems
       const systemPrompt = `You are SASS-E, a math tutor generating practice problems.
 Create ${input.count} ${input.difficulty} level problems for the topic: ${input.topic}

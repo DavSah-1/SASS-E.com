@@ -5999,3 +5999,8 @@
 - [x] Update trpc.ts middleware with adapter type narrowing (remove ! and null checks)
 - [x] Standardize Supabase client creation in SupabaseGoalsAdapter and SupabaseTranslationAdapter
 - [x] Remove duplicate saveBudgetSnapshot/getBudgetSnapshots methods from DebtAdapter
+
+## Final Adapter Pattern Cleanup
+- [x] Remove 128 ! assertions from router adapter calls (ctx.xxxDb!. → ctx.xxxDb.)
+- [x] Remove 64 null guard checks from routers (if (!ctx.xxxDb) throw...)
+- [x] Standardize SupabaseTranslationAdapter client creation to use getSupabaseClient()
